@@ -176,31 +176,7 @@
     function renderTopSites() {
         if(!dom.topSitesWidget || !dom.shortcutsList) return;
         
-        dom.topSitesWidget.innerHTML = '';
-        const widgetFragment = document.createDocumentFragment();
-        
-        settings.shortcuts.forEach(sc => {
-            const a = document.createElement('a');
-            a.href = sc.url;
-            a.className = 'shortcut';
-            
-            if (sc.icon) {
-                const img = document.createElement('img');
-                img.src = sc.icon;
-                img.alt = sc.name;
-                img.onerror = () => { img.style.display='none'; a.prepend(createIconPlaceholder(sc.name)); };
-                a.appendChild(img);
-            } else {
-                a.appendChild(createIconPlaceholder(sc.name));
-            }
-            
-            const span = document.createElement('span');
-            span.textContent = sc.name;
-            a.appendChild(span);
-            widgetFragment.appendChild(a);
-        });
-        dom.topSitesWidget.appendChild(widgetFragment);
-
+        // 1. Render Management List (Only manual shortcuts)
         dom.shortcutsList.innerHTML = '';
         const listFragment = document.createDocumentFragment();
         settings.shortcuts.forEach((sc, index) => {
@@ -213,6 +189,58 @@
             listFragment.appendChild(div);
         });
         dom.shortcutsList.appendChild(listFragment);
+
+        // 2. Render Dashboard Grid (Manual + History)
+        dom.topSitesWidget.innerHTML = '';
+        const widgetFragment = document.createDocumentFragment();
+        
+        // Helper to render a single shortcut
+        const renderShortcut = (sc) => {
+            const a = document.createElement('a');
+            a.href = sc.url;
+            a.className = 'shortcut';
+            
+            const img = document.createElement('img');
+            img.src = sc.icon || `https://www.google.com/s2/favicons?domain=${sc.url}&sz=128`;
+            img.alt = sc.name;
+            img.onerror = () => { img.style.display='none'; a.prepend(createIconPlaceholder(sc.name)); };
+            a.appendChild(img);
+            
+            const span = document.createElement('span');
+            span.textContent = sc.name;
+            a.appendChild(span);
+            widgetFragment.appendChild(a);
+        };
+
+        // Render manual shortcuts
+        settings.shortcuts.forEach(renderShortcut);
+
+        // Fetch and append chrome history (top sites)
+        if (chrome && chrome.topSites) {
+            chrome.topSites.get((topSites) => {
+                // Filter out sites already in manual shortcuts
+                const existingUrls = new Set(settings.shortcuts.map(s => s.url.replace(/\/$/, '')));
+                
+                let addedCount = 0;
+                for (let site of topSites) {
+                    if (addedCount >= 8) break; // Limit auto-added sites
+                    const cleanUrl = site.url.replace(/\/$/, '');
+                    if (!existingUrls.has(cleanUrl)) {
+                        // Shorten name if it's too long
+                        let title = site.title || cleanUrl;
+                        if (title.length > 15) title = title.substring(0, 15) + '...';
+                        
+                        renderShortcut({ name: title, url: site.url, icon: '' });
+                        addedCount++;
+                    }
+                }
+                dom.topSitesWidget.appendChild(widgetFragment);
+                UIPhysicsEngine.init(); // Re-initialize physics for new DOM nodes
+            });
+        } else {
+            dom.topSitesWidget.appendChild(widgetFragment);
+            UIPhysicsEngine.init();
+        }
     }
 
     function createIconPlaceholder(name) {
@@ -602,8 +630,7 @@
             let url = dom.newShortcutUrl.value.trim();
             if (name && url) {
                 if (!/^https?:\/\//i.test(url)) url = 'http://' + url;
-                let icon = '';
-                try { icon = `${new URL(url).origin}/favicon.ico`; } catch(e){}
+                let icon = `https://www.google.com/s2/favicons?domain=${url}&sz=128`;
                 settings.shortcuts.push({ name, url, icon });
                 dom.newShortcutName.value = ''; dom.newShortcutUrl.value = '';
                 saveSettings();
@@ -644,7 +671,7 @@
         
         minutes = minutes < 10 ? '0' + minutes : minutes;
         
-        const formatted = use24h ? `${hours}:${minutes}` : `${hours}:${minutes}<span class="ampm">${ampm}</span>`;
+        const formatted = `${hours}:${minutes}`;
         
         // Only trigger DOM reflow if the minute actually changed
         if (formatted !== lastRenderedTime) {

@@ -127,7 +127,7 @@ body {
     background: linear-gradient(to bottom, #111827, #4b5563);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 4px 10px rgba(255,255,255,0.6));
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));
 }
 .ampm { font-size: 1.4rem; margin-left: 8px; font-weight: 500; opacity: 0.9; letter-spacing: 0; }
 
@@ -145,7 +145,7 @@ body {
     background: linear-gradient(135deg, #111827 0%, #4b5563 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 8px rgba(255,255,255,0.6));
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
 }
 
 .search-container { width: 100%; max-width: 600px; }
