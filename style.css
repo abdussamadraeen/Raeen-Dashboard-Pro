@@ -188,8 +188,8 @@ body {
 .sidebar-tab.active .tab-icon { opacity: 1; }
 
 .modal-content { flex: 1; padding: 24px; overflow-y: auto; }
-.tab-pane { display: none; animation: fadeIn 0.3s; }
-.tab-pane.active { display: block; }
+.tab-pane { display: none !important; opacity: 0; }
+.tab-pane.active { display: block !important; opacity: 1; animation: fadeIn 0.3s forwards; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Form Elements */
