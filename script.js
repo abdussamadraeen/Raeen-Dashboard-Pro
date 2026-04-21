@@ -1,8 +1,10 @@
-// Immediately invoked function to ensure execution even if DOMContentLoaded has already fired.
+// Immediately invoked function to encapsulate scope and guarantee execution
 (function() {
+    'use strict'; // Enforce strict mode for highest performance and error checking
+
     // --- State Management ---
     const defaultSettings = {
-        themePreference: 'system', // 'system', 'light', 'dark'
+        themePreference: 'system',
         backgroundType: 'bing',
         backgroundValue: 'https://bing.biturl.top/?resolution=1920&format=image&index=0&mkt=en-US',
         localBackgroundData: null,
@@ -15,28 +17,24 @@
             { name: 'Ecommerce', url: 'http://localhost:3000', icon: '' }
         ],
         showClock: true,
-        clockFormat: 'auto', // 'auto', '12h', '24h'
+        clockFormat: 'auto',
         showCards: false
     };
 
     let settings = { ...defaultSettings };
     
-    // Safety block: if localStorage is denied (e.g. running from file://), this won't crash the script.
+    // Safety block: Graceful degradation if localStorage is denied
     try {
         const saved = localStorage.getItem('abdus_dashboard_settings');
-        if (saved) {
-            settings = { ...settings, ...JSON.parse(saved) };
-        }
+        if (saved) settings = { ...settings, ...JSON.parse(saved) };
     } catch (e) { 
-        console.warn('localStorage is not accessible. Settings will not be saved.', e); 
+        console.warn('Storage denied. Running in ephemeral mode.'); 
     }
 
     function saveSettings() {
         try {
             localStorage.setItem('abdus_dashboard_settings', JSON.stringify(settings));
-        } catch (e) {
-            console.warn('Could not save settings.', e);
-        }
+        } catch (e) {}
         applySettings();
     }
 
@@ -56,205 +54,83 @@
         "https://images.unsplash.com/photo-1445307806294-bff7f67ff225?w=1920&q=80"
     ];
 
-    // --- DOM Elements ---
-    const bgLayer = document.getElementById('background-layer');
-    const clockWidget = document.getElementById('clock-widget');
-    const timeEl = document.getElementById('time');
-    const searchWidget = document.getElementById('search-widget');
-    const topSitesWidget = document.getElementById('top-sites-widget');
-    const cardsWidget = document.getElementById('cards-widget');
-    const searchForm = document.getElementById('search-form');
-    const searchInput = document.getElementById('search-input');
-    const searchIcon = document.getElementById('search-provider-icon');
+    // --- Search Engines ---
+    const engines = {
+        'google': { action: 'https://www.google.com/search', param: 'q' },
+        'duckduckgo': { action: 'https://duckduckgo.com/', param: 'q' },
+        'brave': { action: 'https://search.brave.com/search', param: 'q' },
+        'bing': { action: 'https://www.bing.com/search', param: 'q' },
+        'chatgpt': { action: 'https://chatgpt.com/', param: 'q' },
+        'copilot': { action: 'https://copilot.microsoft.com/', param: 'q' },
+        'gemini': { action: 'https://gemini.google.com/app', param: 'q' }
+    };
 
-    // --- Modal Elements ---
-    const settingsBtn = document.getElementById('settings-btn');
-    const modalOverlay = document.getElementById('settings-modal');
-    const closeBtn = document.getElementById('close-modal-btn');
-    const sidebarTabs = document.querySelectorAll('.sidebar-tab');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-
-    // --- Settings UI Elements ---
-    const themeRadios = document.getElementsByName('theme_preference');
-    const bgTypeSelect = document.getElementById('bg-type-select');
-    const bgBingOptions = document.getElementById('bg-bing-options');
-    const bgPresetOptions = document.getElementById('bg-preset-options');
-    const bgSolidOptions = document.getElementById('bg-solid-options');
-    const bgLocalOptions = document.getElementById('bg-local-options');
-    const bgCustomOptions = document.getElementById('bg-custom-options');
-    const bgColorPicker = document.getElementById('bg-color-picker');
-    const bgCustomUrl = document.getElementById('bg-custom-url');
-    const colorSwatches = document.querySelectorAll('.color-swatch');
-    const localFileInput = document.getElementById('bg-local-file');
-    const galleryGrid = document.getElementById('gallery-grid');
-
-    const toggleSearch = document.getElementById('toggle-search');
-    const engineRadios = document.getElementsByName('search_engine');
-    const toggleTopSites = document.getElementById('toggle-topsites');
-    
-    // Clock Settings
-    const toggleClock = document.getElementById('toggle-clock');
-    const clockFormatSelect = document.getElementById('clock-format-select');
-    
-    const toggleCards = document.getElementById('toggle-cards');
-
-    const newShortcutName = document.getElementById('new-shortcut-name');
-    const newShortcutUrl = document.getElementById('new-shortcut-url');
-    const addShortcutBtn = document.getElementById('add-shortcut-btn');
-    const shortcutsList = document.getElementById('shortcuts-list');
+    // --- DOM Elements Cache (O(1) lookups) ---
+    const dom = {
+        bgLayer: document.getElementById('background-layer'),
+        clockWidget: document.getElementById('clock-widget'),
+        timeEl: document.getElementById('time'),
+        searchWidget: document.getElementById('search-widget'),
+        topSitesWidget: document.getElementById('top-sites-widget'),
+        cardsWidget: document.getElementById('cards-widget'),
+        searchForm: document.getElementById('search-form'),
+        searchInput: document.getElementById('search-input'),
+        settingsBtn: document.getElementById('settings-btn'),
+        modalOverlay: document.getElementById('settings-modal'),
+        closeBtn: document.getElementById('close-modal-btn'),
+        sidebarTabs: document.querySelectorAll('.sidebar-tab'),
+        tabPanes: document.querySelectorAll('.tab-pane'),
+        themeRadios: document.getElementsByName('theme_preference'),
+        bgTypeSelect: document.getElementById('bg-type-select'),
+        bgBingOptions: document.getElementById('bg-bing-options'),
+        bgPresetOptions: document.getElementById('bg-preset-options'),
+        bgSolidOptions: document.getElementById('bg-solid-options'),
+        bgLocalOptions: document.getElementById('bg-local-options'),
+        bgCustomOptions: document.getElementById('bg-custom-options'),
+        bgColorPicker: document.getElementById('bg-color-picker'),
+        bgCustomUrl: document.getElementById('bg-custom-url'),
+        colorSwatches: document.querySelectorAll('.color-swatch'),
+        localFileInput: document.getElementById('bg-local-file'),
+        galleryGrid: document.getElementById('gallery-grid'),
+        toggleSearch: document.getElementById('toggle-search'),
+        engineRadios: document.getElementsByName('search_engine'),
+        toggleTopSites: document.getElementById('toggle-topsites'),
+        toggleClock: document.getElementById('toggle-clock'),
+        clockFormatSelect: document.getElementById('clock-format-select'),
+        toggleCards: document.getElementById('toggle-cards'),
+        newShortcutName: document.getElementById('new-shortcut-name'),
+        newShortcutUrl: document.getElementById('new-shortcut-url'),
+        addShortcutBtn: document.getElementById('add-shortcut-btn'),
+        shortcutsList: document.getElementById('shortcuts-list')
+    };
 
     // --- Render Gallery ---
     function renderGallery() {
-        if (!galleryGrid) return;
-        galleryGrid.innerHTML = '';
+        if (!dom.galleryGrid) return;
+        const fragment = document.createDocumentFragment(); // Batch DOM inserts
         curatedGallery.forEach(url => {
             const div = document.createElement('div');
             div.className = 'bg-option';
             div.dataset.url = url;
-            const thumbUrl = url.replace('w=1920', 'w=300');
-            div.style.backgroundImage = `url('${thumbUrl}')`;
-            
+            div.style.backgroundImage = `url('${url.replace('w=1920', 'w=300')}')`;
             div.addEventListener('click', () => {
                 settings.backgroundType = 'preset';
                 settings.backgroundValue = url;
                 saveSettings();
             });
-            galleryGrid.appendChild(div);
+            fragment.appendChild(div);
         });
+        dom.galleryGrid.appendChild(fragment);
     }
 
-    // --- Apply Settings to Dashboard ---
-    function applyTheme() {
-        if (settings.themePreference === 'light') {
-            document.documentElement.setAttribute('data-theme', 'light');
-        } else if (settings.themePreference === 'dark') {
-            document.documentElement.removeAttribute('data-theme');
-        } else {
-            // System
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                document.documentElement.setAttribute('data-theme', 'light');
-            } else {
-                document.documentElement.removeAttribute('data-theme');
-            }
-        }
-    }
-
-    // Listen for system theme changes
-    if (window.matchMedia) {
-        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
-            if (settings.themePreference === 'system') {
-                applyTheme();
-            }
-        });
-    }
-
-    function applySettings() {
-        applyTheme();
-
-        // Background
-        bgLayer.innerHTML = ''; // clear videos if any
-        if (settings.backgroundType === 'bing') {
-            bgLayer.style.background = `url('https://bing.biturl.top/?resolution=1920&format=image&index=0&mkt=en-US') no-repeat center center / cover`;
-        } else if (settings.backgroundType === 'preset' || settings.backgroundType === 'solid') {
-            bgLayer.style.background = settings.backgroundType === 'preset' ? `url('${settings.backgroundValue}') no-repeat center center / cover` : settings.backgroundValue;
-        } else if (settings.backgroundType === 'local' && settings.localBackgroundData) {
-            if (settings.localBackgroundData.startsWith('data:video/')) {
-                bgLayer.style.background = 'none';
-                const video = document.createElement('video');
-                video.src = settings.localBackgroundData;
-                video.autoplay = true;
-                video.loop = true;
-                video.muted = true;
-                bgLayer.appendChild(video);
-            } else {
-                bgLayer.style.background = `url('${settings.localBackgroundData}') no-repeat center center / cover`;
-            }
-        } else if (settings.backgroundType === 'custom' && settings.backgroundValue) {
-            if (settings.backgroundValue.match(/\.(mp4|webm|ogg)$/i)) {
-                bgLayer.style.background = 'none';
-                const video = document.createElement('video');
-                video.src = settings.backgroundValue;
-                video.autoplay = true;
-                video.loop = true;
-                video.muted = true;
-                bgLayer.appendChild(video);
-            } else {
-                bgLayer.style.background = `url('${settings.backgroundValue}') no-repeat center center / cover`;
-            }
-        } else {
-            bgLayer.style.background = 'var(--bg-body)'; // fallback
-        }
-
-        // Widgets Visibility
-        if(searchWidget) searchWidget.classList.toggle('hidden', !settings.showSearch);
-        if(topSitesWidget) topSitesWidget.classList.toggle('hidden', !settings.showTopSites);
-        
-        // Clock Visibility
-        if(clockWidget) {
-            clockWidget.style.display = settings.showClock ? 'block' : 'none';
-        }
-        
-        if(cardsWidget) cardsWidget.classList.toggle('hidden', !settings.showCards);
-
-        // Search Engine
-        const engines = {
-            'google': { action: 'https://www.google.com/search', param: 'q' },
-            'duckduckgo': { action: 'https://duckduckgo.com/', param: 'q' },
-            'brave': { action: 'https://search.brave.com/search', param: 'q' },
-            'bing': { action: 'https://www.bing.com/search', param: 'q' },
-            'chatgpt': { action: 'https://chatgpt.com/', param: 'q' },
-            'copilot': { action: 'https://copilot.microsoft.com/', param: 'q' },
-            'gemini': { action: 'https://gemini.google.com/app', param: 'q' }
-        };
-        const engine = engines[settings.searchEngine] || engines['google'];
-        if(searchForm) {
-            // Remove any old event listeners by cloning
-            const newForm = searchForm.cloneNode(true);
-            searchForm.parentNode.replaceChild(newForm, searchForm);
-            
-            // Re-select elements after cloning
-            const newSearchInput = newForm.querySelector('#search-input');
-            
-            if (!['chatgpt', 'copilot', 'gemini'].includes(settings.searchEngine)) {
-                newForm.action = engine.action;
-                if(newSearchInput) newSearchInput.name = engine.param;
-            } else {
-                // AI engines don't support auto-submit via URL well. 
-                // We'll copy to clipboard and redirect.
-                newForm.action = '';
-                if(newSearchInput) newSearchInput.removeAttribute('name');
-                
-                newForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const query = newSearchInput.value.trim();
-                    if (!query) return;
-
-                    const redirectUrl = engine.action + (settings.searchEngine !== 'gemini' ? '?q=' + encodeURIComponent(query) : '');
-                    
-                    navigator.clipboard.writeText(query).then(() => {
-                        newSearchInput.value = 'Prompt Copied! Just paste (Ctrl+V) it...';
-                        setTimeout(() => {
-                            window.location.href = redirectUrl;
-                        }, 700);
-                    }).catch(err => {
-                        window.location.href = redirectUrl;
-                    });
-                });
-            }
-        }
-
-        // Top Sites Rendering
-        renderTopSites();
-
-        // Sync Modal UI with current settings
-        syncModalUI();
-        updateTime();
-    }
-
+    // --- Render Top Sites ---
     function renderTopSites() {
-        if(!topSitesWidget || !shortcutsList) return;
-        topSitesWidget.innerHTML = '';
-        settings.shortcuts.forEach((sc, index) => {
+        if(!dom.topSitesWidget || !dom.shortcutsList) return;
+        
+        dom.topSitesWidget.innerHTML = '';
+        const widgetFragment = document.createDocumentFragment();
+        
+        settings.shortcuts.forEach(sc => {
             const a = document.createElement('a');
             a.href = sc.url;
             a.className = 'shortcut';
@@ -272,12 +148,12 @@
             const span = document.createElement('span');
             span.textContent = sc.name;
             a.appendChild(span);
-            
-            topSitesWidget.appendChild(a);
+            widgetFragment.appendChild(a);
         });
+        dom.topSitesWidget.appendChild(widgetFragment);
 
-        // Update settings list
-        shortcutsList.innerHTML = '';
+        dom.shortcutsList.innerHTML = '';
+        const listFragment = document.createDocumentFragment();
         settings.shortcuts.forEach((sc, index) => {
             const div = document.createElement('div');
             div.className = 'managed-item';
@@ -285,8 +161,9 @@
                 <div><strong>${sc.name}</strong> <span style="font-size:0.8em;opacity:0.7">${sc.url}</span></div>
                 <div class="managed-item-actions"><button data-index="${index}">Remove</button></div>
             `;
-            shortcutsList.appendChild(div);
+            listFragment.appendChild(div);
         });
+        dom.shortcutsList.appendChild(listFragment);
     }
 
     function createIconPlaceholder(name) {
@@ -296,241 +173,224 @@
         return div;
     }
 
-    // --- Sync Modal with Settings ---
-    function syncModalUI() {
-        // Theme
-        if (themeRadios) {
-            Array.from(themeRadios).forEach(r => {
-                r.checked = (r.value === settings.themePreference);
-            });
-        }
-
-        // Background
-        if (bgTypeSelect) {
-            bgTypeSelect.value = settings.backgroundType;
-            bgBingOptions.classList.toggle('hidden', settings.backgroundType !== 'bing');
-            bgPresetOptions.classList.toggle('hidden', settings.backgroundType !== 'preset');
-            bgSolidOptions.classList.toggle('hidden', settings.backgroundType !== 'solid');
-            bgLocalOptions.classList.toggle('hidden', settings.backgroundType !== 'local');
-            bgCustomOptions.classList.toggle('hidden', settings.backgroundType !== 'custom');
-
-            if (settings.backgroundType === 'solid' && !settings.backgroundValue.includes('url') && !settings.backgroundValue.includes('gradient')) {
-                bgColorPicker.value = settings.backgroundValue.startsWith('#') ? settings.backgroundValue.substring(0,7) : '#1a1a2e';
-            }
-            if (settings.backgroundType === 'custom') bgCustomUrl.value = settings.backgroundValue;
-            
-            const galleryDivs = document.querySelectorAll('.bg-option');
-            galleryDivs.forEach(div => {
-                div.classList.toggle('selected', settings.backgroundType === 'preset' && div.dataset.url === settings.backgroundValue);
-            });
-            
-            colorSwatches.forEach(swatch => {
-                swatch.classList.toggle('selected', settings.backgroundType === 'solid' && swatch.dataset.color === settings.backgroundValue);
-            });
-        }
-
-        // Toggles
-        if (toggleSearch) toggleSearch.checked = settings.showSearch;
-        if (toggleTopSites) toggleTopSites.checked = settings.showTopSites;
-        
-        if (toggleClock) toggleClock.checked = settings.showClock;
-        if (clockFormatSelect) clockFormatSelect.value = settings.clockFormat || 'auto';
-        
-        if (toggleCards) toggleCards.checked = settings.showCards;
-
-        if (engineRadios) {
-            Array.from(engineRadios).forEach(r => {
-                r.checked = (r.value === settings.searchEngine);
-            });
+    // --- Core Logic ---
+    function applyTheme() {
+        const root = document.documentElement;
+        if (settings.themePreference === 'light') {
+            root.setAttribute('data-theme', 'light');
+        } else if (settings.themePreference === 'dark') {
+            root.removeAttribute('data-theme');
+        } else {
+            root.toggleAttribute('data-theme', window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
         }
     }
 
-    // --- Event Listeners for UI ---
-    
-    // Modal Open/Close
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', () => modalOverlay.classList.remove('hidden'));
-    }
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => modalOverlay.classList.add('hidden'));
-    }
-    if (modalOverlay) {
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) modalOverlay.classList.add('hidden');
-        });
-    }
+    function applySettings() {
+        applyTheme();
 
-    // Tab Switching
-    if (sidebarTabs) {
-        sidebarTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                sidebarTabs.forEach(t => t.classList.remove('active'));
-                tabPanes.forEach(p => p.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.target).classList.add('active');
-            });
-        });
-    }
-
-    // Theme Settings
-    if (themeRadios) {
-        Array.from(themeRadios).forEach(r => {
-            r.addEventListener('change', (e) => {
-                if(e.target.checked) { settings.themePreference = e.target.value; saveSettings(); }
-            });
-        });
-    }
-
-    // Background Settings
-    if (bgTypeSelect) {
-        bgTypeSelect.addEventListener('change', (e) => {
-            settings.backgroundType = e.target.value;
-            if (settings.backgroundType === 'preset') settings.backgroundValue = curatedGallery[0];
-            else if (settings.backgroundType === 'solid') settings.backgroundValue = colorSwatches[0].dataset.color;
-            else if (settings.backgroundType === 'custom') settings.backgroundValue = bgCustomUrl.value || '';
-            saveSettings();
-        });
-    }
-
-    if (colorSwatches) {
-        colorSwatches.forEach(swatch => {
-            swatch.addEventListener('click', () => {
-                settings.backgroundType = 'solid';
-                settings.backgroundValue = swatch.dataset.color;
-                saveSettings();
-            });
-        });
-    }
-
-    if (bgColorPicker) {
-        bgColorPicker.addEventListener('input', (e) => {
-            settings.backgroundType = 'solid';
-            settings.backgroundValue = e.target.value;
-            saveSettings();
-        });
-    }
-
-    if (localFileInput) {
-        localFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                settings.backgroundType = 'local';
-                settings.localBackgroundData = event.target.result;
-                saveSettings();
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    if (bgCustomUrl) {
-        bgCustomUrl.addEventListener('change', (e) => {
-            settings.backgroundValue = e.target.value;
-            saveSettings();
-        });
-    }
-
-    // Search Settings
-    if (toggleSearch) toggleSearch.addEventListener('change', (e) => { settings.showSearch = e.target.checked; saveSettings(); });
-    if (engineRadios) {
-        Array.from(engineRadios).forEach(r => {
-            r.addEventListener('change', (e) => {
-                if(e.target.checked) { settings.searchEngine = e.target.value; saveSettings(); }
-            });
-        });
-    }
-
-    // Top Sites Settings
-    if (toggleTopSites) toggleTopSites.addEventListener('change', (e) => { settings.showTopSites = e.target.checked; saveSettings(); });
-    if (addShortcutBtn) {
-        addShortcutBtn.addEventListener('click', () => {
-            const name = newShortcutName.value.trim();
-            let url = newShortcutUrl.value.trim();
+        // Set Background
+        if (dom.bgLayer) {
+            dom.bgLayer.innerHTML = '';
+            const t = settings.backgroundType;
+            const v = settings.backgroundValue;
+            const l = settings.localBackgroundData;
             
-            if (name && url) {
-                if (!/^https?:\/\//i.test(url)) {
-                    url = 'http://' + url;
+            if (t === 'bing') {
+                dom.bgLayer.style.background = `url('https://bing.biturl.top/?resolution=1920&format=image&index=0&mkt=en-US') no-repeat center center / cover`;
+            } else if (t === 'preset' || t === 'solid') {
+                dom.bgLayer.style.background = t === 'preset' ? `url('${v}') no-repeat center center / cover` : v;
+            } else if ((t === 'local' && l) || (t === 'custom' && v)) {
+                const source = t === 'local' ? l : v;
+                if (source.match(/\.(mp4|webm|ogg)$/i) || source.startsWith('data:video/')) {
+                    dom.bgLayer.style.background = 'none';
+                    const video = document.createElement('video');
+                    video.src = source; video.autoplay = true; video.loop = true; video.muted = true;
+                    dom.bgLayer.appendChild(video);
+                } else {
+                    dom.bgLayer.style.background = `url('${source}') no-repeat center center / cover`;
                 }
+            } else {
+                dom.bgLayer.style.background = 'var(--bg-body)';
+            }
+        }
+
+        // Toggle Widgets
+        if(dom.searchWidget) dom.searchWidget.classList.toggle('hidden', !settings.showSearch);
+        if(dom.topSitesWidget) dom.topSitesWidget.classList.toggle('hidden', !settings.showTopSites);
+        if(dom.clockWidget) dom.clockWidget.style.display = settings.showClock ? 'block' : 'none';
+        if(dom.cardsWidget) dom.cardsWidget.classList.toggle('hidden', !settings.showCards);
+
+        renderTopSites();
+        syncModalUI();
+        updateTime();
+    }
+
+    function syncModalUI() {
+        if (dom.themeRadios) Array.from(dom.themeRadios).forEach(r => r.checked = (r.value === settings.themePreference));
+        if (dom.engineRadios) Array.from(dom.engineRadios).forEach(r => r.checked = (r.value === settings.searchEngine));
+
+        if (dom.bgTypeSelect) {
+            dom.bgTypeSelect.value = settings.backgroundType;
+            const t = settings.backgroundType;
+            if(dom.bgBingOptions) dom.bgBingOptions.classList.toggle('hidden', t !== 'bing');
+            if(dom.bgPresetOptions) dom.bgPresetOptions.classList.toggle('hidden', t !== 'preset');
+            if(dom.bgSolidOptions) dom.bgSolidOptions.classList.toggle('hidden', t !== 'solid');
+            if(dom.bgLocalOptions) dom.bgLocalOptions.classList.toggle('hidden', t !== 'local');
+            if(dom.bgCustomOptions) dom.bgCustomOptions.classList.toggle('hidden', t !== 'custom');
+
+            if (t === 'solid' && !settings.backgroundValue.includes('url') && !settings.backgroundValue.includes('gradient')) {
+                if(dom.bgColorPicker) dom.bgColorPicker.value = settings.backgroundValue.startsWith('#') ? settings.backgroundValue.substring(0,7) : '#1a1a2e';
+            }
+            if (t === 'custom' && dom.bgCustomUrl) dom.bgCustomUrl.value = settings.backgroundValue;
+            
+            document.querySelectorAll('.bg-option').forEach(d => d.classList.toggle('selected', t === 'preset' && d.dataset.url === settings.backgroundValue));
+            if(dom.colorSwatches) dom.colorSwatches.forEach(s => s.classList.toggle('selected', t === 'solid' && s.dataset.color === settings.backgroundValue));
+        }
+
+        if (dom.toggleSearch) dom.toggleSearch.checked = settings.showSearch;
+        if (dom.toggleTopSites) dom.toggleTopSites.checked = settings.showTopSites;
+        if (dom.toggleClock) dom.toggleClock.checked = settings.showClock;
+        if (dom.clockFormatSelect) dom.clockFormatSelect.value = settings.clockFormat || 'auto';
+        if (dom.toggleCards) dom.toggleCards.checked = settings.showCards;
+    }
+
+    // --- Static Event Listeners ---
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+            if (settings.themePreference === 'system') applyTheme();
+        });
+    }
+
+    // Search Form Submit Logic
+    if (dom.searchForm && dom.searchInput) {
+        dom.searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = dom.searchInput.value.trim();
+            if (!query) return;
+
+            const engine = engines[settings.searchEngine] || engines['google'];
+            const isAI = ['chatgpt', 'copilot', 'gemini'].includes(settings.searchEngine);
+            const redirectUrl = isAI 
+                ? engine.action + (settings.searchEngine !== 'gemini' ? '?q=' + encodeURIComponent(query) : '')
+                : engine.action + '?' + engine.param + '=' + encodeURIComponent(query);
+
+            if (isAI) {
+                navigator.clipboard.writeText(query).then(() => {
+                    dom.searchInput.value = 'Prompt Copied! Just paste (Ctrl+V) it...';
+                    setTimeout(() => window.location.href = redirectUrl, 700);
+                }).catch(() => window.location.href = redirectUrl);
+            } else {
+                window.location.href = redirectUrl;
+            }
+        });
+    }
+
+    // Settings Modal
+    if (dom.settingsBtn) dom.settingsBtn.addEventListener('click', () => dom.modalOverlay.classList.remove('hidden'));
+    if (dom.closeBtn) dom.closeBtn.addEventListener('click', () => dom.modalOverlay.classList.add('hidden'));
+    if (dom.modalOverlay) dom.modalOverlay.addEventListener('click', (e) => { if (e.target === dom.modalOverlay) dom.modalOverlay.classList.add('hidden'); });
+
+    if (dom.sidebarTabs) {
+        dom.sidebarTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                dom.sidebarTabs.forEach(t => t.classList.remove('active'));
+                dom.tabPanes.forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                const target = document.getElementById(tab.dataset.target);
+                if(target) target.classList.add('active');
+            });
+        });
+    }
+
+    // Settings Bindings
+    if (dom.themeRadios) Array.from(dom.themeRadios).forEach(r => r.addEventListener('change', (e) => { if(e.target.checked) { settings.themePreference = e.target.value; saveSettings(); } }));
+    if (dom.engineRadios) Array.from(dom.engineRadios).forEach(r => r.addEventListener('change', (e) => { if(e.target.checked) { settings.searchEngine = e.target.value; saveSettings(); } }));
+    if (dom.bgTypeSelect) dom.bgTypeSelect.addEventListener('change', (e) => {
+        settings.backgroundType = e.target.value;
+        if (settings.backgroundType === 'preset') settings.backgroundValue = curatedGallery[0];
+        else if (settings.backgroundType === 'solid' && dom.colorSwatches.length) settings.backgroundValue = dom.colorSwatches[0].dataset.color;
+        else if (settings.backgroundType === 'custom') settings.backgroundValue = dom.bgCustomUrl ? dom.bgCustomUrl.value : '';
+        saveSettings();
+    });
+    if (dom.colorSwatches) dom.colorSwatches.forEach(s => s.addEventListener('click', () => { settings.backgroundType = 'solid'; settings.backgroundValue = s.dataset.color; saveSettings(); }));
+    if (dom.bgColorPicker) dom.bgColorPicker.addEventListener('input', (e) => { settings.backgroundType = 'solid'; settings.backgroundValue = e.target.value; saveSettings(); });
+    if (dom.localFileInput) dom.localFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => { settings.backgroundType = 'local'; settings.localBackgroundData = event.target.result; saveSettings(); };
+        reader.readAsDataURL(file);
+    });
+    if (dom.bgCustomUrl) dom.bgCustomUrl.addEventListener('change', (e) => { settings.backgroundValue = e.target.value; saveSettings(); });
+    
+    if (dom.toggleSearch) dom.toggleSearch.addEventListener('change', (e) => { settings.showSearch = e.target.checked; saveSettings(); });
+    if (dom.toggleTopSites) dom.toggleTopSites.addEventListener('change', (e) => { settings.showTopSites = e.target.checked; saveSettings(); });
+    if (dom.toggleClock) dom.toggleClock.addEventListener('change', (e) => { settings.showClock = e.target.checked; saveSettings(); });
+    if (dom.clockFormatSelect) dom.clockFormatSelect.addEventListener('change', (e) => { settings.clockFormat = e.target.value; saveSettings(); });
+    if (dom.toggleCards) dom.toggleCards.addEventListener('change', (e) => { settings.showCards = e.target.checked; saveSettings(); });
+
+    // Shortcuts
+    if (dom.addShortcutBtn) {
+        dom.addShortcutBtn.addEventListener('click', () => {
+            const name = dom.newShortcutName.value.trim();
+            let url = dom.newShortcutUrl.value.trim();
+            if (name && url) {
+                if (!/^https?:\/\//i.test(url)) url = 'http://' + url;
                 let icon = '';
-                try {
-                    const urlObj = new URL(url);
-                    icon = `${urlObj.origin}/favicon.ico`;
-                } catch(e){}
+                try { icon = `${new URL(url).origin}/favicon.ico`; } catch(e){}
                 settings.shortcuts.push({ name, url, icon });
-                newShortcutName.value = '';
-                newShortcutUrl.value = '';
+                dom.newShortcutName.value = ''; dom.newShortcutUrl.value = '';
                 saveSettings();
             }
         });
     }
-    
-    if (shortcutsList) {
-        shortcutsList.addEventListener('click', (e) => {
+    if (dom.shortcutsList) {
+        dom.shortcutsList.addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON') {
-                const idx = parseInt(e.target.dataset.index, 10);
-                settings.shortcuts.splice(idx, 1);
+                settings.shortcuts.splice(parseInt(e.target.dataset.index, 10), 1);
                 saveSettings();
             }
         });
     }
 
-    // Clock Settings
-    if (toggleClock) toggleClock.addEventListener('change', (e) => { settings.showClock = e.target.checked; saveSettings(); });
-    
-    if (clockFormatSelect) {
-        clockFormatSelect.addEventListener('change', (e) => { 
-            settings.clockFormat = e.target.value; 
-            saveSettings(); 
-        });
-    }
-
-    // Cards Settings
-    if (toggleCards) toggleCards.addEventListener('change', (e) => { settings.showCards = e.target.checked; saveSettings(); });
-
-
-    // --- Time Update Logic ---
+    // --- Time Engine ---
+    let lastRenderedTime = '';
     function updateTime() {
-        if (!timeEl || !settings.showClock) return;
-
+        if (!dom.timeEl || !settings.showClock) return;
+        
         const now = new Date();
-        timeEl.innerHTML = formatTime(now);
-    }
-
-    function formatTime(date) {
         let format = settings.clockFormat || 'auto';
         let use24h = format === '24h';
         
-        if (format === 'auto') {
-            // Defaulting auto to 12h as requested in en-US
-            use24h = false;
-        }
+        if (format === 'auto') use24h = false; // Default US formatting
         
-        let hours = date.getHours();
-        let minutes = date.getMinutes();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
         let ampm = '';
         
         if (!use24h) {
             ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
+            hours = hours ? hours : 12;
         } else {
             hours = hours < 10 ? '0' + hours : hours;
         }
         
         minutes = minutes < 10 ? '0' + minutes : minutes;
         
-        if (!use24h) {
-            return `${hours}:${minutes}<span class="ampm">${ampm}</span>`;
+        const formatted = use24h ? `${hours}:${minutes}` : `${hours}:${minutes}<span class="ampm">${ampm}</span>`;
+        
+        // Only trigger DOM reflow if the minute actually changed
+        if (formatted !== lastRenderedTime) {
+            dom.timeEl.innerHTML = formatted;
+            lastRenderedTime = formatted;
         }
-        return `${hours}:${minutes}`;
     }
 
-    // Initialization
+    // --- Initialization ---
     renderGallery();
     applySettings();
     updateTime();
     setInterval(updateTime, 1000);
-    if (settings.showSearch && searchInput) searchInput.focus();
+    if (settings.showSearch && dom.searchInput) dom.searchInput.focus();
 })();
