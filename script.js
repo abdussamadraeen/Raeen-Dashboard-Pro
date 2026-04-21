@@ -61,6 +61,9 @@
         showClock: true,
         clockFormat: 'auto',
         showCards: false,
+        showCardDate: true,
+        showCardFocus: true,
+        showCardNote: true,
         canvasStyle: 'neural'
     };
 
@@ -153,6 +156,9 @@
         searchWidget: document.getElementById('search-widget'),
         topSitesWidget: document.getElementById('top-sites-widget'),
         cardsWidget: document.getElementById('cards-widget'),
+        cardDateEl: document.getElementById('card-date'),
+        cardFocusEl: document.getElementById('card-focus'),
+        cardNoteEl: document.getElementById('notes-panel'),
         searchForm: document.getElementById('search-form'),
         searchInput: document.getElementById('search-input'),
         searchSuggestions: document.getElementById('search-suggestions'),
@@ -183,6 +189,9 @@
         toggleClock: document.getElementById('toggle-clock'),
         clockFormatSelect: document.getElementById('clock-format-select'),
         toggleCards: document.getElementById('toggle-cards'),
+        toggleCardDate: document.getElementById('toggle-card-date'),
+        toggleCardFocus: document.getElementById('toggle-card-focus'),
+        toggleCardNote: document.getElementById('toggle-card-note'),
         newShortcutName: document.getElementById('new-shortcut-name'),
         newShortcutUrl: document.getElementById('new-shortcut-url'),
         addShortcutBtn: document.getElementById('add-shortcut-btn'),
@@ -528,6 +537,10 @@
         if(dom.topSitesWidget) dom.topSitesWidget.classList.toggle('hidden', !settings.showTopSites);
         if(dom.clockWidget) dom.clockWidget.style.display = settings.showClock ? 'block' : 'none';
         if(dom.cardsWidget) dom.cardsWidget.classList.toggle('hidden', !settings.showCards);
+        
+        if(dom.cardDateEl) dom.cardDateEl.style.display = settings.showCardDate !== false ? 'flex' : 'none';
+        if(dom.cardFocusEl) dom.cardFocusEl.style.display = settings.showCardFocus !== false ? 'flex' : 'none';
+        if(dom.cardNoteEl) dom.cardNoteEl.style.display = settings.showCardNote !== false ? 'flex' : 'none';
 
         renderTopSites();
         syncModalUI();
@@ -565,6 +578,9 @@
         if (dom.toggleClock) dom.toggleClock.checked = settings.showClock;
         if (dom.clockFormatSelect) dom.clockFormatSelect.value = settings.clockFormat || 'auto';
         if (dom.toggleCards) dom.toggleCards.checked = settings.showCards;
+        if (dom.toggleCardDate) dom.toggleCardDate.checked = settings.showCardDate !== false;
+        if (dom.toggleCardFocus) dom.toggleCardFocus.checked = settings.showCardFocus !== false;
+        if (dom.toggleCardNote) dom.toggleCardNote.checked = settings.showCardNote !== false;
     }
 
     // --- Static Event Listeners ---
@@ -734,6 +750,9 @@
     if (dom.toggleClock) dom.toggleClock.addEventListener('change', (e) => { settings.showClock = e.target.checked; saveSettings(); });
     if (dom.clockFormatSelect) dom.clockFormatSelect.addEventListener('change', (e) => { settings.clockFormat = e.target.value; saveSettings(); });
     if (dom.toggleCards) dom.toggleCards.addEventListener('change', (e) => { settings.showCards = e.target.checked; saveSettings(); });
+    if (dom.toggleCardDate) dom.toggleCardDate.addEventListener('change', (e) => { settings.showCardDate = e.target.checked; saveSettings(); });
+    if (dom.toggleCardFocus) dom.toggleCardFocus.addEventListener('change', (e) => { settings.showCardFocus = e.target.checked; saveSettings(); });
+    if (dom.toggleCardNote) dom.toggleCardNote.addEventListener('change', (e) => { settings.showCardNote = e.target.checked; saveSettings(); });
 
     // Shortcuts
     if (dom.addShortcutBtn) {
