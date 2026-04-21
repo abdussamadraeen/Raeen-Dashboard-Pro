@@ -207,8 +207,41 @@
             'gemini': { action: 'https://gemini.google.com/app', param: 'q' }
         };
         const engine = engines[settings.searchEngine] || engines['google'];
-        if(searchForm) searchForm.action = engine.action;
-        if(searchInput) searchInput.name = engine.param;
+        if(searchForm) {
+            // Remove any old event listeners by cloning
+            const newForm = searchForm.cloneNode(true);
+            searchForm.parentNode.replaceChild(newForm, searchForm);
+            
+            // Re-select elements after cloning
+            const newSearchInput = newForm.querySelector('#search-input');
+            
+            if (!['chatgpt', 'copilot', 'gemini'].includes(settings.searchEngine)) {
+                newForm.action = engine.action;
+                if(newSearchInput) newSearchInput.name = engine.param;
+            } else {
+                // AI engines don't support auto-submit via URL well. 
+                // We'll copy to clipboard and redirect.
+                newForm.action = '';
+                if(newSearchInput) newSearchInput.removeAttribute('name');
+                
+                newForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const query = newSearchInput.value.trim();
+                    if (!query) return;
+
+                    const redirectUrl = engine.action + (settings.searchEngine !== 'gemini' ? '?q=' + encodeURIComponent(query) : '');
+                    
+                    navigator.clipboard.writeText(query).then(() => {
+                        newSearchInput.value = 'Prompt Copied! Just paste (Ctrl+V) it...';
+                        setTimeout(() => {
+                            window.location.href = redirectUrl;
+                        }, 700);
+                    }).catch(err => {
+                        window.location.href = redirectUrl;
+                    });
+                });
+            }
+        }
 
         // Top Sites Rendering
         renderTopSites();
