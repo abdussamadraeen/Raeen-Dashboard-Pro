@@ -57,6 +57,7 @@
             <div class="modal-body">
                 <aside class="modal-sidebar">
                     <button class="sidebar-tab active" data-target="tab-background">Background</button>
+                    <button class="sidebar-tab" data-target="tab-appearance">Appearance</button>
                     <button class="sidebar-tab" data-target="tab-search">Search</button>
                     <button class="sidebar-tab" data-target="tab-topsites">Top Sites</button>
                     <button class="sidebar-tab" data-target="tab-clock">Clock</button>
@@ -70,7 +71,7 @@
                             <label>Background Type</label>
                             <select id="bg-type-select" class="custom-select">
                                 <option value="bing">Bing Daily Wallpaper (Default)</option>
-                                <option value="preset">Preset Images</option>
+                                <option value="preset">Curated Gallery</option>
                                 <option value="solid">Solid Colors & Gradients</option>
                                 <option value="local">Local File (Image/Video)</option>
                                 <option value="custom">Custom Media URL</option>
@@ -82,11 +83,10 @@
                         </div>
 
                         <div id="bg-preset-options" class="settings-group hidden">
-                            <label>Presets</label>
-                            <div class="grid-options">
-                                <div class="bg-option" data-url="https://images.unsplash.com/photo-1531366936337-77ba9b6f483c?w=1920&q=80" style="background-image: url('https://images.unsplash.com/photo-1531366936337-77ba9b6f483c?w=200&q=80')"></div>
-                                <div class="bg-option" data-url="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=1920&q=80" style="background-image: url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=200&q=80')"></div>
-                                <div class="bg-option" data-url="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=200&q=80')"></div>
+                            <label>Curated Gallery</label>
+                            <p class="subtext mb-2">Select from a collection of stunning, high-quality landscapes.</p>
+                            <div class="grid-options" id="gallery-grid">
+                                <!-- Rendered via JS -->
                             </div>
                         </div>
 
@@ -101,6 +101,7 @@
                                 <div class="color-swatch" style="background: #000000" data-color="#000000"></div>
                                 <div class="color-swatch" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)" data-color="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></div>
                                 <div class="color-swatch" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)" data-color="linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)"></div>
+                                <div class="color-swatch" style="background: #f8fafc" data-color="#f8fafc"></div>
                             </div>
                             <label>Custom Color</label>
                             <div style="display: flex; gap: 10px; align-items: center;">
@@ -118,6 +119,31 @@
                         <div id="bg-custom-options" class="settings-group hidden">
                             <label>Media URL (Image or Video)</label>
                             <input type="text" id="bg-custom-url" class="text-input" placeholder="https://example.com/video.mp4">
+                        </div>
+                    </div>
+
+                    <!-- Appearance Tab -->
+                    <div id="tab-appearance" class="tab-pane hidden">
+                        <div class="settings-group">
+                            <label>Dashboard Theme</label>
+                            <p class="subtext mb-4">Choose how the settings menu and widgets should look.</p>
+                            <div class="radio-list">
+                                <label class="radio-item">
+                                    <input type="radio" name="theme_preference" value="system" checked>
+                                    <span class="custom-radio"></span>
+                                    Follow System Settings
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="theme_preference" value="dark">
+                                    <span class="custom-radio"></span>
+                                    Force Dark Mode
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="theme_preference" value="light">
+                                    <span class="custom-radio"></span>
+                                    Force Light Mode
+                                </label>
+                            </div>
                         </div>
                     </div>
 

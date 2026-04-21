@@ -2,6 +2,7 @@
 (function() {
     // --- State Management ---
     const defaultSettings = {
+        themePreference: 'system', // 'system', 'light', 'dark'
         backgroundType: 'bing',
         backgroundValue: 'https://bing.biturl.top/?resolution=1920&format=image&index=0&mkt=en-US',
         localBackgroundData: null,
@@ -39,6 +40,22 @@
         applySettings();
     }
 
+    // --- Curated Image Gallery ---
+    const curatedGallery = [
+        "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=1920&q=80",
+        "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=80",
+        "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80",
+        "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=1920&q=80",
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80",
+        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80",
+        "https://images.unsplash.com/photo-1423784346385-c1d4dac9893a?w=1920&q=80",
+        "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80",
+        "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=80",
+        "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1920&q=80",
+        "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=1920&q=80",
+        "https://images.unsplash.com/photo-1445307806294-bff7f67ff225?w=1920&q=80"
+    ];
+
     // --- DOM Elements ---
     const bgLayer = document.getElementById('background-layer');
     const clockWidget = document.getElementById('clock-widget');
@@ -59,6 +76,7 @@
     const tabPanes = document.querySelectorAll('.tab-pane');
 
     // --- Settings UI Elements ---
+    const themeRadios = document.getElementsByName('theme_preference');
     const bgTypeSelect = document.getElementById('bg-type-select');
     const bgBingOptions = document.getElementById('bg-bing-options');
     const bgPresetOptions = document.getElementById('bg-preset-options');
@@ -67,9 +85,9 @@
     const bgCustomOptions = document.getElementById('bg-custom-options');
     const bgColorPicker = document.getElementById('bg-color-picker');
     const bgCustomUrl = document.getElementById('bg-custom-url');
-    const presetDivs = document.querySelectorAll('.bg-option');
     const colorSwatches = document.querySelectorAll('.color-swatch');
     const localFileInput = document.getElementById('bg-local-file');
+    const galleryGrid = document.getElementById('gallery-grid');
 
     const toggleSearch = document.getElementById('toggle-search');
     const engineRadios = document.getElementsByName('search_engine');
@@ -86,9 +104,52 @@
     const addShortcutBtn = document.getElementById('add-shortcut-btn');
     const shortcutsList = document.getElementById('shortcuts-list');
 
+    // --- Render Gallery ---
+    function renderGallery() {
+        galleryGrid.innerHTML = '';
+        curatedGallery.forEach(url => {
+            const div = document.createElement('div');
+            div.className = 'bg-option';
+            div.dataset.url = url;
+            // Load a smaller thumbnail for the grid
+            const thumbUrl = url.replace('w=1920', 'w=300');
+            div.style.backgroundImage = `url('${thumbUrl}')`;
+            
+            div.addEventListener('click', () => {
+                settings.backgroundType = 'preset';
+                settings.backgroundValue = url;
+                saveSettings();
+            });
+            galleryGrid.appendChild(div);
+        });
+    }
 
     // --- Apply Settings to Dashboard ---
+    function applyTheme() {
+        if (settings.themePreference === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        } else if (settings.themePreference === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            // System
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        }
+    }
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+        if (settings.themePreference === 'system') {
+            applyTheme();
+        }
+    });
+
     function applySettings() {
+        applyTheme();
+
         // Background
         bgLayer.innerHTML = ''; // clear videos if any
         if (settings.backgroundType === 'bing') {
@@ -120,7 +181,7 @@
                 bgLayer.style.background = `url('${settings.backgroundValue}') no-repeat center center / cover`;
             }
         } else {
-            bgLayer.style.background = '#1a1a2e'; // fallback
+            bgLayer.style.background = 'var(--bg-body)'; // fallback
         }
 
         // Widgets Visibility
@@ -194,6 +255,12 @@
 
     // --- Sync Modal with Settings ---
     function syncModalUI() {
+        // Theme
+        Array.from(themeRadios).forEach(r => {
+            r.checked = (r.value === settings.themePreference);
+        });
+
+        // Background
         bgTypeSelect.value = settings.backgroundType;
         bgBingOptions.classList.toggle('hidden', settings.backgroundType !== 'bing');
         bgPresetOptions.classList.toggle('hidden', settings.backgroundType !== 'preset');
@@ -201,12 +268,13 @@
         bgLocalOptions.classList.toggle('hidden', settings.backgroundType !== 'local');
         bgCustomOptions.classList.toggle('hidden', settings.backgroundType !== 'custom');
 
-        if (settings.backgroundType === 'solid' && !settings.backgroundValue.includes('url')) {
+        if (settings.backgroundType === 'solid' && !settings.backgroundValue.includes('url') && !settings.backgroundValue.includes('gradient')) {
             bgColorPicker.value = settings.backgroundValue.startsWith('#') ? settings.backgroundValue.substring(0,7) : '#1a1a2e';
         }
         if (settings.backgroundType === 'custom') bgCustomUrl.value = settings.backgroundValue;
         
-        presetDivs.forEach(div => {
+        const galleryDivs = document.querySelectorAll('.bg-option');
+        galleryDivs.forEach(div => {
             div.classList.toggle('selected', settings.backgroundType === 'preset' && div.dataset.url === settings.backgroundValue);
         });
         
@@ -214,6 +282,7 @@
             swatch.classList.toggle('selected', settings.backgroundType === 'solid' && swatch.dataset.color === settings.backgroundValue);
         });
 
+        // Toggles
         toggleSearch.checked = settings.showSearch;
         toggleTopSites.checked = settings.showTopSites;
         toggleClock.checked = settings.showClock;
@@ -247,21 +316,20 @@
         });
     });
 
+    // Theme Settings
+    Array.from(themeRadios).forEach(r => {
+        r.addEventListener('change', (e) => {
+            if(e.target.checked) { settings.themePreference = e.target.value; saveSettings(); }
+        });
+    });
+
     // Background Settings
     bgTypeSelect.addEventListener('change', (e) => {
         settings.backgroundType = e.target.value;
-        if (settings.backgroundType === 'preset') settings.backgroundValue = presetDivs[0].dataset.url;
+        if (settings.backgroundType === 'preset') settings.backgroundValue = curatedGallery[0];
         else if (settings.backgroundType === 'solid') settings.backgroundValue = colorSwatches[0].dataset.color;
         else if (settings.backgroundType === 'custom') settings.backgroundValue = bgCustomUrl.value || '';
         saveSettings();
-    });
-
-    presetDivs.forEach(div => {
-        div.addEventListener('click', () => {
-            settings.backgroundType = 'preset';
-            settings.backgroundValue = div.dataset.url;
-            saveSettings();
-        });
     });
 
     colorSwatches.forEach(swatch => {
@@ -377,10 +445,10 @@
         return `${hours}:${minutes}`;
     }
 
-    setInterval(updateTime, 1000);
-
     // Initialization
+    renderGallery();
     applySettings();
     updateTime();
+    setInterval(updateTime, 1000);
     if (settings.showSearch) searchInput.focus();
 })();
