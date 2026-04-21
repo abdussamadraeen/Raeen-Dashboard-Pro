@@ -201,7 +201,10 @@
             'google': { action: 'https://www.google.com/search', param: 'q' },
             'duckduckgo': { action: 'https://duckduckgo.com/', param: 'q' },
             'brave': { action: 'https://search.brave.com/search', param: 'q' },
-            'bing': { action: 'https://www.bing.com/search', param: 'q' }
+            'bing': { action: 'https://www.bing.com/search', param: 'q' },
+            'chatgpt': { action: 'https://chatgpt.com/', param: 'q' },
+            'copilot': { action: 'https://copilot.microsoft.com/', param: 'q' },
+            'gemini': { action: 'https://gemini.google.com/app', param: 'q' }
         };
         const engine = engines[settings.searchEngine] || engines['google'];
         if(searchForm) searchForm.action = engine.action;
