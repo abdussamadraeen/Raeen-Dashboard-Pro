@@ -38,21 +38,47 @@
         applySettings();
     }
 
-    // --- Curated Image Gallery ---
-    const curatedGallery = [
-        "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=1920&q=80",
-        "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=80",
-        "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80",
-        "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=1920&q=80",
-        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80",
-        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80",
-        "https://images.unsplash.com/photo-1423784346385-c1d4dac9893a?w=1920&q=80",
-        "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80",
-        "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=80",
-        "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1920&q=80",
-        "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=1920&q=80",
-        "https://images.unsplash.com/photo-1445307806294-bff7f67ff225?w=1920&q=80"
-    ];
+    // --- Categorized Theme Library ---
+    const themeLibrary = {
+        abstract: [
+            "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80",
+            "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1920&q=80",
+            "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=1920&q=80"
+        ],
+        nature: [
+            "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=1920&q=80",
+            "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=80",
+            "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80",
+            "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=1920&q=80"
+        ],
+        ocean: [
+            "https://images.unsplash.com/photo-1498623116890-37e912163d5d?w=1920&q=80",
+            "https://images.unsplash.com/photo-1439405326854-014607f694d7?w=1920&q=80",
+            "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=1920&q=80"
+        ],
+        space: [
+            "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80",
+            "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80",
+            "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=1920&q=80"
+        ],
+        animals: [
+            "https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=1920&q=80",
+            "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=1920&q=80",
+            "https://images.unsplash.com/photo-1555169062-013468b47731?w=1920&q=80"
+        ],
+        chrome_earth: [
+            "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80",
+            "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920&q=80"
+        ],
+        chrome_aapi: [
+            "https://images.unsplash.com/photo-1542125387-c71274d94f0a?w=1920&q=80",
+            "https://images.unsplash.com/photo-1528164344705-47542687000d?w=1920&q=80"
+        ],
+        chrome_lgbtq: [
+            "https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80",
+            "https://images.unsplash.com/photo-1505909182942-e2f09aee3e89?w=1920&q=80"
+        ]
+    };
 
     // --- Search Engines ---
     const engines = {
@@ -92,6 +118,7 @@
         colorSwatches: document.querySelectorAll('.color-swatch'),
         localFileInput: document.getElementById('bg-local-file'),
         galleryGrid: document.getElementById('gallery-grid'),
+        galleryCategorySelect: document.getElementById('gallery-category-select'),
         toggleSearch: document.getElementById('toggle-search'),
         engineRadios: document.getElementsByName('search_engine'),
         toggleTopSites: document.getElementById('toggle-topsites'),
@@ -105,10 +132,19 @@
     };
 
     // --- Render Gallery ---
-    function renderGallery() {
+    function renderGallery(filter = 'all') {
         if (!dom.galleryGrid) return;
+        dom.galleryGrid.innerHTML = '';
         const fragment = document.createDocumentFragment(); // Batch DOM inserts
-        curatedGallery.forEach(url => {
+        
+        let itemsToRender = [];
+        if (filter === 'all') {
+            itemsToRender = Object.values(themeLibrary).flat();
+        } else if (themeLibrary[filter]) {
+            itemsToRender = themeLibrary[filter];
+        }
+
+        itemsToRender.forEach(url => {
             const div = document.createElement('div');
             div.className = 'bg-option';
             div.dataset.url = url;
@@ -307,10 +343,17 @@
     if (dom.engineRadios) Array.from(dom.engineRadios).forEach(r => r.addEventListener('change', (e) => { if(e.target.checked) { settings.searchEngine = e.target.value; saveSettings(); } }));
     if (dom.bgTypeSelect) dom.bgTypeSelect.addEventListener('change', (e) => {
         settings.backgroundType = e.target.value;
-        if (settings.backgroundType === 'preset') settings.backgroundValue = curatedGallery[0];
+        if (settings.backgroundType === 'preset') {
+            const firstAvailable = document.querySelector('.bg-option');
+            settings.backgroundValue = firstAvailable ? firstAvailable.dataset.url : Object.values(themeLibrary)[0][0];
+        }
         else if (settings.backgroundType === 'solid' && dom.colorSwatches.length) settings.backgroundValue = dom.colorSwatches[0].dataset.color;
         else if (settings.backgroundType === 'custom') settings.backgroundValue = dom.bgCustomUrl ? dom.bgCustomUrl.value : '';
         saveSettings();
+    });
+    if (dom.galleryCategorySelect) dom.galleryCategorySelect.addEventListener('change', (e) => {
+        renderGallery(e.target.value);
+        document.querySelectorAll('.bg-option').forEach(d => d.classList.toggle('selected', settings.backgroundType === 'preset' && d.dataset.url === settings.backgroundValue));
     });
     if (dom.colorSwatches) dom.colorSwatches.forEach(s => s.addEventListener('click', () => { settings.backgroundType = 'solid'; settings.backgroundValue = s.dataset.color; saveSettings(); }));
     if (dom.bgColorPicker) dom.bgColorPicker.addEventListener('input', (e) => { settings.backgroundType = 'solid'; settings.backgroundValue = e.target.value; saveSettings(); });
