@@ -141,9 +141,7 @@
         'duckduckgo': { action: 'https://duckduckgo.com/', param: 'q' },
         'brave': { action: 'https://search.brave.com/search', param: 'q' },
         'bing': { action: 'https://www.bing.com/search', param: 'q' },
-        'chatgpt': { action: 'https://chatgpt.com/', param: 'q' },
-        'copilot': { action: 'https://copilot.microsoft.com/', param: 'q' },
-        'gemini': { action: 'https://gemini.google.com/app', param: 'q' }
+        'chatgpt': { action: 'https://chatgpt.com/', param: 'q' }
     };
 
     // --- DOM Elements Cache (O(1) lookups) ---
@@ -157,6 +155,7 @@
         cardsWidget: document.getElementById('cards-widget'),
         searchForm: document.getElementById('search-form'),
         searchInput: document.getElementById('search-input'),
+        searchSuggestions: document.getElementById('search-suggestions'),
         settingsBtn: document.getElementById('settings-btn'),
         modalOverlay: document.getElementById('settings-modal'),
         closeBtn: document.getElementById('close-modal-btn'),
@@ -583,7 +582,7 @@
             if (!query) return;
 
             const engine = engines[settings.searchEngine] || engines['google'];
-            const isAI = ['chatgpt', 'copilot', 'gemini'].includes(settings.searchEngine);
+            const isAI = ['chatgpt'].includes(settings.searchEngine);
             
             const redirectUrl = isAI
                 ? engine.action + '?q=' + encodeURIComponent(query)
@@ -591,6 +590,93 @@
 
             window.location.href = redirectUrl;
         });
+
+        // Search Autocomplete Logic
+        let suggestTimeout;
+        let selectedSuggestionIndex = -1;
+        
+        dom.searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            if (!query) {
+                if (dom.searchSuggestions) {
+                    dom.searchSuggestions.innerHTML = '';
+                    dom.searchSuggestions.classList.add('hidden');
+                }
+                return;
+            }
+            
+            clearTimeout(suggestTimeout);
+            suggestTimeout = setTimeout(async () => {
+                if (!dom.searchSuggestions) return;
+                try {
+                    // Using client=firefox for a clean JSON array response format
+                    const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`);
+                    const data = await res.json();
+                    const suggestions = data[1] || [];
+                    
+                    if (suggestions.length === 0) {
+                        dom.searchSuggestions.innerHTML = '';
+                        dom.searchSuggestions.classList.add('hidden');
+                        return;
+                    }
+                    
+                    dom.searchSuggestions.innerHTML = suggestions.slice(0, 6).map((s, i) => 
+                        `<li class="suggestion-item" data-index="${i}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            ${s}
+                        </li>`
+                    ).join('');
+                    dom.searchSuggestions.classList.remove('hidden');
+                    selectedSuggestionIndex = -1;
+                } catch(err) {
+                    // Ignore network errors or CORS blocks silently to prevent console spam
+                }
+            }, 150); // debounce 150ms
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (dom.searchSuggestions && !dom.searchForm.contains(e.target)) {
+                dom.searchSuggestions.classList.add('hidden');
+            }
+        });
+        
+        // Show suggestions on focus if not empty
+        dom.searchInput.addEventListener('focus', () => {
+            if (dom.searchSuggestions && dom.searchSuggestions.innerHTML.trim() !== '') {
+                dom.searchSuggestions.classList.remove('hidden');
+            }
+        });
+
+        // Keyboard navigation (Arrow keys) and clicking on suggestions
+        dom.searchForm.addEventListener('keydown', (e) => {
+            if (!dom.searchSuggestions || dom.searchSuggestions.classList.contains('hidden')) return;
+            const items = dom.searchSuggestions.querySelectorAll('.suggestion-item');
+            if (!items.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedSuggestionIndex = (selectedSuggestionIndex + 1) % items.length;
+                items.forEach((item, i) => item.classList.toggle('selected', i === selectedSuggestionIndex));
+                dom.searchInput.value = items[selectedSuggestionIndex].textContent.trim();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedSuggestionIndex = selectedSuggestionIndex <= 0 ? items.length - 1 : selectedSuggestionIndex - 1;
+                items.forEach((item, i) => item.classList.toggle('selected', i === selectedSuggestionIndex));
+                dom.searchInput.value = items[selectedSuggestionIndex].textContent.trim();
+            }
+        });
+
+        if (dom.searchSuggestions) {
+            dom.searchSuggestions.addEventListener('click', (e) => {
+                const item = e.target.closest('.suggestion-item');
+                if (item) {
+                    dom.searchInput.value = item.textContent.trim();
+                    dom.searchSuggestions.classList.add('hidden');
+                    dom.searchForm.dispatchEvent(new Event('submit'));
+                }
+            });
+        }
     }
 
     // Settings Modal

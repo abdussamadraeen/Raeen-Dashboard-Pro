@@ -33,23 +33,6 @@
                    || document.querySelector('textarea[data-id="root"]');
         }
 
-        // Gemini
-        if (window.location.hostname.includes('gemini.google.com')) {
-            // Gemini uses a rich text editor or a contenteditable div
-            inputEl = document.querySelector('rich-textarea div[contenteditable="true"]')
-                   || document.querySelector('.ql-editor[contenteditable="true"]')
-                   || document.querySelector('div[contenteditable="true"][role="textbox"]')
-                   || document.querySelector('.input-area-container textarea');
-        }
-
-        // Copilot
-        if (window.location.hostname.includes('copilot.microsoft.com')) {
-            inputEl = document.querySelector('#userInput')
-                   || document.querySelector('textarea[name="search"]')
-                   || document.querySelector('.cib-serp-main textarea')
-                   || document.querySelector('textarea[placeholder]');
-        }
-
         if (!inputEl) return;
 
         clearInterval(tryPaste);
