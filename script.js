@@ -44,6 +44,168 @@
         } catch (e) { return null; }
     }
 
+    // --- Toast Notification System ---
+    const toastContainer = (() => {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            pointer-events: none;
+            max-width: 400px;
+        `;
+        document.body.appendChild(container);
+        return container;
+    })();
+
+    function showToast(message, type = 'info', duration = 4000) {
+        const toast = document.createElement('div');
+        const bgColor = {
+            'success': '#10b981',
+            'error': '#ef4444',
+            'warning': '#f59e0b',
+            'info': '#3b82f6'
+        }[type] || '#3b82f6';
+
+        const icon = {
+            'success': '✓',
+            'error': '✕',
+            'warning': '⚠',
+            'info': 'ℹ'
+        }[type] || 'ℹ';
+
+        toast.style.cssText = `
+            background: ${bgColor};
+            color: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.3s ease-out;
+            pointer-events: auto;
+            cursor: default;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        `;
+
+        toast.innerHTML = `<span style="font-weight: bold; font-size: 1.1em;">${icon}</span><span>${message}</span>`;
+        toastContainer.appendChild(toast);
+
+        if (duration > 0) {
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        return toast;
+    }
+
+    // Add toast animation styles if not present
+    if (!document.querySelector('#toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // --- Image Preload & Retry Cache ---
+    const IMAGE_CACHE_DB = 'ImageCacheDB';
+    const IMAGE_CACHE_STORE = 'images';
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 1000;
+
+    async function initImageCache() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(IMAGE_CACHE_DB, 1);
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(IMAGE_CACHE_STORE)) {
+                    const store = db.createObjectStore(IMAGE_CACHE_STORE);
+                    store.createIndex('timestamp', 'timestamp', { unique: false });
+                }
+            };
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async function getCachedImage(url) {
+        try {
+            const db = await initImageCache();
+            return new Promise((resolve) => {
+                const tx = db.transaction(IMAGE_CACHE_STORE, 'readonly');
+                const req = tx.objectStore(IMAGE_CACHE_STORE).get(url);
+                req.onsuccess = () => resolve(req.result?.blob || null);
+                req.onerror = () => resolve(null);
+            });
+        } catch (e) { return null; }
+    }
+
+    async function cacheImage(url, blob) {
+        try {
+            const db = await initImageCache();
+            return new Promise((resolve) => {
+                const tx = db.transaction(IMAGE_CACHE_STORE, 'readwrite');
+                tx.objectStore(IMAGE_CACHE_STORE).put({
+                    url, blob, timestamp: Date.now()
+                });
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => resolve();
+            });
+        } catch (e) { /* silent fail */ }
+    }
+
+    async function loadImageWithRetry(url, retries = MAX_RETRIES) {
+        try {
+            // Check cache first
+            const cached = await getCachedImage(url);
+            if (cached) {
+                return URL.createObjectURL(cached);
+            }
+
+            // Try to fetch the image
+            const response = await fetch(url, { mode: 'cors' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const blob = await response.blob();
+            await cacheImage(url, blob);
+            return URL.createObjectURL(blob);
+        } catch (error) {
+            if (retries > 0) {
+                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+                return loadImageWithRetry(url, retries - 1);
+            }
+            throw error;
+        }
+    }
+
+    // Preload gallery images in background
+    async function preloadImages(urls) {
+        urls.forEach(url => {
+            loadImageWithRetry(url).catch(() => {
+                /* silent fail for preload */
+            });
+        });
+    }
+
     // --- State Management ---
     const defaultSettings = {
         themePreference: 'system',
@@ -584,16 +746,19 @@
                         dom.bgLayer.style.background = 'var(--bg-body)';
                     }
                 } else if (t === 'preset') {
-                    const img = new Image();
-                    img.onload = () => {
-                        applyBg(v);
-                        console.log('✓ Preset background loaded');
+                    const loadPresetWithRetry = async () => {
+                        try {
+                            const imageUrl = await loadImageWithRetry(v);
+                            applyBg(imageUrl);
+                            showToast('✓ Background loaded successfully', 'success', 3000);
+                            console.log('✓ Preset background loaded with retry');
+                        } catch (err) {
+                            console.warn('Preset background failed after retries:', err);
+                            showToast('Background load failed, using default', 'warning', 3000);
+                            dom.bgLayer.style.background = 'var(--bg-body)';
+                        }
                     };
-                    img.onerror = () => {
-                        console.warn('Preset background failed to load, using fallback');
-                        dom.bgLayer.style.background = 'var(--bg-body)';
-                    };
-                    img.src = v;
+                    loadPresetWithRetry();
                 } else if (t === 'solid') {
                     try {
                         dom.bgLayer.style.background = v;
@@ -1451,6 +1616,10 @@
             dom.bingGallery.appendChild(latestBtn);
 
             if (data && data.images && Array.isArray(data.images)) {
+                // Start preloading images in background
+                const imageUrls = data.images.map(img => img.url || img.imageUrl).filter(Boolean);
+                preloadImages(imageUrls);
+
                 data.images.forEach((image, idx) => {
                     try {
                         const imgUrl = image.url || image.imageUrl;
@@ -1474,6 +1643,7 @@
                             thumb.classList.add('active');
                             settings.backgroundValue = imgUrl;
                             saveSettings();
+                            showToast('✓ Background updated', 'success', 2000);
                         });
                         
                         // Error handling for thumbnail loading

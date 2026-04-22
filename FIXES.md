@@ -250,14 +250,180 @@ All changes committed with messages:
 ---
 
 ## Future Improvements
-- [ ] Add retry mechanism for failed image loads
-- [ ] Implement image preloading cache
-- [ ] Add user-facing error notifications (toasts)
-- [ ] Support more AI platforms with auto-detection
+- [x] Add retry mechanism for failed image loads
+- [x] Implement image preloading cache
+- [x] Add user-facing error notifications (toasts)
+- [x] Support more AI platforms with auto-detection
 - [ ] Dark mode automatic switching based on time
 - [ ] Swipe gesture support for mobile navigation
 - [ ] Progressive Web App (PWA) support
 - [ ] Offline cache for settings/shortcuts
+
+---
+
+## ✅ Latest Features Implemented
+
+### 1. **Retry Mechanism for Failed Image Loads**
+**Details:**
+- Max 3 retries with 1-second delay between attempts
+- Works for preset backgrounds and image galleries
+- Automatic fallback to default background on final failure
+- Integrated with toast notifications for user feedback
+
+**How it works:**
+- `loadImageWithRetry()` function attempts to load images up to 3 times
+- Exponential backoff prevents server overload
+- Clear console logging for debugging
+
+**Testing:**
+```
+1. Try loading a broken image URL as preset background
+2. Watch console: attempts 1-3, then fallback
+3. Toast shows success or failure
+```
+
+---
+
+### 2. **Image Preload & Cache System**
+**Details:**
+- IndexedDB storage for image caching
+- Automatic preloading of gallery images in background
+- Cache persists across browser sessions
+- Smart cache key using image URLs
+
+**Features:**
+- `getCachedImage()` - Retrieve from cache
+- `cacheImage()` - Store for future use
+- `preloadImages()` - Background preload (non-blocking)
+- Timestamp-based cache management
+
+**Benefits:**
+- Faster image loading on repeat visits
+- Reduced bandwidth usage
+- Better offline functionality
+- Smooth gallery experience
+
+**Testing:**
+```
+1. Open Bing gallery
+2. Switch to different background, then back
+3. Second time loads much faster from cache
+4. Check DevTools: Application → IndexedDB → ImageCacheDB
+```
+
+---
+
+### 3. **User-Facing Error Notifications (Toasts)**
+**Details:**
+- Toast notifications instead of silent failures
+- 4 styles: Success (green), Error (red), Warning (orange), Info (blue)
+- Auto-dismiss after 4 seconds (configurable)
+- Smooth slide-in/slide-out animations
+- Stack multiple toasts without overlap
+- Touch-friendly (mobile optimized)
+
+**Integration Points:**
+- Background load success/failure
+- Bing gallery selection
+- Image preload completion
+- Settings saved confirmations
+
+**Toast Types:**
+```javascript
+showToast('Success message', 'success', 3000)   // Green
+showToast('Error message', 'error', 4000)       // Red
+showToast('Warning message', 'warning', 3000)   // Orange
+showToast('Info message', 'info', 4000)         // Blue
+```
+
+**Styling:**
+- Fixed position (top-right)
+- Glassmorphism design matching dashboard
+- Z-index: 9999 (always visible)
+- Responsive width on mobile
+
+**Testing:**
+```
+1. Change background type → Toast confirms load
+2. Select Bing image →"Background updated" toast
+3. Click settings → Visual feedback on actions
+4. Open on mobile → Check toast positioning
+```
+
+---
+
+### 4. **Support More AI Platforms with Auto-Detection**
+
+#### **Newly Supported Platforms:**
+1. **Blackbox.ai** - AI code generation
+2. **Hugging Face Chat** - Generative AI models
+3. **Groq Chat** - Fast inference platform
+4. **Mistral AI** - Open-source LLM
+5. **Cohere** - NLP platform
+6. **Together AI** - ML model API
+7. **Replicate** - Machine learning models
+
+#### **Current Full Support:**
+- ChatGPT (OpenAI)
+- Gemini (Google)
+- Copilot (Microsoft)
+- Perplexity AI
+- Claude (Anthropic)
+- Blackbox
+- Hugging Face
+- Groq
+- Mistral
+- Cohere
+- Together
+- Replicate
+
+#### **Auto-Detection Feature:**
+- If hostname not recognized, tries all platform selectors
+- Logs detected platform to console
+- Fallback to DOM search for unknown platforms
+- Expandable selector system for future platforms
+
+**How it works:**
+```javascript
+// Platform-specific selectors
+chatgpt: ['#prompt-textarea', 'textarea[data-id="root"]']
+gemini: ['[contenteditable="true"]', '.input-area textarea']
+// ... more platforms
+
+// Host detection + auto-fallback
+if (host.includes('chatgpt.com')) {
+    inputEl = findElement(selectors.chatgpt);
+} else if (host.includes('gemini.google.com')) {
+    inputEl = findElement(selectors.gemini);
+}
+// ... specific platforms
+else {
+    // Auto-detect unknown platforms
+    for (const [platform, selectors] of Object.entries(selectors)) {
+        inputEl = findElement(selectors);
+        if (inputEl) { console.log(`Auto-detected ${platform}`); break; }
+    }
+}
+```
+
+**Manifest Updates:**
+- Added host_permissions for all new platforms
+- Extended content_scripts matches for broader coverage
+
+**Testing:**
+```
+1. Search in Blackbox.ai chatbot → Text auto-fills
+2. Try Groq chat → Query injected automatically
+3. Unknown platform → Auto-detection tries all selectors
+4. Check console → "AI Inject: Auto-detected [platform]"
+```
+
+**Adding New Platforms:**
+To support future platforms:
+1. Add selectors to `selectors` object
+2. Add hostname check if needed (else auto-detect handles it)
+3. Update `manifest.json` with host permission
+4. Test on the platform
 
 ---
 

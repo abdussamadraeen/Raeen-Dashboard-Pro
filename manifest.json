@@ -23,7 +23,15 @@
         "https://gemini.google.com/*",
         "https://copilot.microsoft.com/*",
         "https://www.perplexity.ai/*",
-        "https://claude.ai/*"
+        "https://claude.ai/*",
+        "https://blackbox.ai/*",
+        "https://huggingface.co/*",
+        "https://chat.groq.com/*",
+        "https://mistral.ai/*",
+        "https://cohere.ai/*",
+        "https://cohere.com/*",
+        "https://www.together.ai/*",
+        "https://replicate.com/*"
       ],
       "js": ["ai-inject.js"],
       "run_at": "document_idle"

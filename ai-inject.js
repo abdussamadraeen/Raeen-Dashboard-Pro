@@ -17,13 +17,23 @@
         copilot: ['textarea', 'input[type="text"]'],
         perplexity: ['textarea', 'input[placeholder*="Ask"]'],
         claude: ['div[contenteditable="true"]', 'textarea'],
+        blackbox: ['#input-div', 'textarea[placeholder*="Ask"]'],
+        huggingface: ['textarea[placeholder*="chat"]', 'input[placeholder*="Type"]'],
+        groq: ['textarea[data-testid="composer-input"]', 'textarea'],
+        mistral: ['textarea[placeholder*="message"]', 'input[aria-label*="message"]'],
+        cohere: ['textarea[placeholder*="Ask"]', 'input[placeholder*="message"]'],
+        together: ['textarea[placeholder*="message"]', 'input[data-qa*="input"]'],
+        replicate: ['textarea[placeholder*="prompt"]', 'input[placeholder*="prompt"]'],
         defaultSend: [
             'button[aria-label="Send"]',
             'button[aria-label="Submit"]',
             'button.send-button',
             'button[data-testid="send-button"]',
             'button[mat-icon-button]',
-            '.input-area button'
+            'button[type="submit"]',
+            '.input-area button',
+            'button[class*="send"]',
+            'button[class*="submit"]'
         ]
     };
 
@@ -87,6 +97,31 @@
                 inputEl = findElement(selectors.perplexity);
             } else if (host.includes('claude.ai')) {
                 inputEl = findElement(selectors.claude);
+            } else if (host.includes('blackbox.ai')) {
+                inputEl = findElement(selectors.blackbox);
+            } else if (host.includes('huggingface.co')) {
+                inputEl = findElement(selectors.huggingface);
+            } else if (host.includes('groq.com') || host.includes('chat.groq.com')) {
+                inputEl = findElement(selectors.groq);
+            } else if (host.includes('mistral')) {
+                inputEl = findElement(selectors.mistral);
+            } else if (host.includes('cohere.ai') || host.includes('cohere.com')) {
+                inputEl = findElement(selectors.cohere);
+            } else if (host.includes('together.ai')) {
+                inputEl = findElement(selectors.together);
+            } else if (host.includes('replicate.com')) {
+                inputEl = findElement(selectors.replicate);
+            } else {
+                // Auto-detection fallback: try all known selectors
+                for (const [platform, platformSelectors] of Object.entries(selectors)) {
+                    if (platform !== 'defaultSend') {
+                        inputEl = findElement(platformSelectors);
+                        if (inputEl) {
+                            console.log(`AI Inject: Auto-detected ${platform}`);
+                            break;
+                        }
+                    }
+                }
             }
         } catch(e) {
             console.error('AI Inject: Error detecting host:', e);
