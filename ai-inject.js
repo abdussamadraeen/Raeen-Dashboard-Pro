@@ -1,5 +1,5 @@
-// Content script: Auto-paste search query into AI chat input fields
-(function() {
+// Auto-paste search query into AI chat input fields
+(function () {
     'use strict';
 
     // Extract query from URL
@@ -7,13 +7,54 @@
     const query = params.get('q');
     if (!query) return;
 
-    // Clean the query param from the URL (so it doesn't persist on refresh)
-    const cleanUrl = window.location.origin + window.location.pathname;
-    history.replaceState(null, '', cleanUrl);
+    // Clean the query param from the URL
+    history.replaceState(null, '', window.location.origin + window.location.pathname);
 
-    // Strategy: Try multiple times as these SPAs load inputs dynamically
+    // Configurable selectors for different platforms
+    const selectors = {
+        chatgpt: ['#prompt-textarea', 'textarea[data-id="root"]'],
+        gemini: ['[contenteditable="true"]', '.input-area textarea'],
+        copilot: ['textarea', 'input[type="text"]'],
+        perplexity: ['textarea', 'input[placeholder*="Ask"]'],
+        claude: ['div[contenteditable="true"]', 'textarea'],
+        defaultSend: [
+            'button[aria-label="Send"]',
+            'button[aria-label="Submit"]',
+            'button.send-button',
+            'button[data-testid="send-button"]',
+            'button[mat-icon-button]',
+            '.input-area button'
+        ]
+    };
+
+    // Utility: find element by selectors
+    function findElement(selectors) {
+        for (const sel of selectors) {
+            const el = document.querySelector(sel);
+            if (el) return el;
+        }
+        return null;
+    }
+
+    // Utility: set value safely
+    function setValue(el, value) {
+        if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
+            const proto = el.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+            const nativeSetter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
+            nativeSetter ? nativeSetter.call(el, value) : el.value = value;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        } else if (el.isContentEditable) {
+            el.focus();
+            el.textContent = '';
+            document.execCommand('insertText', false, value);
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }
+
+    // Try multiple times (SPA loading)
     let attempts = 0;
-    const maxAttempts = 30; // Try for ~15 seconds
+    const maxAttempts = 30;
     const interval = 500;
 
     const tryPaste = setInterval(() => {
@@ -23,57 +64,44 @@
             return;
         }
 
-        // Find the chat input (each AI uses different selectors)
-        let inputEl = null;
-        console.log('Abdus Dashboard: AI Inject script attempting to find input...', attempts);
+        console.log('AI Inject Engine: Attempt', attempts);
 
-        // ChatGPT
-        if (window.location.hostname.includes('chatgpt.com')) {
-            inputEl = document.querySelector('#prompt-textarea')
-                   || document.querySelector('textarea[data-id="root"]');
+        let inputEl = null;
+        const host = window.location.hostname;
+
+        if (host.includes('chatgpt.com')) {
+            inputEl = findElement(selectors.chatgpt);
+        } else if (host.includes('gemini.google.com')) {
+            inputEl = findElement(selectors.gemini);
+        } else if (host.includes('copilot.microsoft.com')) {
+            inputEl = findElement(selectors.copilot);
+        } else if (host.includes('perplexity.ai')) {
+            inputEl = findElement(selectors.perplexity);
+        } else if (host.includes('claude.ai')) {
+            inputEl = findElement(selectors.claude);
         }
 
         if (!inputEl) return;
 
         clearInterval(tryPaste);
 
-        // Insert the text
-        if (inputEl.tagName === 'TEXTAREA' || inputEl.tagName === 'INPUT') {
-            // Standard input element
-            const nativeSet = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set
-                           || Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-            if (nativeSet) {
-                nativeSet.call(inputEl, query);
-            } else {
-                inputEl.value = query;
-            }
-            inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-            inputEl.dispatchEvent(new Event('change', { bubbles: true }));
-        } else if (inputEl.isContentEditable) {
-            // ContentEditable div (Gemini uses this)
-            inputEl.focus();
-            inputEl.textContent = '';
-            document.execCommand('insertText', false, query);
-            inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        // Focus the element
+        // Insert query
+        setValue(inputEl, query);
         inputEl.focus();
 
-        // Auto-submit after a short delay
+        // Auto-submit
         setTimeout(() => {
-            // Try to find and click the send button
-            const sendBtn = document.querySelector('button[aria-label="Send"]')
-                         || document.querySelector('button.send-button')
-                         || document.querySelector('.send-button-container button')
-                         || document.querySelector('button[data-testid="send-button"]')
-                         || document.querySelector('.input-area button[mat-icon-button]');
-            
+            const sendBtn = findElement(selectors.defaultSend);
             if (sendBtn && !sendBtn.disabled) {
                 sendBtn.click();
             } else {
-                // Fallback: simulate Enter keypress
-                inputEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+                inputEl.dispatchEvent(new KeyboardEvent('keydown', {
+                    key: 'Enter',
+                    code: 'Enter',
+                    keyCode: 13,
+                    which: 13,
+                    bubbles: true
+                }));
             }
         }, 800);
 

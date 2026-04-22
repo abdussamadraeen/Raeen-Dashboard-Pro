@@ -19,7 +19,11 @@
   "content_scripts": [
     {
       "matches": [
-        "https://chatgpt.com/*"
+        "https://chatgpt.com/*",
+        "https://gemini.google.com/*",
+        "https://copilot.microsoft.com/*",
+        "https://www.perplexity.ai/*",
+        "https://claude.ai/*"
       ],
       "js": ["ai-inject.js"],
       "run_at": "document_idle"
