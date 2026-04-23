@@ -16,12 +16,25 @@
 </head>
 <body data-theme="dark">
     <!-- 5026 AD Noosphere Layer -->
-    <div class="noosphere-status" id="cdi-bar">
+    <div class="noosphere-status" id="cdi-bar-left">
         <div class="cdi-label">CIVILIZATION DEVELOPMENT INDEX: TYPE II TRANSITION</div>
-        <div class="cdi-progress-container">
-            <div class="cdi-progress" style="width: 73.4%;"></div>
-        </div>
+        <div class="cdi-progress-container"><div class="cdi-progress"></div></div>
         <div class="cdi-value">CDI: 2.14 // SUPERTREND: ASCENDING</div>
+    </div>
+    <div class="noosphere-status" id="cdi-bar-right">
+        <div class="cdi-label">CIVILIZATION DEVELOPMENT INDEX: TYPE II TRANSITION</div>
+        <div class="cdi-progress-container"><div class="cdi-progress"></div></div>
+        <div class="cdi-value">CDI: 2.14 // SUPERTREND: ASCENDING</div>
+    </div>
+    <div class="noosphere-status-horizontal" id="cdi-bar-top">
+        <div class="cdi-label-horizontal">CIVILIZATION DEVELOPMENT INDEX: TYPE II TRANSITION</div>
+        <div class="cdi-progress-container-horizontal"><div class="cdi-progress-horizontal"></div></div>
+        <div class="cdi-value-horizontal">CDI: 2.14 // SUPERTREND: ASCENDING</div>
+    </div>
+    <div class="noosphere-status-horizontal" id="cdi-bar-bottom">
+        <div class="cdi-label-horizontal">CIVILIZATION DEVELOPMENT INDEX: TYPE II TRANSITION</div>
+        <div class="cdi-progress-container-horizontal"><div class="cdi-progress-horizontal"></div></div>
+        <div class="cdi-value-horizontal">CDI: 2.14 // SUPERTREND: ASCENDING</div>
     </div>
 
     <!-- Background Elements -->
@@ -234,36 +247,17 @@
                             <label>Bing Daily Wallpaper</label>
                             <p class="subtext">Automatically fetches the beautiful Bing Image of the Day. Click an image to apply it.</p>
                             <div id="bing-gallery-container" style="margin-top: 12px;">
-                                <div id="bing-gallery" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                                <div id="bing-gallery" class="bing-gallery-grid">
                                     <!-- Dynamically populated -->
                                 </div>
                             </div>
                         </div>
 
                         <div id="bg-preset-options" class="settings-group hidden">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <label style="margin-bottom: 0;">Theme Library</label>
-                                <select id="gallery-category-select" class="custom-select" style="width: auto; min-width: 150px; padding: 6px 12px; font-size: 0.85rem;">
-                                    <option value="all">All Themes</option>
-                                    <optgroup label="Bing Inspired">
-                                        <option value="abstract">Abstract</option>
-                                        <option value="nature">Nature & Travel</option>
-                                        <option value="ocean">Ocean</option>
-                                        <option value="space">Space</option>
-                                        <option value="animals">Animals</option>
-                                    </optgroup>
-                                    <optgroup label="Chrome Customization">
-                                        <option value="chrome_earth">Earth & Sea</option>
-                                        <option value="chrome_cityscapes">Cityscapes</option>
-                                        <option value="chrome_textures">Textures</option>
-                                        <option value="chrome_geometric">Geometric Shapes</option>
-                                        <option value="chrome_aapi">Asian & Pacific Islander Artists</option>
-                                        <option value="chrome_lgbtq">LGBTQ+ Artists</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                            <div class="grid-options" id="gallery-grid">
-                                <!-- Rendered via JS -->
+                            <label>Theme Store</label>
+                            <p class="subtext">Browse our curated collection of premium backgrounds. Expand categories to explore.</p>
+                            <div id="gallery-grid" class="theme-store-container">
+                                <!-- Categorized themes will be injected here -->
                             </div>
                         </div>
 
@@ -323,10 +317,17 @@
                             </div>
                         </div>
                         <div class="card-container mt-4">
-                            <div class="settings-row" style="border-bottom: none;">
+                            <div class="settings-row">
                                 <span>Noosphere CDI Bar</span>
                                 <label class="switch">
                                     <input type="checkbox" id="show-noosphere-toggle" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="settings-row" style="border-bottom: none;">
+                                <span>Show Settings Button in Immersive Mode</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="show-settings-in-immersive-toggle" checked>
                                     <span class="slider round"></span>
                                 </label>
                             </div>
@@ -379,19 +380,19 @@
                                     <img src="https://chatgpt.com/favicon.ico" class="engine-icon" alt=""> ChatGPT
                                 </label>
                                 <label class="radio-item mt-2">
-                                    <input type="radio" name="search_engine" value="gemini">
-                                    <span class="custom-radio"></span>
-                                    <img src="https://gemini.google.com/favicon.ico" class="engine-icon" alt=""> Gemini
-                                </label>
-                                <label class="radio-item mt-2">
-                                    <input type="radio" name="search_engine" value="claude">
-                                    <span class="custom-radio"></span>
-                                    <img src="https://claude.ai/favicon.ico" class="engine-icon" alt=""> Claude
-                                </label>
-                                <label class="radio-item mt-2">
                                     <input type="radio" name="search_engine" value="perplexity">
                                     <span class="custom-radio"></span>
                                     <img src="https://www.perplexity.ai/favicon.ico" class="engine-icon" alt=""> Perplexity
+                                </label>
+                                <label class="radio-item mt-2">
+                                    <input type="radio" name="search_engine" value="huggingface">
+                                    <span class="custom-radio"></span>
+                                    <img src="https://huggingface.co/favicon.ico" class="engine-icon" alt=""> Hugging Face
+                                </label>
+                                <label class="radio-item mt-2">
+                                    <input type="radio" name="search_engine" value="github_copilot">
+                                    <span class="custom-radio"></span>
+                                    <img src="https://github.githubassets.com/favicons/favicon.svg" class="engine-icon" alt=""> GitHub Copilot
                                 </label>
                             </div>
                         </div>
@@ -475,9 +476,9 @@
                             <div class="settings-row" style="border-bottom: none;">
                                 <span>Format</span>
                                 <select id="clock-format-select" class="custom-select" style="width: auto; min-width: 180px;">
-                                    <option value="auto">Automatic (en-US)</option>
-                                    <option value="12h">12-hour clock</option>
-                                    <option value="24h">24-hour clock</option>
+                                    <option value="auto">Automatic (based on your system)</option>
+                                    <option value="12h">12-hour</option>
+                                    <option value="24h">24-hour</option>
                                 </select>
                             </div>
                         </div>

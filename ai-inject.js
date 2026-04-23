@@ -65,7 +65,7 @@
                 document.execCommand('insertText', false, value);
                 el.dispatchEvent(new Event('input', { bubbles: true }));
             }
-        } catch(e) {
+        } catch (e) {
             console.error('Error setting input value:', e);
         }
     }
@@ -123,7 +123,7 @@
                     }
                 }
             }
-        } catch(e) {
+        } catch (e) {
             console.error('AI Inject: Error detecting host:', e);
         }
 
@@ -159,11 +159,11 @@
                         }));
                         console.log('✓ AI Inject: Enter key dispatched');
                     }
-                } catch(submitError) {
+                } catch (submitError) {
                     console.error('AI Inject: Error during submit:', submitError);
                 }
             }, 800);
-        } catch(insertError) {
+        } catch (insertError) {
             console.error('AI Inject: Error inserting query:', insertError);
         }
 
