@@ -104,7 +104,7 @@ export async function applySettings() {
                 break;
             
             case 'google_dashboard':
-                dom.bgLayer.innerHTML = `<iframe src="https://www.google.com/webhp?igu=1&gws_rd=cr" allow="forms; scripts; same-origin; popups; clipboard-write; gyp-eval;" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                dom.bgLayer.innerHTML = `<iframe src="https://www.google.com/search?q=&igu=1&authuser=0" allow="forms; scripts; same-origin; popups; clipboard-write; gyp-eval;" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
                 dom.bgLayer.style.backgroundImage = 'none';
                 break;
                 

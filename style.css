@@ -133,8 +133,11 @@ body.live-bg-active .settings-btn:hover {
 }
 
 body.live-bg-active .background-layer {
-    z-index: 1000; /* Above regular content */
-    pointer-events: auto;
+    z-index: 1000 !important;
+    pointer-events: auto !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow: hidden !important;
 }
 
 body.live-bg-active .overlay {

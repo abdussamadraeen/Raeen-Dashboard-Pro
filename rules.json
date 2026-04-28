@@ -14,11 +14,7 @@
     },
     "condition": {
       "urlFilter": "*",
-      "requestDomains": [
-        "google.com", "www.google.com", "accounts.google.com", "myaccount.google.com", "ssl.gstatic.com", "google.co.in", "google.co.uk",
-        "bing.com", "www.bing.com", "microsoft.com", "live.com", "office.com", "login.live.com", "login.microsoftonline.com", "account.microsoft.com"
-      ],
-      "resourceTypes": ["sub_frame", "xmlhttprequest", "script", "image", "stylesheet", "font"]
+      "resourceTypes": ["sub_frame"]
     }
   }
 ]
