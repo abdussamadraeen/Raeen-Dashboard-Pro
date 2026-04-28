@@ -48,6 +48,7 @@ export async function saveSettings(settingsObj, noApply = false) {
     // Instant sync for FOUC prevention
     if (toSave.backgroundType) {
         localStorage.setItem('abdus_bg_type', toSave.backgroundType);
+        localStorage.setItem('abdus_bg_value', toSave.backgroundValue || '');
     }
     
     if (!noApply) applySettings();

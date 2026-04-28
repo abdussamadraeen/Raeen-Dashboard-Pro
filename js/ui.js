@@ -37,14 +37,18 @@ export async function applySettings() {
         currentSettingsState.backgroundValue !== bgValue ||
         (bgType === 'canvas' && currentSettingsState.canvasStyle !== canvasStyle)) {
         
-        cleanupBackground();
+        // Only do full cleanup if switching background types (e.g. video to image)
+        // or if switching from canvas. If just changing image, don't clear old one yet.
+        const typeChanged = currentSettingsState.backgroundType !== bgType;
+        if (typeChanged || bgType === 'canvas' || currentSettingsState.backgroundType === 'canvas') {
+            cleanupBackground();
+            CanvasEngine.stop();
+            if (dom.canvasLayer) dom.canvasLayer.classList.add('hidden');
+        }
+
         currentSettingsState.backgroundType = bgType;
         currentSettingsState.backgroundValue = bgValue;
         currentSettingsState.canvasStyle = canvasStyle;
-
-        // Background Cleanup
-        CanvasEngine.stop();
-        if (dom.canvasLayer) dom.canvasLayer.classList.add('hidden');
 
         if (bgType === 'canvas') {
             if (dom.canvasLayer) {
