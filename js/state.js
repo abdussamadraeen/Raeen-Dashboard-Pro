@@ -3,8 +3,8 @@ import { applySettings } from './ui.js';
 
 export const defaultSettings = {
     themePreference: 'dark',
-    backgroundType: 'canvas',
-    backgroundValue: '',
+    backgroundType: 'solid',
+    backgroundValue: '#000000',
     showSearch: true,
     searchEngine: 'google',
     showTopSites: true,

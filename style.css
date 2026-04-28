@@ -108,11 +108,13 @@ body.live-bg-active .container,
 body.live-bg-active .top-left-widget,
 body.live-bg-active .noosphere-status,
 body.live-bg-active .noosphere-status-horizontal,
+body.live-bg-active #canvas-layer,
 html.live-bg-pre-active .overlay,
 html.live-bg-pre-active .container,
 html.live-bg-pre-active .top-left-widget,
 html.live-bg-pre-active .noosphere-status,
-html.live-bg-pre-active .noosphere-status-horizontal {
+html.live-bg-pre-active .noosphere-status-horizontal,
+html.live-bg-pre-active #canvas-layer {
     display: none !important;
 }
 
