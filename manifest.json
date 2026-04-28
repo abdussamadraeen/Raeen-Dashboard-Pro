@@ -8,7 +8,8 @@
   },
   "permissions": [
     "topSites",
-    "storage"
+    "storage",
+    "unlimitedStorage"
   ],
   "host_permissions": [
     "https://suggestqueries.google.com/*",

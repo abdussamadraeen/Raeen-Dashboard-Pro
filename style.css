@@ -1945,4 +1945,39 @@ input:checked + .slider:before { transform: translateX(20px); }
     }
 }
 
+/* Video Sound Button */
+.video-sound-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 10000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px var(--shadow);
+}
+.video-sound-btn:hover {
+    transform: scale(1.1);
+    background: var(--glass-hover-bg);
+    border-color: var(--accent);
+}
+.video-sound-btn.muted {
+    opacity: 0.6;
+}
+.video-sound-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+
 
