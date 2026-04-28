@@ -44,5 +44,11 @@ export async function saveSettings(settingsObj, noApply = false) {
     const toSave = settingsObj || state.settings;
     await StorageManager.set('settings', 'main', toSave);
     chrome.storage.local.set({ 'abdus_settings': toSave });
+    
+    // Instant sync for FOUC prevention
+    if (toSave.backgroundType) {
+        localStorage.setItem('abdus_bg_type', toSave.backgroundType);
+    }
+    
     if (!noApply) applySettings();
 }

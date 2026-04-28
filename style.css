@@ -67,7 +67,11 @@ body {
     background-color: var(--bg-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    animation: fadeIn 0.6s ease-out forwards;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+html.live-bg-pre-active body {
+    animation: none !important;
 }
 
 @keyframes fadeIn {
@@ -87,8 +91,8 @@ body {
     transition: opacity 0.6s ease;
 }
 canvas.background-layer {
-    z-index: -3; /* Behind the overlay but above the base background if needed */
-    pointer-events: none; /* Let clicks pass through if needed, though CanvasEngine handles its own interactions */
+    z-index: -3;
+    pointer-events: none;
 }
 .background-layer video { width: 100%; height: 100%; object-fit: cover; }
 
@@ -98,21 +102,22 @@ canvas.background-layer {
     pointer-events: none;
 }
 
-/* Live Background Mode */
-body.live-bg-active .background-layer {
-    z-index: 100; /* Above everything */
-    pointer-events: auto;
-}
-body.live-bg-active .overlay {
-    display: none;
-}
+/* ─── Live Background Mode (Google/Bing) ─── */
+body.live-bg-active .overlay,
 body.live-bg-active .container,
 body.live-bg-active .top-left-widget,
 body.live-bg-active .noosphere-status,
-body.live-bg-active .noosphere-status-horizontal {
+body.live-bg-active .noosphere-status-horizontal,
+html.live-bg-pre-active .overlay,
+html.live-bg-pre-active .container,
+html.live-bg-pre-active .top-left-widget,
+html.live-bg-pre-active .noosphere-status,
+html.live-bg-pre-active .noosphere-status-horizontal {
     display: none !important;
 }
-body.live-bg-active .settings-btn {
+
+body.live-bg-active .settings-btn,
+body.live-bg-pre-active .settings-btn {
     z-index: 10000 !important;
     opacity: 0.9 !important;
     top: auto !important;
@@ -127,25 +132,29 @@ body.live-bg-active .settings-btn {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-}
-body.live-bg-active .settings-btn:hover {
-    opacity: 1;
+    box-shadow: 0 0 15px rgba(123, 97, 255, 0.4) !important;
 }
 
-body.live-bg-active .background-layer {
+body.live-bg-active .settings-btn:hover,
+body.live-bg-pre-active .settings-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+body.live-bg-active,
+html.live-bg-pre-active body {
+    background: #000000 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+body.live-bg-active .background-layer,
+html.live-bg-pre-active .background-layer {
     z-index: 1000 !important;
     pointer-events: auto !important;
     width: 100vw !important;
     height: 100vh !important;
     overflow: hidden !important;
-}
-
-body.live-bg-active .overlay {
-    display: none !important; /* Hide the dark overlay */
-}
-
-body.live-bg-active {
-    padding: 0 !important; /* Remove body padding so iframe is truly full screen */
 }
 
 /* ─── Clock (top-left) ─── */
@@ -166,6 +175,7 @@ body.live-bg-active {
     display: flex; flex-direction: column; align-items: center;
     gap: 48px; width: 100%; max-width: 1200px; padding: 20px; z-index: 1;
 }
+
 
 /* ─── Search ─── */
 .search-container { width: 100%; max-width: 620px; }

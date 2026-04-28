@@ -28,6 +28,10 @@ import { initFocusTimer } from './focus.js';
             const saved = await StorageManager.get('settings', 'main');
             if (saved) {
                 updateSettings(saved);
+                // Sync for next reload FOUC prevention
+                if (saved.backgroundType) {
+                    localStorage.setItem('abdus_bg_type', saved.backgroundType);
+                }
                 applySettings();
                 updateTime();
             } else {
