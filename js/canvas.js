@@ -37,9 +37,11 @@ export const CanvasEngine = (() => {
                 x: Math.random() * width,
                 y: Math.random() * height,
                 vx: (Math.random() - 0.5) * (theme === 'neural' ? 1.5 : 0.5),
-                vy: theme === 'rain' ? Math.random() * 15 + 5 : (Math.random() - 0.5) * 1.5,
+                // vy: theme === 'rain' ? Math.random() * 15 + 5 : (Math.random() - 0.5) * 1.5,
+                vy: theme === 'rain' ? Math.random() * 5 + 3 : (Math.random() - 0.5) * 1.5,
                 radius: theme === 'bubbles' ? Math.random() * 15 + 2 : Math.random() * 2 + 1,
-                opacity: Math.random() * 0.5 + 0.2,
+                // p.opacity: Math.random() * 0.5 + 0.2,
+                opacity: theme === 'rain' ? Math.random() * 0.5 + 0.5 : Math.random() * 0.5 + 0.2,
                 color: theme === 'neural' ? '#7b61ff' : 'rgba(255, 255, 255, 0.3)'
             });
         }
@@ -145,10 +147,12 @@ export const CanvasEngine = (() => {
                 }
 
                 ctx.beginPath();
-                ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.2})`;
-                ctx.lineWidth = 1;
+                // ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.2})`;
+                // ctx.lineWidth = 1;
+                ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.5})`;
+                ctx.lineWidth = 2;
                 ctx.moveTo(p.x, p.y);
-                ctx.lineTo(p.x + p.vx, p.y + 15);
+                ctx.lineTo(p.x + p.vx, p.y + 25); // Longer streaks
                 ctx.stroke();
             }
         });
