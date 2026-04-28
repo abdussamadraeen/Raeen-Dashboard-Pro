@@ -4,12 +4,21 @@ let focusTimeLeft = 25 * 60; // For display
 let focusTimerData = { endTime: 0, pausedLeft: 25 * 60, isRunning: false };
 
 export function initFocusTimer() {
-    try {
-        const stored = localStorage.getItem('raeen_dashboard_focus');
-        if (stored) focusTimerData = JSON.parse(stored);
-    } catch (e) { }
+    // Load state from chrome storage for cross-tab sync
+    chrome.storage.local.get(['raeen_dashboard_focus'], (result) => {
+        if (result.raeen_dashboard_focus) {
+            focusTimerData = result.raeen_dashboard_focus;
+            syncFocusState();
+        }
+    });
 
-    syncFocusState();
+    // Listen for changes from other tabs
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === 'local' && changes.raeen_dashboard_focus) {
+            focusTimerData = changes.raeen_dashboard_focus.newValue;
+            syncFocusState();
+        }
+    });
 
     setInterval(() => {
         if (focusTimerData.isRunning) {
@@ -22,7 +31,7 @@ export function initFocusTimer() {
                 focusTimerData.pausedLeft = 25 * 60;
                 saveFocusState();
                 syncFocusState();
-                alert('Focus session complete!');
+                // alert('Focus session complete!'); // Optional: user might find it annoying
             }
         }
     }, 1000);
@@ -52,7 +61,7 @@ export function initFocusTimer() {
 }
 
 function saveFocusState() {
-    try { localStorage.setItem('raeen_dashboard_focus', JSON.stringify(focusTimerData)); } catch (e) { }
+    chrome.storage.local.set({ 'raeen_dashboard_focus': focusTimerData });
 }
 
 function syncFocusState() {

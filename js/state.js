@@ -9,10 +9,7 @@ export const defaultSettings = {
     searchEngine: 'google',
     showTopSites: true,
     topSitesSource: 'favorites',
-    shortcuts: [
-        { name: 'GitHub', url: 'https://github.com', icon: 'https://github.githubassets.com/favicons/favicon.svg' },
-        { name: 'YouTube', url: 'https://youtube.com', icon: 'https://www.youtube.com/favicon.ico' }
-    ],
+    shortcuts: [], // Start empty as requested
     googleApps: [
         { name: 'Search', url: 'https://google.com', icon: 'https://www.gstatic.com/images/branding/product/2x/googleg_96dp.png' },
         { name: 'Gmail', url: 'https://mail.google.com', icon: 'https://www.gstatic.com/images/branding/product/2x/gmail_96dp.png' }
@@ -28,7 +25,7 @@ export const defaultSettings = {
     ],
     customApps: [],
     showClock: true, clockFormat: 'auto',
-    showCards: false, showCardDate: true, showCardFocus: true, showCardNote: true,
+    showCards: true, showCardDate: true, showCardFocus: true, showCardNote: true,
     showNoosphereBar: true, showMainUI: true, showSettingsButtonInImmersive: true, customSearchUrl: 'https://www.google.com/search?q=%s',
     videoMuted: true,
     canvasStyle: 'neural'

@@ -587,10 +587,26 @@ input:checked + .slider:before { transform: translateX(20px); }
 .custom-select option { background: var(--bg-modal); color: var(--text-primary); }
 
 /* Color Palette */
-.color-palette { display: flex; flex-wrap: wrap; gap: 10px; }
-.color-swatch { width: 40px; height: 40px; border-radius: 10px; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; box-shadow: 0 2px 8px var(--shadow); }
-.color-swatch:hover { transform: scale(1.1); }
-.color-swatch.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+    gap: 12px;
+}
+.color-swatch {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.color-swatch:hover {
+    transform: scale(1.1) translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
 
 /* Buttons */
 .primary-btn { 

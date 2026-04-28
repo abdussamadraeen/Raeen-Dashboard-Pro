@@ -30,10 +30,14 @@ export async function applySettings() {
     const bgValue = state.settings.backgroundValue;
     const canvasStyle = state.settings.canvasStyle || 'neural';
 
+    // Cleanup legacy types
     if (bgType === 'google_dashboard' || bgType === 'bing_dashboard') {
         state.settings.backgroundType = 'canvas';
         bgType = 'canvas';
     }
+
+    // Always ensure the background layer is ready to show
+    dom.bgLayer.style.opacity = '1';
 
     if (currentSettingsState.backgroundType !== bgType || 
         currentSettingsState.backgroundValue !== bgValue ||
@@ -48,21 +52,14 @@ export async function applySettings() {
         CanvasEngine.stop();
         if (dom.canvasLayer) dom.canvasLayer.classList.add('hidden');
 
-        // Smooth transition effect
-        dom.bgLayer.style.opacity = '0';
-
-        setTimeout(async () => {
-            if (bgType === 'canvas') {
-                if (dom.canvasLayer) {
-                    dom.canvasLayer.classList.remove('hidden');
-                    CanvasEngine.init(dom.canvasLayer, state.settings.canvasStyle || 'neural');
-                }
-                dom.bgLayer.style.backgroundImage = 'none';
-                dom.bgLayer.style.backgroundColor = 'transparent';
-                dom.bgLayer.style.opacity = '1';
-                return;
+        if (bgType === 'canvas') {
+            if (dom.canvasLayer) {
+                dom.canvasLayer.classList.remove('hidden');
+                CanvasEngine.init(dom.canvasLayer, state.settings.canvasStyle || 'neural');
             }
-
+            dom.bgLayer.style.backgroundImage = 'none';
+            dom.bgLayer.style.backgroundColor = 'transparent';
+        } else {
             switch (bgType) {
             case 'bing':
                 const bingUrl = bgValue === 'bing_latest'
@@ -84,16 +81,14 @@ export async function applySettings() {
             case 'custom':
                 if (bgValue) {
                     if (bgValue.match(/\.(mp4|webm|ogg)$/i)) {
-                        dom.bgLayer.innerHTML = `<video autoplay muted loop playsinline src="${bgValue}" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>`;
+                        dom.bgLayer.innerHTML = `<video autoplay muted loop playsinline preload="auto" src="${bgValue}" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>`;
                         const video = dom.bgLayer.querySelector('video');
-                        video.muted = state.settings.videoMuted;
-                        if (dom.videoSoundBtn) {
-                            dom.videoSoundBtn.classList.remove('hidden');
-                            dom.videoSoundBtn.classList.toggle('muted', state.settings.videoMuted);
+                        if (video) {
+                            video.muted = state.settings.videoMuted;
+                            video.play().catch(e => console.warn("Video play failed", e));
                         }
                     } else {
                         dom.bgLayer.style.backgroundImage = `url('${bgValue}')`;
-                        if (dom.videoSoundBtn) dom.videoSoundBtn.classList.add('hidden');
                     }
                 }
                 break;
@@ -102,31 +97,40 @@ export async function applySettings() {
                 if (localMedia?.data) {
                     currentBgObjectURL = URL.createObjectURL(localMedia.data);
                     if (localMedia.type?.startsWith('video')) {
-                        dom.bgLayer.innerHTML = `<video autoplay muted loop playsinline src="${currentBgObjectURL}" type="${localMedia.type}" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>`;
+                        dom.bgLayer.innerHTML = `<video autoplay muted loop playsinline preload="auto" src="${currentBgObjectURL}" type="${localMedia.type}" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>`;
                         const video = dom.bgLayer.querySelector('video');
-                        video.muted = state.settings.videoMuted;
-                        if (dom.videoSoundBtn) {
-                            dom.videoSoundBtn.classList.remove('hidden');
-                            dom.videoSoundBtn.classList.toggle('muted', state.settings.videoMuted);
+                        if (video) {
+                            video.muted = state.settings.videoMuted;
+                            video.play().catch(e => console.warn("Local video play failed", e));
                         }
                     } else {
                         dom.bgLayer.style.backgroundImage = `url('${currentBgObjectURL}')`;
-                        if (dom.videoSoundBtn) dom.videoSoundBtn.classList.add('hidden');
                     }
                 }
                 break;
             case 'solid':
-                dom.bgLayer.style.backgroundColor = bgValue;
+                if (bgValue && bgValue.includes('gradient')) {
+                    dom.bgLayer.style.backgroundImage = bgValue;
+                } else {
+                    dom.bgLayer.style.backgroundColor = bgValue || 'transparent';
+                    dom.bgLayer.style.backgroundImage = 'none';
+                }
                 break;
             }
-            dom.bgLayer.style.opacity = '1';
-        }, 300);
+        }
     } else {
+        // Sync video muted state if nothing else changed
         const video = dom.bgLayer.querySelector('video');
         if (video) {
             video.muted = state.settings.videoMuted;
-            if (dom.videoSoundBtn) dom.videoSoundBtn.classList.toggle('muted', state.settings.videoMuted);
         }
+    }
+
+    // Sound button visibility
+    if (dom.videoSoundBtn) {
+        const hasVideo = dom.bgLayer.querySelector('video');
+        dom.videoSoundBtn.classList.toggle('hidden', !hasVideo);
+        dom.videoSoundBtn.classList.toggle('muted', state.settings.videoMuted);
     }
 
     dom.searchWidget?.classList.toggle('hidden', !state.settings.showSearch);

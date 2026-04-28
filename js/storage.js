@@ -6,6 +6,13 @@ export const StorageManager = (() => {
     const init = () => {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(DB_NAME, DB_VERSION);
+            
+            // Set a timeout to prevent hanging if DB open takes too long
+            const timeout = setTimeout(() => {
+                console.error("Storage initialization timed out");
+                resolve(); // Proceed anyway so UI doesn't freeze
+            }, 3000);
+
             request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings');
@@ -13,8 +20,16 @@ export const StorageManager = (() => {
                 if (!db.objectStoreNames.contains('imageCache')) db.createObjectStore('imageCache');
                 if (!db.objectStoreNames.contains('notes')) db.createObjectStore('notes', { keyPath: 'id' });
             };
-            request.onsuccess = (e) => { db = e.target.result; resolve(); };
-            request.onerror = (e) => reject('DB Error: ' + e.target.errorCode);
+            request.onsuccess = (e) => { 
+                clearTimeout(timeout);
+                db = e.target.result; 
+                resolve(); 
+            };
+            request.onerror = (e) => {
+                clearTimeout(timeout);
+                console.error('DB Error: ', e.target.errorCode);
+                resolve(); // Still resolve so UI can load
+            };
         });
     };
 
@@ -32,11 +47,22 @@ export const StorageManager = (() => {
     const set = (storeName, key, value) => {
         return new Promise((resolve, reject) => {
             if (!db) return reject('DB not initialized');
-            const transaction = db.transaction([storeName], 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = key ? store.put(value, key) : store.put(value);
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject('Set Error');
+            try {
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                
+                // If the store has a keyPath, we should NOT provide a separate key argument
+                const request = store.keyPath ? store.put(value) : store.put(value, key);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = (e) => {
+                    console.error(`Error saving to ${storeName}:`, e.target.error);
+                    reject(e.target.error);
+                };
+            } catch (e) {
+                console.error(`Transaction failed for ${storeName}:`, e);
+                reject(e);
+            }
         });
     };
 

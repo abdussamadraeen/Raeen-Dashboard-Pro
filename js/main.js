@@ -9,28 +9,39 @@ import { setupSearch } from './search.js';
 import { initFocusTimer } from './focus.js';
 
 (async function init() {
-    await StorageManager.init();
-    const saved = await StorageManager.get('settings', 'main');
-    if (saved) {
-        updateSettings(saved);
-    } else {
-        const local = localStorage.getItem('abdus_dashboard_settings');
-        if (local) {
-            try {
-                updateSettings(JSON.parse(local));
-                await saveSettings(state.settings);
-            } catch (e) {
-                console.error("Error parsing settings from localStorage", e);
-            }
-        } else {
-            // First run: persist default settings to chrome.storage for background services
-            await saveSettings(state.settings);
-        }
-    }
-
+    // 1. Immediate UI Load (using defaults to prevent lag)
     applySettings();
     updateTime();
-    setInterval(updateTime, 1000);
+    const clockInterval = setInterval(updateTime, 1000);
+
+    try {
+        // 2. Load Persisted State
+        await StorageManager.init();
+        const saved = await StorageManager.get('settings', 'main');
+        if (saved) {
+            updateSettings(saved);
+            applySettings(); // Re-apply with user settings
+            updateTime();    // Refresh clock with user format
+        } else {
+            const local = localStorage.getItem('abdus_dashboard_settings');
+            if (local) {
+                try {
+                    updateSettings(JSON.parse(local));
+                    await saveSettings(state.settings);
+                    localStorage.removeItem('abdus_dashboard_settings'); // Clear after migration
+                    applySettings();
+                } catch (e) {
+                    console.error("Error parsing settings from localStorage", e);
+                }
+            } else {
+                await saveSettings(state.settings);
+            }
+        }
+    } catch (e) {
+        console.error("Storage initialization failed, keeping defaults", e);
+    }
+
+    // 3. Feature setup
     renderNotesList();
     renderThemeLibrary();
     renderShortcuts();
@@ -73,6 +84,20 @@ import { initFocusTimer } from './focus.js';
             saveSettings(state.settings);
         }
     };
+
+    if (dom.bgColorPicker) dom.bgColorPicker.oninput = (e) => {
+        state.settings.backgroundType = 'solid';
+        state.settings.backgroundValue = e.target.value;
+        saveSettings(state.settings);
+    };
+
+    document.querySelectorAll('.color-swatch').forEach(swatch => {
+        swatch.onclick = () => {
+            state.settings.backgroundType = 'solid';
+            state.settings.backgroundValue = swatch.dataset.color;
+            saveSettings(state.settings);
+        };
+    });
 
     // Appearance
     document.getElementsByName('theme_preference').forEach(radio => {

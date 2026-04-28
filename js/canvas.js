@@ -1,7 +1,7 @@
 import { state } from './state.js';
 
 export const CanvasEngine = (() => {
-    let canvas, ctx, animationId, particles = [], width, height, theme = 'neural';
+    let canvas, ctx, animationId, particles = [], width, height, theme = 'neural', isRunning = false;
     let mouse = { x: null, y: null };
 
     const init = (el, style) => {
@@ -10,6 +10,7 @@ export const CanvasEngine = (() => {
         if (!canvas) return;
         ctx = canvas.getContext('2d');
         theme = style || 'neural';
+        isRunning = true;
         resize();
         window.addEventListener('resize', resize);
         window.addEventListener('mousemove', handleMouseMove);
@@ -151,10 +152,11 @@ export const CanvasEngine = (() => {
                 ctx.stroke();
             }
         });
-        animationId = requestAnimationFrame(animate);
+        if (isRunning) animationId = requestAnimationFrame(animate);
     };
 
     const stop = () => {
+        isRunning = false;
         if (animationId) cancelAnimationFrame(animationId);
         window.removeEventListener('resize', resize);
         window.removeEventListener('mousemove', handleMouseMove);
