@@ -6,6 +6,9 @@
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "permissions": [
     "topSites",
     "storage",
@@ -13,6 +16,8 @@
   ],
   "host_permissions": [
     "https://suggestqueries.google.com/*",
+    "https://www.google.com/*",
+    "https://www.bing.com/*",
     "https://*.bing.com/*",
     "https://bing.biturl.top/*"
   ],
@@ -26,8 +31,7 @@
       ],
       "js": [
         "ai-inject.js"
-      ],
-      "run_at": "document_idle"
+      ]
     }
   ],
   "content_security_policy": {

@@ -3,13 +3,13 @@ import { state, defaultSettings, updateSettings, saveSettings } from './state.js
 import { dom } from './dom.js';
 import { applySettings, syncSettingsUI, updateTime, loadBingGallery, updateCards, syncBackgroundOptions, renderThemeLibrary } from './ui.js';
 import { renderNotesList, openNoteEditor, closeNoteEditor, deleteCurrentNote, saveCurrentNote, updateCharCount } from './notes.js';
-import { renderApps, saveCustomApp } from './apps.js';
+
 import { renderShortcuts, addShortcut } from './shortcuts.js';
 import { setupSearch } from './search.js';
+import { initFocusTimer } from './focus.js';
 
 (async function init() {
     await StorageManager.init();
-
     const saved = await StorageManager.get('settings', 'main');
     if (saved) {
         updateSettings(saved);
@@ -22,18 +22,21 @@ import { setupSearch } from './search.js';
             } catch (e) {
                 console.error("Error parsing settings from localStorage", e);
             }
+        } else {
+            // First run: persist default settings to chrome.storage for background services
+            await saveSettings(state.settings);
         }
     }
 
     applySettings();
     updateTime();
     setInterval(updateTime, 1000);
-    renderApps();
     renderNotesList();
     renderThemeLibrary();
     renderShortcuts();
     updateCards();
     setupSearch();
+    initFocusTimer();
 
     // Event Listeners
     if (dom.settingsBtn) dom.settingsBtn.onclick = () => {
@@ -43,14 +46,23 @@ import { setupSearch } from './search.js';
     if (dom.closeBtn) dom.closeBtn.onclick = () => dom.modalOverlay.classList.add('hidden');
 
     // Background Settings
-    if (dom.bgTypeSelect) dom.bgTypeSelect.onchange = (e) => {
+    if (dom.bgTypeSelect) dom.bgTypeSelect.oninput = (e) => {
         state.settings.backgroundType = e.target.value;
         if (e.target.value === 'bing') state.settings.backgroundValue = 'bing_latest';
         saveSettings(state.settings);
         syncBackgroundOptions();
         if (e.target.value === 'bing') loadBingGallery();
+        
+        if (e.target.value === 'google_dashboard') {
+            window.location.href = "https://www.google.com/webhp?authuser=1&zx=1777002508090&abdus_dashboard=true";
+        } else if (e.target.value === 'bing_dashboard') {
+            window.location.href = "https://www.bing.com/?pc=EE30&abdus_dashboard=true";
+        }
     };
-    if (dom.canvasStyleSelect) dom.canvasStyleSelect.onchange = e => { state.settings.canvasStyle = e.target.value; saveSettings(state.settings); };
+    if (dom.canvasStyleSelect) dom.canvasStyleSelect.oninput = (e) => {
+        state.settings.canvasStyle = e.target.value;
+        saveSettings(state.settings);
+    };
     if (dom.bgCustomUrl) dom.bgCustomUrl.onchange = e => { state.settings.backgroundValue = e.target.value; saveSettings(state.settings); };
     if (dom.bgLocalFile) dom.bgLocalFile.onchange = async e => {
         if (e.target.files && e.target.files[0]) {
@@ -86,7 +98,7 @@ import { setupSearch } from './search.js';
 
     // Clock
     if (dom.toggleClock) dom.toggleClock.onchange = e => { state.settings.showClock = e.target.checked; saveSettings(state.settings); };
-    if (dom.clockFormatSelect) dom.clockFormatSelect.onchange = e => { state.settings.clockFormat = e.target.value; saveSettings(state.settings); };
+    if (dom.clockFormatSelect) dom.clockFormatSelect.oninput = e => { state.settings.clockFormat = e.target.value; saveSettings(state.settings); };
 
     // Cards
     if (dom.toggleCards) dom.toggleCards.onchange = e => { state.settings.showCards = e.target.checked; saveSettings(state.settings); };
@@ -135,20 +147,17 @@ import { setupSearch } from './search.js';
         };
     });
 
-    // Apps Launcher
-    if (dom.appsLauncherBtn) dom.appsLauncherBtn.onclick = () => dom.appsDropdown.classList.toggle('hidden');
-    if (dom.appTabs) dom.appTabs.forEach(tab => {
-        tab.onclick = () => {
-            dom.appTabs.forEach(t => t.classList.remove('active'));
-            syncSettingsUI();
-            dom.appPanes.forEach(p => p.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(tab.dataset.target).classList.add('active');
-        };
-    });
     if (dom.addAppBtn) dom.addAppBtn.onclick = () => dom.addAppModal.classList.remove('hidden');
-    if (dom.closeAddAppBtn) dom.closeAddAppBtn.onclick = () => dom.addAppModal.classList.add('hidden');
-    if (dom.saveAppBtn) dom.saveAppBtn.onclick = saveCustomApp;
 
     if (state.settings.backgroundType === 'bing') loadBingGallery();
+
+    window.addEventListener('message', (event) => {
+        if (event.data && event.data.action === 'close_dashboard_iframe') {
+            state.settings.backgroundType = 'solid';
+            state.settings.backgroundValue = '#0f0f17';
+            saveSettings(state.settings);
+            dom.modalOverlay.classList.remove('hidden');
+            syncSettingsUI();
+        }
+    });
 })();

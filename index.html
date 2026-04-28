@@ -50,38 +50,7 @@
     </div>
 
     <!-- Apps Launcher (top-right) -->
-    <div class="top-right-widget">
-        <button id="apps-launcher-btn" class="icon-btn" aria-label="Apps">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
-        </button>
-        <div id="apps-dropdown" class="apps-dropdown hidden">
-            <div class="apps-tabs">
-                <button class="app-tab active" data-target="google-apps">Google</button>
-                <button class="app-tab" data-target="ms-apps">Microsoft</button>
-                <button class="app-tab" data-target="ai-apps">AI Models</button>
-                <button class="app-tab" data-target="custom-apps">Custom</button>
-            </div>
-            
-            <div id="google-apps" class="apps-grid app-pane active">
-                <!-- Rendered dynamically -->
-            </div>
 
-            <div id="ms-apps" class="apps-grid app-pane">
-                <!-- Rendered dynamically -->
-            </div>
-            
-            <div id="ai-apps" class="apps-grid app-pane">
-                <!-- Rendered dynamically -->
-            </div>
-
-            <div id="custom-apps" class="apps-grid app-pane">
-                <!-- Rendered dynamically -->
-            </div>
-            <div id="apps-footer" class="apps-footer active" style="padding: 12px 16px; border-top: 1px solid var(--border); background: var(--bg-sidebar);">
-                <button id="add-app-btn" class="primary-btn" style="width: 100%; padding: 8px;">+ Add Website</button>
-            </div>
-        </div>
-    </div>
 
     <div class="container">
 
@@ -225,7 +194,7 @@
                         <div class="settings-group mt-0">
                             <label>Background Type</label>
                             <select id="bg-type-select" class="custom-select">
-                                <option value="canvas">Live Canvas (Interactive Effects)</option>
+                                <option value="canvas">Interactive Canvas (Neural/Rain)</option>
                                 <option value="bing">Bing Daily Wallpaper</option>
                                 <option value="preset">Theme Library</option>
                                 <option value="solid">Solid Colors & Gradients</option>
@@ -235,12 +204,13 @@
                         </div>
                         
                         <div id="bg-canvas-options" class="settings-group hidden">
-                            <label>Canvas Effect Style</label>
+                            <label>Canvas Style</label>
                             <select id="canvas-style-select" class="custom-select">
-                                <option value="neural">Neural Network</option>
-                                <option value="bubbles">Water Bubbles</option>
-                                <option value="rain">Glass Rain</option>
+                                <option value="neural">Neural Network (Interactive)</option>
+                                <option value="bubbles">Water Bubbles (Interactive)</option>
+                                <option value="rain">Glass Rain (Interactive)</option>
                             </select>
+                            <p class="subtext">Move your mouse to interact with the animation.</p>
                         </div>
                         
                         <div id="bg-bing-options" class="settings-group hidden">

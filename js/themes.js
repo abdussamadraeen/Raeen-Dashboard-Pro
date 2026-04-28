@@ -8,7 +8,7 @@ export const themeLibrary = {
         { name: 'Cat', url: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=1920&q=80' },
         { name: 'Dog', url: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1920&q=80' },
         { name: 'Wild Animal', url: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=1920&q=80' },
-        { name: 'Tiger', url: 'https://images.unsplash.com/photo-1503066211283-f94ff1a2f021?auto=format&fit=crop&w=1920&q=80' }
+        { name: 'Tiger', url: 'https://images.unsplash.com/photo-1561731216-c3a4d99437d5?auto=format&fit=crop&w=1920&q=80' }
     ],
     'Nature & Ocean': [
         { name: 'Flower', url: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1920&q=80' },
