@@ -22,6 +22,13 @@ export function setupSearch() {
     let selectedIndex = -1;
 
     if (dom.searchInput) {
+        const handleSearch = (query) => {
+            if (!query) return;
+            const url = getSearchUrl().replace('%s', encodeURIComponent(query));
+
+            window.open(url, '_blank');
+        };
+
         dom.searchInput.oninput = async (e) => {
             const query = e.target.value.trim();
             selectedIndex = -1;
@@ -79,9 +86,9 @@ export function setupSearch() {
         dom.searchForm.onsubmit = (e) => {
             e.preventDefault();
             const query = dom.searchInput.value.trim();
-            if (!query) return;
-            const url = getSearchUrl().replace('%s', encodeURIComponent(query));
-            window.location.href = url;
+            handleSearch(query);
+            dom.searchInput.value = '';
+            dom.searchSuggestions.classList.add('hidden');
         };
 
         document.addEventListener('click', (e) => {

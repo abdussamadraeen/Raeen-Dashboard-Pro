@@ -8,6 +8,7 @@ import { renderShortcuts, addShortcut } from './shortcuts.js';
 import { setupSearch } from './search.js';
 import { initFocusTimer } from './focus.js';
 
+
 (async function init() {
     // 1. Immediate UI Load (using defaults to prevent lag)
     applySettings();
@@ -75,12 +76,7 @@ import { initFocusTimer } from './focus.js';
         saveSettings(state.settings);
         syncBackgroundOptions();
         if (e.target.value === 'bing') loadBingGallery();
-        
-        if (e.target.value === 'google_dashboard') {
-            window.location.href = "https://www.google.com/webhp?authuser=1&zx=1777002508090&abdus_dashboard=true";
-        } else if (e.target.value === 'bing_dashboard') {
-            window.location.href = "https://www.bing.com/?pc=EE30&abdus_dashboard=true";
-        }
+        applySettings();
     };
     if (dom.canvasStyleSelect) dom.canvasStyleSelect.oninput = (e) => {
         state.settings.canvasStyle = e.target.value;

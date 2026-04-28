@@ -30,12 +30,6 @@ export async function applySettings() {
     const bgValue = state.settings.backgroundValue;
     const canvasStyle = state.settings.canvasStyle || 'neural';
 
-    // Cleanup legacy types
-    if (bgType === 'google_dashboard' || bgType === 'bing_dashboard') {
-        state.settings.backgroundType = 'canvas';
-        bgType = 'canvas';
-    }
-
     // Always ensure the background layer is ready to show
     dom.bgLayer.style.opacity = '1';
 
@@ -108,6 +102,18 @@ export async function applySettings() {
                     }
                 }
                 break;
+            
+            case 'google_dashboard':
+                dom.bgLayer.innerHTML = `<iframe src="https://www.google.com/webhp?igu=1&gws_rd=cr" allow="forms; scripts; same-origin; popups; clipboard-write; gyp-eval;" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                dom.bgLayer.style.backgroundImage = 'none';
+                break;
+                
+            case 'bing_dashboard':
+                dom.bgLayer.innerHTML = `<iframe src="https://www.bing.com" allow="forms; scripts; same-origin; popups; clipboard-write; gyp-eval;" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                dom.bgLayer.style.backgroundImage = 'none';
+                break;
+
+
             case 'solid':
                 if (bgValue && bgValue.includes('gradient')) {
                     dom.bgLayer.style.backgroundImage = bgValue;
@@ -133,16 +139,24 @@ export async function applySettings() {
         dom.videoSoundBtn.classList.toggle('muted', state.settings.videoMuted);
     }
 
-    dom.searchWidget?.classList.toggle('hidden', !state.settings.showSearch);
-    dom.topSitesWidget?.classList.toggle('hidden', !state.settings.showTopSites);
-    dom.cardsWidget?.classList.toggle('hidden', !state.settings.showCards);
-    dom.clockWidget?.style.setProperty('display', state.settings.showClock ? 'flex' : 'none');
+    // Handle Live Background interaction (Immersive Mode)
+    const isLive = bgType === 'google_dashboard' || bgType === 'bing_dashboard';
+    document.body.classList.toggle('live-bg-active', isLive);
 
-    const showNoosphere = state.settings.showNoosphereBar;
-    dom.cdiBar?.classList.toggle('hidden', !showNoosphere);
-    dom.cdiBarRight?.classList.toggle('hidden', !showNoosphere);
-    dom.cdiBarTop?.classList.toggle('hidden', !showNoosphere);
-    dom.cdiBarBottom?.classList.toggle('hidden', !showNoosphere);
+    // Hide all UI in Immersive Mode, except settings
+    const hideUI = isLive;
+    dom.searchWidget?.classList.toggle('hidden', hideUI || !state.settings.showSearch);
+    dom.topSitesWidget?.classList.toggle('hidden', hideUI || !state.settings.showTopSites);
+    dom.cardsWidget?.classList.toggle('hidden', hideUI || !state.settings.showCards);
+    dom.clockWidget?.style.setProperty('display', (hideUI || !state.settings.showClock) ? 'none' : 'flex');
+    dom.notesWidget?.classList.toggle('hidden', hideUI || !state.settings.showCardNote);
+    
+    const showNoosphere = state.settings.showNoosphereBar && !hideUI;
+    if (dom.cdiBar) dom.cdiBar.classList.toggle('hidden', !showNoosphere);
+    if (dom.cdiBarRight) dom.cdiBarRight.classList.toggle('hidden', !showNoosphere);
+    if (dom.cdiBarTop) dom.cdiBarTop.classList.toggle('hidden', !showNoosphere);
+    if (dom.cdiBarBottom) dom.cdiBarBottom.classList.toggle('hidden', !showNoosphere);
+
 
     const isImmersive = !state.settings.showMainUI;
     document.body.classList.toggle('immersive-mode', isImmersive);
@@ -267,12 +281,27 @@ export function renderThemeLibrary() {
 
         const grid = document.createElement('div');
         grid.className = 'theme-section-grid';
-        grid.innerHTML = items.map(t => `
-            <div class="theme-item" data-url="${t.url}">
-                <div class="theme-thumb" style="background-image:url('${t.url}')"></div>
-                <span class="theme-name">${t.name}</span>
-            </div>
-        `).join('');
+        grid.innerHTML = items.map(t => {
+            const isCanvas = t.url && t.url.startsWith('canvas:');
+            const isVideo = t.url && t.url.match(/\.(mp4|webm|ogg)$/i);
+            let thumbStyle = `background-image:url('${t.url}')`;
+            
+            if (isCanvas) {
+                thumbStyle = `background: linear-gradient(135deg, var(--accent), #000); filter: hue-rotate(45deg);`;
+            } else if (isVideo) {
+                thumbStyle = `background: #000;`; // Videos don't show in bg-image well
+            }
+            
+            return `
+                <div class="theme-item" data-url="${t.url}">
+                    <div class="theme-thumb" style="${thumbStyle}">
+                        ${isVideo ? '<svg viewBox="0 0 24 24" width="24" height="24" fill="white" style="opacity:0.6"><path d="M8 5v14l11-7z"/></svg>' : ''}
+                        ${isCanvas ? '<svg viewBox="0 0 24 24" width="24" height="24" fill="white" style="opacity:0.6"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>' : ''}
+                    </div>
+                    <span class="theme-name">${t.name}</span>
+                </div>
+            `;
+        }).join('');
         dom.galleryGrid.appendChild(grid);
     });
 

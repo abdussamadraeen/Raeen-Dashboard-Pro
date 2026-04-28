@@ -5,28 +5,20 @@
     "action": {
       "type": "modifyHeaders",
       "responseHeaders": [
-        { "header": "x-frame-options", "operation": "remove" },
-        { "header": "content-security-policy", "operation": "remove" }
+        { "header": "X-Frame-Options", "operation": "remove" },
+        { "header": "Frame-Options", "operation": "remove" },
+        { "header": "Content-Security-Policy", "operation": "remove" },
+        { "header": "X-Content-Security-Policy", "operation": "remove" },
+        { "header": "X-WebKit-CSP", "operation": "remove" }
       ]
     },
     "condition": {
-      "urlFilter": "*://*.google.com/*",
-      "resourceTypes": ["sub_frame"]
-    }
-  },
-  {
-    "id": 2,
-    "priority": 1,
-    "action": {
-      "type": "modifyHeaders",
-      "responseHeaders": [
-        { "header": "x-frame-options", "operation": "remove" },
-        { "header": "content-security-policy", "operation": "remove" }
-      ]
-    },
-    "condition": {
-      "urlFilter": "*://*.bing.com/*",
-      "resourceTypes": ["sub_frame"]
+      "urlFilter": "*",
+      "requestDomains": [
+        "google.com", "www.google.com", "accounts.google.com", "myaccount.google.com", "ssl.gstatic.com", "google.co.in", "google.co.uk",
+        "bing.com", "www.bing.com", "microsoft.com", "live.com", "office.com", "login.live.com", "login.microsoftonline.com", "account.microsoft.com"
+      ],
+      "resourceTypes": ["sub_frame", "xmlhttprequest", "script", "image", "stylesheet", "font"]
     }
   }
 ]
