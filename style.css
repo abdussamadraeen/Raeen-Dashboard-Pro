@@ -353,9 +353,9 @@ canvas.background-layer {
 }
 .note-delete-btn:hover { background: var(--danger); color: #fff; }
 
-/* ─── Settings Button ─── */
+/* ─── Settings Button (Top Right) ─── */
 .settings-btn {
-    position: absolute; bottom: 30px; right: 30px; width: 44px; height: 44px;
+    position: absolute; top: 30px; right: 30px; width: 44px; height: 44px;
     border-radius: 50%; background: var(--bg-modal); border: 1px solid var(--border);
     color: var(--text-primary); display: flex; justify-content: center; align-items: center; cursor: pointer;
     backdrop-filter: blur(10px); transition: all 0.3s ease; z-index: 10;
