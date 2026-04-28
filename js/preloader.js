@@ -1,7 +1,7 @@
 (function() {
     try {
-        const bgType = localStorage.getItem('abdus_bg_type');
-        const bgValue = localStorage.getItem('abdus_bg_value');
+        const bgType = localStorage.getItem('raeen_bg_type');
+        const bgValue = localStorage.getItem('raeen_bg_value');
         
         if (bgType === 'google_dashboard' || bgType === 'bing_dashboard') {
             document.documentElement.classList.add('live-bg-pre-active');

@@ -1,12 +1,12 @@
 (function() {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('abdus_dashboard') || window.location.href.includes('abdus_dashboard=true')) {
+    if (urlParams.has('raeen_dashboard') || window.location.href.includes('raeen_dashboard=true')) {
         
-        // Clean URL immediately — strip abdus_dashboard param, keep just origin/pathname
+        // Clean URL immediately — strip raeen_dashboard param, keep just origin/pathname
         function cleanUrl() {
             const url = new URL(window.location.href);
-            url.searchParams.delete('abdus_dashboard');
-            url.searchParams.delete('raeen_dashboard'); // Clean old legacy too
+            url.searchParams.delete('raeen_dashboard');
+            url.searchParams.delete('abdus_dashboard'); // Clean old legacy too
             const newURL = url.pathname + url.search + url.hash;
             window.history.replaceState({}, document.title, newURL);
         }
@@ -18,7 +18,7 @@
         window.addEventListener('load', () => setTimeout(cleanUrl, 1500));
         
         const btn = document.createElement('a');
-        btn.className = 'abdus-settings-btn';
+        btn.className = 'raeen-settings-btn';
         btn.href = '#';
         btn.title = "Back to Dashboard";
         btn.innerHTML = `

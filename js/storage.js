@@ -1,5 +1,5 @@
 export const StorageManager = (() => {
-    const DB_NAME = 'AbdusPremiumDB';
+    const DB_NAME = 'RaeenPremiumDB';
     const DB_VERSION = 5;
     let db = null;
 

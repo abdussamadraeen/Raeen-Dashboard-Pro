@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Abdus Dashboard Pro",
-  "version": "1.2.0",
+  "name": "Raeen Dashboard Pro",
+  "version": "1.0.0",
   "description": "A premium, minimalist new tab dashboard with integrated AI workflows.",
   "chrome_url_overrides": {
     "newtab": "index.html"

@@ -30,17 +30,17 @@ import { initFocusTimer } from './focus.js';
                 updateSettings(saved);
                 // Sync for next reload FOUC prevention
                 if (saved.backgroundType) {
-                    localStorage.setItem('abdus_bg_type', saved.backgroundType);
+                    localStorage.setItem('raeen_bg_type', saved.backgroundType);
                 }
                 applySettings();
                 updateTime();
             } else {
-                const local = localStorage.getItem('abdus_dashboard_settings');
+                const local = localStorage.getItem('raeen_dashboard_settings');
                 if (local) {
                     try {
                         updateSettings(JSON.parse(local));
                         await saveSettings(state.settings);
-                        localStorage.removeItem('abdus_dashboard_settings');
+                        localStorage.removeItem('raeen_dashboard_settings');
                         applySettings();
                     } catch (e) {
                         console.error("Error parsing settings from localStorage", e);

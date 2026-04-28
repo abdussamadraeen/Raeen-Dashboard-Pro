@@ -11,9 +11,8 @@ export function getSearchUrl() {
         duckduckgo: 'https://duckduckgo.com/?q=%s',
         bing: 'https://www.bing.com/search?q=%s',
         brave: 'https://search.brave.com/search?q=%s',
-        chatgpt: 'https://chatgpt.com/search?q=%s',
+        chatgpt: 'https://chatgpt.com/?q=%s',
         perplexity: 'https://www.perplexity.ai/search?q=%s',
-        // github_copilot: 'https://github.com/search?q=%s&type=code',
     };
     return urls[engine] || urls.google;
 }

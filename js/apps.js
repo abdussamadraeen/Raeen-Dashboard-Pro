@@ -333,7 +333,7 @@ const defaultAppData = {
 
 export function getAppData() {
     try {
-        const stored = localStorage.getItem('abdus_apps_data');
+        const stored = localStorage.getItem('raeen_apps_data');
         if (stored) {
             const parsed = JSON.parse(stored);
             // Ensure both google and microsoft exist
@@ -344,7 +344,7 @@ export function getAppData() {
 }
 
 export function saveAppData(data) {
-    localStorage.setItem('abdus_apps_data', JSON.stringify(data));
+    localStorage.setItem('raeen_apps_data', JSON.stringify(data));
 }
 
 let currentProvider = 'google';
