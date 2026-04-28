@@ -66,7 +66,7 @@ export const dom = {
     toggleCardNote: document.getElementById('toggle-card-note'),
     cardDateEl: document.getElementById('card-date'),
     cardFocusEl: document.getElementById('card-focus'),
-    cardNoteEl: document.getElementById('notes-panel'),
+    cardNoteEl: document.getElementById('notes-widget'),
     videoSoundBtn: document.getElementById('video-sound-btn'),
     cardDateValue: document.getElementById('card-date-value'),
     cardDateDay: document.getElementById('card-date-day'),

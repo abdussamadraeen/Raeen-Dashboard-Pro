@@ -209,9 +209,9 @@ canvas.background-layer {
 
 /* ─── Cards Widget ─── */
 .cards-container { 
-    display: grid; grid-template-columns: 200px 1fr; 
-    gap: 16px; width: 100%; max-width: 700px; 
-    max-height: 280px;
+    display: grid; grid-template-columns: 240px 1fr; 
+    gap: 24px; width: 100%; max-width: 900px; 
+    min-height: 400px;
 }
 .cards-left { display: flex; flex-direction: column; gap: 12px; }
 .info-card {

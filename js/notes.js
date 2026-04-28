@@ -5,6 +5,13 @@ let currentNoteId = null;
 
 export async function renderNotesList() {
     if (!dom.notesList) return;
+    
+    // Fallback if storage isn't ready yet
+    if (!StorageManager.isReady()) {
+        dom.notesList.innerHTML = '<div class="notes-empty">Initializing storage...</div>';
+        return;
+    }
+
     const notes = await StorageManager.getAll('notes');
     dom.notesCount.textContent = notes.length;
 
@@ -47,21 +54,34 @@ export function updateCharCount() {
 
 export async function saveCurrentNote() {
     if (!currentNoteId) return;
+    
     const title = dom.noteEditorTitle.value.trim();
     const body = dom.noteEditorBody.value;
 
-    if (!title && !body) return;
+    // Show saving status
+    dom.noteSaveStatus.textContent = 'Saving...';
+    dom.noteSaveStatus.style.opacity = '0.7';
 
-    const note = {
-        id: currentNoteId,
-        title: title,
-        body: body,
-        updated: Date.now()
-    };
+    try {
+        const note = {
+            id: currentNoteId,
+            title: title || (body ? body.substring(0, 20) + '...' : 'Untitled Note'),
+            body: body,
+            updated: Date.now()
+        };
 
-    await StorageManager.set('notes', currentNoteId, note);
-    dom.noteSaveStatus.textContent = 'Saved ' + new Date().toLocaleTimeString();
-    renderNotesList();
+        await StorageManager.set('notes', currentNoteId, note);
+        
+        dom.noteSaveStatus.textContent = 'Saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        dom.noteSaveStatus.style.opacity = '1';
+        
+        // Refresh the list in the background
+        renderNotesList();
+    } catch (e) {
+        console.error("Failed to save note:", e);
+        dom.noteSaveStatus.textContent = 'Error saving!';
+        dom.noteSaveStatus.style.color = 'var(--danger)';
+    }
 }
 
 export async function deleteCurrentNote() {

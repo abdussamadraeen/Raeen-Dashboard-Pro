@@ -14,38 +14,50 @@ import { initFocusTimer } from './focus.js';
     updateTime();
     const clockInterval = setInterval(updateTime, 1000);
 
-    try {
-        // 2. Load Persisted State
-        await StorageManager.init();
-        const saved = await StorageManager.get('settings', 'main');
-        if (saved) {
-            updateSettings(saved);
-            applySettings(); // Re-apply with user settings
-            updateTime();    // Refresh clock with user format
-        } else {
-            const local = localStorage.getItem('abdus_dashboard_settings');
-            if (local) {
-                try {
-                    updateSettings(JSON.parse(local));
-                    await saveSettings(state.settings);
-                    localStorage.removeItem('abdus_dashboard_settings'); // Clear after migration
-                    applySettings();
-                } catch (e) {
-                    console.error("Error parsing settings from localStorage", e);
-                }
-            } else {
-                await saveSettings(state.settings);
+    // 2. Load Persisted State
+    const loadStorage = async () => {
+        try {
+            await StorageManager.init();
+            if (!StorageManager.isReady()) {
+                console.warn("Storage not ready, retrying in 2s...");
+                setTimeout(loadStorage, 2000);
+                return;
             }
+
+            const saved = await StorageManager.get('settings', 'main');
+            if (saved) {
+                updateSettings(saved);
+                applySettings();
+                updateTime();
+            } else {
+                const local = localStorage.getItem('abdus_dashboard_settings');
+                if (local) {
+                    try {
+                        updateSettings(JSON.parse(local));
+                        await saveSettings(state.settings);
+                        localStorage.removeItem('abdus_dashboard_settings');
+                        applySettings();
+                    } catch (e) {
+                        console.error("Error parsing settings from localStorage", e);
+                    }
+                } else {
+                    await saveSettings(state.settings);
+                }
+            }
+            
+            // Re-render components once storage is ready
+            renderNotesList();
+            renderThemeLibrary();
+            renderShortcuts();
+            updateCards();
+        } catch (e) {
+            console.error("Storage initialization failed", e);
         }
-    } catch (e) {
-        console.error("Storage initialization failed, keeping defaults", e);
-    }
+    };
+
+    await loadStorage();
 
     // 3. Feature setup
-    renderNotesList();
-    renderThemeLibrary();
-    renderShortcuts();
-    updateCards();
     setupSearch();
     initFocusTimer();
 
@@ -154,13 +166,20 @@ import { initFocusTimer } from './focus.js';
         };
     }
 
+    // 10. Note Editor Auto-Save & Safety
     let saveTimeout;
     const autoSave = () => {
         clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(saveCurrentNote, 800);
+        saveTimeout = setTimeout(saveCurrentNote, 300); // Faster saving (300ms)
     };
+    
     if (dom.noteEditorTitle) dom.noteEditorTitle.oninput = autoSave;
     if (dom.noteEditorBody) dom.noteEditorBody.oninput = () => { autoSave(); updateCharCount(); };
+
+    // Safety: Force save if user refreshes or closes the tab
+    window.addEventListener('beforeunload', () => {
+        saveCurrentNote();
+    });
 
     // Sidebar Tabs
     dom.sidebarTabs.forEach(tab => {

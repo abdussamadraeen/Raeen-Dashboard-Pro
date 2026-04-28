@@ -1,34 +1,47 @@
 export const StorageManager = (() => {
     const DB_NAME = 'AbdusPremiumDB';
-    const DB_VERSION = 4;
+    const DB_VERSION = 5;
     let db = null;
 
     const init = () => {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(DB_NAME, DB_VERSION);
             
-            // Set a timeout to prevent hanging if DB open takes too long
-            const timeout = setTimeout(() => {
-                console.error("Storage initialization timed out");
-                resolve(); // Proceed anyway so UI doesn't freeze
-            }, 3000);
-
-            request.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings');
-                if (!db.objectStoreNames.contains('mediaStore')) db.createObjectStore('mediaStore');
-                if (!db.objectStoreNames.contains('imageCache')) db.createObjectStore('imageCache');
-                if (!db.objectStoreNames.contains('notes')) db.createObjectStore('notes', { keyPath: 'id' });
-            };
-            request.onsuccess = (e) => { 
-                clearTimeout(timeout);
-                db = e.target.result; 
+            // Handle blocking from other tabs
+            request.onblocked = () => {
+                console.warn("Database upgrade blocked. Please close other tabs.");
+                // We still resolve so UI loads, but with a warning
                 resolve(); 
             };
+
+            request.onupgradeneeded = (e) => {
+                const upgradeDb = e.target.result;
+                if (!upgradeDb.objectStoreNames.contains('settings')) upgradeDb.createObjectStore('settings');
+                if (!upgradeDb.objectStoreNames.contains('mediaStore')) upgradeDb.createObjectStore('mediaStore');
+                if (!upgradeDb.objectStoreNames.contains('imageCache')) upgradeDb.createObjectStore('imageCache');
+                
+                if (upgradeDb.objectStoreNames.contains('notes')) {
+                    upgradeDb.deleteObjectStore('notes');
+                }
+                upgradeDb.createObjectStore('notes', { keyPath: 'id' });
+            };
+
+            request.onsuccess = (e) => { 
+                db = e.target.result; 
+                
+                // Handle version changes in other tabs
+                db.onversionchange = () => {
+                    db.close();
+                    console.log("Database version changed elsewhere. Reloading...");
+                    window.location.reload();
+                };
+                
+                resolve(); 
+            };
+
             request.onerror = (e) => {
-                clearTimeout(timeout);
                 console.error('DB Error: ', e.target.errorCode);
-                resolve(); // Still resolve so UI can load
+                resolve(); 
             };
         });
     };
@@ -87,5 +100,7 @@ export const StorageManager = (() => {
         });
     };
 
-    return { init, get, set, getAll, remove };
+    const isReady = () => db !== null;
+
+    return { init, get, set, getAll, remove, isReady };
 })();
