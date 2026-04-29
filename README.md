@@ -2,7 +2,16 @@
 
 A premium, minimalist new tab dashboard for Chrome and Edge. Designed for productivity with integrated AI workflows, glassmorphism aesthetics, and high-performance search engine transitions.
 
-![Raeen Dashboard Banner](https://via.placeholder.com/1280x640?text=Raeen+Dashboard+Pro)
+![Raeen Dashboard Banner](banner.png)
+
+## 📸 Gallery
+
+<p align="center">
+  <img src="screenshots/screenshot1.png" width="400" />
+  <img src="screenshots/screenshot2.png" width="400" />
+  <img src="screenshots/screenshot3.png" width="400" />
+  <img src="screenshots/screenshot4.png" width="400" />
+</p>
 
 ## 🚀 Features
 
