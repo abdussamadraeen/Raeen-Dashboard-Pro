@@ -1,14 +1,14 @@
 :root {
-    --primary: #8b5cf6;
-    --primary-glow: rgba(139, 92, 246, 0.2);
-    --secondary: #06b6d4;
-    --secondary-glow: rgba(6, 182, 212, 0.2);
-    --bg: #f8fafc;
+    --primary: #ff7eb9;
+    --primary-glow: rgba(255, 126, 185, 0.4);
+    --secondary: #7afcff;
+    --secondary-glow: rgba(122, 252, 255, 0.4);
+    --bg: #fdf2f8;
     --bg-accent: #ffffff;
-    --card-bg: rgba(255, 255, 255, 0.7);
-    --text: #1e293b;
-    --text-dim: #64748b;
-    --border: rgba(0, 0, 0, 0.05);
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --text: #312e81;
+    --text-dim: #6366f1;
+    --border: rgba(255, 126, 185, 0.1);
     --nav-h: 80px;
     --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -34,14 +34,14 @@ body {
     width: 600px;
     height: 600px;
     background: var(--primary);
-    filter: blur(180px);
-    opacity: 0.08;
+    filter: blur(150px);
+    opacity: 0.15;
     z-index: -1;
     border-radius: 50%;
 }
 
-.blob-1 { top: -200px; right: -100px; }
-.blob-2 { bottom: -200px; left: -100px; background: var(--secondary); }
+.blob-1 { top: -200px; right: -100px; background: #ffd1ff; }
+.blob-2 { bottom: -200px; left: -100px; background: #d1ffff; }
 
 /* Navigation */
 nav {
@@ -147,8 +147,19 @@ nav {
 }
 
 /* Typography */
-h1 { font-size: 4.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; }
-h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; }
+h1 { 
+    font-size: 4.5rem; 
+    font-weight: 900; 
+    line-height: 1.1; 
+    margin-bottom: 1.5rem; 
+    text-shadow: 0 0 30px var(--primary-glow);
+}
+h2 { 
+    font-size: 2.5rem; 
+    font-weight: 800; 
+    margin-bottom: 1.5rem; 
+    color: #4338ca;
+}
 p { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 1.1rem; }
 
 /* Components */
