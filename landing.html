@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raeen Dashboard Pro | Premium New Tab Experience</title>
+    <style>
+        :root {
+            --primary: #7b61ff;
+            --secondary: #00f2ff;
+            --bg: #0a0b10;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #ffffff;
+            --text-dim: #b0b0b0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', -apple-system, system-ui, sans-serif; 
+            background: var(--bg); 
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .gradient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(123, 97, 255, 0.15), transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(0, 242, 255, 0.1), transparent 40%);
+            z-index: -1;
+        }
+
+        nav {
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .hero {
+            padding: 8rem 2rem;
+            text-align: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 30px rgba(123, 97, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(123, 97, 255, 0.5);
+        }
+
+        .features {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover { transform: scale(1.02); }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .gallery {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .gallery h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .grid img {
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        footer {
+            padding: 5rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+        }
+
+        footer a { color: var(--primary); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+    
+    <nav>
+        <div class="logo">RAEEN PRO</div>
+        <div>
+            <a href="privacy.html" style="color: var(--text-dim); text-decoration: none; font-weight: 600;">Privacy</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Your New Tab,<br>Redefined with AI.</h1>
+        <p>Experience a premium, minimalist dashboard designed for high-performance workflows and stunning aesthetics.</p>
+        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro/raw/main/Raeen_Dashboard_Pro_v1.0.0.zip" class="btn btn-primary">Download v1.0.0 ZIP</a>
+    </section>
+
+    <section class="features">
+        <div class="feature-card">
+            <h3>AI-First Workflow</h3>
+            <p>Direct access to ChatGPT, Gemini, Claude, and Perplexity with zero-redirect speed.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Metasurface UI</h3>
+            <p>Stunning glassmorphism design that feels alive with dynamic neural background engines.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Privacy Centric</h3>
+            <p>All settings and notes are stored locally. We never collect or transmit your data.</p>
+        </div>
+    </section>
+
+    <section class="gallery">
+        <h2>Experience the Interface</h2>
+        <div class="grid">
+            <img src="screenshots/screenshot2.png" alt="Dashboard Preview 1">
+            <img src="screenshots/screenshot3.png" alt="Dashboard Preview 2">
+            <img src="screenshots/screenshot4.png" alt="Dashboard Preview 3">
+            <img src="screenshots/screenshot5.png" alt="Dashboard Preview 4">
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Abdussamad Raeen. Built for productivity.</p>
+        <p><a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro">View Source on GitHub</a></p>
+    </footer>
+</body>
+</html>
