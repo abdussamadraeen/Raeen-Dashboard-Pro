@@ -3,43 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Raeen Dashboard Pro</title>
+    <title>Privacy Policy | Raeen Dashboard Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 40px auto; padding: 20px; }
-        h1 { color: #7b61ff; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        h2 { margin-top: 30px; color: #444; }
-        p { margin: 15px 0; }
-        .footer { margin-top: 50px; font-size: 0.9em; color: #888; border-top: 1px solid #eee; padding-top: 20px; }
+        .privacy-content { max-width: 800px; margin: 0 auto; background: var(--card-bg); padding: 4rem; border-radius: 32px; border: 1px solid var(--border); }
+        .privacy-content h2 { margin-top: 3rem; color: var(--secondary); font-size: 1.8rem; }
+        .privacy-content p, .privacy-content ul { color: var(--text-dim); font-size: 1.1rem; margin-bottom: 1.5rem; }
+        .privacy-content ul { padding-left: 1.5rem; }
+        .privacy-content li { margin-bottom: 0.5rem; }
     </style>
 </head>
 <body>
-    <h1>Privacy Policy</h1>
-    <p><strong>Effective Date:</strong> April 28, 2026</p>
-    
-    <p>Raeen Dashboard Pro ("the Extension") is committed to protecting your privacy. This policy explains how we handle your information.</p>
-    
-    <h2>1. Data Collection</h2>
-    <p>Raeen Dashboard Pro **does not collect, store, or transmit** any personal data. All your settings, shortcuts, and notes are stored locally on your device using your browser's storage (LocalStorage and IndexedDB).</p>
-    
-    <h2>2. Data Transmission</h2>
-    <p>The Extension does not send your data to any external servers. Any interactions with search engines (like Google or Bing) occur directly between your browser and those services, as if you were visiting them directly.</p>
-    
-    <h2>3. Permissions</h2>
-    <p>The Extension requests the following permissions for functional reasons only:</p>
-    <ul>
-        <li><strong>Storage:</strong> To save your dashboard settings and notes locally.</li>
-        <li><strong>DeclarativeNetRequest:</strong> To allow the integration of search engines within the dashboard frames.</li>
-        <li><strong>TopSites:</strong> To display your most visited websites if you enable that feature.</li>
-    </ul>
-    
-    <h2>4. Third-Party Services</h2>
-    <p>When using the integrated search dashboards (Google, Bing), you are subject to the privacy policies of those respective services. We encourage you to review their policies.</p>
-    
-    <h2>5. Changes to This Policy</h2>
-    <p>We may update this policy from time to time. Any changes will be reflected by updating the "Effective Date" at the top of this page.</p>
-    
-    <div class="footer">
-        <p>&copy; 2026 Raeen Dashboard Pro. All rights reserved.</p>
-    </div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">RAEEN PRO</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="features.html">Features</a>
+                <a href="guide.html">Guide</a>
+                <a href="privacy.html" class="active">Privacy</a>
+            </div>
+            <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro/releases/download/1.0/Raeen_Dashboard_Pro_v1.0.0.zip" class="btn btn-primary">Download</a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <div class="privacy-content">
+                    <h1 class="text-center" style="font-size: 3rem;">Privacy Policy</h1>
+                    <p class="text-center"><strong>Effective Date:</strong> April 28, 2026</p>
+                    
+                    <p>Raeen Dashboard Pro ("the Extension") is committed to protecting your privacy. This policy explains how we handle your information.</p>
+                    
+                    <h2>1. Data Collection</h2>
+                    <p>Raeen Dashboard Pro <strong>does not collect, store, or transmit</strong> any personal data. All your settings, shortcuts, and notes are stored locally on your device using your browser's storage (LocalStorage and IndexedDB).</p>
+                    
+                    <h2>2. Data Transmission</h2>
+                    <p>The Extension does not send your data to any external servers. Any interactions with search engines (like Google or Bing) occur directly between your browser and those services.</p>
+                    
+                    <h2>3. Permissions</h2>
+                    <p>The Extension requests the following permissions for functional reasons only:</p>
+                    <ul>
+                        <li><strong>Storage:</strong> To save your dashboard settings and notes locally.</li>
+                        <li><strong>DeclarativeNetRequest:</strong> To allow the integration of search engines within the dashboard frames.</li>
+                        <li><strong>TopSites:</strong> To display your most visited websites if you enable that feature.</li>
+                    </ul>
+                    
+                    <h2>4. Third-Party Services</h2>
+                    <p>When using the integrated search dashboards (Google, Bing), you are subject to the privacy policies of those respective services. We encourage you to review their policies.</p>
+                    
+                    <h2>5. Changes to This Policy</h2>
+                    <p>We may update this policy from time to time. Any changes will be reflected by updating the "Effective Date" at the top of this page.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="logo">RAEEN PRO</div>
+            <p>&copy; 2026 Abdussamad Raeen. Built for performance.</p>
+            <div class="nav-links">
+                <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro">GitHub</a>
+                <a href="privacy.html" class="active">Privacy</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
