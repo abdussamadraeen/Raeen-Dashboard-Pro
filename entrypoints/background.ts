@@ -1,4 +1,47 @@
 export default defineBackground(() => {
+  // Dynamically register rules on startup to guarantee header stripping
+  const registerDynamicRules = async () => {
+    try {
+      const rules = [
+        {
+          id: 1001,
+          priority: 1,
+          action: {
+            type: 'modifyHeaders',
+            responseHeaders: [
+              { header: 'X-Frame-Options', operation: 'remove' },
+              { header: 'Frame-Options', operation: 'remove' },
+              { header: 'Content-Security-Policy', operation: 'remove' },
+              { header: 'X-Content-Security-Policy', operation: 'remove' },
+              { header: 'X-WebKit-CSP', operation: 'remove' }
+            ]
+          },
+          condition: {
+            requestDomains: [
+              'google.com', 'google.co.in', 'www.google.com', 'www.google.co.in',
+              'bing.com', 'www.bing.com', 'cn.bing.com', 'live.com', 'www.live.com'
+            ],
+            resourceTypes: ['sub_frame']
+          }
+        }
+      ];
+
+      const existingRules = await browser.declarativeNetRequest.getDynamicRules();
+      const existingIds = existingRules.map(r => r.id);
+
+      await browser.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: existingIds,
+        addRules: rules as any
+      });
+      console.log('✓ Dynamic DNR rules registered successfully.');
+    } catch (e) {
+      console.error('Failed to register dynamic DNR rules:', e);
+    }
+  };
+
+  // Call on initialization
+  registerDynamicRules();
+
   // Listen for actions from content scripts
   browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'open_dashboard' && sender.tab?.id) {
