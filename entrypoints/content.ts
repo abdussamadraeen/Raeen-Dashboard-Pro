@@ -1,5 +1,5 @@
 export default defineContentScript({
-  matches: ['*://*.google.com/*', '*://*.bing.com/*'],
+  matches: ['*://*.google.com/*', '*://*.google.co.in/*', '*://*.bing.com/*'],
   allFrames: true,
   main() {
     // 1. Safe Iframe Link Block Prevention
