@@ -12,6 +12,7 @@ export default defineConfig({
       'unlimitedStorage',
       'declarativeNetRequest',
       'declarativeNetRequestWithHostAccess',
+      'browsingData',
       'tabs'
     ],
     host_permissions: [

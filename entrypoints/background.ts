@@ -39,12 +39,40 @@ export default defineBackground(() => {
     }
   };
 
+  // Function to clear Service Workers for Google/Bing to prevent DNR bypass
+  const clearServiceWorkers = async () => {
+    try {
+      if (browser.browsingData && browser.browsingData.remove) {
+        await browser.browsingData.remove(
+          {
+            origins: [
+              'https://google.com',
+              'https://www.google.com',
+              'https://google.co.in',
+              'https://www.google.co.in',
+              'https://bing.com',
+              'https://www.bing.com'
+            ]
+          },
+          {
+            serviceWorkers: true
+          }
+        );
+        console.log('✓ Cleared Google/Bing service workers to prevent DNR bypass.');
+      }
+    } catch (e) {
+      console.error('Failed to clear service workers:', e);
+    }
+  };
+
   // Call on initialization
   registerDynamicRules();
+  clearServiceWorkers();
 
   // Listen for actions from content scripts
   browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'open_dashboard' && sender.tab?.id) {
+      clearServiceWorkers();
       const url = browser.runtime.getURL('newtab.html') + '?no_redirect=true&settings=true';
       browser.tabs.update(sender.tab.id, { url });
     } else if (request.action === 'open_tab' && request.url) {
@@ -70,6 +98,7 @@ export default defineBackground(() => {
         const dashboardUrl = browser.runtime.getURL('newtab.html');
         // Prevent infinite loops if we are already on the dashboard page
         if (!url.includes(dashboardUrl)) {
+          clearServiceWorkers();
           await browser.tabs.update(tabId, { url: dashboardUrl });
         }
       }
