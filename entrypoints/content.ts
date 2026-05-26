@@ -2,6 +2,9 @@ export default defineContentScript({
   matches: ['*://google.com/*', '*://*.google.com/*', '*://google.co.in/*', '*://*.google.co.in/*', '*://bing.com/*', '*://*.bing.com/*'],
   allFrames: true,
   main() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasParam = urlParams.has('raeen_dashboard') || window.location.href.includes('raeen_dashboard=true');
+
     // 1. Safe Iframe Link Block Prevention
     // If the search engine is loaded inside our dashboard iframe, force all search links to open in a new tab
     // to prevent standard SAMEORIGIN/X-Frame blocks on target websites.
@@ -73,17 +76,12 @@ export default defineContentScript({
       }
 
       // Proactively check if this is our framed dashboard search results page
-      const urlParams = new URLSearchParams(window.location.search);
-      const hasParam = urlParams.has('raeen_dashboard') || window.location.href.includes('raeen_dashboard=true');
       if (!hasParam) {
         return;
       }
     }
 
     // 2. Settings button injection for topmost or framed dashboard pages
-    const urlParams = new URLSearchParams(window.location.search);
-    const hasParam = urlParams.has('raeen_dashboard') || window.location.href.includes('raeen_dashboard=true');
-
     if (hasParam) {
       // Clean URL immediately to keep address bar pristine
       const cleanUrl = () => {
