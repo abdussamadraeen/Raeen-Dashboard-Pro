@@ -1,6 +1,7 @@
 import { state as i } from "./state.js";
 import { dom as e } from "./dom.js";
 import { escapeHTML as sHtml, debounce as dnce } from "./security.js";
+import { applySettings as apply } from "./ui.js";
 
 export function getSearchUrl() {
     const n = i.settings.searchEngine;
@@ -35,12 +36,12 @@ export function setupSearch() {
             if (!query) return;
             const engine = i.settings.searchEngine;
             if (engine === "google" || engine === "bing") {
-                // Dynamically route search queries into the immersive dashboard iframe on the same page
+                // Dynamically route search queries into the immersive background iframe in-memory only (temporary)
                 i.settings.backgroundType = `${engine}_dashboard`;
                 i.settings.backgroundValue = engine === "google"
                     ? `https://www.google.com/search?q=${encodeURIComponent(query)}&raeen_dashboard=true`
                     : `https://www.bing.com/search?q=${encodeURIComponent(query)}&raeen_dashboard=true`;
-                a(i.settings);
+                apply();
             } else {
                 const url = getSearchUrl().replace("%s", encodeURIComponent(query));
                 window.open(url, "_blank");

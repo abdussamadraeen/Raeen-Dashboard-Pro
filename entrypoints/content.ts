@@ -71,10 +71,16 @@ export default defineContentScript({
       } catch (e) {
         console.error('Failed to inject frame protection:', e);
       }
-      return;
+
+      // Proactively check if this is our framed dashboard search results page
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasParam = urlParams.has('raeen_dashboard') || window.location.href.includes('raeen_dashboard=true');
+      if (!hasParam) {
+        return;
+      }
     }
 
-    // 2. Settings button injection for topmost frames
+    // 2. Settings button injection for topmost or framed dashboard pages
     const urlParams = new URLSearchParams(window.location.search);
     const hasParam = urlParams.has('raeen_dashboard') || window.location.href.includes('raeen_dashboard=true');
 
@@ -167,7 +173,11 @@ export default defineContentScript({
 
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        browser.runtime.sendMessage({ action: 'open_dashboard' });
+        if (window.self !== window.top) {
+          browser.runtime.sendMessage({ action: 'close_dashboard_iframe' });
+        } else {
+          browser.runtime.sendMessage({ action: 'open_dashboard' });
+        }
       });
 
       shadow.appendChild(btn);
