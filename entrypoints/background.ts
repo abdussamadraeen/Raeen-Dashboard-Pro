@@ -73,7 +73,7 @@ export default defineBackground(() => {
   browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'open_dashboard' && sender.tab?.id) {
       clearServiceWorkers();
-      const url = browser.runtime.getURL('newtab.html') + '?no_redirect=true&settings=true';
+      const url = browser.runtime.getURL('/newtab.html') + '?no_redirect=true&settings=true';
       browser.tabs.update(sender.tab.id, { url });
     } else if (request.action === 'open_tab' && request.url) {
       browser.tabs.create({ url: request.url });
@@ -95,7 +95,7 @@ export default defineBackground(() => {
   const redirectToDashboard = async (tabId: number, url?: string) => {
     try {
       if (url && newTabUrls.some(target => url.startsWith(target))) {
-        const dashboardUrl = browser.runtime.getURL('newtab.html');
+        const dashboardUrl = browser.runtime.getURL('/newtab.html');
         // Prevent infinite loops if we are already on the dashboard page
         if (!url.includes(dashboardUrl)) {
           clearServiceWorkers();

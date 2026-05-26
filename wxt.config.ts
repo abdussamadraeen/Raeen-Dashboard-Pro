@@ -6,6 +6,15 @@ export default defineConfig({
     name: 'NewTab',
     description: 'A premium, minimalist new tab dashboard with integrated AI workflows and focus features.',
     version: '2.0.0',
+    action: {
+      default_icon: {
+        '16': 'icon/16.png',
+        '32': 'icon/32.png',
+        '48': 'icon/48.png',
+        '96': 'icon/96.png',
+        '128': 'icon/128.png'
+      }
+    },
     permissions: [
       'topSites',
       'storage',

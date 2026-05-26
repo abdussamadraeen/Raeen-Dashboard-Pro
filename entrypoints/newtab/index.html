@@ -310,6 +310,21 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="settings-group mt-4">
+                            <label>Data Management</label>
+                            <p class="subtext mb-2">Backup and restore your settings, custom links, and notes.</p>
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button id="export-settings-btn" class="primary-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    Export Backup
+                                </button>
+                                <button id="import-settings-btn" class="focus-btn focus-btn-secondary" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; font-weight: 500; font-size: 14px;">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                    Import Backup
+                                </button>
+                                <input type="file" id="import-settings-input" accept=".json" style="display: none;">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Search Tab -->
