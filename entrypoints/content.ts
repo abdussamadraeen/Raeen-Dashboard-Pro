@@ -50,11 +50,6 @@ export default defineContentScript({
           }
         };
 
-        // Inject base blank tag as a general standard fallback
-        const base = document.createElement('base');
-        base.target = '_blank';
-        document.head.appendChild(base);
-
         // Capture clicks on document level early to bypass Google/Bing JS handlers
         document.addEventListener('click', (e) => {
           let target = e.target as HTMLElement | null;
