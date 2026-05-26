@@ -107,17 +107,25 @@ export default defineBackground(() => {
     }
   };
 
-  // Intercept tab creation
-  browser.tabs.onCreated.addListener((tab) => {
-    if (tab.id) {
-      redirectToDashboard(tab.id, tab.url || tab.pendingUrl);
-    }
-  });
+  // Only register mobile fallback redirects on Android to keep Desktop address bars clean
+  browser.runtime.getPlatformInfo().then((info) => {
+    if (info.os === 'android') {
+      // Intercept tab creation
+      browser.tabs.onCreated.addListener((tab) => {
+        if (tab.id) {
+          redirectToDashboard(tab.id, tab.url || tab.pendingUrl);
+        }
+      });
 
-  // Intercept tab navigation updates
-  browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.url) {
-      redirectToDashboard(tabId, changeInfo.url);
+      // Intercept tab navigation updates
+      browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+        if (changeInfo.url) {
+          redirectToDashboard(tabId, changeInfo.url);
+        }
+      });
+      console.log('✓ Registered mobile newtab redirect listeners for Android.');
+    } else {
+      console.log('✓ Desktop platform detected. Using native manifest overrides to keep address bar clean.');
     }
   });
 });
