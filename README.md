@@ -1,5 +1,9 @@
 # Raeen Dashboard Pro v2.0.0
 
+<p align="center">
+  <img src="assets/promo_banner.png" alt="Raeen Dashboard Pro Banner" width="100%" />
+</p>
+
 A premium, minimalist new tab dashboard for Chrome and Edge. Designed for productivity with integrated AI workflows, glassmorphism aesthetics, and high-performance search engine transitions. Built using **WXT** (Vite + TypeScript) for optimal Manifest V3 security, modularity, and lightning-fast compilation.
 
 ## 📸 Gallery
