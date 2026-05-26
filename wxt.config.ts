@@ -39,5 +39,20 @@ export default defineConfig({
     content_security_policy: {
       extension_pages: "script-src 'self'; object-src 'self'; frame-src https://google.com https://*.google.com https://google.co.in https://*.google.co.in https://bing.com https://*.bing.com https://*.microsoft.com;"
     }
-  }
+  },
+  vite: () => ({
+    build: {
+      minify: 'esbuild',
+      cssMinify: 'esbuild',
+      target: 'esnext'
+    },
+    esbuild: {
+      drop: ['console', 'debugger'],
+      legalComments: 'none',
+      treeShaking: true,
+      minifyIdentifiers: true,
+      minifySyntax: true,
+      minifyWhitespace: true
+    }
+  })
 });
