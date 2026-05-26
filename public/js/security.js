@@ -63,3 +63,19 @@ export function sanitizeURL(urlStr) {
     
     return 'about:blank';
 }
+
+/**
+ * Generic debounce utility to limit rate of function execution.
+ * @param {Function} func Callback function
+ * @param {number} delay Delay in milliseconds
+ * @returns {Function} Debounced function
+ */
+export function debounce(func, delay = 200) {
+    let timeoutId;
+    return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
