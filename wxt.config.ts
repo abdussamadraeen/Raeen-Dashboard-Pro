@@ -3,7 +3,7 @@ import { defineConfig } from 'wxt';
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   manifest: {
-    name: 'NewTab — Minimalist Productivity Dashboard',
+    name: 'NewTab',
     description: 'A premium, minimalist new tab dashboard with integrated AI workflows and focus features.',
     version: '2.0.0',
     permissions: [
