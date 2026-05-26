@@ -9,16 +9,16 @@ A premium, minimalist new tab dashboard for Chrome and Edge. Designed for produc
 ## 📸 Gallery
 
 <p align="center">
-  <img src="screenshots/screenshot2.png" width="45%" />
-  <img src="screenshots/screenshot3.png" width="45%" />
-  <img src="screenshots/screenshot4.png" width="45%" />
-  <img src="screenshots/screenshot5.png" width="45%" />
-  <img src="screenshots/screenshot6.png" width="45%" />
-  <img src="screenshots/screenshot7.png" width="45%" />
-  <img src="screenshots/screenshot8.png" width="45%" />
-  <img src="screenshots/screenshot9.png" width="45%" />
-  <img src="screenshots/screenshot10.png" width="45%" />
-  <img src="screenshots/screenshot11.png" width="45%" />
+  <img src="legacy-v1-vanilla/screenshots/screenshot2.png" width="45%" />
+  <img src="legacy-v1-vanilla/screenshots/screenshot3.png" width="45%" />
+  <img src="legacy-v1-vanilla/screenshots/screenshot4.png" width="45%" />
+  <img src="legacy-v1-vanilla/screenshots/screenshot5.png" width="45%" />
+  <img src="legacy-v1-vanilla/screenshots/screenshot6.png" width="45%" />
+  <img src="legacy-v1-vanilla/screenshots/screenshot7.png" width="45%" />
+  <img src="legacy-v1-vanilla/screenshots/screenshot8.png" width="45%" />
+  <img src="legacy-v1-vanilla/screenshots/screenshot9.png" width="45%" />
+  <img src="legacy-v1-vanilla/screenshots/screenshot10.png" width="45%" />
+  <img src="legacy-v1-vanilla/screenshots/screenshot11.png" width="45%" />
 </p>
 
 ## 🚀 Key Features
