@@ -33,8 +33,18 @@ export function setupSearch() {
 
         const handleSearch = (query) => {
             if (!query) return;
-            const url = getSearchUrl().replace("%s", encodeURIComponent(query));
-            window.open(url, "_blank");
+            const engine = i.settings.searchEngine;
+            if (engine === "google" || engine === "bing") {
+                // Dynamically route search queries into the immersive dashboard iframe on the same page
+                i.settings.backgroundType = `${engine}_dashboard`;
+                i.settings.backgroundValue = engine === "google"
+                    ? `https://www.google.com/search?q=${encodeURIComponent(query)}&raeen_dashboard=true`
+                    : `https://www.bing.com/search?q=${encodeURIComponent(query)}&raeen_dashboard=true`;
+                a(i.settings);
+            } else {
+                const url = getSearchUrl().replace("%s", encodeURIComponent(query));
+                window.open(url, "_blank");
+            }
         };
 
         const fetchSuggestions = dnce(async (query) => {
