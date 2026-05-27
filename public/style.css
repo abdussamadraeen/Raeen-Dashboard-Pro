@@ -2,3 +2,20 @@
 
 /* Boss Mode */
 body.boss-mode-active .container, body.boss-mode-active .top-left-widget, body.boss-mode-active .settings-btn, body.boss-mode-active .noosphere-status, body.boss-mode-active .noosphere-status-horizontal, body.boss-mode-active .overlay { filter: blur(30px); opacity: 0 !important; pointer-events: none; transition: filter 0.4s ease, opacity 0.4s ease; }
+
+/* Marketing Pages Styles (Nav, Footer, Utils) */
+.text-center { text-align: center; }
+nav { width: 100%; padding: 1.5rem 0; position: absolute; top: 0; left: 0; z-index: 100; }
+.nav-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.2rem; font-weight: 800; color: var(--text-primary); text-decoration: none; letter-spacing: 2px; }
+.nav-links { display: flex; gap: 2rem; }
+.nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.2s ease; }
+.nav-links a:hover, .nav-links a.active { color: var(--accent); }
+.btn { padding: 0.6rem 1.5rem; border-radius: 20px; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease; display: inline-block; }
+.btn-primary { background: linear-gradient(135deg, var(--accent), #5643cc); color: #fff; box-shadow: 0 4px 15px var(--accent-glow); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-glow); }
+.footer { width: 100%; margin-top: auto; padding: 2rem 0; border-top: 1px solid var(--border); }
+.footer-content { max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.footer p { color: var(--text-secondary); font-size: 0.85rem; }
+main { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; padding-top: 80px; }
+.section { width: 100%; }
