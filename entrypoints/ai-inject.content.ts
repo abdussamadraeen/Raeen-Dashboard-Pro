@@ -50,11 +50,17 @@ export default defineContentScript({
       ],
     };
 
-    // Utility: find element by selectors
+    // Utility: find element by selectors (uses native CSS engine joining for fast matching)
     function findElement(selList: string[]): HTMLElement | null {
-      for (const sel of selList) {
-        const el = document.querySelector(sel);
-        if (el) return el as HTMLElement;
+      try {
+        return document.querySelector(selList.join(',')) as HTMLElement | null;
+      } catch (e) {
+        for (const sel of selList) {
+          try {
+            const el = document.querySelector(sel);
+            if (el) return el as HTMLElement;
+          } catch (err) {}
+        }
       }
       return null;
     }
@@ -84,6 +90,29 @@ export default defineContentScript({
       }
     }
 
+    // Resolve host & active selectors once upfront rather than inside the polling interval loop
+    const host = window.location.hostname;
+    let activeSelectors: string[] = [];
+
+    if (host.includes('chatgpt.com')) activeSelectors = selectors.chatgpt;
+    else if (host.includes('gemini.google.com')) activeSelectors = selectors.gemini;
+    else if (host.includes('copilot.microsoft.com')) activeSelectors = selectors.copilot;
+    else if (host.includes('perplexity.ai')) activeSelectors = selectors.perplexity;
+    else if (host.includes('claude.ai')) activeSelectors = selectors.claude;
+    else if (host.includes('blackbox.ai')) activeSelectors = selectors.blackbox;
+    else if (host.includes('huggingface.co')) activeSelectors = selectors.huggingface;
+    else if (host.includes('groq.com')) activeSelectors = selectors.groq;
+    else if (host.includes('mistral.ai')) activeSelectors = selectors.mistral;
+    else if (host.includes('cohere.ai') || host.includes('cohere.com')) activeSelectors = selectors.cohere;
+    else if (host.includes('together.ai')) activeSelectors = selectors.together;
+    else if (host.includes('replicate.com')) activeSelectors = selectors.replicate;
+    else {
+      // Auto-detection fallback: flat array of all known selectors
+      activeSelectors = Object.keys(selectors)
+        .filter(k => k !== 'defaultSend')
+        .flatMap(k => selectors[k as keyof typeof selectors]);
+    }
+
     // Try multiple times to paste (handling SPA loading and network transition delays)
     let attempts = 0;
     const maxAttempts = 30;
@@ -97,53 +126,8 @@ export default defineContentScript({
         return;
       }
 
-      let inputEl: HTMLElement | null = null;
-      const host = window.location.hostname;
-
-      try {
-        if (host.includes('chatgpt.com')) {
-          inputEl = findElement(selectors.chatgpt);
-        } else if (host.includes('gemini.google.com')) {
-          inputEl = findElement(selectors.gemini);
-        } else if (host.includes('copilot.microsoft.com')) {
-          inputEl = findElement(selectors.copilot);
-        } else if (host.includes('perplexity.ai')) {
-          inputEl = findElement(selectors.perplexity);
-        } else if (host.includes('claude.ai')) {
-          inputEl = findElement(selectors.claude);
-        } else if (host.includes('blackbox.ai')) {
-          inputEl = findElement(selectors.blackbox);
-        } else if (host.includes('huggingface.co')) {
-          inputEl = findElement(selectors.huggingface);
-        } else if (host.includes('groq.com') || host.includes('chat.groq.com')) {
-          inputEl = findElement(selectors.groq);
-        } else if (host.includes('mistral.ai')) {
-          inputEl = findElement(selectors.mistral);
-        } else if (host.includes('cohere.ai') || host.includes('cohere.com')) {
-          inputEl = findElement(selectors.cohere);
-        } else if (host.includes('together.ai')) {
-          inputEl = findElement(selectors.together);
-        } else if (host.includes('replicate.com')) {
-          inputEl = findElement(selectors.replicate);
-        } else {
-          // Auto-detection fallback: try all known selectors
-          for (const [platform, platformSelectors] of Object.entries(selectors)) {
-            if (platform !== 'defaultSend') {
-              inputEl = findElement(platformSelectors as string[]);
-              if (inputEl) {
-                console.log(`AI Inject: Auto-detected ${platform}`);
-                break;
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.error('AI Inject: Error detecting host:', e);
-      }
-
-      if (!inputEl) {
-        return;
-      }
+      const inputEl = findElement(activeSelectors);
+      if (!inputEl) return;
 
       clearInterval(tryPaste);
 
