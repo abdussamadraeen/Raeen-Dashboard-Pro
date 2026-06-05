@@ -54,7 +54,7 @@ export function validateAndRepairSettings(data) {
     }
 
     // Specific field sanitization
-    const validSearchEngines = ["google", "duckduckgo", "bing", "brave", "chatgpt", "perplexity", "custom_engine"];
+    const validSearchEngines = ["google", "duckduckgo", "bing", "brave", "chatgpt", "perplexity", "gemini", "claude", "copilot", "robot_ai", "custom_engine"];
     if (!validSearchEngines.includes(safeSettings.searchEngine)) {
         safeSettings.searchEngine = "google";
     }
