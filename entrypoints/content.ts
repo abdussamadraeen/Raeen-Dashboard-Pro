@@ -50,6 +50,40 @@ export default defineContentScript({
           }
         };
 
+        // Intercept form submissions for "I'm Feeling Lucky" to open in a new tab
+        document.addEventListener('submit', (e) => {
+          const form = e.target as HTMLFormElement;
+          const submitter = (e as any).submitter as HTMLElement | null;
+          
+          if (submitter) {
+            const isLucky = submitter.getAttribute('name') === 'btnI' || 
+                            submitter.getAttribute('value')?.toLowerCase().includes('lucky');
+            
+            if (isLucky) {
+              e.preventDefault();
+              
+              // Build form submission URL
+              const formData = new FormData(form);
+              const params = new URLSearchParams();
+              formData.forEach((value, key) => {
+                params.append(key, value.toString());
+              });
+              params.set('btnI', '1');
+              
+              try {
+                let actionUrl = form.action || window.location.href;
+                const targetUrl = new URL(actionUrl, window.location.href);
+                params.forEach((val, key) => {
+                  targetUrl.searchParams.set(key, val);
+                });
+                browser.runtime.sendMessage({ action: 'open_tab', url: targetUrl.href });
+              } catch (err) {
+                console.error('Failed to parse form action URL:', err);
+              }
+            }
+          }
+        }, true);
+
         // Capture clicks on document level early to bypass Google/Bing JS handlers
         document.addEventListener('click', (e) => {
           let target = e.target as HTMLElement | null;
@@ -58,6 +92,14 @@ export default defineContentScript({
           }
           if (target) {
             const anchor = target as HTMLAnchorElement;
+            
+            // Skip Google Apps launcher button so Google's JS can show the overlay natively
+            const isGoogleApps = anchor.getAttribute('aria-label') === 'Google apps' || 
+                                 anchor.href.includes('/about/products');
+            if (isGoogleApps) {
+              return;
+            }
+
             if (anchor.href && isOutboundUrl(anchor.href)) {
               e.preventDefault();
               e.stopPropagation();

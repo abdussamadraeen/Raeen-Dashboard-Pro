@@ -18,7 +18,7 @@ export const DEFAULT_SETTINGS = {
     showCardFocus: true,
     showCardNote: true,
     videoMuted: true,
-    dashboardTitle: "NewTab",
+    dashboardTitle: "New Tab",
     shortcuts: []
 };
 

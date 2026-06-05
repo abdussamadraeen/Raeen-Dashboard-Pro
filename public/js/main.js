@@ -202,7 +202,7 @@ import { validateAndRepairSettings } from "./schema.js";
     (titleIn.oninput = (t) => {
       ((s.settings.dashboardTitle = t.target.value),
         a(s.settings),
-        (document.title = t.target.value || "NewTab"));
+        (document.title = t.target.value || "New Tab"));
     });
   const runtimeObj =
     typeof browser !== "undefined" ? browser.runtime : chrome.runtime;
