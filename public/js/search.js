@@ -41,34 +41,38 @@ export function getSearchUrl(engine) {
 
 export function routeQuery(query) {
     const q = query.trim().toLowerCase();
+    const getManualQuery = () => {
+        const spaceIdx = query.indexOf(" ");
+        return spaceIdx > -1 ? query.substring(spaceIdx + 1) : "";
+    };
     
     // 1. Explicit command overrides
-    if (q.startsWith("/gpt ") || q.startsWith("/chatgpt ")) {
-        return { engine: "chatgpt", query: query.substring(query.indexOf(" ") + 1), reason: "Manual ChatGPT Route" };
+    if (q === "/gpt" || q === "/chatgpt" || q.startsWith("/gpt ") || q.startsWith("/chatgpt ")) {
+        return { engine: "chatgpt", query: getManualQuery(), reason: "Manual ChatGPT Route" };
     }
-    if (q.startsWith("/gemini ") || q.startsWith("/gem ")) {
-        return { engine: "gemini", query: query.substring(query.indexOf(" ") + 1), reason: "Manual Gemini Route" };
+    if (q === "/gemini" || q === "/gem" || q.startsWith("/gemini ") || q.startsWith("/gem ")) {
+        return { engine: "gemini", query: getManualQuery(), reason: "Manual Gemini Route" };
     }
-    if (q.startsWith("/claude ")) {
-        return { engine: "claude", query: query.substring(query.indexOf(" ") + 1), reason: "Manual Claude Route" };
+    if (q === "/claude" || q.startsWith("/claude ")) {
+        return { engine: "claude", query: getManualQuery(), reason: "Manual Claude Route" };
     }
-    if (q.startsWith("/copilot ") || q.startsWith("/cop ")) {
-        return { engine: "copilot", query: query.substring(query.indexOf(" ") + 1), reason: "Manual Copilot Route" };
+    if (q === "/copilot" || q === "/cop" || q.startsWith("/copilot ") || q.startsWith("/cop ")) {
+        return { engine: "copilot", query: getManualQuery(), reason: "Manual Copilot Route" };
     }
-    if (q.startsWith("/perplexity ") || q.startsWith("/perp ")) {
-        return { engine: "perplexity", query: query.substring(query.indexOf(" ") + 1), reason: "Manual Perplexity Route" };
+    if (q === "/perplexity" || q === "/perp" || q.startsWith("/perplexity ") || q.startsWith("/perp ")) {
+        return { engine: "perplexity", query: getManualQuery(), reason: "Manual Perplexity Route" };
     }
-    if (q.startsWith("/google ") || q.startsWith("/g ")) {
-        return { engine: "google", query: query.substring(query.indexOf(" ") + 1), reason: "Manual Google Route" };
+    if (q === "/google" || q === "/g" || q.startsWith("/google ") || q.startsWith("/g ")) {
+        return { engine: "google", query: getManualQuery(), reason: "Manual Google Route" };
     }
-    if (q.startsWith("/bing ") || q.startsWith("/b ")) {
-        return { engine: "bing", query: query.substring(query.indexOf(" ") + 1), reason: "Manual Bing Route" };
+    if (q === "/bing" || q === "/b" || q.startsWith("/bing ") || q.startsWith("/b ")) {
+        return { engine: "bing", query: getManualQuery(), reason: "Manual Bing Route" };
     }
-    if (q.startsWith("/ddg ") || q.startsWith("/duckduckgo ")) {
-        return { engine: "duckduckgo", query: query.substring(query.indexOf(" ") + 1), reason: "Manual DuckDuckGo Route" };
+    if (q === "/ddg" || q === "/duckduckgo" || q.startsWith("/ddg ") || q.startsWith("/duckduckgo ")) {
+        return { engine: "duckduckgo", query: getManualQuery(), reason: "Manual DuckDuckGo Route" };
     }
-    if (q.startsWith("/brave ")) {
-        return { engine: "brave", query: query.substring(query.indexOf(" ") + 1), reason: "Manual Brave Route" };
+    if (q === "/brave" || q.startsWith("/brave ")) {
+        return { engine: "brave", query: getManualQuery(), reason: "Manual Brave Route" };
     }
 
     // 2. Intent Heuristics
