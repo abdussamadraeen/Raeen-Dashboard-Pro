@@ -64,17 +64,18 @@ export function setupSearch() {
                 `).join("");
                 
                 e.searchSuggestions.classList.toggle("hidden", suggestions.length === 0);
-                
-                e.searchSuggestions.querySelectorAll("li").forEach(li => {
-                    li.onclick = () => {
-                        e.searchInput.value = li.querySelector("span").textContent;
-                        e.searchForm.requestSubmit();
-                    };
-                });
             } catch (err) {
                 console.error("Suggestions fetch error:", err);
             }
         }, 150);
+
+        e.searchSuggestions.onclick = (t) => {
+            const s = t.target.closest("li");
+            if (s && e.searchSuggestions.contains(s)) {
+                e.searchInput.value = s.querySelector("span").textContent;
+                e.searchForm.requestSubmit();
+            }
+        };
 
         e.searchInput.oninput = (t) => {
             const s = t.target.value.trim();
