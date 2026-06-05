@@ -152,6 +152,7 @@ import { validateAndRepairSettings } from "./schema.js";
     if (e.addNoteBtn) e.addNoteBtn.onclick = () => f();
     if (e.noteBackBtn) e.noteBackBtn.onclick = B;
     if (e.noteDeleteBtn) e.noteDeleteBtn.onclick = T;
+    if (e.addShortcutBtn) e.addShortcutBtn.onclick = C;
     
     if (e.videoSoundBtn) {
       e.videoSoundBtn.onclick = () => {

@@ -7,6 +7,38 @@ const CanvasEngine = (() => {
   let currentStyle = "neural";
   let isRunning = false;
   const mouse = { x: null, y: null };
+  let cachedAccentColor = "";
+  let rVal = 123, gVal = 97, bVal = 255;
+  let frameCount = 0;
+
+  const updateAccentColor = () => {
+    try {
+      const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#7b61ff";
+      if (accentColor === cachedAccentColor) return;
+      cachedAccentColor = accentColor;
+      
+      if (accentColor.startsWith("#")) {
+        if (accentColor.length === 7) {
+          rVal = parseInt(accentColor.slice(1, 3), 16);
+          gVal = parseInt(accentColor.slice(3, 5), 16);
+          bVal = parseInt(accentColor.slice(5, 7), 16);
+        } else if (accentColor.length === 4) {
+          rVal = parseInt(accentColor[1] + accentColor[1], 16);
+          gVal = parseInt(accentColor[2] + accentColor[2], 16);
+          bVal = parseInt(accentColor[3] + accentColor[3], 16);
+        }
+      } else if (accentColor.startsWith("rgb")) {
+        const match = accentColor.match(/\d+/g);
+        if (match) {
+          rVal = parseInt(match[0]);
+          gVal = parseInt(match[1]);
+          bVal = parseInt(match[2]);
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to update accent color:", e);
+    }
+  };
 
   const start = (canvasElement, style) => {
     stop();
@@ -16,6 +48,7 @@ const CanvasEngine = (() => {
       currentStyle = style || "neural";
       isRunning = true;
       resize();
+      updateAccentColor();
       window.addEventListener("resize", resize, { passive: true });
       window.addEventListener("mousemove", onMouseMove, { passive: true });
       render();
@@ -59,28 +92,11 @@ const CanvasEngine = (() => {
     if (!canvas) return;
     ctx.clearRect(0, 0, width, height);
 
-    const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#7b61ff";
-    
-    // Parse RGB values once per frame to avoid parsing inside the particle loop
-    let rVal = 123, gVal = 97, bVal = 255;
-    if (accentColor.startsWith("#")) {
-      if (accentColor.length === 7) {
-        rVal = parseInt(accentColor.slice(1, 3), 16);
-        gVal = parseInt(accentColor.slice(3, 5), 16);
-        bVal = parseInt(accentColor.slice(5, 7), 16);
-      } else if (accentColor.length === 4) {
-        rVal = parseInt(accentColor[1] + accentColor[1], 16);
-        gVal = parseInt(accentColor[2] + accentColor[2], 16);
-        bVal = parseInt(accentColor[3] + accentColor[3], 16);
-      }
-    } else if (accentColor.startsWith("rgb")) {
-      const match = accentColor.match(/\d+/g);
-      if (match) {
-        rVal = parseInt(match[0]);
-        gVal = parseInt(match[1]);
-        bVal = parseInt(match[2]);
-      }
+    // Throttle style sheet reads to 1 in 120 frames (approx. every 2 seconds at 60fps) to avoid layout reflow overhead
+    if (frameCount++ % 120 === 0) {
+      updateAccentColor();
     }
+    const accentColor = cachedAccentColor || "#7b61ff";
 
     const len = particles.length;
 
