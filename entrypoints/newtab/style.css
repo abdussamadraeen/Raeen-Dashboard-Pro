@@ -8,7 +8,7 @@
     --bg-input: rgba(255,255,255,0.06);
     --bg-element: rgba(255,255,255,0.04);
     --text-primary: #f0f0f5;
-    --text-secondary: #8b8b9e;
+    --text-secondary: #b2b2cb;
     --accent: #7b61ff;
     --accent-glow: rgba(123, 97, 255, 0.25);
     --border: rgba(255, 255, 255, 0.08);
@@ -18,8 +18,8 @@
     --danger-bg: rgba(244, 63, 94, 0.12);
     
     /* Metasurface Glass (5026 AD) */
-    --glass-bg: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02));
-    --glass-hover-bg: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)), rgba(15, 15, 25, 0.4);
+    --glass-hover-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06)), rgba(20, 20, 35, 0.55);
     --glass-border: rgba(255,255,255,0.1);
     --glass-border-light: rgba(255,255,255,0.25);
 }
@@ -86,7 +86,7 @@ html.live-bg-pre-active body {
 
 /* ─── Background ─── */
 .background-layer {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     z-index: -2; background-size: cover; background-position: center;
     transition: opacity 0.3s ease;
 }
@@ -97,9 +97,22 @@ canvas.background-layer {
 .background-layer video { width: 100%; height: 100%; object-fit: cover; }
 
 .overlay {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.3); z-index: -1;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.05), transparent 60%), rgba(0, 0, 0, 0.35);
+    z-index: -1;
     pointer-events: none;
+}
+.overlay::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.015;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    z-index: -1;
 }
 
 /* ─── Live Background Mode (Google/Bing) ─── */
@@ -357,6 +370,8 @@ html.live-bg-pre-active .background-layer {
 /* Notes List */
 .notes-list {
     flex: 1; overflow-y: auto; padding: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
 }
 .notes-list::-webkit-scrollbar { width: 4px; }
 .notes-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -398,6 +413,8 @@ html.live-bg-pre-active .background-layer {
     flex: 1; width: 100%; border: none; background: transparent; color: var(--text-primary);
     font-family: inherit; font-size: 0.88rem; padding: 4px 16px 12px; line-height: 1.7;
     outline: none; resize: none; overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
 }
 .note-editor-body::placeholder { color: var(--text-secondary); opacity: 0.4; }
 .note-editor-body::-webkit-scrollbar { width: 4px; }
@@ -467,7 +484,11 @@ html.live-bg-pre-active .background-layer {
 .sidebar-tab.active { background: var(--bg-active); color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
 .sidebar-tab.active .tab-icon { opacity: 1; }
 
-.modal-content { flex: 1; padding: 24px; overflow-y: auto; }
+.modal-content {
+    flex: 1; padding: 24px; overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
 .modal-content::-webkit-scrollbar { width: 5px; }
 .modal-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
@@ -824,6 +845,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 .apps-grid {
     grid-template-columns: repeat(3, 1fr); padding: 16px; gap: 12px;
     max-height: 300px; overflow-y: auto; align-content: start;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
 }
 .apps-grid::-webkit-scrollbar { width: 4px; }
 .apps-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -2198,3 +2221,599 @@ input:checked + .slider:before { transform: translateX(20px); }
 .apps-launcher-footer a:hover {
     text-decoration: underline;
 }
+
+/* ─── Responsive 3-Column Workspace Layout (No Scroll) ─── */
+.layout-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+.cards-container {
+    display: contents;
+}
+
+@media (min-width: 1025px) {
+    .container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        width: 100%;
+        max-width: 1200px;
+        padding: 20px 0;
+        align-items: start;
+        margin-top: 100px;
+    }
+    
+    #column-1 {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    
+    #column-2 {
+        grid-column: 2;
+        grid-row: 1;
+    }
+    
+    #column-3 {
+        grid-column: 3;
+        grid-row: 1;
+        align-self: start;
+    }
+}
+
+@media (max-width: 1024px) {
+    .container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+        padding: 16px;
+    }
+    
+    #column-2 {
+        order: 1; /* Center (Search) at the top! */
+    }
+    #column-1 {
+        order: 2; /* Left (Today/Focus) next! */
+    }
+    #column-3 {
+        order: 3; /* Right (Notes) at the bottom! */
+    }
+}
+
+/* ─── Drag & Drop Widget Styles ─── */
+.draggable-widget {
+    position: relative !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease !important;
+}
+
+/* Custom Resize Handles */
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    cursor: se-resize;
+    z-index: 15;
+    background: transparent;
+}
+.resize-handle::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid var(--text-secondary);
+    border-bottom: 2px solid var(--text-secondary);
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+}
+.draggable-widget:hover .resize-handle::after {
+    opacity: 0.7;
+}
+.resize-handle:hover::after {
+    opacity: 1 !important;
+    border-color: var(--accent);
+}
+
+/* Clock Date Display */
+.clock-date {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    letter-spacing: -0.3px;
+    opacity: 0.85;
+}
+[data-theme="light"] .clock-date {
+    color: var(--text-primary);
+    opacity: 0.9;
+}
+.drag-handle {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: grab;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+    user-select: none;
+    background: rgba(0,0,0,0.15);
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+[data-theme="light"] .drag-handle {
+    background: rgba(255,255,255,0.6);
+}
+.draggable-widget:hover .drag-handle {
+    opacity: 0.5;
+}
+.drag-handle:hover {
+    opacity: 1 !important;
+}
+.drag-handle:active {
+    cursor: grabbing;
+}
+.draggable-widget.dragging {
+    opacity: 0.3 !important;
+    transform: scale(0.98);
+    box-shadow: 0 0 15px var(--accent-glow) !important;
+}
+
+/* Make search and shortcuts expand to column width */
+.search-container.draggable-widget,
+.quick-links.draggable-widget {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Drag handles inside specific elements */
+#search-widget .drag-handle {
+    top: 18px;
+    right: 20px;
+}
+#directory-widget .drag-handle {
+    top: 18px;
+    right: 20px;
+}
+
+/* ==========================================================================
+   Apple macOS & iOS-Style Redesign Styling
+   ========================================================================== */
+
+/* ─── Layout Margins & Body Cleanups ─── */
+body {
+    padding-left: 100px !important; /* Spacing for Left Sidebar */
+    padding-right: 40px !important;
+    overflow-x: hidden !important;
+}
+
+/* ─── macOS-Style Left Sidebar ─── */
+.mac-sidebar {
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 64px;
+    height: calc(100vh - 80px);
+    max-height: 520px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme="light"] .mac-sidebar {
+    background: rgba(255, 255, 255, 0.45);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+.mac-sidebar-top, .mac-sidebar-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+.mac-sidebar-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+.mac-sidebar-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mac-sidebar-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+    transform: scale(1.1);
+}
+.mac-sidebar-btn.active {
+    color: var(--accent);
+    background: var(--bg-active);
+}
+.mac-sidebar-btn svg {
+    width: 22px;
+    height: 22px;
+}
+.mac-sidebar-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #5643cc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    border: 2px solid var(--glass-border-light);
+    box-shadow: 0 4px 12px var(--accent-glow);
+    transition: all 0.3s ease;
+}
+.mac-sidebar-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px var(--accent);
+}
+
+/* ─── macOS-Style Bottom App Dock ─── */
+.mac-dock-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    width: auto;
+}
+.mac-dock {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-top: 1px solid var(--glass-border-light);
+    border-left: 1px solid var(--glass-border-light);
+    border-radius: 24px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+    height: 60px;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+[data-theme="light"] .mac-dock {
+    background: rgba(255, 255, 255, 0.55);
+    border-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+.mac-dock-item {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    position: relative;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform-origin: bottom center;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+.mac-dock-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+.mac-dock-item img, .mac-dock-item svg {
+    width: 75%;
+    height: 75%;
+    object-fit: contain;
+    border-radius: 6px;
+}
+.mac-dock-item .dock-placeholder {
+    width: 75%;
+    height: 75%;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent), #5643cc);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+.mac-dock-item::after {
+    content: attr(data-title);
+    position: absolute;
+    bottom: 56px;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: rgba(15, 15, 25, 0.95);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.mac-dock-item:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ─── iOS Card Widget Aesthetics ─── */
+.info-card, .notes-panel, #directory-widget {
+    border-radius: 24px !important;
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-top: 1px solid var(--glass-border-light) !important;
+    box-shadow: 0 8px 32px var(--shadow) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    padding: 16px !important;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+.info-card:hover, .notes-panel:hover, #directory-widget:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px var(--accent-glow) !important;
+    border-color: var(--accent) !important;
+}
+
+/* ─── Spotlight Search Widget ─── */
+#search-widget {
+    border-radius: 40px !important;
+    background: var(--glass-bg) !important;
+    padding: 0 !important;
+    overflow: visible;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
+}
+#search-input {
+    border-radius: 40px !important;
+    height: 52px;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+#search-widget .input-wrapper {
+    border: 1px solid var(--glass-border);
+    border-radius: 40px;
+    transition: all 0.3s;
+    background: rgba(255, 255, 255, 0.04);
+}
+#search-widget .input-wrapper:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent-glow);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Weather Widget (Apple style) ─── */
+.apple-weather-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    min-height: 120px;
+}
+.weather-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+}
+.weather-temp {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(to bottom, #ffffff, #dcdcf0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.weather-icon-svg {
+    width: 38px;
+    height: 38px;
+    filter: drop-shadow(0 2px 6px rgba(255,255,255,0.15));
+}
+.weather-city {
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: -0.3px;
+    margin-top: 6px;
+    color: var(--text-primary);
+}
+.weather-bottom {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: 10px;
+}
+
+/* ─── Anniversary / Photo Widget ─── */
+.apple-photo-card {
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    min-height: 160px;
+    border-radius: 20px;
+    margin: -16px; /* offset widget padding */
+}
+.apple-photo-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6));
+    z-index: 1;
+}
+.photo-card-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+}
+.photo-card-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255,255,255,0.85);
+}
+.photo-card-days {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -1.5px;
+    color: #fff;
+    margin: 12px 0 4px 0;
+}
+.photo-card-date {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.65);
+}
+
+/* ─── Year Progress Widget ─── */
+.apple-progress-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+.progress-circle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin: 10px 0;
+}
+.progress-circle-svg {
+    width: 80px;
+    height: 80px;
+    transform: rotate(-90deg);
+}
+.progress-circle-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 8;
+}
+[data-theme="light"] .progress-circle-bg {
+    stroke: rgba(0, 0, 0, 0.05);
+}
+.progress-circle-bar {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 8;
+    stroke-dasharray: 226;
+    stroke-dashoffset: 226;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.progress-text {
+    position: absolute;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.progress-countdown {
+    font-family: monospace;
+    font-size: 0.78rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+/* ─── Birthday Widget ─── */
+.apple-birthday-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.birthday-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+    overflow-y: auto;
+    flex: 1;
+}
+.birthday-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    font-size: 0.78rem;
+}
+[data-theme="light"] .birthday-item {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.02);
+}
+.birthday-name {
+    font-weight: 600;
+}
+.birthday-days {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+/* Hide CDI components since they are visual clutter */
+.noosphere-status, .noosphere-status-horizontal {
+    display: none !important;
+}
+body.live-bg-active .mac-sidebar,
+body.live-bg-active .mac-dock-container {
+    display: none !important;
+}
+
