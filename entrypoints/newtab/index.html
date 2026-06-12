@@ -9,41 +9,34 @@
     <meta name="theme-color" content="#0f0f17">
     <meta name="description" content="A minimalist, premium new tab dashboard">
     <title>New Tab</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="./style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="/js/preloader.js"></script>
+    <script type="module" src="./js/preloader.js"></script>
 </head>
 <body data-theme="dark">
-    <!-- Apple macOS-Style Left Sidebar -->
-    <aside class="mac-sidebar" id="mac-sidebar">
-        <div class="mac-sidebar-top">
-            <div class="mac-sidebar-avatar" id="sidebar-avatar" title="User Profile">
-                <span class="avatar-initials">AR</span>
-            </div>
-        </div>
-        <div class="mac-sidebar-center">
-            <button class="mac-sidebar-btn active" id="sidebar-home-btn" title="Home">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            </button>
-            <button class="mac-sidebar-btn" id="sidebar-theme-btn" title="Themes & Backgrounds">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M7.5 10.5c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zM11.5 7.5c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zM16.5 9.5c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zM16.5 14.5c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zM6 14c0-2 2-3 4-3 1.5 0 3 .5 4 1.5s1.5 2.5 1.5 4.5c0 1-1 2-2.5 2s-3-1.5-4-2.5-1.5-1-3-2.5z"></path></svg>
-            </button>
-            <button class="mac-sidebar-btn" id="sidebar-widgets-btn" title="Manage Widgets">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            </button>
-            <button class="mac-sidebar-btn" id="sidebar-weather-btn" title="Toggle Extra Widgets">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path><circle cx="12" cy="12" r="4"></circle></svg>
-            </button>
-        </div>
-        <div class="mac-sidebar-bottom">
-            <button class="mac-sidebar-btn" id="sidebar-settings-btn" title="Settings">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            </button>
-        </div>
-    </aside>
-
+    <!-- 5026 AD Noosphere Layer -->
+    <div class="noosphere-status" id="cdi-bar-left">
+        <div class="cdi-label">CIVILIZATION DEVELOPMENT INDEX: TYPE II TRANSITION</div>
+        <div class="cdi-progress-container"><div class="cdi-progress"></div></div>
+        <div class="cdi-value">CDI: 2.14 // SUPERTREND: ASCENDING</div>
+    </div>
+    <div class="noosphere-status" id="cdi-bar-right">
+        <div class="cdi-label">CIVILIZATION DEVELOPMENT INDEX: TYPE II TRANSITION</div>
+        <div class="cdi-progress-container"><div class="cdi-progress"></div></div>
+        <div class="cdi-value">CDI: 2.14 // SUPERTREND: ASCENDING</div>
+    </div>
+    <div class="noosphere-status-horizontal" id="cdi-bar-top">
+        <div class="cdi-label-horizontal">CIVILIZATION DEVELOPMENT INDEX: TYPE II TRANSITION</div>
+        <div class="cdi-progress-container-horizontal"><div class="cdi-progress-horizontal"></div></div>
+        <div class="cdi-value-horizontal">CDI: 2.14 // SUPERTREND: ASCENDING</div>
+    </div>
+    <div class="noosphere-status-horizontal" id="cdi-bar-bottom">
+        <div class="cdi-label-horizontal">CIVILIZATION DEVELOPMENT INDEX: TYPE II TRANSITION</div>
+        <div class="cdi-progress-container-horizontal"><div class="cdi-progress-horizontal"></div></div>
+        <div class="cdi-value-horizontal">CDI: 2.14 // SUPERTREND: ASCENDING</div>
+    </div>
 
     <!-- Background Elements -->
     <div id="background-layer" class="background-layer"></div>
@@ -89,38 +82,6 @@
                     </div>
                     <div class="resize-handle"></div>
                 </div>
-
-                <!-- Weather Widget -->
-                <div class="info-card draggable-widget" id="card-weather" draggable="false">
-                    <div class="apple-weather-card">
-                        <div class="weather-top">
-                            <div>
-                                <div class="weather-temp" id="weather-temp-val">42°</div>
-                                <div class="weather-city" id="weather-city-val">Chongqing</div>
-                            </div>
-                            <svg class="weather-icon-svg" id="weather-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #f59e0b;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                        </div>
-                        <div class="weather-bottom">
-                            <span id="weather-cond-val">Clear</span>
-                            <span id="weather-range-val">H: 42° L: 33°</span>
-                        </div>
-                    </div>
-                    <div class="resize-handle"></div>
-                </div>
-
-                <!-- Anniversary / Photo Widget -->
-                <div class="info-card draggable-widget" id="card-anniversary" draggable="false">
-                    <div class="apple-photo-card" id="anniversary-photo-bg" style="background-image: url('https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&fit=crop&q=60');">
-                        <div class="photo-card-content">
-                            <div class="photo-card-title">Anniversary</div>
-                            <div>
-                                <div class="photo-card-days" id="anniversary-days-val">814</div>
-                                <div class="photo-card-date" id="anniversary-date-val">Since May 24, 2024</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="resize-handle"></div>
-                </div>
             </div>
 
             <!-- Column 3: Right Column -->
@@ -148,43 +109,6 @@
                         <div class="note-editor-footer">
                             <span id="note-char-count" class="note-char-count">0 characters</span>
                             <button id="note-delete-btn" class="note-delete-btn">🗑 Delete</button>
-                        </div>
-                    </div>
-                    <div class="resize-handle"></div>
-                </div>
-
-                <!-- Year Progress Widget -->
-                <div class="info-card draggable-widget" id="card-year-progress" draggable="false">
-                    <div class="apple-progress-card">
-                        <div class="info-card-header">
-                            <div class="info-card-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:#fff;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                            </div>
-                            <div class="info-card-title">Year Progress</div>
-                        </div>
-                        <div class="progress-circle-container">
-                            <svg class="progress-circle-svg">
-                                <circle class="progress-circle-bg" cx="40" cy="40" r="36"></circle>
-                                <circle class="progress-circle-bar" id="progress-bar-circle" cx="40" cy="40" r="36"></circle>
-                            </svg>
-                            <span class="progress-text" id="progress-percent-val">--%</span>
-                        </div>
-                        <div class="progress-countdown" id="progress-countdown-val">--d --h --m --s</div>
-                    </div>
-                    <div class="resize-handle"></div>
-                </div>
-
-                <!-- Birthday Widget -->
-                <div class="info-card draggable-widget" id="card-birthday" draggable="false">
-                    <div class="apple-birthday-card">
-                        <div class="info-card-header">
-                            <div class="info-card-icon" style="background: linear-gradient(135deg, #f43f5e, #e11d48);">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:#fff;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                            </div>
-                            <div class="info-card-title">Upcoming Birthdays</div>
-                        </div>
-                        <div class="birthday-list" id="birthday-list-container">
-                            <!-- Populated dynamically -->
                         </div>
                     </div>
                     <div class="resize-handle"></div>
@@ -649,18 +573,11 @@
         </div>
     </div>
     
-    <!-- Apple macOS-Style Bottom App Dock -->
-    <div class="mac-dock-container" id="mac-dock-container">
-        <div class="mac-dock" id="mac-dock">
-            <!-- App shortcuts will be dynamically injected here -->
-        </div>
-    </div>
-
     <button id="video-sound-btn" class="video-sound-btn hidden" title="Toggle Sound">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
             <path id="sound-icon-path" d="M3 9v6h4l5 5V4L7 9H3zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
         </svg>
     </button>
-    <script type="module" src="/js/main.js"></script>
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>

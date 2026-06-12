@@ -95,12 +95,74 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     }
   };
 
+  const optimizeImage = (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith('image/')) {
+        return resolve(file);
+      }
+      if (file.type === 'image/gif') {
+        return resolve(file);
+      }
+
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        const MAX_WIDTH = 2560;
+        const MAX_HEIGHT = 1440;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+          const widthRatio = MAX_WIDTH / width;
+          const heightRatio = MAX_HEIGHT / height;
+          const bestRatio = Math.min(widthRatio, heightRatio);
+          width = Math.round(width * bestRatio);
+          height = Math.round(height * bestRatio);
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+        }
+
+        const outputType = 'image/jpeg';
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const optimizedFile = new File([blob], file.name, { type: outputType });
+            resolve(optimizedFile);
+          } else {
+            resolve(file);
+          }
+        }, outputType, 0.85);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(file);
+      };
+
+      img.src = objectUrl;
+    });
+  };
+
   const handleLocalBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    let file = e.target.files?.[0];
     if (!file) return;
 
     try {
       if (StorageManager.isReady()) {
+        if (file.type.startsWith('image/') && file.type !== 'image/gif') {
+          try {
+            file = await optimizeImage(file);
+          } catch (err) {
+            console.warn('Image optimization failed, saving original', err);
+          }
+        }
         await StorageManager.set('mediaStore', 'localBackground', {
           data: file,
           type: file.type,
@@ -108,7 +170,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         });
         await updateSettings({
           backgroundType: 'local',
-          backgroundValue: file.name,
+          backgroundValue: 'local_' + Date.now(),
         });
       }
     } catch (err) {
