@@ -422,7 +422,8 @@ export const defaultSettings: Settings = {
   showSettingsButtonInImmersive: true,
   customSearchUrl: 'https://www.google.com/search?q=%s',
   videoMuted: true,
-  canvasStyle: 'neural'
+  canvasStyle: 'neural',
+  enableDragAndDrop: true
 };
 
 const defaultFocusData: FocusTimerData = {
