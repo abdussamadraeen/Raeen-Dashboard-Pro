@@ -1,1 +1,77 @@
-const t={backgroundType:"solid",backgroundValue:"#111111",canvasStyle:"neural",themePreference:"dark",showNoosphereBar:!0,showSettingsButtonInImmersive:!0,showMainUI:!0,showSearch:!0,searchEngine:"google",customSearchUrl:"",showTopSites:!0,topSitesSource:"browser",showClock:!0,clockFormat:"auto",showCards:!0,showCardDate:!0,showCardFocus:!0,showCardNote:!0,videoMuted:!0,dashboardTitle:"New Tab",shortcuts:[]};function c(s){if(!s||typeof s!="object"||Array.isArray(s))return console.warn("Invalid settings data, returning defaults."),{...t};const r={};for(const e of Object.keys(t)){const a=Array.isArray(t[e])?"array":typeof t[e];let o=s[e];a==="array"?r[e]=Array.isArray(o)?o:[...t[e]]:a==="boolean"?r[e]=typeof o=="boolean"?o:t[e]:a==="string"?r[e]=typeof o=="string"?o:t[e]:a==="number"?r[e]=typeof o=="number"?o:t[e]:r[e]=o!==void 0?o:t[e]}return["google","duckduckgo","bing","brave","chatgpt","perplexity","gemini","claude","copilot","robot_ai","custom_engine"].includes(r.searchEngine)||(r.searchEngine="google"),["solid","preset","custom","bing","local","canvas","google_dashboard","bing_dashboard"].includes(r.backgroundType)||(r.backgroundType="solid",r.backgroundValue="#111111"),r}export{t as DEFAULT_SETTINGS,c as validateAndRepairSettings};
+export const DEFAULT_SETTINGS = {
+    dashboardTitle: 'New Tab',
+    themePreference: 'dark',
+    backgroundType: 'solid',
+    backgroundValue: '#000000',
+    showSearch: true,
+    searchEngine: 'google',
+    showTopSites: true,
+    topSitesSource: 'favorites',
+    shortcuts: [],
+    googleApps: [
+        { name: 'Search', url: 'https://google.com', icon: 'https://www.gstatic.com/images/branding/product/2x/googleg_96dp.png' },
+        { name: 'Gmail', url: 'https://mail.google.com', icon: 'https://www.gstatic.com/images/branding/product/2x/gmail_96dp.png' }
+    ],
+    msApps: [
+        { name: 'Office', url: 'https://www.office.com', icon: 'https://www.office.com/favicon.ico' },
+        { name: 'Outlook', url: 'https://outlook.live.com', icon: 'https://www.office.com/favicon.ico' }
+    ],
+    aiApps: [
+        { name: 'ChatGPT', url: 'https://chatgpt.com', icon: 'https://chatgpt.com/favicon.ico' },
+        { name: 'Gemini', url: 'https://gemini.google.com', icon: 'https://www.gstatic.com/lamda/images/favicon_v1_150160d1398865304d0c.svg' },
+        { name: 'Claude', url: 'https://claude.ai', icon: 'https://claude.ai/favicon.ico' }
+    ],
+    customApps: [],
+    showClock: true, 
+    clockFormat: 'auto',
+    showCards: true, 
+    showCardDate: true, 
+    showCardFocus: true, 
+    showCardNote: true,
+    showNoosphereBar: true, 
+    showMainUI: true, 
+    showSettingsButtonInImmersive: true, 
+    customSearchUrl: 'https://www.google.com/search?q=%s',
+    videoMuted: true,
+    canvasStyle: 'neural',
+    enableDragAndDrop: true
+};
+
+export function validateAndRepairSettings(settingsObj) {
+    if (!settingsObj || typeof settingsObj !== 'object' || Array.isArray(settingsObj)) {
+        console.warn("Invalid settings data, returning defaults.");
+        return { ...DEFAULT_SETTINGS };
+    }
+
+    const repaired = {};
+    for (const key of Object.keys(DEFAULT_SETTINGS)) {
+        const expectedType = Array.isArray(DEFAULT_SETTINGS[key]) ? 'array' : typeof DEFAULT_SETTINGS[key];
+        const val = settingsObj[key];
+
+        if (expectedType === 'array') {
+            repaired[key] = Array.isArray(val) ? val : [...DEFAULT_SETTINGS[key]];
+        } else if (expectedType === 'boolean') {
+            repaired[key] = typeof val === 'boolean' ? val : DEFAULT_SETTINGS[key];
+        } else if (expectedType === 'string') {
+            repaired[key] = typeof val === 'string' ? val : DEFAULT_SETTINGS[key];
+        } else if (expectedType === 'number') {
+            repaired[key] = typeof val === 'number' ? val : DEFAULT_SETTINGS[key];
+        } else {
+            repaired[key] = val !== undefined ? val : DEFAULT_SETTINGS[key];
+        }
+    }
+
+    // Safety checks for enum validations
+    const validEngines = ["google", "duckduckgo", "bing", "brave", "chatgpt", "perplexity", "gemini", "claude", "copilot", "robot_ai", "custom_engine"];
+    if (!validEngines.includes(repaired.searchEngine)) {
+        repaired.searchEngine = "google";
+    }
+
+    const validBgTypes = ["solid", "preset", "custom", "bing", "local", "canvas", "google_dashboard", "bing_dashboard"];
+    if (!validBgTypes.includes(repaired.backgroundType)) {
+        repaired.backgroundType = "solid";
+        repaired.backgroundValue = "#000000";
+    }
+
+    return repaired;
+}

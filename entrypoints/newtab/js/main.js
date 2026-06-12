@@ -312,33 +312,37 @@ function optimizeImage(file) {
         };
     }
 
-    // Runtime listener
-    const runtimeObj = typeof browser !== 'undefined' ? browser.runtime : chrome.runtime;
-    if (runtimeObj && runtimeObj.onMessage) {
-        runtimeObj.onMessage.addListener(async (msg) => {
-            if (msg.action === 'iframe_navigated' && msg.title) {
-                document.title = msg.title;
-            }
-            if (msg.action === 'close_dashboard_iframe') {
-                try {
-                    const settings = await StorageManager.get('settings', 'main');
-                    if (settings) {
-                        settings.backgroundType = 'solid';
-                        settings.backgroundValue = '#0f0f17';
-                        updateSettings(settings);
-                        await saveSettings(settings);
-                        localStorage.setItem('raeen_bg_type', settings.backgroundType);
-                        localStorage.setItem('raeen_bg_value', settings.backgroundValue || '');
-                    }
-                    applySettings();
-                    syncSettingsUI();
-                    updateTime();
-                } catch (err) {
-                    console.error("Failed to restore settings:", err);
+    // Frame message listener (using postMessage to prevent tab cross-talk)
+    window.addEventListener('message', async (event) => {
+        const msg = event.data;
+        if (!msg) return;
+
+        // Verify the message is coming from our active background iframe to prevent tab cross-talk
+        const iframe = dom.bgLayer ? dom.bgLayer.querySelector('iframe') : null;
+        if (!iframe || event.source !== iframe.contentWindow) return;
+
+        if (msg.action === 'iframe_navigated' && msg.title) {
+            document.title = msg.title;
+        }
+        if (msg.action === 'close_dashboard_iframe') {
+            try {
+                const settings = await StorageManager.get('settings', 'main');
+                if (settings) {
+                    settings.backgroundType = 'solid';
+                    settings.backgroundValue = '#0f0f17';
+                    updateSettings(settings);
+                    await saveSettings(settings);
+                    localStorage.setItem('raeen_bg_type', settings.backgroundType);
+                    localStorage.setItem('raeen_bg_value', settings.backgroundValue || '');
                 }
+                applySettings();
+                syncSettingsUI();
+                updateTime();
+            } catch (err) {
+                console.error("Failed to restore settings:", err);
             }
-        });
-    }
+        }
+    });
 
     // Backup & Restore
     const exportBtn = document.getElementById('export-settings-btn');

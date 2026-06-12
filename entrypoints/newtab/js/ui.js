@@ -32,7 +32,15 @@ export function cleanupBackground() {
 }
 
 export async function applySettings() {
-    document.title = state.settings.dashboardTitle || 'New Tab';
+    const isLiveBg = state.settings.backgroundType === 'google_dashboard' || state.settings.backgroundType === 'bing_dashboard';
+    if (!isLiveBg) {
+        document.title = state.settings.dashboardTitle || 'New Tab';
+    } else {
+        const iframe = dom.bgLayer ? dom.bgLayer.querySelector('iframe') : null;
+        if (!iframe || document.title === 'New Tab') {
+            document.title = state.settings.dashboardTitle || 'New Tab';
+        }
+    }
     document.documentElement.setAttribute('data-theme', state.settings.themePreference);
     document.body.classList.toggle('drag-drop-disabled', state.settings.enableDragAndDrop === false);
 

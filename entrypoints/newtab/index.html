@@ -48,7 +48,7 @@
         <section id="cards-widget" style="display: contents;">
             <!-- Column 1: Left Column -->
             <div class="layout-column" id="column-1" data-col="0">
-                <header id="clock-widget" class="widget">
+                <header id="clock-widget" class="widget draggable-widget" draggable="false">
                     <div id="time" class="time">--:--</div>
                     <div id="clock-date" class="clock-date">--</div>
                 </header>
@@ -310,10 +310,17 @@
                                     <span class="slider round"></span>
                                 </label>
                             </div>
-                            <div class="settings-row" style="border-bottom: none;">
+                            <div class="settings-row">
                                 <span>Show Settings Button in Immersive Mode</span>
                                 <label class="switch">
                                     <input type="checkbox" id="show-settings-in-immersive-toggle" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="settings-row" style="border-bottom: none;">
+                                <span>Enable Free-Space Drag &amp; Drop</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-drag-drop" checked>
                                     <span class="slider round"></span>
                                 </label>
                             </div>
@@ -332,6 +339,10 @@
                                 </button>
                                 <input type="file" id="import-settings-input" accept=".json" style="display: none;">
                             </div>
+                            <button id="reset-layout-btn" class="focus-btn focus-btn-secondary" style="width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; font-weight: 500; font-size: 14px;">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
+                                Reset Widget Positions &amp; Sizes
+                            </button>
                         </div>
                     </div>
 

@@ -1,1 +1,205 @@
-const g=(()=>{const u="RaeenPremiumDB";let a=null,s=!1;const l={};return{init:()=>new Promise(o=>{try{if(typeof window>"u"||!window.indexedDB)return console.warn("IndexedDB not supported, using localStorage fallback."),s=!0,o();const t=indexedDB.open(u,5);t.onblocked=()=>{console.warn("Database upgrade blocked. Please close other tabs."),o()},t.onupgradeneeded=r=>{const e=r.target.result;e.objectStoreNames.contains("settings")||e.createObjectStore("settings"),e.objectStoreNames.contains("mediaStore")||e.createObjectStore("mediaStore"),e.objectStoreNames.contains("imageCache")||e.createObjectStore("imageCache"),e.objectStoreNames.contains("notes")&&e.deleteObjectStore("notes"),e.createObjectStore("notes",{keyPath:"id"})},t.onsuccess=r=>{a=r.target.result,a.onversionchange=()=>{a.close(),console.log("Database version changed elsewhere. Reloading..."),window.location.reload()},o()},t.onerror=r=>{console.error("DB Error, using fallback: ",r.target.error||r.target.errorCode),s=!0,o()}}catch(t){console.error("IndexedDB open threw error, using fallback: ",t),s=!0,o()}}),get:(o,t)=>new Promise(r=>{if(s){try{const e=`raeen_db_${o}_${t}`,c=localStorage.getItem(e);if(c)return r(JSON.parse(c))}catch(e){console.error("Fallback read failed:",e)}return r(l[o]?.[t]||null)}if(!a)return r(null);try{const e=a.transaction([o],"readonly").objectStore(o).get(t);e.onsuccess=()=>r(e.result||null),e.onerror=()=>r(null)}catch(e){console.error(`Read transaction failed for ${o}:`,e),r(null)}}),set:(o,t,r)=>new Promise((e,c)=>{if(s){try{l[o]||(l[o]={});const n=r?.id||t;l[o][n]=r;const i=`raeen_db_${o}_${n}`;localStorage.setItem(i,JSON.stringify(r)),e()}catch(n){console.error("Fallback write failed:",n),c(n)}return}if(!a)return c("DB not initialized");try{const n=a.transaction([o],"readwrite").objectStore(o),i=n.keyPath?n.put(r):n.put(r,t);i.onsuccess=()=>e(),i.onerror=d=>{console.error(`Error saving to ${o}:`,d.target.error),c(d.target.error)}}catch(n){console.error(`Transaction failed for ${o}:`,n),c(n)}}),getAll:o=>new Promise(t=>{if(s){try{const e=[];for(let c=0;c<localStorage.length;c++){const n=localStorage.key(c);if(n&&n.startsWith(`raeen_db_${o}_`)){const i=localStorage.getItem(n);i&&e.push(JSON.parse(i))}}if(e.length>0)return t(e)}catch(e){console.error("Fallback getAll failed:",e)}const r=l[o];return t(r?Object.values(r):[])}if(!a)return t([]);try{const r=a.transaction([o],"readonly").objectStore(o).getAll();r.onsuccess=()=>t(r.result||[]),r.onerror=()=>t([])}catch(r){console.error(`GetAll failed for ${o}:`,r),t([])}}),remove:(o,t)=>new Promise(r=>{if(s){try{l[o]&&delete l[o][t];const e=`raeen_db_${o}_${t}`;localStorage.removeItem(e)}catch(e){console.error("Fallback remove failed:",e)}return r()}if(!a)return r();try{const e=a.transaction([o],"readwrite").objectStore(o).delete(t);e.onsuccess=()=>r(),e.onerror=()=>r()}catch(e){console.error(`Remove failed for ${o}:`,e),r()}}),isReady:()=>a!==null||s}})();export{g as StorageManager};
+export const StorageManager = (() => {
+    const DB_NAME = 'RaeenPremiumDB';
+    const DB_VERSION = 5;
+    let db = null;
+    let isFallbackMode = false;
+    const memoryCache = {}; // Cache in memory if both DB and localstorage fail
+
+    const init = () => {
+        return new Promise((resolve) => {
+            try {
+                if (typeof window === 'undefined' || !window.indexedDB) {
+                    console.warn("IndexedDB not supported, using localStorage fallback.");
+                    isFallbackMode = true;
+                    return resolve();
+                }
+
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                // Handle blocking from other tabs
+                request.onblocked = () => {
+                    console.warn("Database upgrade blocked. Please close other tabs.");
+                    resolve(); 
+                };
+
+                request.onupgradeneeded = (e) => {
+                    const upgradeDb = e.target.result;
+                    if (!upgradeDb.objectStoreNames.contains('settings')) upgradeDb.createObjectStore('settings');
+                    if (!upgradeDb.objectStoreNames.contains('mediaStore')) upgradeDb.createObjectStore('mediaStore');
+                    if (!upgradeDb.objectStoreNames.contains('imageCache')) upgradeDb.createObjectStore('imageCache');
+                    
+                    if (upgradeDb.objectStoreNames.contains('notes')) {
+                        upgradeDb.deleteObjectStore('notes');
+                    }
+                    upgradeDb.createObjectStore('notes', { keyPath: 'id' });
+                };
+
+                request.onsuccess = (e) => { 
+                    db = e.target.result; 
+                    
+                    // Handle version changes in other tabs
+                    db.onversionchange = () => {
+                        db.close();
+                        console.log("Database version changed elsewhere. Reloading...");
+                        window.location.reload();
+                    };
+                    
+                    resolve(); 
+                };
+
+                request.onerror = (e) => {
+                    console.error('DB Error, using fallback: ', e.target.error || e.target.errorCode);
+                    isFallbackMode = true;
+                    resolve(); 
+                };
+            } catch (err) {
+                console.error("IndexedDB open threw error, using fallback: ", err);
+                isFallbackMode = true;
+                resolve();
+            }
+        });
+    };
+
+    const get = (storeName, key) => {
+        return new Promise((resolve) => {
+            if (isFallbackMode) {
+                try {
+                    const fallbackKey = `raeen_db_${storeName}_${key}`;
+                    const cached = localStorage.getItem(fallbackKey);
+                    if (cached) {
+                        return resolve(JSON.parse(cached));
+                    }
+                } catch (err) {
+                    console.error("Fallback read failed:", err);
+                }
+                return resolve(memoryCache[storeName]?.[key] || null);
+            }
+
+            if (!db) return resolve(null);
+
+            try {
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.get(key);
+                request.onsuccess = () => resolve(request.result || null);
+                request.onerror = () => resolve(null);
+            } catch (e) {
+                console.error(`Read transaction failed for ${storeName}:`, e);
+                resolve(null);
+            }
+        });
+    };
+
+    const set = (storeName, key, value) => {
+        return new Promise((resolve, reject) => {
+            if (isFallbackMode) {
+                try {
+                    if (!memoryCache[storeName]) {
+                        memoryCache[storeName] = {};
+                    }
+                    const itemKey = value?.id || key;
+                    memoryCache[storeName][itemKey] = value;
+                    
+                    const fallbackKey = `raeen_db_${storeName}_${itemKey}`;
+                    localStorage.setItem(fallbackKey, JSON.stringify(value));
+                    return resolve();
+                } catch (err) {
+                    console.error("Fallback write failed:", err);
+                    return reject(err);
+                }
+            }
+
+            if (!db) return reject('DB not initialized');
+
+            try {
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                
+                // If the store has a keyPath, we should NOT provide a separate key argument
+                const request = store.keyPath ? store.put(value) : store.put(value, key);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = (e) => {
+                    console.error(`Error saving to ${storeName}:`, e.target.error);
+                    reject(e.target.error);
+                };
+            } catch (e) {
+                console.error(`Transaction failed for ${storeName}:`, e);
+                reject(e);
+            }
+        });
+    };
+
+    const getAll = (storeName) => {
+        return new Promise((resolve) => {
+            if (isFallbackMode) {
+                try {
+                    const results = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const lKey = localStorage.key(i);
+                        if (lKey && lKey.startsWith(`raeen_db_${storeName}_`)) {
+                            const cached = localStorage.getItem(lKey);
+                            if (cached) {
+                                results.push(JSON.parse(cached));
+                            }
+                        }
+                    }
+                    if (results.length > 0) {
+                        return resolve(results);
+                    }
+                } catch (err) {
+                    console.error("Fallback getAll failed:", err);
+                }
+                const cachedStore = memoryCache[storeName];
+                return resolve(cachedStore ? Object.values(cachedStore) : []);
+            }
+
+            if (!db) return resolve([]);
+
+            try {
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => resolve([]);
+            } catch (e) {
+                console.error(`GetAll failed for ${storeName}:`, e);
+                resolve([]);
+            }
+        });
+    };
+
+    const remove = (storeName, key) => {
+        return new Promise((resolve) => {
+            if (isFallbackMode) {
+                try {
+                    if (memoryCache[storeName]) {
+                        delete memoryCache[storeName][key];
+                    }
+                    const fallbackKey = `raeen_db_${storeName}_${key}`;
+                    localStorage.removeItem(fallbackKey);
+                } catch (err) {
+                    console.error("Fallback remove failed:", err);
+                }
+                return resolve();
+            }
+
+            if (!db) return resolve();
+
+            try {
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.delete(key);
+                request.onsuccess = () => resolve();
+                request.onerror = () => resolve();
+            } catch (e) {
+                console.error(`Remove failed for ${storeName}:`, e);
+                resolve();
+            }
+        });
+    };
+
+    const isReady = () => db !== null || isFallbackMode;
+
+    return { init, get, set, getAll, remove, isReady };
+})();

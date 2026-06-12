@@ -49,7 +49,8 @@ export const SettingsSchema = z.object({
   showSettingsButtonInImmersive: z.boolean().default(true),
   customSearchUrl: z.string().default('https://www.google.com/search?q=%s'),
   videoMuted: z.boolean().default(true),
-  canvasStyle: z.string().default('neural')
+  canvasStyle: z.string().default('neural'),
+  enableDragAndDrop: z.boolean().default(true)
 });
 
 export type AppItem = z.infer<typeof AppItemSchema>;

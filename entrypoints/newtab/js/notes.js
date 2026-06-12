@@ -1,7 +1,108 @@
-import{StorageManager as s}from"./storage.js";import{dom as t}from"./dom.js";import{escapeHTML as d}from"./security.js";let a=null;async function i(){if(!t.notesList)return;if(!s.isReady()){t.notesList.innerHTML='<div class="notes-empty">Initializing storage...</div>';return}const n=await s.getAll("notes");if(t.notesCount.textContent=n.length,n.length===0){t.notesList.innerHTML='<div class="notes-empty">No notes yet. Click + New to start.</div>';return}t.notesList.innerHTML=n.sort((e,o)=>(o.updated||0)-(e.updated||0)).map(e=>`
-        <div class="note-card" data-id="${e.id}">
-            <div class="note-card-title">${d(e.title)||"Untitled Note"}</div>
-            <div class="note-card-preview">${e.body?d(e.body.substring(0,60).replace(/\n/g," ")):"Empty note..."}</div>
-            <div class="note-card-meta">${new Date(e.updated||Date.now()).toLocaleDateString()}</div>
+import { StorageManager } from './storage.js';
+import { dom } from './dom.js';
+import { escapeHTML } from './security.js';
+
+let currentNoteId = null;
+
+export async function renderNotesList() {
+    if (!dom.notesList) return;
+    
+    // Fallback if storage isn't ready yet
+    if (!StorageManager.isReady()) {
+        dom.notesList.innerHTML = '<div class="notes-empty">Initializing storage...</div>';
+        return;
+    }
+
+    const notes = await StorageManager.getAll('notes');
+    dom.notesCount.textContent = notes.length;
+
+    if (notes.length === 0) {
+        dom.notesList.innerHTML = '<div class="notes-empty">No notes yet. Click + New to start.</div>';
+        return;
+    }
+
+    dom.notesList.innerHTML = notes.sort((a, b) => (b.updated || 0) - (a.updated || 0)).map(n => `
+        <div class="note-card" data-id="${n.id}">
+            <div class="note-card-title">${escapeHTML(n.title) || 'Untitled Note'}</div>
+            <div class="note-card-preview">${n.body ? escapeHTML(n.body.substring(0, 60).replace(/\n/g, ' ')) : 'Empty note...'}</div>
+            <div class="note-card-meta">${new Date(n.updated || Date.now()).toLocaleDateString()}</div>
         </div>
-    `).join(""),t.notesList._hasListener||(t.notesList._hasListener=!0,t.notesList.onclick=e=>{const o=e.target.closest(".note-card");o&&r(o.dataset.id)})}async function r(n=null){a=n||"note_"+Date.now();let e=n?await s.get("notes",n):{id:a,title:"",body:"",updated:Date.now()};t.noteEditorTitle.value=e.title||"",t.noteEditorBody.value=e.body||"",t.noteSaveStatus.textContent=n?"Last saved "+new Date(e.updated).toLocaleTimeString():"New note",t.noteEditor.classList.remove("hidden"),t.notesList.classList.add("hidden"),t.noteEditorBody.focus(),l()}function l(){const n=t.noteEditorBody.value.length;t.noteCharCount.textContent=`${n} character${n===1?"":"s"}`}async function u(){if(!a)return;const n=t.noteEditorTitle.value.trim(),e=t.noteEditorBody.value;t.noteSaveStatus.textContent="Saving...",t.noteSaveStatus.style.opacity="0.7";try{const o={id:a,title:n||(e?e.substring(0,20)+"...":"Untitled Note"),body:e,updated:Date.now()};await s.set("notes",a,o),t.noteSaveStatus.textContent="Saved "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"}),t.noteSaveStatus.style.opacity="1",i()}catch(o){console.error("Failed to save note:",o),t.noteSaveStatus.textContent="Error saving!",t.noteSaveStatus.style.color="var(--danger)"}}async function v(){a&&confirm("Are you sure you want to delete this note?")&&(await s.remove("notes",a),c(),i())}function c(){t.noteEditor.classList.add("hidden"),t.notesList.classList.remove("hidden"),a=null}export{c as closeNoteEditor,v as deleteCurrentNote,r as openNoteEditor,i as renderNotesList,u as saveCurrentNote,l as updateCharCount};
+    `).join('');
+
+    // Event delegation: Attach click listener to the list container once
+    if (!dom.notesList._hasListener) {
+        dom.notesList._hasListener = true;
+        dom.notesList.onclick = (e) => {
+            const card = e.target.closest('.note-card');
+            if (card) {
+                openNoteEditor(card.dataset.id);
+            }
+        };
+    }
+}
+
+export async function openNoteEditor(id = null) {
+    currentNoteId = id || 'note_' + Date.now();
+    let note = id ? await StorageManager.get('notes', id) : { id: currentNoteId, title: '', body: '', updated: Date.now() };
+
+    dom.noteEditorTitle.value = note.title || '';
+    dom.noteEditorBody.value = note.body || '';
+    dom.noteSaveStatus.textContent = id ? 'Last saved ' + new Date(note.updated).toLocaleTimeString() : 'New note';
+
+    dom.noteEditor.classList.remove('hidden');
+    dom.notesList.classList.add('hidden');
+    dom.noteEditorBody.focus();
+    updateCharCount();
+}
+
+export function updateCharCount() {
+    const count = dom.noteEditorBody.value.length;
+    dom.noteCharCount.textContent = `${count} character${count === 1 ? '' : 's'}`;
+}
+
+export async function saveCurrentNote() {
+    if (!currentNoteId) return;
+    
+    const title = dom.noteEditorTitle.value.trim();
+    const body = dom.noteEditorBody.value;
+
+    // Show saving status
+    dom.noteSaveStatus.textContent = 'Saving...';
+    dom.noteSaveStatus.style.opacity = '0.7';
+
+    try {
+        const note = {
+            id: currentNoteId,
+            title: title || (body ? body.substring(0, 20) + '...' : 'Untitled Note'),
+            body: body,
+            updated: Date.now()
+        };
+
+        await StorageManager.set('notes', currentNoteId, note);
+        
+        dom.noteSaveStatus.textContent = 'Saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        dom.noteSaveStatus.style.opacity = '1';
+        
+        // Refresh the list in the background
+        renderNotesList();
+    } catch (e) {
+        console.error("Failed to save note:", e);
+        dom.noteSaveStatus.textContent = 'Error saving!';
+        dom.noteSaveStatus.style.color = 'var(--danger)';
+    }
+}
+
+export async function deleteCurrentNote() {
+    if (!currentNoteId) return;
+    if (confirm('Are you sure you want to delete this note?')) {
+        await StorageManager.remove('notes', currentNoteId);
+        closeNoteEditor();
+        renderNotesList();
+    }
+}
+
+export function closeNoteEditor() {
+    dom.noteEditor.classList.add('hidden');
+    dom.notesList.classList.remove('hidden');
+    currentNoteId = null;
+}

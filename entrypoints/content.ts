@@ -11,7 +11,7 @@ export default defineContentScript({
         const sendTitle = () => {
           const rawTitle = document.title;
           if (rawTitle) {
-            browser.runtime.sendMessage({ action: 'iframe_navigated', title: rawTitle });
+            window.parent.postMessage({ action: 'iframe_navigated', title: rawTitle }, '*');
           }
         };
         const titleEl = document.querySelector('title');
@@ -235,7 +235,7 @@ export default defineContentScript({
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         if (window.self !== window.top) {
-          browser.runtime.sendMessage({ action: 'close_dashboard_iframe' });
+          window.parent.postMessage({ action: 'close_dashboard_iframe' }, '*');
         } else {
           browser.runtime.sendMessage({ action: 'open_dashboard' });
         }
