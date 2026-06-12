@@ -27,6 +27,7 @@ export const SearchWidget: React.FC = () => {
       brave: 'https://search.brave.com/search?q=%s',
       chatgpt: 'https://chatgpt.com/?q=%s',
       perplexity: 'https://www.perplexity.ai/search?q=%s',
+      claude: 'https://claude.ai/?q=%s',
     };
     return (urls[searchEngine] || urls.google).replace('%s', encodeURIComponent(searchQuery));
   };
@@ -132,6 +133,9 @@ export const SearchWidget: React.FC = () => {
   } else if (searchEngine === 'perplexity') {
     enginePlaceholder = 'Ask Perplexity...';
     engineIcon = <BrainCircuit className="w-5 h-5 text-teal-400" />;
+  } else if (searchEngine === 'claude') {
+    enginePlaceholder = 'Ask Claude...';
+    engineIcon = <Sparkles className="w-5 h-5 text-amber-500" />;
   } else if (searchEngine === 'bing') {
     enginePlaceholder = 'Search Bing...';
     engineIcon = <Sparkles className="w-5 h-5 text-blue-400" />;

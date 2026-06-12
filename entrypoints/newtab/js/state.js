@@ -22,7 +22,7 @@ export const defaultSettings = {
     aiApps: [
         { name: 'ChatGPT', url: 'https://chatgpt.com', icon: 'https://chatgpt.com/favicon.ico' },
         { name: 'Gemini', url: 'https://gemini.google.com', icon: 'https://www.gstatic.com/lamda/images/favicon_v1_150160d1398865304d0c.svg' },
-        { name: 'Claude', url: 'https://claude.ai', icon: 'https://claude.ai/favicon.ico' }
+        { name: 'Claude', url: 'https://claude.ai', icon: 'https://www.google.com/s2/favicons?sz=64&domain=claude.ai' }
     ],
     customApps: [],
     showClock: true, 

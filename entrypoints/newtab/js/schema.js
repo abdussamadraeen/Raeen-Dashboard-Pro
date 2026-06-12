@@ -19,7 +19,7 @@ export const DEFAULT_SETTINGS = {
     aiApps: [
         { name: 'ChatGPT', url: 'https://chatgpt.com', icon: 'https://chatgpt.com/favicon.ico' },
         { name: 'Gemini', url: 'https://gemini.google.com', icon: 'https://www.gstatic.com/lamda/images/favicon_v1_150160d1398865304d0c.svg' },
-        { name: 'Claude', url: 'https://claude.ai', icon: 'https://claude.ai/favicon.ico' }
+        { name: 'Claude', url: 'https://claude.ai', icon: 'https://www.google.com/s2/favicons?sz=64&domain=claude.ai' }
     ],
     customApps: [],
     showClock: true, 
@@ -62,7 +62,7 @@ export function validateAndRepairSettings(settingsObj) {
     }
 
     // Safety checks for enum validations
-    const validEngines = ["google", "duckduckgo", "bing", "brave", "chatgpt", "perplexity", "gemini", "claude", "copilot", "robot_ai", "custom_engine"];
+    const validEngines = ["google", "duckduckgo", "bing", "brave", "chatgpt", "perplexity", "claude", "robot_ai", "custom_engine"];
     if (!validEngines.includes(repaired.searchEngine)) {
         repaired.searchEngine = "google";
     }

@@ -13,6 +13,7 @@ export function getSearchUrl() {
         brave: 'https://search.brave.com/search?q=%s',
         chatgpt: 'https://chatgpt.com/?q=%s',
         perplexity: 'https://www.perplexity.ai/search?q=%s',
+        claude: 'https://claude.ai/?q=%s',
     };
     return urls[engine] || urls.google;
 }
