@@ -45,20 +45,59 @@ export const state = {
     settings: { ...defaultSettings }
 };
 
+let pendingSettings = null;
+let settingsWriter = null;
+
 export function updateSettings(newSettings) {
     state.settings = { ...state.settings, ...newSettings };
 }
 
-export async function saveSettings(settingsObj, noApply = false) {
+function cloneSettings(settings) {
+    if (typeof structuredClone === 'function') {
+        return structuredClone(settings);
+    }
+    return JSON.parse(JSON.stringify(settings));
+}
+
+function queueSettingsWrite(settings) {
+    pendingSettings = settings;
+
+    if (!settingsWriter) {
+        settingsWriter = (async () => {
+            while (pendingSettings) {
+                const nextSettings = pendingSettings;
+                pendingSettings = null;
+
+                try {
+                    await StorageManager.set('settings', 'main', nextSettings);
+                } catch (error) {
+                    console.error('Failed to persist settings:', error);
+                }
+            }
+        })().finally(() => {
+            settingsWriter = null;
+        });
+    }
+
+    return settingsWriter;
+}
+
+export function saveSettings(settingsObj, noApply = false) {
     const toSave = settingsObj || state.settings;
-    await StorageManager.set('settings', 'main', toSave);
-    chrome.storage.local.set({ 'raeen_settings': toSave });
-    
-    // Instant sync for FOUC prevention
+
+    // Keep visual updates and the synchronous preload cache off the IDB path.
+    if (!noApply) applySettings();
+
     if (toSave.backgroundType) {
         localStorage.setItem('raeen_bg_type', toSave.backgroundType);
         localStorage.setItem('raeen_bg_value', toSave.backgroundValue || '');
     }
-    
-    if (!noApply) applySettings();
+
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        Promise.resolve(chrome.storage.local.set({ 'raeen_settings': toSave }))
+            .catch((error) => console.error('Failed to sync settings:', error));
+    }
+
+    // Collapse rapid updates while an IndexedDB write is already in progress.
+    return queueSettingsWrite(cloneSettings(toSave));
 }

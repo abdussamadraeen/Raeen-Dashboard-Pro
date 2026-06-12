@@ -104,25 +104,57 @@ import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
     if (dom.closeBtn) dom.closeBtn.onclick = () => dom.modalOverlay.classList.add('hidden');
 
     // Helper functions for settings sync
+    let settingsSaveTimeout = null;
+
+    const cancelPendingSettingsSave = () => {
+        clearTimeout(settingsSaveTimeout);
+        settingsSaveTimeout = null;
+    };
+
+    const commitSettings = (noApply = false) => {
+        cancelPendingSettingsSave();
+        return saveSettings(state.settings, noApply);
+    };
+
+    const saveSettingsSoon = (shouldApply = true) => {
+        cancelPendingSettingsSave();
+        if (shouldApply) applySettings();
+        settingsSaveTimeout = setTimeout(() => {
+            settingsSaveTimeout = null;
+            saveSettings(state.settings, true);
+        }, 180);
+    };
+
+    const flushPendingSettings = () => {
+        if (settingsSaveTimeout === null) return;
+        commitSettings(true);
+    };
+
     const bindToggle = (el, key, cb) => {
         if (el) el.onchange = (e) => { 
             state.settings[key] = e.target.checked; 
-            saveSettings(state.settings); 
+            commitSettings();
             cb && cb(); 
         };
     };
     const bindVal = (el, key, ev = "oninput", cb) => {
         if (el) el[ev] = (e) => { 
-            state.settings[key] = e.target.value; 
-            saveSettings(state.settings); 
-            cb && cb(e.target.value); 
+            const value = e.target.value;
+            state.settings[key] = value;
+            cb && cb(value);
+
+            if (ev === "oninput") {
+                saveSettingsSoon();
+            } else {
+                commitSettings();
+            }
         };
     };
     const bindRadio = (name, key, cb) => {
         document.getElementsByName(name).forEach((el) => {
             el.onchange = (e) => { 
                 state.settings[key] = e.target.value; 
-                saveSettings(state.settings); 
+                commitSettings();
                 cb && cb(); 
             };
         });
@@ -133,10 +165,9 @@ import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
         dom.bgTypeSelect.oninput = (e) => {
             state.settings.backgroundType = e.target.value;
             if (e.target.value === 'bing') state.settings.backgroundValue = 'bing_latest_v2';
-            saveSettings(state.settings);
+            commitSettings();
             syncBackgroundOptions();
             if (e.target.value === 'bing') loadBingGallery();
-            applySettings();
         };
     }
 
@@ -228,21 +259,20 @@ function optimizeImage(file) {
                 await StorageManager.set('mediaStore', 'localBackground', { data: file, type: file.type, timestamp: Date.now() });
                 state.settings.backgroundValue = 'local_' + Date.now();
                 state.settings.backgroundType = 'local';
-                saveSettings(state.settings);
+                commitSettings();
             }
         };
     }
 
     bindVal(dom.bgColorPicker, 'backgroundValue', 'oninput', () => {
         state.settings.backgroundType = 'solid';
-        saveSettings(state.settings);
     });
 
     document.querySelectorAll('.color-swatch').forEach(swatch => {
         swatch.onclick = () => {
             state.settings.backgroundType = 'solid';
             state.settings.backgroundValue = swatch.dataset.color;
-            saveSettings(state.settings);
+            commitSettings();
         };
     });
 
@@ -272,7 +302,7 @@ function optimizeImage(file) {
                         '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.05-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l7.73 7.73H7v6h4l5 5v-6.73l4.25 4.25c.67-.64 1.24-1.37 1.7-2.18L5.73 3zM12 4L9.27 6.73 12 9.46V4z"/>' : 
                         '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
                 }
-                saveSettings(state.settings, true);
+                commitSettings(true);
             }
         };
     }
@@ -287,6 +317,7 @@ function optimizeImage(file) {
     if (dom.noteEditorBody) dom.noteEditorBody.oninput = () => { autoSave(); updateCharCount(); };
 
     window.addEventListener('beforeunload', () => {
+        flushPendingSettings();
         saveCurrentNote();
     });
 
@@ -308,8 +339,8 @@ function optimizeImage(file) {
     if (titleIn) {
         titleIn.oninput = (e) => {
             state.settings.dashboardTitle = e.target.value;
-            saveSettings(state.settings);
-            document.title = e.target.value || 'New Tab';
+            document.title = state.settings.dashboardTitle || 'New Tab';
+            saveSettingsSoon(false);
         };
     }
 
@@ -1434,8 +1465,12 @@ function optimizeImage(file) {
             });
         }
 
+        let clampFrame = null;
+        let clampSaveTimeout = null;
+
         // Perform layout clamping on window resize
         function clampWidgetsOnScreen() {
+            clampFrame = null;
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
             document.querySelectorAll(".draggable-widget").forEach(widget => {
@@ -1449,12 +1484,30 @@ function optimizeImage(file) {
                 widget.style.left = `${(leftPx / viewportWidth) * 100}%`;
                 widget.style.top = `${(topPx / viewportHeight) * 100}%`;
             });
-            saveWidgetPositions();
+
+            clearTimeout(clampSaveTimeout);
+            clampSaveTimeout = setTimeout(saveWidgetPositions, 180);
         }
-        window.addEventListener("resize", clampWidgetsOnScreen);
+
+        function scheduleWidgetClamp() {
+            if (clampFrame !== null) return;
+            clampFrame = requestAnimationFrame(clampWidgetsOnScreen);
+        }
+
+        window.addEventListener("resize", scheduleWidgetClamp);
+
+        function getSnapTargets(widget) {
+            return Array.from(document.querySelectorAll(".draggable-widget"))
+                .filter(other => {
+                    if (other === widget || other.classList.contains("hidden")) return false;
+                    const style = window.getComputedStyle(other);
+                    return style.display !== "none" && style.visibility !== "hidden";
+                })
+                .map(other => other.getBoundingClientRect());
+        }
 
         // Snapping helper for dragging
-        function snapWidget(widget, rect, leftPx, topPx, otherWidgets) {
+        function snapWidget(rect, leftPx, topPx, snapTargets) {
             const snapThreshold = 15; // px
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
@@ -1485,13 +1538,7 @@ function optimizeImage(file) {
             }
             
             // 2. Sibling widget snapping
-            otherWidgets.forEach(other => {
-                if (other === widget) return;
-                const style = window.getComputedStyle(other);
-                if (style.display === "none" || style.visibility === "hidden" || other.classList.contains("hidden")) return;
-                
-                const otherRect = other.getBoundingClientRect();
-                
+            snapTargets.forEach(otherRect => {
                 // Horizontal edge snapping
                 if (snappedX === null) {
                     if (Math.abs(leftPx - otherRect.left) < snapThreshold) {
@@ -1531,7 +1578,7 @@ function optimizeImage(file) {
         }
 
         // Snapping helper for resizing
-        function snapResize(widget, widthPx, heightPx, startRect, otherWidgets) {
+        function snapResize(widthPx, heightPx, startRect, snapTargets) {
             const snapThreshold = 15; // px
             let snappedWidth = widthPx;
             let snappedHeight = heightPx;
@@ -1541,12 +1588,7 @@ function optimizeImage(file) {
             const leftPx = startRect.left;
             const topPx = startRect.top;
             
-            otherWidgets.forEach(other => {
-                if (other === widget) return;
-                const style = window.getComputedStyle(other);
-                if (style.display === "none" || style.visibility === "hidden" || other.classList.contains("hidden")) return;
-                
-                const otherRect = other.getBoundingClientRect();
+            snapTargets.forEach(otherRect => {
                 const rightPx = leftPx + widthPx;
                 const bottomPx = topPx + heightPx;
                 
@@ -1607,7 +1649,7 @@ function optimizeImage(file) {
                     const offsetX = e.clientX - rect.left;
                     const offsetY = e.clientY - rect.top;
                     
-                    const otherWidgets = Array.from(document.querySelectorAll(".draggable-widget"));
+                    const snapTargets = getSnapTargets(widget);
                     
                     dragHandle.setPointerCapture(e.pointerId);
                     
@@ -1617,7 +1659,7 @@ function optimizeImage(file) {
                         let topPx = moveEvent.clientY - offsetY;
                         
                         // Apply snapping
-                        const snapResult = snapWidget(widget, rect, leftPx, topPx, otherWidgets);
+                        const snapResult = snapWidget(rect, leftPx, topPx, snapTargets);
                         leftPx = snapResult.left;
                         topPx = snapResult.top;
                         
@@ -1672,7 +1714,7 @@ function optimizeImage(file) {
                     const startX = e.clientX;
                     const startY = e.clientY;
                     
-                    const otherWidgets = Array.from(document.querySelectorAll(".draggable-widget"));
+                    const snapTargets = getSnapTargets(widget);
                     
                     resizeHandle.setPointerCapture(e.pointerId);
                     
@@ -1685,7 +1727,7 @@ function optimizeImage(file) {
                         let heightPx = startHeight + dy;
                         
                         // Snapping
-                        const snapResult = snapResize(widget, widthPx, heightPx, rect, otherWidgets);
+                        const snapResult = snapResize(widthPx, heightPx, rect, snapTargets);
                         widthPx = snapResult.width;
                         heightPx = snapResult.height;
                         
