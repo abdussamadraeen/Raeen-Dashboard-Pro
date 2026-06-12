@@ -131,7 +131,7 @@ import { validateAndRepairSettings } from './schema.js';
     if (dom.bgTypeSelect) {
         dom.bgTypeSelect.oninput = (e) => {
             state.settings.backgroundType = e.target.value;
-            if (e.target.value === 'bing') state.settings.backgroundValue = 'bing_latest';
+            if (e.target.value === 'bing') state.settings.backgroundValue = 'bing_latest_v2';
             saveSettings(state.settings);
             syncBackgroundOptions();
             if (e.target.value === 'bing') loadBingGallery();

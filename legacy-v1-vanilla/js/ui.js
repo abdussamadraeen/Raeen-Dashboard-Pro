@@ -60,8 +60,8 @@ export async function applySettings() {
         } else {
             switch (bgType) {
             case 'bing':
-                const bingUrl = bgValue === 'bing_latest'
-                    ? (await StorageManager.get('mediaStore', 'bing_latest'))?.url
+                const bingUrl = (bgValue === 'bing_latest' || bgValue === 'bing_latest_v2')
+                    ? (await StorageManager.get('mediaStore', 'bing_latest_v2'))?.url
                     : bgValue;
                 if (bingUrl) {
                     dom.bgLayer.style.backgroundImage = `url('${bingUrl}')`;
@@ -70,7 +70,7 @@ export async function applySettings() {
                         const res = await fetch('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1');
                         const data = await res.json();
                         const url = `https://www.bing.com${data.images[0].urlbase}_UHD.jpg`;
-                        await StorageManager.set('mediaStore', 'bing_latest', { url: url, timestamp: Date.now() });
+                        await StorageManager.set('mediaStore', 'bing_latest_v2', { url: url, timestamp: Date.now() });
                         dom.bgLayer.style.backgroundImage = `url('${url}')`;
                     } catch (e) { console.error("Failed to fetch Bing image", e); }
                 }
@@ -198,21 +198,20 @@ export async function loadBingGallery() {
     if (!dom.bingGallery) return;
     dom.bingGallery.innerHTML = '<p class="subtext">Loading daily wallpapers...</p>';
     try {
-        const mkt = navigator.language || 'en-US';
-        const res = await fetch(`https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=${mkt}`);
+        const res = await fetch('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8');
         const data = await res.json();
         const images = data.images || [];
 
         dom.bingGallery.innerHTML = images.map((img, i) => `
             <div class="bing-thumb-wrapper" style="cursor:pointer;" data-url="https://www.bing.com${img.urlbase}_UHD.jpg">
-                <img src="https://www.bing.com${img.urlbase}_400x240.jpg" class="bing-thumb ${state.settings.backgroundValue === (i === 0 ? 'bing_latest' : 'https://www.bing.com' + img.urlbase + '_UHD.jpg') ? 'active' : ''}" style="width:100%; border-radius:8px;">
+                <img src="https://www.bing.com${img.urlbase}_400x240.jpg" class="bing-thumb ${state.settings.backgroundValue === (i === 0 ? 'bing_latest_v2' : 'https://www.bing.com' + img.urlbase + '_UHD.jpg') || (i === 0 && state.settings.backgroundValue === 'bing_latest') ? 'active' : ''}" style="width:100%; border-radius:8px;">
                 <div style="font-size:0.6rem; text-align:center; margin-top:2px; color:var(--text-secondary);">${i === 0 ? 'Daily Wallpaper' : 'Previous Day'}</div>
             </div>
         `).join('');
 
         dom.bingGallery.querySelectorAll('.bing-thumb-wrapper').forEach((w, i) => w.addEventListener('click', () => {
             state.settings.backgroundType = 'bing';
-            state.settings.backgroundValue = (i === 0) ? 'bing_latest' : w.dataset.url;
+            state.settings.backgroundValue = (i === 0) ? 'bing_latest_v2' : w.dataset.url;
             saveSettings(state.settings);
         }));
     } catch (e) {

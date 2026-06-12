@@ -78,8 +78,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const loadBingGallery = async () => {
     setLoadingBing(true);
     try {
-      const mkt = navigator.language || 'en-US';
-      const res = await fetch(`https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=${mkt}`);
+      const res = await fetch('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8');
       const data = await res.json();
       const images = data.images || [];
       const mapped = images.map((img: any, i: number) => ({
@@ -462,7 +461,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         const type = e.target.value as any;
                         let val = settings.backgroundValue;
                         if (type === 'solid') val = '#000000';
-                        else if (type === 'bing') val = 'bing_latest';
+                        else if (type === 'bing') val = 'bing_latest_v2';
                         else if (type === 'canvas') val = settings.canvasStyle;
                         updateSettings({ backgroundType: type, backgroundValue: val });
                       }}
@@ -533,12 +532,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     ) : (
                       <div className="bing-gallery-grid">
                         {bingWallpapers.map((img, i) => {
-                          const isCurrent = settings.backgroundValue === (i === 0 ? 'bing_latest' : img.url);
+                          const isCurrent = settings.backgroundValue === (i === 0 ? 'bing_latest_v2' : img.url) || (i === 0 && settings.backgroundValue === 'bing_latest');
                           return (
                             <div
                               key={img.url}
                               className="relative cursor-pointer group"
-                              onClick={() => updateSettings({ backgroundValue: i === 0 ? 'bing_latest' : img.url })}
+                              onClick={() => updateSettings({ backgroundValue: i === 0 ? 'bing_latest_v2' : img.url })}
                             >
                               <img
                                 src={img.thumb}
