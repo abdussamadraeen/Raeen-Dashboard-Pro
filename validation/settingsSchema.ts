@@ -7,6 +7,7 @@ export const AppItemSchema = z.object({
 });
 
 export const SettingsSchema = z.object({
+  dashboardTitle: z.string().default('New Tab'),
   themePreference: z.enum(['dark', 'light', 'system']).default('dark'),
   backgroundType: z.enum([
     'solid',

@@ -16,10 +16,10 @@ export const SearchWidget: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  const getSearchUrl = (searchQuery: string) => {
-    if (searchEngine === 'custom_engine') {
-      return (customSearchUrl || 'https://www.google.com/search?q=%s').replace('%s', encodeURIComponent(searchQuery));
-    }
+  const resolveSearch = (rawQuery: string) => {
+    const query = rawQuery.trim();
+    if (!query) return { url: '', engine: 'google', cleanQuery: '' };
+
     const urls: Record<string, string> = {
       google: 'https://www.google.com/search?q=%s',
       duckduckgo: 'https://duckduckgo.com/?q=%s',
@@ -28,13 +28,87 @@ export const SearchWidget: React.FC = () => {
       chatgpt: 'https://chatgpt.com/?q=%s',
       perplexity: 'https://www.perplexity.ai/search?q=%s',
       claude: 'https://claude.ai/?q=%s',
+      gemini: 'https://gemini.google.com/app?q=%s',
     };
-    return (urls[searchEngine] || urls.google).replace('%s', encodeURIComponent(searchQuery));
+
+    if (searchEngine === 'custom_engine') {
+      const base = customSearchUrl || 'https://www.google.com/search?q=%s';
+      return { url: base.replace('%s', encodeURIComponent(query)), engine: 'custom', cleanQuery: query };
+    }
+
+    if (searchEngine !== 'robot_ai') {
+      const base = urls[searchEngine] || urls.google;
+      return { url: base.replace('%s', encodeURIComponent(query)), engine: searchEngine, cleanQuery: query };
+    }
+
+    // --- Robot AI Router Logic ---
+    let targetEngine = null;
+    let cleanQuery = query;
+
+    if (query.startsWith('/')) {
+      const parts = query.split(/\s+/);
+      const command = parts[0].toLowerCase();
+      const rest = parts.slice(1).join(' ');
+
+      const slashMap: Record<string, string> = {
+        '/gpt': 'chatgpt',
+        '/chatgpt': 'chatgpt',
+        '/claude': 'claude',
+        '/gemini': 'gemini',
+        '/gem': 'gemini',
+        '/perp': 'perplexity',
+        '/perplexity': 'perplexity',
+        '/g': 'google',
+        '/google': 'google',
+        '/b': 'bing',
+        '/bing': 'bing',
+        '/ddg': 'duckduckgo',
+        '/duck': 'duckduckgo',
+        '/brave': 'brave'
+      };
+
+      if (slashMap[command]) {
+        targetEngine = slashMap[command];
+        cleanQuery = rest;
+      }
+    }
+
+    if (!targetEngine) {
+      const lower = query.toLowerCase();
+      const codingKeywords = [
+        'code', 'run', 'error', 'bug', 'class', 'function', 'api', 'npm', 'git', 
+        'python', 'javascript', 'typescript', 'rust', 'java', 'c++', 'html', 'css', 
+        'sql', 'docker', 'kubernetes', 'json', 'compiler', 'syntax', 'array', 
+        'hashmap', 'pointer', 'regex', 'install', 'setup', 'write a function',
+        'programming', 'algorithm', 'binary search', 'recursion'
+      ];
+
+      const researchKeywords = [
+        'why does', 'explain the', 'history of', 'difference between', 'scientific', 
+        'statistics', 'evidence', 'mechanism of', 'how does', 'compare and', 
+        'what is the meaning of', 'concept of', 'literature on', 'theoretical'
+      ];
+
+      const isCoding = codingKeywords.some(kw => lower.includes(kw));
+      const isResearch = researchKeywords.some(kw => lower.includes(kw));
+      const wordCount = query.split(/\s+/).length;
+
+      if (isCoding) {
+        targetEngine = 'claude';
+      } else if (isResearch || wordCount >= 6) {
+        targetEngine = 'perplexity';
+      } else {
+        targetEngine = 'google';
+      }
+    }
+
+    const base = urls[targetEngine] || urls.google;
+    return { url: base.replace('%s', encodeURIComponent(cleanQuery)), engine: targetEngine, cleanQuery };
   };
 
   const handleSearch = (searchQuery: string) => {
     if (!searchQuery.trim()) return;
-    const url = getSearchUrl(searchQuery);
+    const { url } = resolveSearch(searchQuery);
     
     // Smooth navigation experience: redirect current tab on mobile, open new tab on desktop
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -52,11 +126,23 @@ export const SearchWidget: React.FC = () => {
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      const trimmed = query.trim();
+      let trimmed = query.trim();
       if (!trimmed) {
         setSuggestions([]);
         return;
       }
+
+      // Strip slash commands prefix for suggesting autocomplete queries
+      if (trimmed.startsWith('/')) {
+        const parts = trimmed.split(/\s+/);
+        if (parts.length > 1) {
+          trimmed = parts.slice(1).join(' ');
+        } else {
+          setSuggestions([]);
+          return;
+        }
+      }
+
       try {
         const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(trimmed)}`);
         const data = await res.json();

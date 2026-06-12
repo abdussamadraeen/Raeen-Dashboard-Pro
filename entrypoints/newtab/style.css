@@ -218,7 +218,12 @@ html.live-bg-pre-active .background-layer {
 
 
 /* ─── Search ─── */
-.search-container { width: 100%; max-width: 620px; }
+.search-container { 
+    width: 100%; 
+    max-width: 620px; 
+    position: relative; 
+    z-index: 100; 
+}
 .input-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
 .search-icon { position: absolute; left: 20px; width: 20px; height: 20px; fill: var(--text-secondary); transition: all 0.3s ease; }
 

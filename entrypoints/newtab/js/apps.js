@@ -1,4 +1,6 @@
 
+import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
+
 const defaultAppData = {
   "google": [
     {
@@ -360,10 +362,14 @@ export function renderAppsMenu(provider = currentProvider) {
         let domain = 'google.com';
         try { domain = new URL(app.url).hostname; } catch(e){}
         const fallback = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+        const sanitizedUrl = sanitizeURL(app.url);
+        const escapedIcon = escapeAttribute(app.icon || fallback);
+        const escapedName = escapeHTML(app.name);
+        const fallbackEscaped = escapeAttribute(fallback);
         return `
-        <a href="${app.url}" target="_blank" class="app-item" draggable="true" data-index="${index}">
-            <img src="${app.icon || fallback}" alt="${app.name}" onerror="this.onerror=null; this.src='${fallback}'">
-            <span>${app.name}</span>
+        <a href="${sanitizedUrl}" target="_blank" class="app-item" draggable="true" data-index="${index}">
+            <img src="${escapedIcon}" alt="${escapedName}" onerror="this.onerror=null; this.src='${fallbackEscaped}'">
+            <span>${escapedName}</span>
         </a>
         `;
     }).join('');

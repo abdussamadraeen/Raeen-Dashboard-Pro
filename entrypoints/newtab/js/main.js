@@ -22,6 +22,7 @@ import { renderShortcuts, addShortcut } from './shortcuts.js';
 import { setupSearch } from './search.js';
 import { initFocusTimer } from './focus.js';
 import { validateAndRepairSettings } from './schema.js';
+import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
 
 (async function init() {
     // 1. Immediate UI Load (using defaults to prevent lag)
@@ -906,10 +907,13 @@ function optimizeImage(file) {
             let sidebarHTML = `<div class="directory-sidebar">`;
             visibleList.forEach(c => {
                 const isActive = activeCat && c.id === activeCat.id;
+                const escapedIcon = escapeHTML(c.icon || '📁');
+                const escapedName = escapeHTML(c.name);
+                const escapedId = escapeAttribute(c.id);
                 sidebarHTML += `
-                    <button class="directory-sidebar-btn ${isActive ? 'active' : ''}" data-cat-id="${c.id}">
-                        <span class="directory-sidebar-icon">${c.icon || '📁'}</span>
-                        <span>${c.name}</span>
+                    <button class="directory-sidebar-btn ${isActive ? 'active' : ''}" data-cat-id="${escapedId}">
+                        <span class="directory-sidebar-icon">${escapedIcon}</span>
+                        <span>${escapedName}</span>
                     </button>
                 `;
             });
@@ -925,23 +929,31 @@ function optimizeImage(file) {
 
             let contentHTML = `<div class="directory-content">`;
             if (activeCat) {
+                const escapedCatIcon = escapeHTML(activeCat.icon || '📁');
+                const escapedCatName = escapeHTML(activeCat.name);
                 contentHTML += `
                     <div class="directory-header">
                         <div class="directory-title-wrapper">
-                            <span style="font-size:1.3rem;">${activeCat.icon || '📁'}</span>
-                            <span class="directory-title">${activeCat.name}</span>
+                            <span style="font-size:1.3rem;">${escapedCatIcon}</span>
+                            <span class="directory-title">${escapedCatName}</span>
                         </div>
                     </div>
                     <div class="directory-grid">
                 `;
                 
                 (activeCat.sites || []).forEach((site, index) => {
-                    const favicon = `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(site.url)}`;
+                    let domain = 'google.com';
+                    try { domain = new URL(site.url).hostname; } catch(e){}
+                    const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+                    const sanitizedUrl = sanitizeURL(site.url);
+                    const escapedIcon = escapeAttribute(favicon);
+                    const escapedName = escapeHTML(site.name);
+                    const firstChar = escapedName.charAt(0).toUpperCase() || '🔗';
                     contentHTML += `
-                        <a href="${site.url}" target="_blank" class="directory-card">
+                        <a href="${sanitizedUrl}" target="_blank" class="directory-card">
                             <button class="directory-card-delete-btn" data-index="${index}">&times;</button>
-                            <img src="${favicon}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><rect width=%2224%22 height=%2224%22 fill=%22%237b61ff%22 rx=%224%22/><text x=%2212%22 y=%2216%22 font-family=%22sans-serif%22 font-size=%2212%22 fill=%22white%22 font-weight=%22bold%22 text-anchor=%22middle%22>${site.name.charAt(0).toUpperCase()}</text></svg>'">
-                            <span>${site.name}</span>
+                            <img src="${escapedIcon}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><rect width=%2224%22 height=%2224%22 fill=%22%237b61ff%22 rx=%224%22/><text x=%2212%22 y=%2216%22 font-family=%22sans-serif%22 font-size=%2212%22 fill=%22white%22 font-weight=%22bold%22 text-anchor=%22middle%22>${firstChar}</text></svg>'">
+                            <span>${escapedName}</span>
                         </a>
                     `;
                 });
@@ -1007,12 +1019,15 @@ function optimizeImage(file) {
             if (!listContainer) return;
             
             listContainer.innerHTML = (directoriesData.list || []).map((c, index) => {
+                const escapedIcon = escapeHTML(c.icon || '📁');
+                const escapedName = escapeHTML(c.name);
+                const escapedCount = c.sites ? c.sites.length : 0;
                 return `
                     <div class="directory-editor-item">
                         <div class="directory-editor-item-left">
-                            <span style="font-size:1.1rem;">${c.icon || '📁'}</span>
-                            <strong>${c.name}</strong>
-                            <span style="font-size:0.75rem;opacity:0.6;">(${c.sites ? c.sites.length : 0} links)</span>
+                            <span style="font-size:1.1rem;">${escapedIcon}</span>
+                            <strong>${escapedName}</strong>
+                            <span style="font-size:0.75rem;opacity:0.6;">(${escapedCount} links)</span>
                         </div>
                         <div class="directory-editor-actions">
                             <label class="switch" style="width: 36px; height: 20px; margin-right: 10px;">

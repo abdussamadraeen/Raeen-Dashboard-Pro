@@ -18,21 +18,132 @@ export function getSearchUrl() {
     return urls[engine] || urls.google;
 }
 
+export function resolveSearch(rawQuery) {
+    const query = rawQuery.trim();
+    if (!query) return { url: '', engine: 'google', cleanQuery: '' };
+
+    const engine = state.settings.searchEngine;
+    
+    // Default URLs
+    const urls = {
+        google: 'https://www.google.com/search?q=%s',
+        duckduckgo: 'https://duckduckgo.com/?q=%s',
+        bing: 'https://www.bing.com/search?q=%s',
+        brave: 'https://search.brave.com/search?q=%s',
+        chatgpt: 'https://chatgpt.com/?q=%s',
+        perplexity: 'https://www.perplexity.ai/search?q=%s',
+        claude: 'https://claude.ai/?q=%s',
+        gemini: 'https://gemini.google.com/app?q=%s',
+    };
+
+    if (engine === 'custom_engine') {
+        const base = state.settings.customSearchUrl || 'https://www.google.com/search?q=%s';
+        return { url: base.replace('%s', encodeURIComponent(query)), engine: 'custom', cleanQuery: query };
+    }
+
+    if (engine !== 'robot_ai') {
+        const base = urls[engine] || urls.google;
+        return { url: base.replace('%s', encodeURIComponent(query)), engine, cleanQuery: query };
+    }
+
+    // --- Robot AI Router Logic ---
+    // 1. Check for slash overrides
+    let targetEngine = null;
+    let cleanQuery = query;
+
+    if (query.startsWith('/')) {
+        const parts = query.split(/\s+/);
+        const command = parts[0].toLowerCase();
+        const rest = parts.slice(1).join(' ');
+
+        const slashMap = {
+            '/gpt': 'chatgpt',
+            '/chatgpt': 'chatgpt',
+            '/claude': 'claude',
+            '/gemini': 'gemini',
+            '/gem': 'gemini',
+            '/perp': 'perplexity',
+            '/perplexity': 'perplexity',
+            '/g': 'google',
+            '/google': 'google',
+            '/b': 'bing',
+            '/bing': 'bing',
+            '/ddg': 'duckduckgo',
+            '/duck': 'duckduckgo',
+            '/brave': 'brave'
+        };
+
+        if (slashMap[command]) {
+            targetEngine = slashMap[command];
+            cleanQuery = rest;
+        }
+    }
+
+    // 2. Heuristics fallback if no slash command matched
+    if (!targetEngine) {
+        const lower = query.toLowerCase();
+        
+        // List of programming keywords
+        const codingKeywords = [
+            'code', 'run', 'error', 'bug', 'class', 'function', 'api', 'npm', 'git', 
+            'python', 'javascript', 'typescript', 'rust', 'java', 'c++', 'html', 'css', 
+            'sql', 'docker', 'kubernetes', 'json', 'compiler', 'syntax', 'array', 
+            'hashmap', 'pointer', 'regex', 'install', 'setup', 'write a function',
+            'programming', 'algorithm', 'binary search', 'recursion'
+        ];
+
+        // List of research keywords/phrases
+        const researchKeywords = [
+            'why does', 'explain the', 'history of', 'difference between', 'scientific', 
+            'statistics', 'evidence', 'mechanism of', 'how does', 'compare and', 
+            'what is the meaning of', 'concept of', 'literature on', 'theoretical'
+        ];
+
+        const isCoding = codingKeywords.some(kw => lower.includes(kw));
+        const isResearch = researchKeywords.some(kw => lower.includes(kw));
+        const wordCount = query.split(/\s+/).length;
+
+        if (isCoding) {
+            targetEngine = 'claude';
+        } else if (isResearch || wordCount >= 6) {
+            targetEngine = 'perplexity';
+        } else {
+            targetEngine = 'google';
+        }
+    }
+
+    const base = urls[targetEngine] || urls.google;
+    return { url: base.replace('%s', encodeURIComponent(cleanQuery)), engine: targetEngine, cleanQuery };
+}
+
 export function setupSearch() {
     let selectedIndex = -1;
 
     if (dom.searchInput) {
         const handleSearch = (query) => {
             if (!query) return;
-            const url = getSearchUrl().replace('%s', encodeURIComponent(query));
-
-            window.open(url, '_blank');
+            const { url } = resolveSearch(query);
+            if (url) {
+                window.open(url, '_blank');
+            }
         };
 
         dom.searchInput.oninput = async (e) => {
-            const query = e.target.value.trim();
+            let query = e.target.value.trim();
             selectedIndex = -1;
             if (!query) { dom.searchSuggestions.classList.add('hidden'); return; }
+
+            // Strip slash command prefix for autocomplete queries
+            if (query.startsWith('/')) {
+                const parts = query.split(/\s+/);
+                if (parts.length > 1) {
+                    query = parts.slice(1).join(' ');
+                } else {
+                    dom.searchSuggestions.classList.add('hidden');
+                    return;
+                }
+            }
+
             try {
                 const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`);
                 const data = await res.json();

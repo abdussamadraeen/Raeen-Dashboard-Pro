@@ -22,7 +22,9 @@ export function renderShortcuts() {
             a.href = sanitizeURL(sc.url);
             a.className = 'shortcut';
             a.style.setProperty('--item-index', i);
-            const iconUrl = sc.icon || `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(sc.url)}`;
+            let domain = 'google.com';
+            try { domain = new URL(sc.url).hostname; } catch(e){}
+            const iconUrl = sc.icon || `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
             a.innerHTML = `<img src="${escapeAttribute(iconUrl)}" alt="${escapeAttribute(sc.name)}"><span>${escapeHTML(sc.name)}</span>`;
             dom.topSitesWidget.appendChild(a);
         });
@@ -37,7 +39,9 @@ export function renderShortcuts() {
                     a.href = sanitizeURL(site.url);
                     a.className = 'shortcut';
                     a.style.setProperty('--item-index', i);
-                    const iconUrl = `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(site.url)}`;
+                    let domain = 'google.com';
+                    try { domain = new URL(site.url).hostname; } catch(e){}
+                    const iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
                     a.innerHTML = `<img src="${escapeAttribute(iconUrl)}" alt="${escapeAttribute(site.title)}"><span>${escapeHTML(site.title)}</span>`;
                     dom.topSitesWidget.appendChild(a);
                 });

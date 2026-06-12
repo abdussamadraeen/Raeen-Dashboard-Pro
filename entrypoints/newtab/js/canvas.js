@@ -64,8 +64,9 @@ export const CanvasEngine = (() => {
                 if (mouse.x !== null) {
                     const dx = mouse.x - p.x;
                     const dy = mouse.y - p.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 250) {
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq < 62500) { // 250 * 250 = 62500
+                        const dist = Math.sqrt(distSq);
                         const force = (250 - dist) / 250;
                         p.vx += dx * 0.003 * force;
                         p.vy += dy * 0.003 * force;
@@ -96,8 +97,9 @@ export const CanvasEngine = (() => {
                     const p2 = particles[j];
                     const dx = p.x - p2.x;
                     const dy = p.y - p2.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 180) {
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq < 32400) { // 180 * 180 = 32400
+                        const dist = Math.sqrt(distSq);
                         ctx.beginPath();
                         ctx.strokeStyle = accent;
                         ctx.globalAlpha = (180 - dist) / 720;
@@ -116,8 +118,8 @@ export const CanvasEngine = (() => {
                 if (mouse.x !== null) {
                     const dx = mouse.x - p.x;
                     const dy = mouse.y - p.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 150) {
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq < 22500) { // 150 * 150 = 22500
                         p.x -= dx * 0.01;
                         p.y -= dy * 0.01;
                     }
@@ -139,8 +141,8 @@ export const CanvasEngine = (() => {
                 if (mouse.x !== null) {
                     const dx = mouse.x - p.x;
                     const dy = mouse.y - p.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 80) {
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq < 6400) { // 80 * 80 = 6400
                         p.y -= 5;
                         p.vx += (Math.random() - 0.5) * 5;
                     }

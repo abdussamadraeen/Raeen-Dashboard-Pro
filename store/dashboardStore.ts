@@ -389,6 +389,7 @@ interface DashboardState {
 }
 
 export const defaultSettings: Settings = {
+  dashboardTitle: 'New Tab',
   themePreference: 'dark',
   backgroundType: 'solid',
   backgroundValue: '#000000',
