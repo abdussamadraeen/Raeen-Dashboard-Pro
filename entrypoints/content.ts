@@ -6,6 +6,24 @@ export default defineContentScript({
     // If the search engine is loaded inside our dashboard iframe, force all search links to open in a new tab
     // to prevent standard SAMEORIGIN/X-Frame blocks on target websites.
     if (window.self !== window.top) {
+      // Track and report iframe title changes to update dashboard tab title
+      try {
+        const sendTitle = () => {
+          const rawTitle = document.title;
+          if (rawTitle) {
+            browser.runtime.sendMessage({ action: 'iframe_navigated', title: rawTitle });
+          }
+        };
+        const titleEl = document.querySelector('title');
+        if (titleEl) {
+          const observer = new MutationObserver(sendTitle);
+          observer.observe(titleEl, { childList: true, characterData: true, subtree: true });
+        }
+        sendTitle();
+      } catch (err) {
+        console.error('Failed to track iframe title:', err);
+      }
+
       try {
         const isOutboundUrl = (urlStr: string): boolean => {
           try {

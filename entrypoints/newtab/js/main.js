@@ -316,6 +316,9 @@ function optimizeImage(file) {
     const runtimeObj = typeof browser !== 'undefined' ? browser.runtime : chrome.runtime;
     if (runtimeObj && runtimeObj.onMessage) {
         runtimeObj.onMessage.addListener(async (msg) => {
+            if (msg.action === 'iframe_navigated' && msg.title) {
+                document.title = msg.title;
+            }
             if (msg.action === 'close_dashboard_iframe') {
                 try {
                     const settings = await StorageManager.get('settings', 'main');
