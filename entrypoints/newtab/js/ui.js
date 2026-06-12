@@ -188,9 +188,10 @@ export async function applySettings() {
         }
     }
 
-    // Sound button visibility
+    // Video background class toggle & sound button visibility
+    const hasVideo = dom.bgLayer.querySelector('video') !== null;
+    document.body.classList.toggle('has-video-bg', hasVideo);
     if (dom.videoSoundBtn) {
-        const hasVideo = dom.bgLayer.querySelector('video');
         dom.videoSoundBtn.classList.toggle('hidden', !hasVideo);
         dom.videoSoundBtn.classList.toggle('muted', state.settings.videoMuted);
     }

@@ -559,16 +559,17 @@ html.live-bg-pre-active .background-layer {
     background: transparent; overflow: hidden; pointer-events: none;
 }
 .cdi-progress {
-    width: 100%; height: 100%; 
+    width: 100%; height: 200%; 
     background: linear-gradient(0deg, transparent, var(--accent), transparent);
-    background-size: 100% 200%;
+    background-repeat: repeat-y;
     animation: cdiFlowVertical 3s linear infinite;
     box-shadow: 0 0 20px var(--accent);
     opacity: 0.6;
+    will-change: transform;
 }
 @keyframes cdiFlowVertical {
-    0% { background-position: 0 200%; }
-    100% { background-position: 0 -200%; }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(0, -50%, 0); }
 }
 
 .cdi-progress-container-horizontal {
@@ -576,16 +577,17 @@ html.live-bg-pre-active .background-layer {
     background: transparent; overflow: hidden; pointer-events: none;
 }
 .cdi-progress-horizontal {
-    width: 100%; height: 100%;
+    width: 200%; height: 100%;
     background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    background-size: 200% 100%;
+    background-repeat: repeat-x;
     animation: cdiFlowHorizontal 3s linear infinite;
     box-shadow: 0 0 20px var(--accent);
     opacity: 0.6;
+    will-change: transform;
 }
 @keyframes cdiFlowHorizontal {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
 }
 
 /* ─── Immersive Mode ─── */
@@ -2209,4 +2211,24 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 .apps-launcher-footer a:hover {
     text-decoration: underline;
+}
+
+/* ─── Video Background Performance Overrides ─── */
+body.has-video-bg {
+    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.04)), rgba(10, 10, 18, 0.65);
+    --glass-hover-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08)), rgba(15, 15, 25, 0.75);
+}
+body.has-video-bg .overlay::before {
+    display: none !important;
+}
+body.has-video-bg .info-card,
+body.has-video-bg .notes-panel,
+body.has-video-bg #search-input,
+body.has-video-bg .suggestions-dropdown,
+body.has-video-bg .shortcut,
+body.has-video-bg .directory-container,
+body.has-video-bg .directory-card,
+body.has-video-bg .video-sound-btn {
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
 }
