@@ -2558,3 +2558,18 @@ body.has-video-bg .video-sound-btn {
     backdrop-filter: blur(6px) !important;
     -webkit-backdrop-filter: blur(6px) !important;
 }
+
+/* ─── Boss Mode (Shortcut: Ctrl + Shift + B) ─── */
+body.boss-mode-active .container,
+body.boss-mode-active .top-left-widget,
+body.boss-mode-active .top-right-widget,
+body.boss-mode-active .mac-sidebar,
+body.boss-mode-active .mac-dock-container,
+body.boss-mode-active .video-sound-btn,
+body.boss-mode-active .noosphere-status,
+body.boss-mode-active .noosphere-status-horizontal {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
