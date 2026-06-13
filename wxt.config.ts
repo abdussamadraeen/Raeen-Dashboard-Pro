@@ -5,7 +5,7 @@ export default defineConfig({
   manifest: {
     name: 'Raeen Workspace – Smart New Tab',
     description: 'A premium, minimalist new tab dashboard with integrated AI workflows and focus features.',
-    version: '2.0.0',
+    version: '2.1.0',
     action: {
       default_icon: {
         '16': 'icon/16.png',
