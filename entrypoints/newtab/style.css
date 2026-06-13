@@ -1,51 +1,52 @@
 :root {
-    /* Default Dark Mode Theme */
-    --bg-body: #0f0f17;
-    --bg-modal: #1a1a28;
-    --bg-sidebar: #141420;
-    --bg-active: #2a2a3d;
-    --bg-hover: rgba(255,255,255,0.06);
-    --bg-input: rgba(255,255,255,0.06);
-    --bg-element: rgba(255,255,255,0.04);
-    --text-primary: #f0f0f5;
-    --text-secondary: #b2b2cb;
-    --accent: #7b61ff;
-    --accent-glow: rgba(123, 97, 255, 0.25);
-    --border: rgba(255, 255, 255, 0.08);
-    --shadow: rgba(0,0,0,0.6);
-    --overlay: rgba(0, 0, 0, 0.45);
-    --danger: #f43f5e;
-    --danger-bg: rgba(244, 63, 94, 0.12);
+    /* Scientifically Optimized Human-Centric Theme (Dark Mode - Low Eye-Strain & Focus) */
+    --bg-body: #0f172a;        /* Deep Slate Blue - minimizes visual glare and fatigue */
+    --bg-modal: #1e293b;       /* Rich Slate Grey for clean panel separation */
+    --bg-sidebar: #0f172a;     /* Off-black slate for structural navigation */
+    --bg-active: rgba(20, 184, 166, 0.15); /* Soft Teal tint for active focus states */
+    --bg-hover: rgba(255, 255, 255, 0.05);
+    --bg-input: rgba(255, 255, 255, 0.04);
+    --bg-element: rgba(255, 255, 255, 0.03);
+    --text-primary: #f8fafc;   /* Soft high-contrast Slate White */
+    --text-secondary: #94a3b8; /* Calming Cool Grey for metadata and subtext */
+    --accent: #14b8a6;         /* Focus Teal - scientifically associated with calm focus and low strain */
+    --accent-glow: rgba(20, 184, 166, 0.25);
+    --border: rgba(255, 255, 255, 0.06);
+    --shadow: rgba(15, 23, 42, 0.6);
+    --overlay: rgba(15, 23, 42, 0.45);
+    --danger: #ef4444;
+    --danger-bg: rgba(239, 68, 68, 0.12);
     
-    /* Metasurface Glass (5026 AD) */
-    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)), rgba(15, 15, 25, 0.4);
-    --glass-hover-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06)), rgba(20, 20, 35, 0.55);
-    --glass-border: rgba(255,255,255,0.1);
-    --glass-border-light: rgba(255,255,255,0.25);
+    /* Metasurface Glass (Ergonomic & Clean) */
+    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.01)), rgba(15, 23, 42, 0.65);
+    --glass-hover-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02)), rgba(30, 41, 59, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.07);
+    --glass-border-light: rgba(255, 255, 255, 0.16);
 }
 
 [data-theme="light"] {
-    --bg-body: #f0f1f5;
+    /* Scientifically Optimized Human-Centric Theme (Light Mode - Clarity & Daylight) */
+    --bg-body: #f8fafc;        /* Calming off-white Slate-50 */
     --bg-modal: #ffffff;
-    --bg-sidebar: #f7f7fa;
-    --bg-active: #ecedf2;
-    --bg-hover: rgba(0,0,0,0.04);
-    --bg-input: rgba(0,0,0,0.04);
-    --bg-element: rgba(0,0,0,0.03);
-    --text-primary: #1a1a2e;
-    --text-secondary: #6b6b80;
-    --accent: #6366f1;
-    --accent-glow: rgba(99, 102, 241, 0.2);
-    --border: rgba(0, 0, 0, 0.08);
-    --shadow: rgba(0,0,0,0.08);
-    --overlay: rgba(0, 0, 0, 0.25);
-    --danger: #e11d48;
-    --danger-bg: rgba(225, 29, 72, 0.08);
+    --bg-sidebar: #f1f5f9;     /* Soft grey navigation panel */
+    --bg-active: rgba(13, 148, 136, 0.08); /* Soft Teal active state tint */
+    --bg-hover: rgba(0, 0, 0, 0.04);
+    --bg-input: rgba(0, 0, 0, 0.03);
+    --bg-element: rgba(0, 0, 0, 0.02);
+    --text-primary: #0f172a;   /* Slate-900 for absolute contrast readability */
+    --text-secondary: #64748b; /* Slate-500 for secondary elements */
+    --accent: #0d9488;         /* Calming Deep Teal */
+    --accent-glow: rgba(13, 148, 136, 0.2);
+    --border: rgba(0, 0, 0, 0.05);
+    --shadow: rgba(15, 23, 42, 0.06);
+    --overlay: rgba(15, 23, 42, 0.15);
+    --danger: #dc2626;
+    --danger-bg: rgba(220, 38, 38, 0.06);
     
-    --glass-bg: rgba(255, 255, 255, 0.6);
-    --glass-hover-bg: rgba(255, 255, 255, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.7);
-    --glass-border-light: rgba(255, 255, 255, 0.95);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-hover-bg: rgba(255, 255, 255, 0.94);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-border-light: rgba(255, 255, 255, 0.9);
 }
 
 /* Reset */
@@ -222,7 +223,7 @@ html.live-bg-pre-active .background-layer {
     width: 100%; 
     max-width: 620px; 
     position: relative; 
-    z-index: 100; 
+    z-index: 100 !important; 
 }
 .input-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
 .search-icon { position: absolute; left: 20px; width: 20px; height: 20px; fill: var(--text-secondary); transition: all 0.3s ease; }
@@ -248,26 +249,42 @@ html.live-bg-pre-active .background-layer {
 .suggestions-dropdown {
     position: absolute; top: 100%; left: 0; width: 100%;
     margin-top: 12px; border-radius: 20px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-    box-shadow: 0 15px 40px var(--shadow);
+    background: rgba(15, 15, 23, 0.92);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+    box-shadow: 0 20px 50px var(--shadow);
     list-style: none; overflow: hidden;
-    z-index: 50; padding: 8px 0;
+    z-index: 110; padding: 8px;
     transition: opacity 0.2s, transform 0.2s;
+}
+[data-theme="light"] .suggestions-dropdown {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
 }
 .suggestions-dropdown.hidden { opacity: 0; pointer-events: none; transform: translateY(-10px); }
 .suggestion-item {
-    padding: 12px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px;
-    transition: all 0.25s ease; border-radius: 12px;
+    padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 12px;
     animation: slideUpFade 0.3s ease-out forwards;
     animation-delay: calc(var(--item-index, 0) * 40ms);
     opacity: 0;
+    color: var(--text-secondary);
+}
+.suggestion-item svg {
+    color: var(--text-secondary);
+    opacity: 0.6;
+    transition: all 0.25s ease;
 }
 .suggestion-item:hover, .suggestion-item.selected {
-    background: var(--bg-active);
+    background: var(--bg-hover);
     color: var(--accent);
-    padding-left: 28px;
+    padding-left: 24px;
+}
+.suggestion-item:hover svg, .suggestion-item.selected svg {
+    color: var(--accent);
+    opacity: 1;
+    transform: scale(1.1);
 }
 /* ─── Shortcuts Grid ─── */
 .quick-links { 

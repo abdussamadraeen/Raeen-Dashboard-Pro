@@ -574,7 +574,7 @@ function optimizeImage(file) {
             }
             .directory-sidebar {
                 width: 180px;
-                background: rgba(0, 0, 0, 0.10);
+                background: rgba(0, 0, 0, 0.15);
                 border-right: 1px solid var(--border);
                 display: flex;
                 flex-direction: column;
@@ -582,40 +582,39 @@ function optimizeImage(file) {
                 flex-shrink: 0;
             }
             [data-theme="light"] .directory-sidebar {
-                background: rgba(255, 255, 255, 0.3);
+                background: rgba(0, 0, 0, 0.02);
             }
             .directory-sidebar-btn {
                 display: flex;
                 align-items: center;
-                gap: 10px;
+                gap: 12px;
                 width: 100%;
-                padding: 10px 16px;
+                padding: 12px 20px;
                 background: none;
                 border: none;
                 color: var(--text-secondary);
                 font-family: inherit;
-                font-size: 0.85rem;
+                font-size: 0.88rem;
                 font-weight: 500;
                 text-align: left;
                 cursor: pointer;
-                transition: all 0.2s ease;
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                 border-left: 3px solid transparent;
             }
             .directory-sidebar-btn:hover {
                 background: rgba(255, 255, 255, 0.04);
                 color: var(--text-primary);
+                padding-left: 24px;
             }
             [data-theme="light"] .directory-sidebar-btn:hover {
                 background: rgba(0, 0, 0, 0.03);
             }
             .directory-sidebar-btn.active {
-                background: rgba(255, 255, 255, 0.08);
+                background: var(--bg-active);
                 color: var(--text-primary);
                 border-left-color: var(--accent);
                 font-weight: 600;
-            }
-            [data-theme="light"] .directory-sidebar-btn.active {
-                background: rgba(0, 0, 0, 0.06);
+                padding-left: 24px;
             }
             .directory-sidebar-btn span:last-child {
                 white-space: nowrap;
@@ -652,11 +651,11 @@ function optimizeImage(file) {
             }
             .directory-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-                gap: 12px;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 14px;
                 overflow-y: auto;
                 max-height: 250px;
-                padding: 4px;
+                padding: 6px;
                 scrollbar-width: thin;
                 scrollbar-color: var(--border) transparent;
             }
@@ -676,11 +675,11 @@ function optimizeImage(file) {
                 padding: 10px;
                 height: 80px;
                 border-radius: 16px;
-                background: var(--glass-bg);
-                border: 1px solid var(--glass-border);
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.05);
                 color: var(--text-primary);
                 text-decoration: none;
-                font-size: 0.75rem;
+                font-size: 0.78rem;
                 font-weight: 500;
                 backdrop-filter: blur(8px);
                 -webkit-backdrop-filter: blur(8px);
@@ -689,11 +688,20 @@ function optimizeImage(file) {
                 text-align: center;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             }
+            [data-theme="light"] .directory-card {
+                background: rgba(0, 0, 0, 0.02);
+                border: 1px solid rgba(0, 0, 0, 0.04);
+            }
             .directory-card:hover {
                 transform: translateY(-4px) scale(1.02);
-                background: var(--glass-hover-bg);
+                background: rgba(255, 255, 255, 0.08);
                 border-color: var(--accent);
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 0 0 15px var(--accent-glow);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px var(--accent-glow);
+            }
+            [data-theme="light"] .directory-card:hover {
+                background: rgba(0, 0, 0, 0.05);
+                border-color: var(--accent);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05), 0 0 15px var(--accent-glow);
             }
             .directory-card img {
                 width: 24px;
@@ -738,10 +746,12 @@ function optimizeImage(file) {
                 border-style: dashed;
                 border-color: var(--text-secondary);
                 opacity: 0.6;
+                background: transparent;
             }
             .directory-card.add-card:hover {
                 opacity: 1;
                 border-color: var(--accent);
+                background: rgba(255, 255, 255, 0.02);
             }
             .directory-card .add-card-icon {
                 font-size: 1.5rem;

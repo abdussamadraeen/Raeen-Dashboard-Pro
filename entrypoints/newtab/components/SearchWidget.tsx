@@ -235,7 +235,7 @@ export const SearchWidget: React.FC = () => {
     <div
       ref={searchContainerRef}
       id="search-widget"
-      className="search-container relative w-full max-w-xl mx-auto my-4 transition-all duration-300 z-40"
+      className="search-container relative w-full max-w-xl mx-auto my-4 transition-all duration-300 z-[100]"
     >
       <form
         onSubmit={(e) => {
