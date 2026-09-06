@@ -139,7 +139,7 @@ class SecurityManager {
 
     async init() {
         if (this.webrtcSealed) {
-            this.setWebRTCShield(true);
+            await this.setWebRTCShield(true);
         }
 
         await this.checkStatus();
@@ -147,11 +147,77 @@ class SecurityManager {
     }
 
     async checkStatus() {
+        const chromeProxy = (typeof chrome !== 'undefined' && chrome.proxy) ? chrome.proxy : null;
+        if (chromeProxy && chromeProxy.settings) {
+            return new Promise((resolve) => {
+                chromeProxy.settings.get({ incognito: false }, (config) => {
+                    const isControlled = config && (config.levelOfControl === 'controlled_by_this_extension' || config.levelOfControl === 'controllable_by_this_extension');
+                    if (config && config.levelOfControl === 'controlled_by_this_extension') {
+                        this.isActive = true;
+                    }
+                    resolve({ success: true, isActive: this.isActive, levelOfControl: config?.levelOfControl });
+                });
+            });
+        }
         const response = await this.sendMsg({ action: 'vpn_get_status' });
         if (response && response.success) {
             this.isActive = !!response.isActive;
         }
         return response || { success: false };
+    }
+
+    async applyProxySettings(nodeConfig) {
+        const chromeProxy = (typeof chrome !== 'undefined' && chrome.proxy) ? chrome.proxy : null;
+        if (chromeProxy && chromeProxy.settings) {
+            return new Promise((resolve) => {
+                const isTor = !!nodeConfig.isTor;
+                let pacScript;
+                
+                if (isTor) {
+                    pacScript = `
+                        function FindProxyForURL(url, host) {
+                            if (isPlainHostName(host) || shExpMatch(host, "*.local") || shExpMatch(host, "127.0.0.1") || shExpMatch(host, "localhost")) {
+                                return "DIRECT";
+                            }
+                            return "SOCKS5 127.0.0.1:9050; SOCKS5 127.0.0.1:9150; DIRECT";
+                        }
+                    `;
+                } else {
+                    const scheme = (nodeConfig.scheme || 'socks5').toLowerCase();
+                    const proxyKeyword = scheme === 'socks5' ? 'SOCKS5' : (scheme === 'https' ? 'HTTPS' : 'PROXY');
+                    pacScript = `
+                        function FindProxyForURL(url, host) {
+                            if (isPlainHostName(host) || shExpMatch(host, "*.local") || shExpMatch(host, "127.0.0.1") || shExpMatch(host, "localhost")) {
+                                return "DIRECT";
+                            }
+                            return "${proxyKeyword} ${nodeConfig.host}:${nodeConfig.port}; DIRECT";
+                        }
+                    `;
+                }
+
+                chromeProxy.settings.set({
+                    value: {
+                        mode: 'pac_script',
+                        pacScript: { data: pacScript }
+                    },
+                    scope: 'regular'
+                }, () => {
+                    const err = chrome.runtime?.lastError;
+                    if (err) {
+                        console.error('chrome.proxy.settings.set error:', err);
+                        resolve({ success: false, error: err.message });
+                        return;
+                    }
+                    try {
+                        if (chrome.privacy?.network?.webRTCIPHandlingPolicy) {
+                            chrome.privacy.network.webRTCIPHandlingPolicy.set({ value: 'disable_non_proxied_udp' });
+                        }
+                    } catch (e) {}
+                    resolve({ success: true, activeVpnNode: nodeConfig });
+                });
+            });
+        }
+        return await this.sendMsg({ action: 'vpn_connect', payload: nodeConfig });
     }
 
     async connect(nodeId = null) {
@@ -178,30 +244,72 @@ class SecurityManager {
             };
         }
 
-        const res = await this.sendMsg({ action: 'vpn_connect', payload: nodeConfig });
+        const res = await this.applyProxySettings(nodeConfig);
         if (res && res.success) {
             this.isActive = true;
-            this.probeIp();
-        } else if (res && res.mock) {
-            this.isActive = true;
+            await this.probeIp();
         }
         return res || { success: false };
     }
 
     async disconnect() {
+        const chromeProxy = (typeof chrome !== 'undefined' && chrome.proxy) ? chrome.proxy : null;
+        if (chromeProxy && chromeProxy.settings) {
+            await new Promise((resolve) => {
+                chromeProxy.settings.clear({ scope: 'regular' }, () => {
+                    resolve();
+                });
+            });
+            try {
+                if (chrome.privacy?.network?.webRTCIPHandlingPolicy) {
+                    chrome.privacy.network.webRTCIPHandlingPolicy.clear({});
+                }
+            } catch (e) {}
+            this.isActive = false;
+            await this.probeIp();
+            return { success: true };
+        }
         const res = await this.sendMsg({ action: 'vpn_disconnect' });
         this.isActive = false;
-        this.probeIp();
+        await this.probeIp();
         return res || { success: true };
     }
 
     async setWebRTCShield(enabled) {
         this.webrtcSealed = enabled;
         localStorage.setItem('raeen_vpn_webrtc', enabled ? 'true' : 'false');
+        if (typeof chrome !== 'undefined' && chrome.privacy?.network?.webRTCIPHandlingPolicy) {
+            return new Promise((resolve) => {
+                chrome.privacy.network.webRTCIPHandlingPolicy.set({
+                    value: enabled ? 'disable_non_proxied_udp' : 'default'
+                }, () => {
+                    resolve({ success: true, enabled });
+                });
+            });
+        }
         return await this.sendMsg({ action: 'webrtc_shield_set', enabled });
     }
 
     async triggerClearTraces() {
+        if (typeof chrome !== 'undefined' && chrome.browsingData?.remove) {
+            return new Promise((resolve) => {
+                chrome.browsingData.remove({
+                    since: 0
+                }, {
+                    appcache: true,
+                    cache: true,
+                    cacheStorage: true,
+                    cookies: true,
+                    fileSystems: true,
+                    formData: true,
+                    history: true,
+                    serviceWorkers: true,
+                    webSQL: true
+                }, () => {
+                    resolve({ success: true, purgedAt: Date.now() });
+                });
+            });
+        }
         return await this.sendMsg({ action: 'emergency_nuclear_purge' });
     }
 
