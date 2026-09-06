@@ -22,6 +22,7 @@ import {
 import { renderShortcuts, addShortcut } from './shortcuts.js';
 import { setupSearch, updateSearchEngineUI } from './search.js';
 import { initFocusTimer } from './focus.js';
+import { initFileShare } from './fileshare.js';
 import { validateAndRepairSettings } from './schema.js';
 import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
 import { securityManager, TACTICAL_NODES } from './vpn.js';
@@ -100,6 +101,7 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     // 3. Feature setup (instant zero-latency execution)
     setupSearch();
     initFocusTimer();
+    initFileShare();
     initSecurityHud();
 
     function initSecurityHud() {
@@ -373,6 +375,7 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     bindToggle(dom.toggleCardFocus, 'showCardFocus');
     bindToggle(dom.toggleCardNote, 'showCardNote');
     bindToggle(dom.toggleCardSecurity, 'showCardSecurity');
+    bindToggle(dom.toggleCardFileShare, 'showCardFileShare');
     bindToggle(dom.toggleCardDirectories, 'showCardDirectories', () => {
         if (typeof window.renderDirectoriesWidget === 'function') window.renderDirectoriesWidget();
     });
@@ -1602,6 +1605,7 @@ function optimizeImage(file) {
             "directory-widget": { left: "31%", top: "19%" },
             "notes-widget": { left: "71%", top: "19%" },
             "card-focus": { left: "71%", top: "56%" },
+            "card-fileshare": { left: "71%", top: "75%" },
             "top-sites-widget": { left: "31%", top: "72%" }
         };
 
@@ -1613,6 +1617,7 @@ function optimizeImage(file) {
             "directory-widget": { width: "560px", height: "460px" },
             "notes-widget": { width: "270px", height: "320px" },
             "card-focus": { width: "270px", height: "170px" },
+            "card-fileshare": { width: "270px", height: "auto" },
             "top-sites-widget": { width: "560px", height: "auto" }
         };
 

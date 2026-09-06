@@ -30,6 +30,7 @@ export const DEFAULT_SETTINGS = {
     showCardFocus: true, 
     showCardNote: true,
     showCardSecurity: true,
+    showCardFileShare: true,
     showCardDirectories: true,
     showNoosphereBar: true, 
     showMainUI: true, 

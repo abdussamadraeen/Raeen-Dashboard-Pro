@@ -232,6 +232,108 @@
                     </div>
                     <div class="resize-handle"></div>
                 </div>
+
+                <!-- Offline File Share Card -->
+                <div class="info-card draggable-widget fileshare-card" id="card-fileshare" draggable="false">
+                    <div class="info-card-header">
+                        <div class="info-card-icon icon-fileshare">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                                <polyline points="16 6 12 2 8 6"></polyline>
+                                <line x1="12" y1="2" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <div class="info-card-title">File Share</div>
+                        <span class="fileshare-badge">Offline P2P</span>
+                    </div>
+
+                    <!-- Tabs: Send vs Receive -->
+                    <div class="fileshare-tabs">
+                        <button type="button" class="fileshare-tab-btn active" id="fileshare-tab-send">Send</button>
+                        <button type="button" class="fileshare-tab-btn" id="fileshare-tab-receive">Receive</button>
+                    </div>
+
+                    <!-- Send Tab Content -->
+                    <div class="fileshare-pane" id="fileshare-pane-send">
+                        <input type="file" id="fileshare-file-input" class="hidden" title="Select File" aria-label="Select File">
+                        <div class="fileshare-dropzone" id="fileshare-dropzone">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropzone-icon">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <span class="dropzone-text">Drop file here</span>
+                            <span class="dropzone-sub">or click to browse</span>
+                        </div>
+
+                        <!-- Selected File Pill -->
+                        <div class="fileshare-file-pill hidden" id="fileshare-file-info">
+                            <div class="file-pill-left">
+                                <span class="file-pill-name" id="fileshare-file-name">file.ext</span>
+                                <span class="file-pill-size" id="fileshare-file-size">0 KB</span>
+                            </div>
+                            <button type="button" class="file-pill-remove" id="fileshare-clear-file" title="Remove file" aria-label="Remove file">&times;</button>
+                        </div>
+
+                        <!-- Code Sharing Box -->
+                        <div class="fileshare-code-box hidden" id="fileshare-code-section">
+                            <span class="code-box-label">Receiver Code:</span>
+                            <div class="code-box-row">
+                                <span class="code-box-code" id="fileshare-code-val">------</span>
+                                <button type="button" class="code-box-btn" id="fileshare-copy-code">Copy</button>
+                                <button type="button" class="code-box-btn btn-secondary" id="fileshare-toggle-qr">Show QR</button>
+                            </div>
+                            <div class="fileshare-qr-box hidden" id="fileshare-qr-container">
+                                <canvas id="fileshare-qr-canvas" class="fileshare-qr-canvas"></canvas>
+                                <span class="qr-sub">Scan to pair instantly</span>
+                            </div>
+                        </div>
+
+                        <!-- Send Progress -->
+                        <div class="fileshare-progress-wrap hidden" id="fileshare-send-progress">
+                            <div class="progress-meta">
+                                <span id="fileshare-send-progress-text">Sending...</span>
+                                <span id="fileshare-send-speed-text">0 MB/s</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="fileshare-send-progress-bar"></div>
+                            </div>
+                        </div>
+
+                        <div class="fileshare-alert fileshare-alert-success hidden" id="fileshare-send-success">
+                            ✓ File sent successfully!
+                        </div>
+                    </div>
+
+                    <!-- Receive Tab Content -->
+                    <div class="fileshare-pane hidden" id="fileshare-pane-receive">
+                        <div class="fileshare-receive-box">
+                            <label class="receive-label" for="fileshare-receive-input">Enter 6-digit code from sender:</label>
+                            <div class="receive-input-row">
+                                <input type="text" id="fileshare-receive-input" class="text-input receive-input" placeholder="e.g. 482901" maxlength="8">
+                                <button type="button" class="primary-btn receive-btn" id="fileshare-receive-btn">Receive</button>
+                            </div>
+                            <span class="receive-status" id="fileshare-receive-status">Waiting for code...</span>
+                        </div>
+
+                        <!-- Receive Progress -->
+                        <div class="fileshare-progress-wrap hidden" id="fileshare-receive-progress">
+                            <div class="progress-meta">
+                                <span id="fileshare-receive-progress-text">Receiving...</span>
+                                <span id="fileshare-receive-speed-text">0 MB/s</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="fileshare-receive-progress-bar"></div>
+                            </div>
+                        </div>
+
+                        <div class="fileshare-alert fileshare-alert-success hidden" id="fileshare-receive-success">
+                            ✓ Download complete!
+                        </div>
+                    </div>
+
+                    <div class="resize-handle"></div>
+                </div>
             </div>
         </section>
 
@@ -793,6 +895,23 @@
                                     </div>
                                     <label class="switch">
                                         <input type="checkbox" id="toggle-card-directories" checked title="Show Category Folders" aria-label="Show Category Folders">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="settings-row widget-setting-item">
+                                    <div class="widget-setting-header">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="widget-icon icon-cyan">
+                                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                                            <polyline points="16 6 12 2 8 6"></polyline>
+                                            <line x1="12" y1="2" x2="12" y2="15"></line>
+                                        </svg>
+                                        <div class="source-card-text">
+                                            <strong>Offline File Share</strong>
+                                            <span>Direct peer-to-peer file transfer over local Wi-Fi</span>
+                                        </div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-card-fileshare" checked title="Show Offline File Share" aria-label="Show Offline File Share">
                                         <span class="slider round"></span>
                                     </label>
                                 </div>
