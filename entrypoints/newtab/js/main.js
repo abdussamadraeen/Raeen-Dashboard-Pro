@@ -274,6 +274,16 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     }
     if (dom.closeBtn) dom.closeBtn.onclick = () => dom.modalOverlay.classList.add('hidden');
 
+    // Auto-open settings modal if requested via URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('settings') === 'true') {
+        setTimeout(() => {
+            if (dom.settingsBtn && dom.modalOverlay && dom.modalOverlay.classList.contains('hidden')) {
+                dom.settingsBtn.click();
+            }
+        }, 150);
+    }
+
     // Helper functions for settings sync
     let settingsSaveTimeout = null;
 
@@ -537,7 +547,7 @@ function optimizeImage(file) {
         if (msg.action === 'iframe_navigated' && msg.title) {
             document.title = msg.title;
         }
-        if (msg.action === 'close_dashboard_iframe') {
+        if (msg.action === 'close_dashboard_iframe' || msg.action === 'open_dashboard_settings') {
             try {
                 const settings = await StorageManager.get('settings', 'main');
                 if (settings) {
@@ -551,6 +561,12 @@ function optimizeImage(file) {
                 applySettings();
                 syncSettingsUI();
                 updateTime();
+
+                if (msg.action === 'open_dashboard_settings') {
+                    setTimeout(() => {
+                        if (dom.settingsBtn) dom.settingsBtn.click();
+                    }, 100);
+                }
             } catch (err) {
                 console.error("Failed to restore settings:", err);
             }

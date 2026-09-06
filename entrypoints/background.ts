@@ -90,7 +90,7 @@ export default defineBackground(() => {
       try {
         if (request.action === 'open_dashboard' && sender.tab?.id) {
           await clearServiceWorkers();
-          const url = browser.runtime.getURL('/newtab.html') + '?no_redirect=true&settings=true';
+          const url = browser.runtime.getURL('/newtab.html') + (request.openSettings ? '?no_redirect=true&settings=true' : '?no_redirect=true');
           await browser.tabs.update(sender.tab.id, { url });
           sendResponse({ success: true });
           return;
