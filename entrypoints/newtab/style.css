@@ -3599,18 +3599,23 @@ body.boss-mode-active .noosphere-status-horizontal {
 .defcon-badge {
     font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
     font-size: 0.68rem;
-    font-weight: 750;
-    letter-spacing: 0.8px;
-    padding: 3px 8px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    padding: 3px 9px;
     border-radius: 6px;
     text-transform: uppercase;
     transition: all 0.3s ease;
 }
 
 .defcon-idle {
-    color: #f59e0b;
-    background: rgba(245, 158, 11, 0.14);
-    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+}
+
+[data-theme="light"] .defcon-idle {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.08);
 }
 
 .defcon-hot {
@@ -3900,29 +3905,41 @@ body.boss-mode-active .noosphere-status-horizontal {
 }
 
 .hud-btn-scram {
-    background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    color: #ef4444;
-    font-weight: 800;
-    letter-spacing: 0.8px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-weight: 650;
+    letter-spacing: 0.4px;
     padding: 8px 12px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.25s ease;
+}
+
+.hud-btn-scram svg {
+    stroke: currentColor;
     flex-shrink: 0;
 }
 
 .hud-btn-scram:hover {
-    background: rgba(239, 68, 68, 0.25);
-    border-color: #ef4444;
-    box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #ef4444;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.18);
 }
 
-/* Nuclear purge visual alarm flash */
-body.nuclear-scram-active {
-    animation: scramAlertFlash 0.6s infinite alternate;
+[data-theme="light"] .hud-btn-scram {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-secondary);
 }
 
-@keyframes scramAlertFlash {
-    from { filter: drop-shadow(0 0 0 red); }
-    to { filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.8)); }
+[data-theme="light"] .hud-btn-scram:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #dc2626;
 }
 
 

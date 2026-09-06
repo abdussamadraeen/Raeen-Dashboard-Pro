@@ -139,7 +139,7 @@
                     <div class="resize-handle"></div>
                 </div>
 
-                <!-- Military Defense HUD & VPN Proxy Card -->
+                <!-- Privacy & VPN Shield Card -->
                 <div class="info-card draggable-widget tactical-security-hud" id="card-security" draggable="false">
                     <div class="info-card-header">
                         <div class="info-card-icon icon-security">
@@ -147,11 +147,11 @@
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                             </svg>
                         </div>
-                        <div class="info-card-title">DEFENSE PROTOCOL</div>
-                        <div class="defcon-badge" id="hud-defcon-badge">DEFCON 1</div>
+                        <div class="info-card-title">Privacy & VPN Shield</div>
+                        <div class="defcon-badge defcon-idle" id="hud-defcon-badge">Off</div>
                     </div>
                     
-                    <!-- Tactical Radar Visualizer & Status -->
+                    <!-- Radar & Protection Status -->
                     <div class="hud-radar-section">
                         <div class="radar-scope" id="hud-radar-scope">
                             <div class="radar-sweep"></div>
@@ -161,31 +161,32 @@
                         </div>
                         <div class="hud-status-meta">
                             <div class="hud-status-row">
-                                <span class="hud-label">SHIELD:</span>
-                                <span class="hud-val hud-status-val" id="hud-shield-status">READY</span>
+                                <span class="hud-label">STATUS:</span>
+                                <span class="hud-val hud-status-val" id="hud-shield-status">Ready</span>
                             </div>
                             <div class="hud-status-row">
-                                <span class="hud-label">CIPHER:</span>
-                                <span class="hud-val hud-cipher" id="hud-cipher-val">AES-256-GCM</span>
+                                <span class="hud-label">SECURITY:</span>
+                                <span class="hud-val hud-cipher" id="hud-cipher-val">256-Bit Military Grade</span>
                             </div>
                             <div class="hud-status-row">
-                                <span class="hud-label">WEBRTC:</span>
-                                <span class="hud-val hud-sealed" id="hud-webrtc-status">SEALED</span>
+                                <span class="hud-label">LEAK GUARD:</span>
+                                <span class="hud-val hud-sealed" id="hud-webrtc-status">Active</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Node Selector -->
+                    <!-- Server Selector -->
                     <div class="hud-node-selector">
-                        <label for="hud-node-select" class="hud-node-label">TACTICAL GATEWAY</label>
+                        <label for="hud-node-select" class="hud-node-label">Server Location</label>
                         <div class="hud-select-wrapper">
-                            <select id="hud-node-select" class="hud-select" aria-label="Tactical Gateway Node">
-                                <option value="us_pentagon">🇺🇸 US Pentagon Gateway</option>
-                                <option value="swiss_bunker">🇨🇭 Swiss Alps Bunker</option>
-                                <option value="frankfurt_fortress">🇩🇪 Frankfurt Fortress</option>
-                                <option value="singapore_citadel">🇸🇬 Singapore Citadel</option>
-                                <option value="london_cipher">🇬🇧 Royal Cipher Redoubt</option>
-                                <option value="custom">⚡ Custom SOCKS5/HTTPS</option>
+                            <select id="hud-node-select" class="hud-select" aria-label="Server Location">
+                                <option value="fast_tor">🧅 Fast Tor Network (Onion Route)</option>
+                                <option value="us_secure">🇺🇸 United States (Fast Secure)</option>
+                                <option value="swiss_vault">🇨🇭 Switzerland (Privacy Vault)</option>
+                                <option value="frankfurt_speed">🇩🇪 Germany (High Speed)</option>
+                                <option value="singapore_apac">🇸🇬 Singapore (Asia Fast)</option>
+                                <option value="london_shield">🇬🇧 United Kingdom (Secure)</option>
+                                <option value="custom">⚙️ Custom SOCKS5 / Tor Bridge</option>
                             </select>
                         </div>
                     </div>
@@ -193,29 +194,30 @@
                     <!-- Custom Proxy Inputs (Revealed when Custom selected) -->
                     <div class="hud-custom-proxy hidden" id="hud-custom-fields">
                         <input type="text" id="hud-custom-host" placeholder="Host (e.g. 127.0.0.1)" class="hud-input" aria-label="Proxy Host">
-                        <input type="number" id="hud-custom-port" placeholder="Port" class="hud-input hud-input-port" aria-label="Proxy Port">
+                        <input type="number" id="hud-custom-port" placeholder="Port (e.g. 9050)" class="hud-input hud-input-port" aria-label="Proxy Port">
                     </div>
 
                     <!-- IP & Ping Telemetry -->
                     <div class="hud-telemetry">
                         <div class="hud-tele-col">
-                            <span class="hud-tele-label">CLOAKED IP</span>
+                            <span class="hud-tele-label">PROTECTED IP</span>
                             <span class="hud-tele-val" id="hud-ip-val">Checking...</span>
                         </div>
                         <div class="hud-tele-col">
-                            <span class="hud-tele-label">LATENCY</span>
+                            <span class="hud-tele-label">PING SPEED</span>
                             <span class="hud-tele-val" id="hud-ping-val">-- ms</span>
                         </div>
                     </div>
 
-                    <!-- Action Row: Engage & Emergency SCRAM Button -->
+                    <!-- Action Row: Connect & Clear Traces Button -->
                     <div class="hud-action-row">
-                        <button id="hud-toggle-shield-btn" class="hud-btn hud-btn-engage" title="Engage Encrypted Tunnel">
+                        <button id="hud-toggle-shield-btn" class="hud-btn hud-btn-engage" title="Connect VPN & Privacy Shield">
                             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                            <span id="hud-toggle-btn-text">ENGAGE SHIELD</span>
+                            <span id="hud-toggle-btn-text">Connect VPN</span>
                         </button>
-                        <button id="hud-nuclear-scram-btn" class="hud-btn hud-btn-scram" title="EMERGENCY NUCLEAR SCRAM: Vaporize all session cookies, tracking cache, & temporary data">
-                            ☢ SCRAM
+                        <button id="hud-nuclear-scram-btn" class="hud-btn hud-btn-scram" title="Clear all cookies, temporary caches & history to leave zero trace">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            <span>Clear Traces</span>
                         </button>
                     </div>
 
@@ -787,12 +789,12 @@
                                     <div class="widget-setting-header">
                                         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="widget-icon icon-cyan" style="color: #06b6d4;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                                         <div class="source-card-text">
-                                            <strong>Defense HUD & VPN</strong>
-                                            <span>Military-grade proxy, WebRTC leak seal & nuclear purge</span>
+                                            <strong>Privacy & VPN Shield</strong>
+                                            <span>Fast Tor relay, secure VPN tunnel & WebRTC leak guard</span>
                                         </div>
                                     </div>
                                     <label class="switch">
-                                        <input type="checkbox" id="toggle-card-security" checked title="Show Defense HUD & VPN" aria-label="Show Defense HUD & VPN">
+                                        <input type="checkbox" id="toggle-card-security" checked title="Show Privacy & VPN Shield" aria-label="Show Privacy & VPN Shield">
                                         <span class="slider round"></span>
                                     </label>
                                 </div>

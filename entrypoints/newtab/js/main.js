@@ -114,21 +114,21 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
             if (radar) radar.classList.toggle('radar-active', isEngaged);
 
             if (dom.hudDefconBadge) {
-                dom.hudDefconBadge.textContent = isEngaged ? 'DEFCON 1 (HOT)' : 'DEFCON 5';
+                dom.hudDefconBadge.textContent = isEngaged ? 'Protected' : 'Off';
                 dom.hudDefconBadge.className = 'defcon-badge ' + (isEngaged ? 'defcon-hot' : 'defcon-idle');
             }
 
             if (dom.hudShieldStatus) {
-                dom.hudShieldStatus.textContent = isEngaged ? 'ACTIVE [CLOAKED]' : 'READY';
+                dom.hudShieldStatus.textContent = isEngaged ? 'Connected' : 'Ready';
                 dom.hudShieldStatus.style.color = isEngaged ? '#10b981' : '#38bdf8';
             }
 
             if (dom.hudCipherVal) {
-                dom.hudCipherVal.textContent = isEngaged ? (currentNode.cipher || 'AES-256-GCM') : 'STANDBY';
+                dom.hudCipherVal.textContent = isEngaged ? (currentNode.cipher || '256-Bit Encrypted') : '256-Bit Military Grade';
             }
 
             if (dom.hudWebrtcStatus) {
-                dom.hudWebrtcStatus.textContent = securityManager.webrtcSealed ? 'SEALED' : 'UNSEALED';
+                dom.hudWebrtcStatus.textContent = securityManager.webrtcSealed ? 'Active' : 'Off';
                 dom.hudWebrtcStatus.style.color = securityManager.webrtcSealed ? '#10b981' : '#ef4444';
             }
 
@@ -141,7 +141,7 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
             }
 
             if (dom.hudToggleBtnText) {
-                dom.hudToggleBtnText.textContent = isEngaged ? 'DISENGAGE SHIELD' : 'ENGAGE SHIELD';
+                dom.hudToggleBtnText.textContent = isEngaged ? 'Disconnect' : 'Connect VPN';
             }
 
             if (dom.hudToggleShieldBtn) {
@@ -206,22 +206,21 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
 
         if (dom.hudNuclearScramBtn) {
             dom.hudNuclearScramBtn.onclick = async () => {
-                const confirmed = confirm("☢ INITIATE EMERGENCY NUCLEAR SCRAM PROTOCOL?\n\nThis will instantly vaporize all browsing session cookies, tracking caches, and temporary data across the browser.\n\nLocal notes and extension settings are protected.");
+                const confirmed = confirm("🧹 Clear All Browsing Traces?\n\nThis will remove website cookies, temporary cache, and history to leave zero trace on this device.\n\nYour dashboard settings and saved notes are kept safe.");
                 if (!confirmed) return;
 
                 dom.hudNuclearScramBtn.disabled = true;
-                dom.hudNuclearScramBtn.textContent = 'PURGING...';
-                document.body.classList.add('nuclear-scram-active');
+                const originalContent = dom.hudNuclearScramBtn.innerHTML;
+                dom.hudNuclearScramBtn.innerHTML = '<span>Cleaning...</span>';
 
                 try {
-                    await securityManager.triggerEmergencyNuclearPurge();
-                    alert("✓ NUCLEAR PROTOCOL EXECUTED.\n\nAll tracking cookies, cache, and session traces have been vaporized.");
+                    await securityManager.triggerClearTraces();
+                    alert("✓ Browsing traces cleared successfully.");
                 } catch (err) {
-                    alert("Failed to execute purge: " + (err?.message || err));
+                    alert("Failed to clear traces: " + (err?.message || err));
                 } finally {
                     dom.hudNuclearScramBtn.disabled = false;
-                    dom.hudNuclearScramBtn.textContent = '☢ SCRAM';
-                    document.body.classList.remove('nuclear-scram-active');
+                    dom.hudNuclearScramBtn.innerHTML = originalContent;
                 }
             };
         }

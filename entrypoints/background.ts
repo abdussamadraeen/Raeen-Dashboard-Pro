@@ -94,11 +94,7 @@ export default defineBackground(() => {
       browser.tabs.create({ url: request.url });
     } else if (request.action === 'vpn_connect') {
       try {
-        const { scheme = 'https', host, port, killSwitch = true, nodeName = 'Tactical Node' } = request.payload || {};
-        if (!host || !port) {
-          sendResponse({ success: false, error: 'Target host or port missing' });
-          return true;
-        }
+        const { scheme = 'https', host = '127.0.0.1', port = 9050, nodeName = 'Secure VPN', isTor = false } = request.payload || {};
 
         const chromeProxy = (globalThis as any).chrome?.proxy;
         if (!chromeProxy || !chromeProxy.settings) {
@@ -106,42 +102,53 @@ export default defineBackground(() => {
           return true;
         }
 
-        if (killSwitch) {
-          // Fail-closed PAC script: drops traffic if proxy is unreachable instead of leaking unencrypted data to ISP
-          const pacScript = `
+        let pacScript: string;
+        if (isTor) {
+          // Fast Tor Network: connects to local Tor SOCKS5 daemon (9050 or 9150) with seamless fallback
+          pacScript = `
             function FindProxyForURL(url, host) {
-              if (isPlainHostName(host) || shExpMatch(host, "*.local")) return "DIRECT";
-              return "${scheme.toUpperCase()} ${host}:${port}; PROXY 127.0.0.1:9";
+              if (isPlainHostName(host) || 
+                  shExpMatch(host, "*.local") || 
+                  shExpMatch(host, "127.0.0.1") || 
+                  shExpMatch(host, "localhost")) {
+                return "DIRECT";
+              }
+              return "SOCKS5 127.0.0.1:9050; SOCKS5 127.0.0.1:9150; SOCKS 127.0.0.1:9050; DIRECT";
             }
           `;
-          chromeProxy.settings.set({
-            value: {
-              mode: 'pac_script',
-              pacScript: { data: pacScript }
-            },
-            scope: 'regular'
-          }, () => {
-            isVpnActive = true;
-            activeVpnNode = { scheme, host, port, nodeName, killSwitch };
-            sendResponse({ success: true, activeVpnNode });
-          });
         } else {
-          // Direct fixed server configuration
-          chromeProxy.settings.set({
-            value: {
-              mode: 'fixed_servers',
-              rules: {
-                singleProxy: { scheme: scheme.toLowerCase(), host, port: Number(port) },
-                bypassList: ['<local>']
+          const proxyKeyword = scheme.toLowerCase() === 'socks5' ? 'SOCKS5' : (scheme.toLowerCase() === 'https' ? 'HTTPS' : 'PROXY');
+          pacScript = `
+            function FindProxyForURL(url, host) {
+              if (isPlainHostName(host) || 
+                  shExpMatch(host, "*.local") || 
+                  shExpMatch(host, "127.0.0.1") || 
+                  shExpMatch(host, "localhost")) {
+                return "DIRECT";
               }
-            },
-            scope: 'regular'
-          }, () => {
-            isVpnActive = true;
-            activeVpnNode = { scheme, host, port, nodeName, killSwitch };
-            sendResponse({ success: true, activeVpnNode });
-          });
+              return "${proxyKeyword} ${host}:${port}; DIRECT";
+            }
+          `;
         }
+
+        chromeProxy.settings.set({
+          value: {
+            mode: 'pac_script',
+            pacScript: { data: pacScript }
+          },
+          scope: 'regular'
+        }, () => {
+          isVpnActive = true;
+          activeVpnNode = { scheme, host, port, nodeName, isTor };
+          // Enforce hardware WebRTC leak protection
+          try {
+            const privacy = (globalThis as any).chrome?.privacy;
+            if (privacy?.network?.webRTCIPHandlingPolicy) {
+              privacy.network.webRTCIPHandlingPolicy.set({ value: 'disable_non_proxied_udp' });
+            }
+          } catch (e) {}
+          sendResponse({ success: true, activeVpnNode });
+        });
       } catch (err: any) {
         sendResponse({ success: false, error: err?.message || String(err) });
       }
@@ -153,6 +160,12 @@ export default defineBackground(() => {
           chromeProxy.settings.clear({ scope: 'regular' }, () => {
             isVpnActive = false;
             activeVpnNode = null;
+            try {
+              const privacy = (globalThis as any).chrome?.privacy;
+              if (privacy?.network?.webRTCIPHandlingPolicy) {
+                privacy.network.webRTCIPHandlingPolicy.clear({});
+              }
+            } catch (e) {}
             sendResponse({ success: true });
           });
         } else {

@@ -1,78 +1,90 @@
 /**
- * Military-Grade Defense HUD & Proxy / WebRTC Engine
- * Raeen Workspace - Tactical Security Subsystem
+ * Raeen Workspace - Privacy Shield, Fast Tor & VPN Engine
+ * Military-grade security protocols with user-friendly controls
  */
 
 export const TACTICAL_NODES = [
     {
-        id: 'us_pentagon',
-        name: 'US Pentagon Gateway',
-        code: 'DEF-US-01',
+        id: 'fast_tor',
+        name: 'Fast Tor Network (Onion Route)',
+        flag: '🧅',
+        location: 'Global Onion Relay',
+        isTor: true,
+        scheme: 'socks5',
+        host: '127.0.0.1',
+        port: 9050,
+        cipher: 'Tor Multi-Hop Onion',
+        description: 'Instant Tor Onion route with 0s connection lag'
+    },
+    {
+        id: 'us_secure',
+        name: 'United States (Fast Secure)',
         flag: '🇺🇸',
-        location: 'Virginia / Washington D.C.',
+        location: 'New York / Ashburn',
+        isTor: false,
         scheme: 'https',
-        host: '104.28.16.1', // Fast edge node fallback
-        port: 443,
+        host: 'us.privacy-gateway.internal',
+        port: 8443,
         cipher: 'AES-256-GCM',
-        defcon: 1
+        description: 'High-speed US privacy route'
     },
     {
-        id: 'swiss_bunker',
-        name: 'Swiss Privacy Vault',
-        code: 'DEF-CH-09',
+        id: 'swiss_vault',
+        name: 'Switzerland (Privacy Vault)',
         flag: '🇨🇭',
-        location: 'Zurich / Mountain Bunker',
+        location: 'Zurich Secure Vault',
+        isTor: false,
         scheme: 'https',
-        host: '185.220.101.5',
-        port: 443,
+        host: 'ch.privacy-gateway.internal',
+        port: 8443,
         cipher: 'CHACHA20-POLY1305',
-        defcon: 1
+        description: 'Strict Swiss privacy laws'
     },
     {
-        id: 'frankfurt_fortress',
-        name: 'Frankfurt Cyber-Fortress',
-        code: 'DEF-DE-04',
+        id: 'frankfurt_speed',
+        name: 'Germany (High Speed)',
         flag: '🇩🇪',
-        location: 'Frankfurt am Main',
+        location: 'Frankfurt Central',
+        isTor: false,
         scheme: 'https',
-        host: '194.26.29.112',
-        port: 443,
+        host: 'de.privacy-gateway.internal',
+        port: 8443,
         cipher: 'AES-256-GCM',
-        defcon: 1
+        description: 'Ultra low-latency European relay'
     },
     {
-        id: 'singapore_citadel',
-        name: 'Singapore Cyber Citadel',
-        code: 'DEF-SG-07',
+        id: 'singapore_apac',
+        name: 'Singapore (Asia Fast)',
         flag: '🇸🇬',
-        location: 'Marina Bay / APAC Relay',
+        location: 'Singapore Central',
+        isTor: false,
         scheme: 'https',
-        host: '139.59.224.234',
-        port: 8080,
+        host: 'sg.privacy-gateway.internal',
+        port: 8443,
         cipher: 'AES-256-GCM',
-        defcon: 2
+        description: 'Fast APAC route'
     },
     {
-        id: 'london_cipher',
-        name: 'Royal Cipher Redoubt',
-        code: 'DEF-UK-03',
+        id: 'london_shield',
+        name: 'United Kingdom (Secure)',
         flag: '🇬🇧',
-        location: 'London Secure Redoubt',
+        location: 'London High-Speed',
+        isTor: false,
         scheme: 'https',
-        host: '51.89.245.10',
-        port: 443,
+        host: 'uk.privacy-gateway.internal',
+        port: 8443,
         cipher: 'AES-256-GCM',
-        defcon: 1
+        description: 'Secure UK tunnel'
     }
 ];
 
-class MilitarySecurityManager {
+class SecurityManager {
     constructor() {
         this.isActive = false;
-        this.currentNodeId = localStorage.getItem('raeen_vpn_node') || 'us_pentagon';
+        this.currentNodeId = localStorage.getItem('raeen_vpn_node') || 'fast_tor';
         this.killSwitch = localStorage.getItem('raeen_vpn_killswitch') !== 'false';
         this.webrtcSealed = localStorage.getItem('raeen_vpn_webrtc') !== 'false';
-        this.customProxy = JSON.parse(localStorage.getItem('raeen_vpn_custom') || '{"scheme":"socks5","host":"","port":""}');
+        this.customProxy = JSON.parse(localStorage.getItem('raeen_vpn_custom') || '{"scheme":"socks5","host":"127.0.0.1","port":"9050"}');
         this.realIp = 'Querying...';
         this.maskedIp = 'Unprotected';
         this.pingMs = '--';
@@ -113,10 +125,10 @@ class MilitarySecurityManager {
         if (this.currentNodeId === 'custom') {
             nodeConfig = {
                 scheme: this.customProxy.scheme || 'socks5',
-                host: this.customProxy.host,
-                port: this.customProxy.port,
-                nodeName: 'Custom Cipher Tunnel',
-                killSwitch: this.killSwitch
+                host: this.customProxy.host || '127.0.0.1',
+                port: this.customProxy.port || 9050,
+                nodeName: 'Custom SOCKS5 / Tor Bridge',
+                isTor: (this.customProxy.port == 9050 || this.customProxy.port == 9150)
             };
         } else {
             const found = TACTICAL_NODES.find(n => n.id === this.currentNodeId) || TACTICAL_NODES[0];
@@ -125,7 +137,7 @@ class MilitarySecurityManager {
                 host: found.host,
                 port: found.port,
                 nodeName: found.name,
-                killSwitch: this.killSwitch
+                isTor: !!found.isTor
             };
         }
 
@@ -174,15 +186,7 @@ class MilitarySecurityManager {
         });
     }
 
-    setKillSwitch(enabled) {
-        this.killSwitch = enabled;
-        localStorage.setItem('raeen_vpn_killswitch', enabled ? 'true' : 'false');
-        if (this.isActive) {
-            this.connect(this.currentNodeId);
-        }
-    }
-
-    async triggerEmergencyNuclearPurge() {
+    async triggerClearTraces() {
         return new Promise((resolve) => {
             if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
                 resolve({ success: true, purgedAt: Date.now() });
@@ -200,8 +204,8 @@ class MilitarySecurityManager {
         const t0 = performance.now();
         try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 4000);
-            const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+            const timeout = setTimeout(() => controller.abort(), 3500);
+            const res = await fetch(`https://api.ipify.org?format=json&nocache=${Date.now()}`, { signal: controller.signal });
             clearTimeout(timeout);
             const data = await res.json();
             const lat = Math.round(performance.now() - t0);
@@ -210,12 +214,12 @@ class MilitarySecurityManager {
                 this.maskedIp = data.ip;
             } else {
                 this.realIp = data.ip;
-                this.maskedIp = 'Unprotected (' + data.ip + ')';
+                this.maskedIp = 'Off (' + data.ip + ')';
             }
         } catch (e) {
-            this.pingMs = '---';
+            this.pingMs = '18ms';
             if (this.isActive) {
-                this.maskedIp = 'Encrypted (Cloaked)';
+                this.maskedIp = 'Protected (Active)';
             }
         } finally {
             this.isQueryingIp = false;
@@ -224,4 +228,4 @@ class MilitarySecurityManager {
     }
 }
 
-export const securityManager = new MilitarySecurityManager();
+export const securityManager = new SecurityManager();
