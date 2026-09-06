@@ -21,10 +21,11 @@
             }
         } else if (bgType === 'solid') {
             if (bgValue) {
+                var effectiveBg = (theme === 'light' && (bgValue === '#0f0f17' || bgValue === '#000000')) ? '#f8fafc' : bgValue;
                 var s = document.createElement('style');
                 s.id = 'raeen-theme-preloader-style';
                 s.setAttribute('data-preloader', 'true');
-                s.textContent = "body { background: " + bgValue + " !important; }";
+                s.textContent = "body { background: " + effectiveBg + " !important; }";
                 document.documentElement.appendChild(s);
             }
         }

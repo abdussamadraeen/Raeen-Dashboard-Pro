@@ -25,10 +25,11 @@
             }
         } else if (bgType === 'solid') {
             if (bgValue) {
+                const effectiveBg = (theme === 'light' && (bgValue === '#0f0f17' || bgValue === '#000000')) ? '#f8fafc' : bgValue;
                 const style = document.createElement('style');
                 style.id = 'raeen-theme-preloader-style';
                 style.setAttribute('data-preloader', 'true');
-                style.textContent = `body { background: ${bgValue} !important; }`;
+                style.textContent = `body { background: ${effectiveBg} !important; }`;
                 document.documentElement.appendChild(style);
             }
         }

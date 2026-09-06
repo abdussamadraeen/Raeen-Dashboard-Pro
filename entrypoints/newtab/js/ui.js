@@ -425,10 +425,15 @@ export async function applySettings() {
                 break;
 
             case 'solid':
+                const isLightMode = state.settings.themePreference === 'light' || document.documentElement.getAttribute('data-theme') === 'light';
                 if (bgValue && bgValue.includes('gradient')) {
                     dom.bgLayer.style.backgroundImage = bgValue;
+                    dom.bgLayer.style.backgroundColor = 'transparent';
+                } else if (bgValue && bgValue !== '#0f0f17' && bgValue !== '#090d16' && bgValue !== '#f8fafc') {
+                    dom.bgLayer.style.backgroundColor = bgValue;
+                    dom.bgLayer.style.backgroundImage = 'none';
                 } else {
-                    dom.bgLayer.style.backgroundColor = bgValue || 'transparent';
+                    dom.bgLayer.style.backgroundColor = isLightMode ? '#f8fafc' : '#090d16';
                     dom.bgLayer.style.backgroundImage = 'none';
                 }
                 break;

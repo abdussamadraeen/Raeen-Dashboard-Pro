@@ -130,6 +130,9 @@ canvas.background-layer {
     z-index: -1;
     pointer-events: none;
 }
+[data-theme="light"] .overlay {
+    background: transparent !important;
+}
 .overlay::before {
     content: "";
     position: absolute;
@@ -187,10 +190,10 @@ html.live-bg-pre-active .background-layer {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45));
+    filter: none !important;
 }
 [data-theme="light"] #clock-widget {
-    filter: drop-shadow(0 4px 16px rgba(255, 255, 255, 0.7));
+    filter: none !important;
 }
 
 .time { 
@@ -204,7 +207,8 @@ html.live-bg-pre-active .background-layer {
     -webkit-background-clip: text; 
     background-clip: text; 
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 35px rgba(255, 255, 255, 0.18);
+    text-shadow: none !important;
+    filter: none !important;
     transition: transform 0.3s var(--ease-spring);
     -webkit-user-select: none;
     user-select: none;
@@ -214,7 +218,8 @@ html.live-bg-pre-active .background-layer {
     -webkit-background-clip: text; 
     background-clip: text; 
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 25px rgba(0, 0, 0, 0.08);
+    text-shadow: none !important;
+    filter: none !important;
 }
 
 .time-digits {

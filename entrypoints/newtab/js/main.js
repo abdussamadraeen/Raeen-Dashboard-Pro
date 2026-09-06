@@ -561,6 +561,9 @@ function optimizeImage(file) {
                     }
                 });
 
+                const isLight = (state.settings.themePreference === 'light') || document.documentElement.getAttribute('data-theme') === 'light';
+                const defaultBg = isLight ? '#f8fafc' : '#090d16';
+
                 // 2. Immediately tear down background iframe
                 if (dom.bgLayer) {
                     const ifr = dom.bgLayer.querySelector('iframe');
@@ -570,14 +573,14 @@ function optimizeImage(file) {
                     }
                     dom.bgLayer.innerHTML = '';
                     dom.bgLayer.style.backgroundImage = 'none';
-                    dom.bgLayer.style.backgroundColor = '#0f0f17';
+                    dom.bgLayer.style.backgroundColor = defaultBg;
                 }
 
                 // 3. Synchronously switch active state to solid so applySettings() immediately shows widgets
                 state.settings.backgroundType = 'solid';
-                state.settings.backgroundValue = '#0f0f17';
+                state.settings.backgroundValue = defaultBg;
                 localStorage.setItem('raeen_bg_type', 'solid');
-                localStorage.setItem('raeen_bg_value', '#0f0f17');
+                localStorage.setItem('raeen_bg_value', defaultBg);
 
                 applySettings();
                 syncSettingsUI();
@@ -589,7 +592,7 @@ function optimizeImage(file) {
                     settings = { ...state.settings };
                 }
                 settings.backgroundType = 'solid';
-                settings.backgroundValue = '#0f0f17';
+                settings.backgroundValue = defaultBg;
                 updateSettings(settings);
                 await saveSettings(settings);
 
