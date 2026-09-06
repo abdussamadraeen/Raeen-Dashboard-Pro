@@ -4011,8 +4011,8 @@ body.boss-mode-active .noosphere-status-horizontal {
     border-left: 1px solid var(--glass-border-light);
     border-radius: 20px;
     overflow: hidden;
-    backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
     box-shadow: 0 8px 32px var(--shadow), var(--glass-inner-sheen);
     margin: 0 auto;
     transition: all 0.3s ease;
@@ -4148,8 +4148,8 @@ body.boss-mode-active .noosphere-status-horizontal {
     text-decoration: none;
     font-size: 0.76rem;
     font-weight: 550;
-    backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
     cursor: pointer;
     text-align: center;
@@ -4308,3 +4308,12 @@ body.boss-mode-active .noosphere-status-horizontal {
     background: var(--danger, #ef4444);
     color: #fff;
 }
+
+.widget-icon.icon-cyan {
+    color: #06b6d4;
+}
+
+.widget-icon.icon-emerald {
+    color: #10b981;
+}
+

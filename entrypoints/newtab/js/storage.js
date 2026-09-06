@@ -3,10 +3,12 @@ export const StorageManager = (() => {
     const DB_VERSION = 5;
     let db = null;
     let isFallbackMode = false;
+    let initPromise = null;
     const memoryCache = {}; // Cache in memory if both DB and localstorage fail
 
     const init = () => {
-        return new Promise((resolve) => {
+        if (initPromise) return initPromise;
+        initPromise = new Promise((resolve) => {
             try {
                 if (typeof window === 'undefined' || !window.indexedDB) {
                     console.warn("IndexedDB not supported, using localStorage fallback.");
@@ -54,28 +56,34 @@ export const StorageManager = (() => {
             } catch (err) {
                 console.error("IndexedDB open threw error, using fallback: ", err);
                 isFallbackMode = true;
-                resolve();
+                resolve(); 
             }
         });
+        return initPromise;
     };
 
-    const get = (storeName, key) => {
-        return new Promise((resolve) => {
-            if (isFallbackMode) {
-                try {
-                    const fallbackKey = `raeen_db_${storeName}_${key}`;
-                    const cached = localStorage.getItem(fallbackKey);
-                    if (cached) {
-                        return resolve(JSON.parse(cached));
-                    }
-                } catch (err) {
-                    console.error("Fallback read failed:", err);
+    const ensureInit = async () => {
+        if (!db && !isFallbackMode) {
+            await init();
+        }
+    };
+
+    const get = async (storeName, key) => {
+        await ensureInit();
+        if (isFallbackMode || !db) {
+            try {
+                const fallbackKey = `raeen_db_${storeName}_${key}`;
+                const cached = localStorage.getItem(fallbackKey);
+                if (cached) {
+                    return JSON.parse(cached);
                 }
-                return resolve(memoryCache[storeName]?.[key] || null);
+            } catch (err) {
+                console.error("Fallback read failed:", err);
             }
+            return memoryCache[storeName]?.[key] || null;
+        }
 
-            if (!db) return resolve(null);
-
+        return new Promise((resolve) => {
             try {
                 const transaction = db.transaction([storeName], 'readonly');
                 const store = transaction.objectStore(storeName);
@@ -89,27 +97,26 @@ export const StorageManager = (() => {
         });
     };
 
-    const set = (storeName, key, value) => {
-        return new Promise((resolve, reject) => {
-            if (isFallbackMode) {
-                try {
-                    if (!memoryCache[storeName]) {
-                        memoryCache[storeName] = {};
-                    }
-                    const itemKey = value?.id || key;
-                    memoryCache[storeName][itemKey] = value;
-                    
-                    const fallbackKey = `raeen_db_${storeName}_${itemKey}`;
-                    localStorage.setItem(fallbackKey, JSON.stringify(value));
-                    return resolve();
-                } catch (err) {
-                    console.error("Fallback write failed:", err);
-                    return reject(err);
+    const set = async (storeName, key, value) => {
+        await ensureInit();
+        if (isFallbackMode || !db) {
+            try {
+                if (!memoryCache[storeName]) {
+                    memoryCache[storeName] = {};
                 }
+                const itemKey = value?.id || key;
+                memoryCache[storeName][itemKey] = value;
+                
+                const fallbackKey = `raeen_db_${storeName}_${itemKey}`;
+                localStorage.setItem(fallbackKey, JSON.stringify(value));
+                return;
+            } catch (err) {
+                console.error("Fallback write failed:", err);
+                return;
             }
+        }
 
-            if (!db) return reject('DB not initialized');
-
+        return new Promise((resolve) => {
             try {
                 const transaction = db.transaction([storeName], 'readwrite');
                 const store = transaction.objectStore(storeName);
@@ -120,41 +127,48 @@ export const StorageManager = (() => {
                 request.onsuccess = () => resolve();
                 request.onerror = (e) => {
                     console.error(`Error saving to ${storeName}:`, e.target.error);
-                    reject(e.target.error);
+                    try {
+                        const itemKey = value?.id || key;
+                        localStorage.setItem(`raeen_db_${storeName}_${itemKey}`, JSON.stringify(value));
+                    } catch {}
+                    resolve();
                 };
             } catch (e) {
                 console.error(`Transaction failed for ${storeName}:`, e);
-                reject(e);
+                try {
+                    const itemKey = value?.id || key;
+                    localStorage.setItem(`raeen_db_${storeName}_${itemKey}`, JSON.stringify(value));
+                } catch {}
+                resolve();
             }
         });
     };
 
-    const getAll = (storeName) => {
-        return new Promise((resolve) => {
-            if (isFallbackMode) {
-                try {
-                    const results = [];
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const lKey = localStorage.key(i);
-                        if (lKey && lKey.startsWith(`raeen_db_${storeName}_`)) {
-                            const cached = localStorage.getItem(lKey);
-                            if (cached) {
-                                results.push(JSON.parse(cached));
-                            }
+    const getAll = async (storeName) => {
+        await ensureInit();
+        if (isFallbackMode || !db) {
+            try {
+                const results = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const lKey = localStorage.key(i);
+                    if (lKey && lKey.startsWith(`raeen_db_${storeName}_`)) {
+                        const cached = localStorage.getItem(lKey);
+                        if (cached) {
+                            results.push(JSON.parse(cached));
                         }
                     }
-                    if (results.length > 0) {
-                        return resolve(results);
-                    }
-                } catch (err) {
-                    console.error("Fallback getAll failed:", err);
                 }
-                const cachedStore = memoryCache[storeName];
-                return resolve(cachedStore ? Object.values(cachedStore) : []);
+                if (results.length > 0) {
+                    return results;
+                }
+            } catch (err) {
+                console.error("Fallback getAll failed:", err);
             }
+            const cachedStore = memoryCache[storeName];
+            return cachedStore ? Object.values(cachedStore) : [];
+        }
 
-            if (!db) return resolve([]);
-
+        return new Promise((resolve) => {
             try {
                 const transaction = db.transaction([storeName], 'readonly');
                 const store = transaction.objectStore(storeName);
@@ -168,23 +182,22 @@ export const StorageManager = (() => {
         });
     };
 
-    const remove = (storeName, key) => {
-        return new Promise((resolve) => {
-            if (isFallbackMode) {
-                try {
-                    if (memoryCache[storeName]) {
-                        delete memoryCache[storeName][key];
-                    }
-                    const fallbackKey = `raeen_db_${storeName}_${key}`;
-                    localStorage.removeItem(fallbackKey);
-                } catch (err) {
-                    console.error("Fallback remove failed:", err);
+    const remove = async (storeName, key) => {
+        await ensureInit();
+        if (isFallbackMode || !db) {
+            try {
+                if (memoryCache[storeName]) {
+                    delete memoryCache[storeName][key];
                 }
-                return resolve();
+                const fallbackKey = `raeen_db_${storeName}_${key}`;
+                localStorage.removeItem(fallbackKey);
+            } catch (err) {
+                console.error("Fallback remove failed:", err);
             }
+            return;
+        }
 
-            if (!db) return resolve();
-
+        return new Promise((resolve) => {
             try {
                 const transaction = db.transaction([storeName], 'readwrite');
                 const store = transaction.objectStore(storeName);

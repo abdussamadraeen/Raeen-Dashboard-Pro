@@ -400,7 +400,7 @@ export async function applySettings() {
                         googleSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "raeen_dashboard=true";
                     }
                 }
-                dom.bgLayer.innerHTML = `<iframe src="${googleSrc}" allow="forms; scripts; same-origin; popups; clipboard-write; gyp-eval; accelerometer; gyroscope;" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                dom.bgLayer.innerHTML = `<iframe src="${googleSrc}" allow="clipboard-write; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
                 dom.bgLayer.style.backgroundImage = 'none';
                 break;
                 
@@ -415,7 +415,7 @@ export async function applySettings() {
                         bingSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "raeen_dashboard=true";
                     }
                 }
-                dom.bgLayer.innerHTML = `<iframe src="${bingSrc}" allow="forms; scripts; same-origin; popups; clipboard-write; gyp-eval;" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                dom.bgLayer.innerHTML = `<iframe src="${bingSrc}" allow="clipboard-write; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
                 dom.bgLayer.style.backgroundImage = 'none';
                 break;
 
