@@ -346,7 +346,7 @@ class SecurityManager {
                     }
                 } catch (torErr) {
                     this.torOffline = true;
-                    this.maskedIp = 'Tor Offline (9050)';
+                    this.maskedIp = `Tor Offline (${currentNode.port || 9050})`;
                     clearTimeout(timeout);
                     return;
                 }

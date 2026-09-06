@@ -27,5 +27,7 @@ web-ext.config.ts
 
 # Local Tor binaries and state
 tools/tor/data-dir/
+tools/tor/data/
+tools/tor/docs/
 tools/tor/tor/
 tools/tor/tor.tar.gz

@@ -170,9 +170,9 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
             if (dom.hudNodeHint) {
                 if (currentNode.isTor) {
                     if (securityManager.torOffline) {
-                        dom.hudNodeHint.innerHTML = '⚠️ <strong>Local Tor Offline:</strong> Run Tor daemon or Brave Tor (127.0.0.1:9050), or choose US VPN above for instant cloud protection.';
+                        dom.hudNodeHint.innerHTML = `⚠️ <strong>Tor Offline (${currentNode.port || 9050}):</strong> Port ${currentNode.port || 9050} is not responding. Ensure Tor daemon is active, or choose US VPN above for instant cloud protection.`;
                     } else {
-                        dom.hudNodeHint.innerHTML = '🧅 <strong>Fast Tor:</strong> SOCKS5 127.0.0.1:9050 (requires local Tor or Brave Tor Alt+Shift+N).';
+                        dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Active on 127.0.0.1:${currentNode.port || 9050} • Multi-Hop Onion Relay`;
                     }
                 } else if (currentNode.id === 'custom') {
                     dom.hudNodeHint.innerHTML = '⚙️ <strong>Custom:</strong> Enter your own SOCKS5 or HTTPS proxy host and port.';
