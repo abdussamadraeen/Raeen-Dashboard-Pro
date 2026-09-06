@@ -166,7 +166,7 @@
                             </div>
                             <div class="hud-status-row">
                                 <span class="hud-label">SECURITY:</span>
-                                <span class="hud-val hud-cipher" id="hud-cipher-val">256-Bit Military Grade</span>
+                                <span class="hud-val hud-cipher" id="hud-cipher-val">256-Bit Shield</span>
                             </div>
                             <div class="hud-status-row">
                                 <span class="hud-label">LEAK GUARD:</span>
@@ -180,9 +180,10 @@
                         <label for="hud-node-select" class="hud-node-label">Server Location</label>
                         <div class="hud-select-wrapper">
                             <select id="hud-node-select" class="hud-select" aria-label="Server Location">
-                                <option value="fast_tor">🧅 Fast Tor Network (Onion Route)</option>
-                                <option value="us_secure">🇺🇸 United States (Fast Secure)</option>
+                                <option value="fast_tor">🧅 Fast Tor (127.0.0.1:9050)</option>
+                                <option value="fast_tor_alt">🧅 Fast Tor Alt (127.0.0.1:9150)</option>
                                 <option value="swiss_vault">🇨🇭 Switzerland (Privacy Vault)</option>
+                                <option value="us_secure">🇺🇸 United States (Fast Secure)</option>
                                 <option value="frankfurt_speed">🇩🇪 Germany (High Speed)</option>
                                 <option value="singapore_apac">🇸🇬 Singapore (Asia Fast)</option>
                                 <option value="london_shield">🇬🇧 United Kingdom (Secure)</option>
@@ -200,7 +201,10 @@
                     <!-- IP & Ping Telemetry -->
                     <div class="hud-telemetry">
                         <div class="hud-tele-col">
-                            <span class="hud-tele-label">PROTECTED IP</span>
+                            <div class="hud-tele-header">
+                                <span class="hud-tele-label">PROTECTED IP</span>
+                                <a id="hud-verify-link" href="https://browserleaks.com/ip" target="_blank" rel="noopener" class="hud-verify-tag" title="Verify IP and WebRTC leak protection">Verify ↗</a>
+                            </div>
                             <span class="hud-tele-val" id="hud-ip-val">Checking...</span>
                         </div>
                         <div class="hud-tele-col">

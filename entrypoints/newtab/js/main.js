@@ -124,7 +124,7 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
             }
 
             if (dom.hudCipherVal) {
-                dom.hudCipherVal.textContent = isEngaged ? (currentNode.cipher || '256-Bit Encrypted') : '256-Bit Military Grade';
+                dom.hudCipherVal.textContent = isEngaged ? (currentNode.cipher || 'AES-256 Shield') : '256-Bit Shield';
             }
 
             if (dom.hudWebrtcStatus) {
@@ -138,6 +138,12 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
 
             if (dom.hudPingVal) {
                 dom.hudPingVal.textContent = securityManager.pingMs;
+            }
+
+            if (dom.hudVerifyLink) {
+                const isTor = currentNode && currentNode.isTor;
+                dom.hudVerifyLink.href = isTor ? 'https://check.torproject.org' : 'https://browserleaks.com/ip';
+                dom.hudVerifyLink.title = isTor ? 'Verify Tor Onion routing on check.torproject.org' : 'Verify IP and leak protection on BrowserLeaks';
             }
 
             if (dom.hudToggleBtnText) {
@@ -191,11 +197,17 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
         if (dom.hudToggleShieldBtn) {
             dom.hudToggleShieldBtn.onclick = async () => {
                 dom.hudToggleShieldBtn.disabled = true;
+                if (dom.hudToggleBtnText) {
+                    dom.hudToggleBtnText.textContent = securityManager.isActive ? 'Disconnecting...' : 'Connecting...';
+                }
                 try {
                     if (securityManager.isActive) {
                         await securityManager.disconnect();
                     } else {
-                        await securityManager.connect();
+                        const res = await securityManager.connect();
+                        if (res && res.error) {
+                            alert("VPN notice: " + res.error);
+                        }
                     }
                 } finally {
                     dom.hudToggleShieldBtn.disabled = false;

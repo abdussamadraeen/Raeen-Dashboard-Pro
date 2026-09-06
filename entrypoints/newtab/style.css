@@ -3731,6 +3731,7 @@ body.boss-mode-active .noosphere-status-horizontal {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
     font-size: 0.72rem;
 }
 
@@ -3738,14 +3739,20 @@ body.boss-mode-active .noosphere-status-horizontal {
     font-weight: 700;
     color: var(--text-secondary);
     letter-spacing: 0.5px;
-    font-size: 0.68rem;
+    font-size: 0.66rem;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .hud-val {
     font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.74rem;
+    font-size: 0.72rem;
     font-weight: 700;
     color: var(--text-primary);
+    white-space: nowrap;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .hud-cipher {
@@ -3846,11 +3853,36 @@ body.boss-mode-active .noosphere-status-horizontal {
     gap: 2px;
 }
 
+.hud-tele-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
 .hud-tele-label {
     font-size: 0.62rem;
     font-weight: 700;
     color: var(--text-secondary);
     letter-spacing: 0.6px;
+}
+
+.hud-verify-tag {
+    font-size: 0.60rem;
+    font-weight: 700;
+    color: #10b981;
+    text-decoration: none;
+    background: rgba(16, 185, 129, 0.12);
+    padding: 1px 5px;
+    border-radius: 4px;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    transition: all 0.15s ease;
+}
+
+.hud-verify-tag:hover {
+    background: rgba(16, 185, 129, 0.25);
+    color: #fff;
+    border-color: #10b981;
 }
 
 .hud-tele-val {

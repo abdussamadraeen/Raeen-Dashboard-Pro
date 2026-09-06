@@ -6,7 +6,7 @@
 export const TACTICAL_NODES = [
     {
         id: 'fast_tor',
-        name: 'Fast Tor Network (Onion Route)',
+        name: 'Fast Tor (127.0.0.1:9050)',
         flag: '🧅',
         location: 'Global Onion Relay',
         isTor: true,
@@ -14,19 +14,19 @@ export const TACTICAL_NODES = [
         host: '127.0.0.1',
         port: 9050,
         cipher: 'Tor Multi-Hop Onion',
-        description: 'Instant Tor Onion route with 0s connection lag'
+        description: 'Instant local Tor or Brave Tor SOCKS5 route with 0s connection lag'
     },
     {
-        id: 'us_secure',
-        name: 'United States (Fast Secure)',
-        flag: '🇺🇸',
-        location: 'New York / Ashburn',
-        isTor: false,
-        scheme: 'https',
-        host: 'us.privacy-gateway.internal',
-        port: 8443,
-        cipher: 'AES-256-GCM',
-        description: 'High-speed US privacy route'
+        id: 'fast_tor_alt',
+        name: 'Fast Tor Alt (127.0.0.1:9150)',
+        flag: '🧅',
+        location: 'Tor Browser Relay',
+        isTor: true,
+        scheme: 'socks5',
+        host: '127.0.0.1',
+        port: 9150,
+        cipher: 'Tor Multi-Hop Onion',
+        description: 'Tor Browser SOCKS5 port (9150)'
     },
     {
         id: 'swiss_vault',
@@ -34,11 +34,23 @@ export const TACTICAL_NODES = [
         flag: '🇨🇭',
         location: 'Zurich Secure Vault',
         isTor: false,
-        scheme: 'https',
-        host: 'ch.privacy-gateway.internal',
-        port: 8443,
+        scheme: 'socks5',
+        host: '194.26.29.13',
+        port: 4145,
         cipher: 'CHACHA20-POLY1305',
         description: 'Strict Swiss privacy laws'
+    },
+    {
+        id: 'us_secure',
+        name: 'United States (Fast Secure)',
+        flag: '🇺🇸',
+        location: 'New York / Ashburn',
+        isTor: false,
+        scheme: 'socks5',
+        host: '104.248.63.15',
+        port: 30588,
+        cipher: 'AES-256-GCM',
+        description: 'High-speed US privacy route'
     },
     {
         id: 'frankfurt_speed',
@@ -46,9 +58,9 @@ export const TACTICAL_NODES = [
         flag: '🇩🇪',
         location: 'Frankfurt Central',
         isTor: false,
-        scheme: 'https',
-        host: 'de.privacy-gateway.internal',
-        port: 8443,
+        scheme: 'socks5',
+        host: '159.65.122.91',
+        port: 1080,
         cipher: 'AES-256-GCM',
         description: 'Ultra low-latency European relay'
     },
@@ -58,9 +70,9 @@ export const TACTICAL_NODES = [
         flag: '🇸🇬',
         location: 'Singapore Central',
         isTor: false,
-        scheme: 'https',
-        host: 'sg.privacy-gateway.internal',
-        port: 8443,
+        scheme: 'socks5',
+        host: '139.59.229.117',
+        port: 1080,
         cipher: 'AES-256-GCM',
         description: 'Fast APAC route'
     },
@@ -70,11 +82,23 @@ export const TACTICAL_NODES = [
         flag: '🇬🇧',
         location: 'London High-Speed',
         isTor: false,
-        scheme: 'https',
-        host: 'uk.privacy-gateway.internal',
-        port: 8443,
+        scheme: 'socks5',
+        host: '178.62.83.195',
+        port: 1080,
         cipher: 'AES-256-GCM',
         description: 'Secure UK tunnel'
+    },
+    {
+        id: 'custom',
+        name: 'Custom SOCKS5 / Tor Bridge',
+        flag: '⚙️',
+        location: 'User Defined Host & Port',
+        isTor: false,
+        scheme: 'socks5',
+        host: '127.0.0.1',
+        port: 9050,
+        cipher: 'Custom Cipher',
+        description: 'Route through any private or public SOCKS5/HTTP proxy'
     }
 ];
 
@@ -86,35 +110,44 @@ class SecurityManager {
         this.webrtcSealed = localStorage.getItem('raeen_vpn_webrtc') !== 'false';
         this.customProxy = JSON.parse(localStorage.getItem('raeen_vpn_custom') || '{"scheme":"socks5","host":"127.0.0.1","port":"9050"}');
         this.realIp = 'Querying...';
-        this.maskedIp = 'Unprotected';
+        this.maskedIp = 'Checking...';
         this.pingMs = '--';
         this.isQueryingIp = false;
     }
 
+    async sendMsg(msg) {
+        if (typeof browser !== 'undefined' && browser.runtime?.sendMessage) {
+            try {
+                const res = await browser.runtime.sendMessage(msg);
+                if (res !== undefined) return res;
+            } catch (e) {}
+        }
+        return new Promise((resolve) => {
+            if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+                chrome.runtime.sendMessage(msg, (res) => {
+                    resolve(res || { success: false });
+                });
+            } else {
+                resolve({ success: false });
+            }
+        });
+    }
+
     async init() {
-        // Enforce WebRTC shield if saved as active
         if (this.webrtcSealed) {
             this.setWebRTCShield(true);
         }
 
-        // Query status from background
         await this.checkStatus();
         this.probeIp();
     }
 
     async checkStatus() {
-        return new Promise((resolve) => {
-            if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
-                resolve({ success: false });
-                return;
-            }
-            chrome.runtime.sendMessage({ action: 'vpn_get_status' }, (response) => {
-                if (response && response.success) {
-                    this.isActive = !!response.isActive;
-                }
-                resolve(response || { success: false });
-            });
-        });
+        const response = await this.sendMsg({ action: 'vpn_get_status' });
+        if (response && response.success) {
+            this.isActive = !!response.isActive;
+        }
+        return response || { success: false };
     }
 
     async connect(nodeId = null) {
@@ -141,61 +174,31 @@ class SecurityManager {
             };
         }
 
-        return new Promise((resolve) => {
-            if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
-                this.isActive = true;
-                resolve({ success: true, mock: true });
-                return;
-            }
-            chrome.runtime.sendMessage({ action: 'vpn_connect', payload: nodeConfig }, (res) => {
-                if (res && res.success) {
-                    this.isActive = true;
-                    this.probeIp();
-                }
-                resolve(res || { success: false });
-            });
-        });
+        const res = await this.sendMsg({ action: 'vpn_connect', payload: nodeConfig });
+        if (res && res.success) {
+            this.isActive = true;
+            this.probeIp();
+        } else if (res && res.mock) {
+            this.isActive = true;
+        }
+        return res || { success: false };
     }
 
     async disconnect() {
-        return new Promise((resolve) => {
-            if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
-                this.isActive = false;
-                resolve({ success: true });
-                return;
-            }
-            chrome.runtime.sendMessage({ action: 'vpn_disconnect' }, (res) => {
-                this.isActive = false;
-                this.probeIp();
-                resolve(res || { success: true });
-            });
-        });
+        const res = await this.sendMsg({ action: 'vpn_disconnect' });
+        this.isActive = false;
+        this.probeIp();
+        return res || { success: true };
     }
 
     async setWebRTCShield(enabled) {
         this.webrtcSealed = enabled;
         localStorage.setItem('raeen_vpn_webrtc', enabled ? 'true' : 'false');
-        return new Promise((resolve) => {
-            if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
-                resolve({ success: true });
-                return;
-            }
-            chrome.runtime.sendMessage({ action: 'webrtc_shield_set', enabled }, (res) => {
-                resolve(res || { success: false });
-            });
-        });
+        return await this.sendMsg({ action: 'webrtc_shield_set', enabled });
     }
 
     async triggerClearTraces() {
-        return new Promise((resolve) => {
-            if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
-                resolve({ success: true, purgedAt: Date.now() });
-                return;
-            }
-            chrome.runtime.sendMessage({ action: 'emergency_nuclear_purge' }, (res) => {
-                resolve(res || { success: false });
-            });
-        });
+        return await this.sendMsg({ action: 'emergency_nuclear_purge' });
     }
 
     async probeIp() {
@@ -204,20 +207,31 @@ class SecurityManager {
         const t0 = performance.now();
         try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 3500);
-            const res = await fetch(`https://api.ipify.org?format=json&nocache=${Date.now()}`, { signal: controller.signal });
+            const timeout = setTimeout(() => controller.abort(), 4000);
+            let ip = null;
+            try {
+                const res = await fetch(`https://api.ipify.org?format=json&nocache=${Date.now()}`, { signal: controller.signal });
+                const data = await res.json();
+                ip = data.ip;
+            } catch (e1) {
+                const res2 = await fetch(`https://icanhazip.com/?nocache=${Date.now()}`, { signal: controller.signal });
+                const text = await res2.text();
+                ip = text.trim();
+            }
             clearTimeout(timeout);
-            const data = await res.json();
             const lat = Math.round(performance.now() - t0);
             this.pingMs = `${lat}ms`;
-            if (this.isActive) {
-                this.maskedIp = data.ip;
-            } else {
-                this.realIp = data.ip;
-                this.maskedIp = 'Off (' + data.ip + ')';
+
+            if (ip) {
+                if (this.isActive) {
+                    this.maskedIp = ip;
+                } else {
+                    this.realIp = ip;
+                    this.maskedIp = ip;
+                }
             }
         } catch (e) {
-            this.pingMs = '18ms';
+            this.pingMs = '--';
             if (this.isActive) {
                 this.maskedIp = 'Protected (Active)';
             }

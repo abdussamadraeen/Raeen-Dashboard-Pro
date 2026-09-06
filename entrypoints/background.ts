@@ -84,22 +84,27 @@ export default defineBackground(() => {
     }
   } catch (e) {}
 
-  // Listen for actions from dashboard and content scripts
-  browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // Handle messages cleanly with async return value (compatible with webextension-polyfill & native chrome)
+  browser.runtime.onMessage.addListener(async (request, sender) => {
     if (request.action === 'open_dashboard' && sender.tab?.id) {
-      clearServiceWorkers();
+      await clearServiceWorkers();
       const url = browser.runtime.getURL('/newtab.html') + '?no_redirect=true&settings=true';
-      browser.tabs.update(sender.tab.id, { url });
-    } else if (request.action === 'open_tab' && request.url) {
-      browser.tabs.create({ url: request.url });
-    } else if (request.action === 'vpn_connect') {
+      await browser.tabs.update(sender.tab.id, { url });
+      return { success: true };
+    }
+    
+    if (request.action === 'open_tab' && request.url) {
+      await browser.tabs.create({ url: request.url });
+      return { success: true };
+    }
+    
+    if (request.action === 'vpn_connect') {
       try {
-        const { scheme = 'https', host = '127.0.0.1', port = 9050, nodeName = 'Secure VPN', isTor = false } = request.payload || {};
+        const { scheme = 'socks5', host = '127.0.0.1', port = 9050, nodeName = 'Secure VPN', isTor = false } = request.payload || {};
 
         const chromeProxy = (globalThis as any).chrome?.proxy;
         if (!chromeProxy || !chromeProxy.settings) {
-          sendResponse({ success: false, error: 'Chrome Proxy API not available or permission denied.' });
-          return true;
+          return { success: false, error: 'Chrome Proxy API not available or permission denied.' };
         }
 
         let pacScript: string;
@@ -131,93 +136,108 @@ export default defineBackground(() => {
           `;
         }
 
-        chromeProxy.settings.set({
-          value: {
-            mode: 'pac_script',
-            pacScript: { data: pacScript }
-          },
-          scope: 'regular'
-        }, () => {
-          isVpnActive = true;
-          activeVpnNode = { scheme, host, port, nodeName, isTor };
-          // Enforce hardware WebRTC leak protection
-          try {
-            const privacy = (globalThis as any).chrome?.privacy;
-            if (privacy?.network?.webRTCIPHandlingPolicy) {
-              privacy.network.webRTCIPHandlingPolicy.set({ value: 'disable_non_proxied_udp' });
+        return await new Promise<any>((resolve) => {
+          chromeProxy.settings.set({
+            value: {
+              mode: 'pac_script',
+              pacScript: { data: pacScript }
+            },
+            scope: 'regular'
+          }, () => {
+            const err = (globalThis as any).chrome?.runtime?.lastError;
+            if (err) {
+              console.error('Proxy settings error:', err);
+              resolve({ success: false, error: err.message || 'Failed to apply proxy settings' });
+              return;
             }
-          } catch (e) {}
-          sendResponse({ success: true, activeVpnNode });
-        });
-      } catch (err: any) {
-        sendResponse({ success: false, error: err?.message || String(err) });
-      }
-      return true;
-    } else if (request.action === 'vpn_disconnect') {
-      try {
-        const chromeProxy = (globalThis as any).chrome?.proxy;
-        if (chromeProxy?.settings) {
-          chromeProxy.settings.clear({ scope: 'regular' }, () => {
-            isVpnActive = false;
-            activeVpnNode = null;
+            isVpnActive = true;
+            activeVpnNode = { scheme, host, port, nodeName, isTor };
+            // Enforce hardware WebRTC leak protection
             try {
               const privacy = (globalThis as any).chrome?.privacy;
               if (privacy?.network?.webRTCIPHandlingPolicy) {
-                privacy.network.webRTCIPHandlingPolicy.clear({});
+                privacy.network.webRTCIPHandlingPolicy.set({ value: 'disable_non_proxied_udp' });
               }
             } catch (e) {}
-            sendResponse({ success: true });
+            resolve({ success: true, activeVpnNode });
           });
-        } else {
-          isVpnActive = false;
-          activeVpnNode = null;
-          sendResponse({ success: true });
-        }
+        });
       } catch (err: any) {
-        sendResponse({ success: false, error: err?.message || String(err) });
+        return { success: false, error: err?.message || String(err) };
       }
-      return true;
-    } else if (request.action === 'vpn_get_status') {
+    }
+    
+    if (request.action === 'vpn_disconnect') {
       try {
         const chromeProxy = (globalThis as any).chrome?.proxy;
         if (chromeProxy?.settings) {
-          chromeProxy.settings.get({ incognito: false }, (config: any) => {
-            const isControlled = config && config.levelOfControl === 'controlled_by_this_extension';
-            sendResponse({
-              success: true,
-              isActive: isControlled || isVpnActive,
-              activeVpnNode,
-              levelOfControl: config?.levelOfControl || 'not_controllable'
+          return await new Promise<any>((resolve) => {
+            chromeProxy.settings.clear({ scope: 'regular' }, () => {
+              isVpnActive = false;
+              activeVpnNode = null;
+              try {
+                const privacy = (globalThis as any).chrome?.privacy;
+                if (privacy?.network?.webRTCIPHandlingPolicy) {
+                  privacy.network.webRTCIPHandlingPolicy.clear({});
+                }
+              } catch (e) {}
+              resolve({ success: true });
             });
           });
-        } else {
-          sendResponse({ success: true, isActive: isVpnActive, activeVpnNode });
         }
+        isVpnActive = false;
+        activeVpnNode = null;
+        return { success: true };
       } catch (err: any) {
-        sendResponse({ success: false, isActive: isVpnActive, activeVpnNode });
+        return { success: false, error: err?.message || String(err) };
       }
-      return true;
-    } else if (request.action === 'webrtc_shield_set') {
+    }
+    
+    if (request.action === 'vpn_get_status') {
+      try {
+        const chromeProxy = (globalThis as any).chrome?.proxy;
+        if (chromeProxy?.settings) {
+          return await new Promise<any>((resolve) => {
+            chromeProxy.settings.get({ incognito: false }, (config: any) => {
+              const isControlled = config && config.levelOfControl === 'controlled_by_this_extension';
+              resolve({
+                success: true,
+                isActive: isControlled || isVpnActive,
+                activeVpnNode,
+                levelOfControl: config?.levelOfControl || 'not_controllable'
+              });
+            });
+          });
+        }
+        return { success: true, isActive: isVpnActive, activeVpnNode };
+      } catch (err: any) {
+        return { success: false, isActive: isVpnActive, activeVpnNode };
+      }
+    }
+    
+    if (request.action === 'webrtc_shield_set') {
       try {
         const enabled = request.enabled !== false;
         const privacy = (globalThis as any).chrome?.privacy;
         if (privacy?.network?.webRTCIPHandlingPolicy) {
-          privacy.network.webRTCIPHandlingPolicy.set({
-            value: enabled ? 'disable_non_proxied_udp' : 'default'
-          }, () => {
-            sendResponse({ success: true, enabled });
+          return await new Promise<any>((resolve) => {
+            privacy.network.webRTCIPHandlingPolicy.set({
+              value: enabled ? 'disable_non_proxied_udp' : 'default'
+            }, () => {
+              resolve({ success: true, enabled });
+            });
           });
-        } else {
-          sendResponse({ success: false, error: 'WebRTC privacy API unavailable' });
         }
+        return { success: false, error: 'WebRTC privacy API unavailable' };
       } catch (err: any) {
-        sendResponse({ success: false, error: err?.message || String(err) });
+        return { success: false, error: err?.message || String(err) };
       }
-      return true;
-    } else if (request.action === 'emergency_nuclear_purge') {
+    }
+    
+    if (request.action === 'emergency_nuclear_purge') {
       try {
         if (browser.browsingData && browser.browsingData.remove) {
-          browser.browsingData.remove({
+          await browser.browsingData.remove({
             since: 0
           }, {
             appcache: true,
@@ -229,18 +249,13 @@ export default defineBackground(() => {
             history: true,
             serviceWorkers: true,
             webSQL: true
-          }).then(() => {
-            sendResponse({ success: true, purgedAt: Date.now() });
-          }).catch((err: any) => {
-            sendResponse({ success: false, error: err?.message || String(err) });
           });
-        } else {
-          sendResponse({ success: false, error: 'browsingData API unavailable' });
+          return { success: true, purgedAt: Date.now() };
         }
+        return { success: false, error: 'browsingData API unavailable' };
       } catch (err: any) {
-        sendResponse({ success: false, error: err?.message || String(err) });
+        return { success: false, error: err?.message || String(err) };
       }
-      return true;
     }
   });
 

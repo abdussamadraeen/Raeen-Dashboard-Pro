@@ -114,5 +114,6 @@ export const dom = {
     hudPingVal: document.getElementById('hud-ping-val'),
     hudToggleShieldBtn: document.getElementById('hud-toggle-shield-btn'),
     hudToggleBtnText: document.getElementById('hud-toggle-btn-text'),
-    hudNuclearScramBtn: document.getElementById('hud-nuclear-scram-btn')
+    hudNuclearScramBtn: document.getElementById('hud-nuclear-scram-btn'),
+    hudVerifyLink: document.getElementById('hud-verify-link')
 };
