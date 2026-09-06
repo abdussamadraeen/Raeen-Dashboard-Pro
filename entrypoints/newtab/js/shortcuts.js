@@ -14,6 +14,8 @@ export function renderShortcuts() {
     if (dragHandle) dom.topSitesWidget.appendChild(dragHandle);
     
     let hasShortcuts = false;
+    const fragment = document.createDocumentFragment();
+
     if (state.settings.topSitesSource === 'favorites') {
         const list = state.settings.shortcuts || [];
         hasShortcuts = list.length > 0;
@@ -25,15 +27,17 @@ export function renderShortcuts() {
             let domain = 'google.com';
             try { domain = new URL(sc.url).hostname; } catch(e){}
             const iconUrl = sc.icon || `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-            a.innerHTML = `<img src="${escapeAttribute(iconUrl)}" alt="${escapeAttribute(sc.name)}"><span>${escapeHTML(sc.name)}</span>`;
-            dom.topSitesWidget.appendChild(a);
+            a.innerHTML = `<img src="${escapeAttribute(iconUrl)}" alt="${escapeAttribute(sc.name)}" loading="lazy"><span>${escapeHTML(sc.name)}</span>`;
+            fragment.appendChild(a);
         });
+        dom.topSitesWidget.appendChild(fragment);
         dom.topSitesWidget.classList.toggle('hidden', !state.settings.showTopSites || !hasShortcuts);
     } else {
         if (typeof chrome !== 'undefined' && chrome.topSites?.get) {
             chrome.topSites.get(sites => {
                 const list = (sites || []).slice(0, 8);
                 hasShortcuts = list.length > 0;
+                const innerFragment = document.createDocumentFragment();
                 list.forEach((site, i) => {
                     const a = document.createElement('a');
                     a.href = sanitizeURL(site.url);
@@ -42,9 +46,10 @@ export function renderShortcuts() {
                     let domain = 'google.com';
                     try { domain = new URL(site.url).hostname; } catch(e){}
                     const iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-                    a.innerHTML = `<img src="${escapeAttribute(iconUrl)}" alt="${escapeAttribute(site.title || '')}"><span>${escapeHTML(site.title || domain)}</span>`;
-                    dom.topSitesWidget.appendChild(a);
+                    a.innerHTML = `<img src="${escapeAttribute(iconUrl)}" alt="${escapeAttribute(site.title || '')}" loading="lazy"><span>${escapeHTML(site.title || domain)}</span>`;
+                    innerFragment.appendChild(a);
                 });
+                dom.topSitesWidget.appendChild(innerFragment);
                 if (resizeHandle && !dom.topSitesWidget.contains(resizeHandle)) {
                     dom.topSitesWidget.appendChild(resizeHandle);
                 }

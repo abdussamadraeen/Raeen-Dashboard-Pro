@@ -709,6 +709,13 @@ export function syncBackgroundOptions() {
     if (dom.bgCustomOptions) dom.bgCustomOptions.classList.toggle('hidden', type !== 'custom');
 }
 
+let _lastDateKey = -1;
+let _lastDateVal = '';
+let _lastDayVal = '';
+let _lastYearVal = -1;
+let _lastDayPercent = '';
+let _lastYearPercent = '';
+
 export function updateCards() {
     if (!state.settings.showCards) return;
     if (dom.cardDateEl) dom.cardDateEl.classList.toggle('hidden', !state.settings.showCardDate);
@@ -716,23 +723,41 @@ export function updateCards() {
     if (dom.cardNoteEl) dom.cardNoteEl.classList.toggle('hidden', !state.settings.showCardNote);
 
     const now = new Date();
-    if (dom.cardDateValue) dom.cardDateValue.textContent = now.toLocaleDateString(undefined, { day: 'numeric', month: 'long' });
-    if (dom.cardDateDay) dom.cardDateDay.textContent = now.toLocaleDateString(undefined, { weekday: 'long' });
+    const currentDateKey = now.getDate();
 
-    if (dom.cardYearBadge) dom.cardYearBadge.textContent = now.getFullYear().toString();
+    // Cache localized date strings - only compute once per day
+    if (currentDateKey !== _lastDateKey) {
+        _lastDateKey = currentDateKey;
+        _lastDateVal = now.toLocaleDateString(undefined, { day: 'numeric', month: 'long' });
+        _lastDayVal = now.toLocaleDateString(undefined, { weekday: 'long' });
+        if (dom.cardDateValue) dom.cardDateValue.textContent = _lastDateVal;
+        if (dom.cardDateDay) dom.cardDateDay.textContent = _lastDayVal;
+    }
+
+    const currentYear = now.getFullYear();
+    if (currentYear !== _lastYearVal) {
+        _lastYearVal = currentYear;
+        if (dom.cardYearBadge) dom.cardYearBadge.textContent = currentYear.toString();
+    }
 
     // Calculate Day Progress (%)
     const secondsToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
     const dayPercent = ((secondsToday / 86400) * 100).toFixed(1);
-    if (dom.dayPercentEl) dom.dayPercentEl.textContent = `${dayPercent}%`;
-    if (dom.dayBarEl) dom.dayBarEl.style.width = `${dayPercent}%`;
+    if (dayPercent !== _lastDayPercent) {
+        _lastDayPercent = dayPercent;
+        if (dom.dayPercentEl) dom.dayPercentEl.textContent = `${dayPercent}%`;
+        if (dom.dayBarEl) dom.dayBarEl.style.width = `${dayPercent}%`;
+    }
 
     // Calculate Year Progress (%)
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const endOfYear = new Date(now.getFullYear() + 1, 0, 1);
-    const yearPercent = (((now - startOfYear) / (endOfYear - startOfYear)) * 100).toFixed(1);
-    if (dom.yearPercentEl) dom.yearPercentEl.textContent = `${yearPercent}%`;
-    if (dom.yearBarEl) dom.yearBarEl.style.width = `${yearPercent}%`;
+    const startOfYear = new Date(currentYear, 0, 1).getTime();
+    const endOfYear = new Date(currentYear + 1, 0, 1).getTime();
+    const yearPercent = (((now.getTime() - startOfYear) / (endOfYear - startOfYear)) * 100).toFixed(1);
+    if (yearPercent !== _lastYearPercent) {
+        _lastYearPercent = yearPercent;
+        if (dom.yearPercentEl) dom.yearPercentEl.textContent = `${yearPercent}%`;
+        if (dom.yearBarEl) dom.yearBarEl.style.width = `${yearPercent}%`;
+    }
 }
 
 export function renderThemeLibrary() {

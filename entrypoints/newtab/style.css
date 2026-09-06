@@ -657,8 +657,8 @@ html.live-bg-pre-active .background-layer {
 
 /* ─── Premium Date Card & Time Vector ─── */
 #card-date {
-    min-height: 168px;
-    padding: 18px 20px;
+    min-height: auto;
+    padding: 18px 20px 24px 20px;
     gap: 12px;
 }
 
@@ -729,9 +729,10 @@ html.live-bg-pre-active .background-layer {
 .time-progress-section {
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 10px;
     margin-top: 2px;
     padding-top: 11px;
+    padding-bottom: 6px;
     border-top: 1px solid var(--border);
     width: 100%;
 }
@@ -740,6 +741,10 @@ html.live-bg-pre-active .background-layer {
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+.progress-group:last-child {
+    margin-bottom: 2px;
 }
 
 .progress-header {

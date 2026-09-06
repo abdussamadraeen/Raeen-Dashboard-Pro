@@ -81,23 +81,32 @@ import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
             
             // Re-render components once storage is ready
             renderNotesList();
-            renderThemeLibrary();
             renderShortcuts();
             updateCards();
+            updateSearchEngineUI();
+
+            // Lazy render theme library in idle frame
+            if (window.requestIdleCallback) {
+                requestIdleCallback(() => renderThemeLibrary());
+            } else {
+                setTimeout(renderThemeLibrary, 150);
+            }
         } catch (e) {
             console.error("Storage initialization failed", e);
         }
     };
 
-    await loadStorage();
-
-    // 3. Feature setup
+    // 3. Feature setup (instant zero-latency execution)
     setupSearch();
     initFocusTimer();
+
+    // Start background storage hydration without blocking immediate UI interactivity
+    loadStorage();
 
     // Event Listeners
     if (dom.settingsBtn) {
         dom.settingsBtn.onclick = () => {
+            renderThemeLibrary();
             syncSettingsUI();
             dom.modalOverlay.classList.toggle('hidden');
         };
@@ -1349,7 +1358,7 @@ function optimizeImage(file) {
 
         const defaultSizes = {
             "clock-widget": { width: "auto", height: "auto" },
-            "card-date": { width: "280px", height: "175px" },
+            "card-date": { width: "280px", height: "auto" },
             "card-focus": { width: "280px", height: "170px" },
             "search-widget": { width: "640px", height: "auto" },
             "directory-widget": { width: "640px", height: "380px" },
@@ -1430,6 +1439,11 @@ function optimizeImage(file) {
 
             document.querySelectorAll(".draggable-widget").forEach(widget => {
                 if (!widget.id) return;
+                if (widget.id === "card-date" || widget.id === "clock-widget") {
+                    widget.style.height = "auto";
+                    if (widget.id === "card-date") widget.style.width = "280px";
+                    return;
+                }
                 const size = sizes[widget.id] || defaultSizes[widget.id];
                 if (size) {
                     if (size.width) widget.style.width = size.width;
