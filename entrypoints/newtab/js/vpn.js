@@ -116,19 +116,23 @@ class SecurityManager {
     }
 
     async sendMsg(msg) {
-        if (typeof browser !== 'undefined' && browser.runtime?.sendMessage) {
-            try {
-                const res = await browser.runtime.sendMessage(msg);
-                if (res !== undefined) return res;
-            } catch (e) {}
-        }
         return new Promise((resolve) => {
             if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
                 chrome.runtime.sendMessage(msg, (res) => {
-                    resolve(res || { success: false });
+                    const err = chrome.runtime.lastError;
+                    if (err) {
+                        console.warn('sendMsg lastError:', err);
+                        resolve({ success: false, error: err.message });
+                    } else {
+                        resolve(res || { success: false });
+                    }
                 });
+            } else if (typeof browser !== 'undefined' && browser.runtime?.sendMessage) {
+                browser.runtime.sendMessage(msg)
+                    .then(res => resolve(res || { success: false }))
+                    .catch(e => resolve({ success: false, error: e?.message || String(e) }));
             } else {
-                resolve({ success: false });
+                resolve({ success: false, error: 'No extension runtime found' });
             }
         });
     }

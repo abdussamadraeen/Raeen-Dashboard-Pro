@@ -84,59 +84,61 @@ export default defineBackground(() => {
     }
   } catch (e) {}
 
-  // Handle messages cleanly with async return value (compatible with webextension-polyfill & native chrome)
-  browser.runtime.onMessage.addListener(async (request, sender) => {
-    if (request.action === 'open_dashboard' && sender.tab?.id) {
-      await clearServiceWorkers();
-      const url = browser.runtime.getURL('/newtab.html') + '?no_redirect=true&settings=true';
-      await browser.tabs.update(sender.tab.id, { url });
-      return { success: true };
-    }
-    
-    if (request.action === 'open_tab' && request.url) {
-      await browser.tabs.create({ url: request.url });
-      return { success: true };
-    }
-    
-    if (request.action === 'vpn_connect') {
+  // Native Chrome runtime messaging with async sendResponse pattern (return true)
+  (globalThis as any).chrome?.runtime?.onMessage?.addListener((request: any, sender: any, sendResponse: (res: any) => void) => {
+    (async () => {
       try {
-        const { scheme = 'socks5', host = '127.0.0.1', port = 9050, nodeName = 'Secure VPN', isTor = false } = request.payload || {};
-
-        const chromeProxy = (globalThis as any).chrome?.proxy;
-        if (!chromeProxy || !chromeProxy.settings) {
-          return { success: false, error: 'Chrome Proxy API not available or permission denied.' };
+        if (request.action === 'open_dashboard' && sender.tab?.id) {
+          await clearServiceWorkers();
+          const url = browser.runtime.getURL('/newtab.html') + '?no_redirect=true&settings=true';
+          await browser.tabs.update(sender.tab.id, { url });
+          sendResponse({ success: true });
+          return;
         }
-
-        let pacScript: string;
-        if (isTor) {
-          // Fast Tor Network: connects to local Tor SOCKS5 daemon (9050 or 9150) with seamless fallback
-          pacScript = `
-            function FindProxyForURL(url, host) {
-              if (isPlainHostName(host) || 
-                  shExpMatch(host, "*.local") || 
-                  shExpMatch(host, "127.0.0.1") || 
-                  shExpMatch(host, "localhost")) {
-                return "DIRECT";
-              }
-              return "SOCKS5 127.0.0.1:9050; SOCKS5 127.0.0.1:9150; SOCKS 127.0.0.1:9050; DIRECT";
-            }
-          `;
-        } else {
-          const proxyKeyword = scheme.toLowerCase() === 'socks5' ? 'SOCKS5' : (scheme.toLowerCase() === 'https' ? 'HTTPS' : 'PROXY');
-          pacScript = `
-            function FindProxyForURL(url, host) {
-              if (isPlainHostName(host) || 
-                  shExpMatch(host, "*.local") || 
-                  shExpMatch(host, "127.0.0.1") || 
-                  shExpMatch(host, "localhost")) {
-                return "DIRECT";
-              }
-              return "${proxyKeyword} ${host}:${port}; DIRECT";
-            }
-          `;
+        
+        if (request.action === 'open_tab' && request.url) {
+          await browser.tabs.create({ url: request.url });
+          sendResponse({ success: true });
+          return;
         }
+        
+        if (request.action === 'vpn_connect') {
+          const { scheme = 'socks5', host = '127.0.0.1', port = 9050, nodeName = 'Secure VPN', isTor = false } = request.payload || {};
+          const chromeProxy = (globalThis as any).chrome?.proxy;
+          if (!chromeProxy || !chromeProxy.settings) {
+            sendResponse({ success: false, error: 'Chrome Proxy API not available or permission denied.' });
+            return;
+          }
 
-        return await new Promise<any>((resolve) => {
+          let pacScript: string;
+          if (isTor) {
+            // Fast Tor Network: connects to local Tor SOCKS5 daemon (9050 or 9150) with seamless fallback
+            pacScript = `
+              function FindProxyForURL(url, host) {
+                if (isPlainHostName(host) || 
+                    shExpMatch(host, "*.local") || 
+                    shExpMatch(host, "127.0.0.1") || 
+                    shExpMatch(host, "localhost")) {
+                  return "DIRECT";
+                }
+                return "SOCKS5 127.0.0.1:9050; SOCKS5 127.0.0.1:9150; SOCKS 127.0.0.1:9050; DIRECT";
+              }
+            `;
+          } else {
+            const proxyKeyword = scheme.toLowerCase() === 'socks5' ? 'SOCKS5' : (scheme.toLowerCase() === 'https' ? 'HTTPS' : 'PROXY');
+            pacScript = `
+              function FindProxyForURL(url, host) {
+                if (isPlainHostName(host) || 
+                    shExpMatch(host, "*.local") || 
+                    shExpMatch(host, "127.0.0.1") || 
+                    shExpMatch(host, "localhost")) {
+                  return "DIRECT";
+                }
+                return "${proxyKeyword} ${host}:${port}; DIRECT";
+              }
+            `;
+          }
+
           chromeProxy.settings.set({
             value: {
               mode: 'pac_script',
@@ -147,7 +149,7 @@ export default defineBackground(() => {
             const err = (globalThis as any).chrome?.runtime?.lastError;
             if (err) {
               console.error('Proxy settings error:', err);
-              resolve({ success: false, error: err.message || 'Failed to apply proxy settings' });
+              sendResponse({ success: false, error: err.message || 'Failed to apply proxy settings' });
               return;
             }
             isVpnActive = true;
@@ -159,19 +161,14 @@ export default defineBackground(() => {
                 privacy.network.webRTCIPHandlingPolicy.set({ value: 'disable_non_proxied_udp' });
               }
             } catch (e) {}
-            resolve({ success: true, activeVpnNode });
+            sendResponse({ success: true, activeVpnNode });
           });
-        });
-      } catch (err: any) {
-        return { success: false, error: err?.message || String(err) };
-      }
-    }
-    
-    if (request.action === 'vpn_disconnect') {
-      try {
-        const chromeProxy = (globalThis as any).chrome?.proxy;
-        if (chromeProxy?.settings) {
-          return await new Promise<any>((resolve) => {
+          return;
+        }
+        
+        if (request.action === 'vpn_disconnect') {
+          const chromeProxy = (globalThis as any).chrome?.proxy;
+          if (chromeProxy?.settings) {
             chromeProxy.settings.clear({ scope: 'regular' }, () => {
               isVpnActive = false;
               activeVpnNode = null;
@@ -181,82 +178,75 @@ export default defineBackground(() => {
                   privacy.network.webRTCIPHandlingPolicy.clear({});
                 }
               } catch (e) {}
-              resolve({ success: true });
+              sendResponse({ success: true });
             });
-          });
+          } else {
+            isVpnActive = false;
+            activeVpnNode = null;
+            sendResponse({ success: true });
+          }
+          return;
         }
-        isVpnActive = false;
-        activeVpnNode = null;
-        return { success: true };
-      } catch (err: any) {
-        return { success: false, error: err?.message || String(err) };
-      }
-    }
-    
-    if (request.action === 'vpn_get_status') {
-      try {
-        const chromeProxy = (globalThis as any).chrome?.proxy;
-        if (chromeProxy?.settings) {
-          return await new Promise<any>((resolve) => {
+        
+        if (request.action === 'vpn_get_status') {
+          const chromeProxy = (globalThis as any).chrome?.proxy;
+          if (chromeProxy?.settings) {
             chromeProxy.settings.get({ incognito: false }, (config: any) => {
               const isControlled = config && config.levelOfControl === 'controlled_by_this_extension';
-              resolve({
+              sendResponse({
                 success: true,
                 isActive: isControlled || isVpnActive,
                 activeVpnNode,
                 levelOfControl: config?.levelOfControl || 'not_controllable'
               });
             });
-          });
+          } else {
+            sendResponse({ success: true, isActive: isVpnActive, activeVpnNode });
+          }
+          return;
         }
-        return { success: true, isActive: isVpnActive, activeVpnNode };
-      } catch (err: any) {
-        return { success: false, isActive: isVpnActive, activeVpnNode };
-      }
-    }
-    
-    if (request.action === 'webrtc_shield_set') {
-      try {
-        const enabled = request.enabled !== false;
-        const privacy = (globalThis as any).chrome?.privacy;
-        if (privacy?.network?.webRTCIPHandlingPolicy) {
-          return await new Promise<any>((resolve) => {
+        
+        if (request.action === 'webrtc_shield_set') {
+          const enabled = request.enabled !== false;
+          const privacy = (globalThis as any).chrome?.privacy;
+          if (privacy?.network?.webRTCIPHandlingPolicy) {
             privacy.network.webRTCIPHandlingPolicy.set({
               value: enabled ? 'disable_non_proxied_udp' : 'default'
             }, () => {
-              resolve({ success: true, enabled });
+              sendResponse({ success: true, enabled });
             });
-          });
+          } else {
+            sendResponse({ success: false, error: 'WebRTC privacy API unavailable' });
+          }
+          return;
         }
-        return { success: false, error: 'WebRTC privacy API unavailable' };
-      } catch (err: any) {
-        return { success: false, error: err?.message || String(err) };
-      }
-    }
-    
-    if (request.action === 'emergency_nuclear_purge') {
-      try {
-        if (browser.browsingData && browser.browsingData.remove) {
-          await browser.browsingData.remove({
-            since: 0
-          }, {
-            appcache: true,
-            cache: true,
-            cacheStorage: true,
-            cookies: true,
-            fileSystems: true,
-            formData: true,
-            history: true,
-            serviceWorkers: true,
-            webSQL: true
-          });
-          return { success: true, purgedAt: Date.now() };
+        
+        if (request.action === 'emergency_nuclear_purge') {
+          if (browser.browsingData && browser.browsingData.remove) {
+            await browser.browsingData.remove({
+              since: 0
+            }, {
+              appcache: true,
+              cache: true,
+              cacheStorage: true,
+              cookies: true,
+              fileSystems: true,
+              formData: true,
+              history: true,
+              serviceWorkers: true,
+              webSQL: true
+            });
+            sendResponse({ success: true, purgedAt: Date.now() });
+          } else {
+            sendResponse({ success: false, error: 'browsingData API unavailable' });
+          }
+          return;
         }
-        return { success: false, error: 'browsingData API unavailable' };
       } catch (err: any) {
-        return { success: false, error: err?.message || String(err) };
+        sendResponse({ success: false, error: err?.message || String(err) });
       }
-    }
+    })();
+    return true; // Keep channel open for async sendResponse in Chrome MV3
   });
 
   // Mobile / Edge Beta fallback redirect

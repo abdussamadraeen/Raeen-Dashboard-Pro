@@ -115,5 +115,6 @@ export const dom = {
     hudToggleShieldBtn: document.getElementById('hud-toggle-shield-btn'),
     hudToggleBtnText: document.getElementById('hud-toggle-btn-text'),
     hudNuclearScramBtn: document.getElementById('hud-nuclear-scram-btn'),
-    hudVerifyLink: document.getElementById('hud-verify-link')
+    hudVerifyLink: document.getElementById('hud-verify-link'),
+    hudNodeHint: document.getElementById('hud-node-hint')
 };

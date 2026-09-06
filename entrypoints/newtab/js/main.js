@@ -161,6 +161,16 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
             if (dom.hudCustomFields) {
                 dom.hudCustomFields.classList.toggle('hidden', securityManager.currentNodeId !== 'custom');
             }
+
+            if (dom.hudNodeHint) {
+                if (currentNode.isTor) {
+                    dom.hudNodeHint.innerHTML = '🧅 <strong>Fast Tor:</strong> Routes via local Tor or Brave Tor (127.0.0.1:9050 / 9150).';
+                } else if (currentNode.id === 'custom') {
+                    dom.hudNodeHint.innerHTML = '⚙️ <strong>Custom:</strong> Enter your own SOCKS5 or HTTPS proxy host and port.';
+                } else {
+                    dom.hudNodeHint.innerHTML = `🔒 <strong>${currentNode.name}:</strong> ${currentNode.location} • ${currentNode.cipher}`;
+                }
+            }
         };
 
         if (dom.hudNodeSelect) {

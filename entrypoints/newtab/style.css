@@ -3809,6 +3809,21 @@ body.boss-mode-active .noosphere-status-horizontal {
     box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
+.hud-node-info {
+    font-size: 0.64rem;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 6px;
+    line-height: 1.35;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] .hud-node-info {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+
 .hud-custom-proxy {
     display: flex;
     gap: 6px;
