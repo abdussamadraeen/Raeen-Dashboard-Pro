@@ -132,27 +132,7 @@ html.live-bg-pre-active #canvas-layer {
 
 body.live-bg-active .settings-btn,
 body.live-bg-pre-active .settings-btn {
-    z-index: 10000 !important;
-    opacity: 0.9 !important;
-    top: auto !important;
-    right: auto !important;
-    bottom: 25px !important;
-    left: 25px !important;
-    background: #1a1a28 !important;
-    border: 1px solid #7b61ff !important;
-    border-radius: 50% !important;
-    width: 48px !important;
-    height: 48px !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    box-shadow: 0 0 15px rgba(123, 97, 255, 0.4) !important;
-}
-
-body.live-bg-active .settings-btn:hover,
-body.live-bg-pre-active .settings-btn:hover {
-    opacity: 1;
-    transform: scale(1.1);
+    display: none !important;
 }
 
 body.live-bg-active,
