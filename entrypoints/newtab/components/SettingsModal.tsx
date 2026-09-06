@@ -41,6 +41,21 @@ const themeLibrary = {
   ]
 };
 
+const braveWallpapersList = [
+  { name: 'Dolomites Sunrise', photographer: 'Dylan Malval', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Misty Emerald Forest', photographer: 'Sebastian Unrau', url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Arctic Aurora Borealis', photographer: 'Vincent Guth', url: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Lofoten Fjords & Sea', photographer: 'Luca Bravo', url: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Desert Dunes Sunset', photographer: 'Jeremy Bishop', url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Pacific Ocean Waves', photographer: 'Sean Oulashin', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Mount Fuji Reflection', photographer: 'Manuel Cosentino', url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Deep Cosmic Nebula', photographer: 'Alexander Andrews', url: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Yosemite Valley Mist', photographer: 'Bailey Zindel', url: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Swiss Mirror Lake', photographer: 'Simon Berger', url: 'https://images.unsplash.com/photo-1439853949127-fa647821eea0?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1439853949127-fa647821eea0?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Iceland Cascades', photographer: 'Derek Thomson', url: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=600&q=75' },
+  { name: 'Golden Autumn Pines', photographer: 'Luca Bravo', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=75' }
+];
+
 const gradientPresets = [
   'linear-gradient(135deg, #0f0f17 0%, #1a1a28 100%)',
   'linear-gradient(135deg, #7b61ff 0%, #1a1a28 100%)',
@@ -459,15 +474,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       value={settings.backgroundType}
                       onChange={(e) => {
                         const type = e.target.value as any;
-                        let val = settings.backgroundValue;
+                        let val = '';
                         if (type === 'solid') val = '#000000';
                         else if (type === 'bing') val = 'bing_latest_v2';
+                        else if (type === 'brave') val = 'brave_random';
                         else if (type === 'canvas') val = settings.canvasStyle;
+                        else if (type === 'google_dashboard') val = 'https://www.google.com/?raeen_dashboard=true';
+                        else if (type === 'bing_dashboard') val = 'https://www.bing.com/?raeen_dashboard=true';
                         updateSettings({ backgroundType: type, backgroundValue: val });
                       }}
                     >
                       <option value="solid">Solid / Gradients</option>
                       <option value="bing">Bing Daily Wallpaper</option>
+                      <option value="brave">Brave Wallpapers (Ad-Free)</option>
                       <option value="preset">Preset Wallpapers</option>
                       <option value="canvas">Interactive Canvas Particles</option>
                       <option value="custom">Custom Image/Video URL</option>
@@ -552,6 +571,61 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         })}
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* BRAVE OPTIONS */}
+                {settings.backgroundType === 'brave' && (
+                  <div className="card-container p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                          Brave Wallpapers
+                        </label>
+                        <span className="text-[11px] text-[var(--text-secondary)]">
+                          100% Ad-Free • Curated high-resolution landscape &amp; nature photography
+                        </span>
+                      </div>
+                      <span className="badge-adfree">100% Ad-Free</span>
+                    </div>
+
+                    <div className="settings-row mb-4">
+                      <span>Rotate Randomly on Each New Tab</span>
+                      <label className="switch">
+                        <input
+                          type="checkbox"
+                          checked={!settings.backgroundValue || settings.backgroundValue === 'brave_random'}
+                          onChange={(e) => {
+                            updateSettings({
+                              backgroundValue: e.target.checked ? 'brave_random' : braveWallpapersList[0].url
+                            });
+                          }}
+                        />
+                        <span className="slider round"></span>
+                      </label>
+                    </div>
+
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
+                      Or Pick a Wallpaper
+                    </label>
+                    <div className="brave-gallery-grid">
+                      {braveWallpapersList.map((item) => {
+                        const isCurrent = settings.backgroundValue === item.url;
+                        return (
+                          <div
+                            key={item.url}
+                            className={`brave-thumb-wrapper ${isCurrent ? 'active' : ''}`}
+                            onClick={() => updateSettings({ backgroundValue: item.url })}
+                          >
+                            <img src={item.thumb} alt={item.name} className="brave-thumb-img" />
+                            <div className="brave-thumb-info">
+                              <span className="brave-thumb-title">{item.name}</span>
+                              <span className="brave-thumb-author">by {item.photographer}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 

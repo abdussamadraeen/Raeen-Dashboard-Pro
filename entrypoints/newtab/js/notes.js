@@ -13,8 +13,8 @@ export async function renderNotesList() {
         return;
     }
 
-    const notes = await StorageManager.getAll('notes');
-    dom.notesCount.textContent = notes.length;
+    const notes = (await StorageManager.getAll('notes')) || [];
+    if (dom.notesCount) dom.notesCount.textContent = notes.length;
 
     if (notes.length === 0) {
         dom.notesList.innerHTML = '<div class="notes-empty">No notes yet. Click + New to start.</div>';
@@ -43,32 +43,38 @@ export async function renderNotesList() {
 
 export async function openNoteEditor(id = null) {
     currentNoteId = id || 'note_' + Date.now();
-    let note = id ? await StorageManager.get('notes', id) : { id: currentNoteId, title: '', body: '', updated: Date.now() };
+    let note = (id ? await StorageManager.get('notes', id) : null) || { id: currentNoteId, title: '', body: '', updated: Date.now() };
 
-    dom.noteEditorTitle.value = note.title || '';
-    dom.noteEditorBody.value = note.body || '';
-    dom.noteSaveStatus.textContent = id ? 'Last saved ' + new Date(note.updated).toLocaleTimeString() : 'New note';
+    if (dom.noteEditorTitle) dom.noteEditorTitle.value = note.title || '';
+    if (dom.noteEditorBody) dom.noteEditorBody.value = note.body || '';
+    if (dom.noteSaveStatus) {
+        dom.noteSaveStatus.textContent = id ? 'Last saved ' + new Date(note.updated).toLocaleTimeString() : 'New note';
+        dom.noteSaveStatus.style.color = '';
+    }
 
-    dom.noteEditor.classList.remove('hidden');
-    dom.notesList.classList.add('hidden');
-    dom.noteEditorBody.focus();
+    if (dom.noteEditor) dom.noteEditor.classList.remove('hidden');
+    if (dom.notesList) dom.notesList.classList.add('hidden');
+    if (dom.noteEditorBody) dom.noteEditorBody.focus();
     updateCharCount();
 }
 
 export function updateCharCount() {
+    if (!dom.noteEditorBody || !dom.noteCharCount) return;
     const count = dom.noteEditorBody.value.length;
     dom.noteCharCount.textContent = `${count} character${count === 1 ? '' : 's'}`;
 }
 
 export async function saveCurrentNote() {
-    if (!currentNoteId) return;
+    if (!currentNoteId || !dom.noteEditorTitle || !dom.noteEditorBody) return;
     
     const title = dom.noteEditorTitle.value.trim();
     const body = dom.noteEditorBody.value;
 
     // Show saving status
-    dom.noteSaveStatus.textContent = 'Saving...';
-    dom.noteSaveStatus.style.opacity = '0.7';
+    if (dom.noteSaveStatus) {
+        dom.noteSaveStatus.textContent = 'Saving...';
+        dom.noteSaveStatus.style.opacity = '0.7';
+    }
 
     try {
         const note = {
@@ -80,15 +86,22 @@ export async function saveCurrentNote() {
 
         await StorageManager.set('notes', currentNoteId, note);
         
-        dom.noteSaveStatus.textContent = 'Saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        dom.noteSaveStatus.style.opacity = '1';
+        if (dom.noteSaveStatus) {
+            dom.noteSaveStatus.textContent = 'Saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            dom.noteSaveStatus.style.opacity = '1';
+            dom.noteSaveStatus.style.color = '';
+        }
         
-        // Refresh the list in the background
-        renderNotesList();
+        // Only refresh the background list DOM if it's currently visible
+        if (dom.notesList && !dom.notesList.classList.contains('hidden')) {
+            renderNotesList();
+        }
     } catch (e) {
         console.error("Failed to save note:", e);
-        dom.noteSaveStatus.textContent = 'Error saving!';
-        dom.noteSaveStatus.style.color = 'var(--danger)';
+        if (dom.noteSaveStatus) {
+            dom.noteSaveStatus.textContent = 'Error saving!';
+            dom.noteSaveStatus.style.color = 'var(--danger)';
+        }
     }
 }
 
@@ -102,7 +115,8 @@ export async function deleteCurrentNote() {
 }
 
 export function closeNoteEditor() {
-    dom.noteEditor.classList.add('hidden');
-    dom.notesList.classList.remove('hidden');
+    if (dom.noteEditor) dom.noteEditor.classList.add('hidden');
+    if (dom.notesList) dom.notesList.classList.remove('hidden');
     currentNoteId = null;
+    renderNotesList();
 }

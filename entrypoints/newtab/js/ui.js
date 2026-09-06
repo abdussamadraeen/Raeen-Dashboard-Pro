@@ -4,6 +4,221 @@ import { StorageManager } from './storage.js';
 import { themeLibrary } from './themes.js';
 import { CanvasEngine } from './canvas.js';
 
+export const BRAVE_WALLPAPERS = [
+    {
+        id: 'brave_1',
+        title: 'Dolomites Sunrise',
+        photographer: 'Dylan Malval',
+        url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_2',
+        title: 'Misty Emerald Forest',
+        photographer: 'Sebastian Unrau',
+        url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_3',
+        title: 'Arctic Aurora Borealis',
+        photographer: 'Vincent Guth',
+        url: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_4',
+        title: 'Lofoten Fjords & Sea',
+        photographer: 'Luca Bravo',
+        url: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_5',
+        title: 'Desert Dunes Sunset',
+        photographer: 'Jeremy Bishop',
+        url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_6',
+        title: 'Pacific Ocean Waves',
+        photographer: 'Sean Oulashin',
+        url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_7',
+        title: 'Mount Fuji Reflection',
+        photographer: 'Manuel Cosentino',
+        url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_8',
+        title: 'Deep Cosmic Nebula',
+        photographer: 'Alexander Andrews',
+        url: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_9',
+        title: 'Yosemite Valley Mist',
+        photographer: 'Bailey Zindel',
+        url: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_10',
+        title: 'Alpine Mountain Peaks',
+        photographer: 'Kalen Emsley',
+        url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_11',
+        title: 'Iceland Cascades',
+        photographer: 'Derek Thomson',
+        url: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_12',
+        title: 'Golden Autumn Pines',
+        photographer: 'Luca Bravo',
+        url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_13',
+        title: 'Highland Serenity',
+        photographer: 'Kal Visuals',
+        url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_14',
+        title: 'Lone Tree Savannah',
+        photographer: 'Sander Weeteling',
+        url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_15',
+        title: 'Sunlit Forest Path',
+        photographer: 'Federico Respini',
+        url: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_16',
+        title: 'Spring Lake Calm',
+        photographer: 'Aaron Burden',
+        url: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_17',
+        title: 'Nordic Forest Mist',
+        photographer: 'David Kovalenko',
+        url: 'https://images.unsplash.com/photo-1434725039720-aaad6dd32dfe?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1434725039720-aaad6dd32dfe?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_18',
+        title: 'Alpine Wildflowers',
+        photographer: 'Kari Shea',
+        url: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_19',
+        title: 'Canyon River Journey',
+        photographer: 'Kal Visuals',
+        url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_20',
+        title: 'Emerald Lake Valley',
+        photographer: 'Lucas Davies',
+        url: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_21',
+        title: 'Mountain Ridge Horizon',
+        photographer: 'Pietro De Grandi',
+        url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_22',
+        title: 'Starry Mountain Peak',
+        photographer: 'Benjamin Davies',
+        url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_23',
+        title: 'Enchanted Forest Creek',
+        photographer: 'Krzysztof Niewolny',
+        url: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_24',
+        title: 'Misty Wilderness Lake',
+        photographer: 'David Marcu',
+        url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_25',
+        title: 'Valley of the Mist',
+        photographer: 'Bailey Zindel',
+        url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_26',
+        title: 'Reflective Mountain Stream',
+        photographer: 'Jerry Zhang',
+        url: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_27',
+        title: 'Deep Autumn Forest',
+        photographer: 'Sebastian Unrau',
+        url: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_28',
+        title: 'Winter Mountain Pine',
+        photographer: 'Dan Meyers',
+        url: 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_29',
+        title: 'Alpine Summit Dawn',
+        photographer: 'Dino Reichmuth',
+        url: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=600&q=75'
+    },
+    {
+        id: 'brave_30',
+        title: 'Misty Pine Ridges',
+        photographer: 'Kalen Emsley',
+        url: 'https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&w=3840&q=85',
+        thumb: 'https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&w=600&q=75'
+    }
+];
+
+let currentBraveWallpaper = null;
+
 let currentSettingsState = {
     backgroundType: null,
     backgroundValue: null,
@@ -28,6 +243,9 @@ export function cleanupBackground() {
     if (currentBgObjectURL) {
         URL.revokeObjectURL(currentBgObjectURL);
         currentBgObjectURL = null;
+    }
+    if (dom.photographerCredit) {
+        dom.photographerCredit.classList.add('hidden');
     }
 }
 
@@ -111,6 +329,30 @@ export async function applySettings() {
                             dom.bgLayer.style.backgroundImage = `url('${cached.url}')`;
                         }
                     }
+                }
+                break;
+            case 'brave':
+                let braveItem = null;
+                if (!bgValue || bgValue === 'brave_random') {
+                    if (!currentBraveWallpaper) {
+                        const randIndex = Math.floor(Math.random() * BRAVE_WALLPAPERS.length);
+                        currentBraveWallpaper = BRAVE_WALLPAPERS[randIndex];
+                    }
+                    braveItem = currentBraveWallpaper;
+                } else {
+                    braveItem = BRAVE_WALLPAPERS.find(w => w.url === bgValue || w.id === bgValue) || {
+                        title: 'Brave Curated',
+                        photographer: 'Dylan Malval',
+                        url: bgValue
+                    };
+                    currentBraveWallpaper = braveItem;
+                }
+
+                if (braveItem?.url) {
+                    dom.bgLayer.style.backgroundImage = `url('${braveItem.url}')`;
+                    try {
+                        localStorage.setItem('raeen_bg_value', braveItem.url);
+                    } catch (e) {}
                 }
                 break;
             case 'preset':
@@ -243,6 +485,20 @@ export async function applySettings() {
         }
     }
 
+    // Brave Photographer Credit
+    if (bgType === 'brave' && currentBraveWallpaper && !hideUI && !isImmersive) {
+        if (dom.photographerCredit) {
+            dom.photographerCredit.classList.remove('hidden');
+        }
+        if (dom.photographerName) {
+            dom.photographerName.textContent = currentBraveWallpaper.photographer || 'Brave Curated';
+        }
+    } else {
+        if (dom.photographerCredit) {
+            dom.photographerCredit.classList.add('hidden');
+        }
+    }
+
     updateCards();
 }
 
@@ -251,21 +507,47 @@ export function updateTime() {
     const now = new Date();
     const currentMinute = now.getMinutes();
     
-    // De-duplicate ticks if minutes haven't changed
-    if (dom.timeEl._lastMin === currentMinute) return;
+    // Update cards with current minute/date
+    updateCards();
+
+    // De-duplicate time element re-render if minutes and format haven't changed
+    const formatKey = `${state.settings.clockFormat}_${state.settings.showClockAmPm}`;
+    if (dom.timeEl._lastMin === currentMinute && dom.timeEl._lastFormat === formatKey) return;
     dom.timeEl._lastMin = currentMinute;
+    dom.timeEl._lastFormat = formatKey;
     
     let h = now.getHours(), m = currentMinute;
-    
-    if (state.settings.clockFormat === 'auto') {
-        const locale = navigator.language || 'en-US';
-        let timeString = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: true });
-        dom.timeEl.textContent = timeString.replace(/\s?[AP]M/i, '').trim();
+    let timeString = '';
+    let ampm = '';
+
+    if (state.settings.clockFormat === '24h') {
+        timeString = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        ampm = '';
     } else {
+        ampm = h >= 12 ? 'PM' : 'AM';
         if (state.settings.clockFormat === '12h') {
             h = h % 12 || 12;
+            timeString = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        } else {
+            // 'auto' format
+            const locale = navigator.language || 'en-US';
+            let rawTime = now.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true });
+            const match = rawTime.match(/[AP]M/i);
+            if (match) {
+                ampm = match[0].toUpperCase();
+                timeString = rawTime.replace(/\s?[AP]M/i, '').trim();
+            } else {
+                timeString = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                ampm = '';
+            }
         }
-        dom.timeEl.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    }
+
+    const showAmPm = state.settings.showClockAmPm !== false;
+    if (ampm && showAmPm) {
+        dom.timeEl.innerHTML = `<span class="time-digits">${timeString}</span><span class="time-ampm">${ampm}</span>`;
+    } else {
+        dom.timeEl.innerHTML = `<span class="time-digits">${timeString}</span>`;
     }
 
     if (dom.clockDate) {
@@ -309,11 +591,67 @@ export async function loadBingGallery() {
                     state.settings.backgroundType = 'bing';
                     state.settings.backgroundValue = (idx === 0) ? 'bing_latest_v2' : wrapper.dataset.url;
                     saveSettings(state.settings);
+                    applySettings();
+                    loadBingGallery();
                 }
             });
         }
     } catch (e) {
         dom.bingGallery.innerHTML = '<p class="subtext">Failed to fetch Bing gallery. Check your connection.</p>';
+    }
+}
+
+export function loadBraveGallery() {
+    if (!dom.braveGallery) return;
+
+    const isRandom = !state.settings.backgroundValue || state.settings.backgroundValue === 'brave_random';
+    if (dom.braveRandomToggle) {
+        dom.braveRandomToggle.checked = isRandom;
+    }
+
+    dom.braveGallery.innerHTML = BRAVE_WALLPAPERS.map((item) => {
+        const isActive = !isRandom && (state.settings.backgroundValue === item.url || state.settings.backgroundValue === item.id);
+        return `
+            <div class="brave-thumb-wrapper ${isActive ? 'active' : ''}" data-url="${item.url}" data-id="${item.id}" title="${item.title} by ${item.photographer}">
+                <img src="${item.thumb}" class="brave-thumb-img" alt="${item.title}" loading="lazy" />
+                <div class="brave-thumb-info">
+                    <span class="brave-thumb-title">${item.title}</span>
+                    <span class="brave-thumb-author">by ${item.photographer}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    if (!dom.braveGallery._hasListener) {
+        dom.braveGallery._hasListener = true;
+        dom.braveGallery.addEventListener('click', (evt) => {
+            const wrapper = evt.target.closest('.brave-thumb-wrapper');
+            if (wrapper && dom.braveGallery.contains(wrapper)) {
+                const url = wrapper.dataset.url;
+                state.settings.backgroundType = 'brave';
+                state.settings.backgroundValue = url;
+                currentBraveWallpaper = BRAVE_WALLPAPERS.find(w => w.url === url);
+                saveSettings(state.settings);
+                applySettings();
+                loadBraveGallery();
+            }
+        });
+    }
+
+    if (dom.braveRandomToggle && !dom.braveRandomToggle._hasListener) {
+        dom.braveRandomToggle._hasListener = true;
+        dom.braveRandomToggle.addEventListener('change', (e) => {
+            state.settings.backgroundType = 'brave';
+            if (e.target.checked) {
+                state.settings.backgroundValue = 'brave_random';
+                currentBraveWallpaper = null; // force fresh random rotation
+            } else {
+                state.settings.backgroundValue = currentBraveWallpaper ? currentBraveWallpaper.url : BRAVE_WALLPAPERS[0].url;
+            }
+            saveSettings(state.settings);
+            applySettings();
+            loadBraveGallery();
+        });
     }
 }
 
@@ -335,6 +673,9 @@ export function syncSettingsUI() {
     if (dom.canvasStyleSelect) dom.canvasStyleSelect.value = state.settings.canvasStyle || 'neural';
     syncBackgroundOptions();
     if (dom.bgCustomUrl) dom.bgCustomUrl.value = state.settings.backgroundType === 'custom' ? state.settings.backgroundValue : '';
+    if (dom.braveRandomToggle) {
+        dom.braveRandomToggle.checked = !state.settings.backgroundValue || state.settings.backgroundValue === 'brave_random';
+    }
 
     if (dom.toggleSearch) dom.toggleSearch.checked = state.settings.showSearch;
     const currentEngineRadio = document.querySelector(`input[name="search_engine"][value="${state.settings.searchEngine}"]`);
@@ -347,6 +688,7 @@ export function syncSettingsUI() {
 
     if (dom.toggleClock) dom.toggleClock.checked = state.settings.showClock;
     if (dom.clockFormatSelect) dom.clockFormatSelect.value = state.settings.clockFormat;
+    if (dom.toggleClockAmPm) dom.toggleClockAmPm.checked = state.settings.showClockAmPm !== false;
 
     if (dom.toggleCards) dom.toggleCards.checked = state.settings.showCards;
     if (dom.toggleCardDate) dom.toggleCardDate.checked = state.settings.showCardDate;
@@ -360,6 +702,7 @@ export function syncBackgroundOptions() {
     const type = dom.bgTypeSelect.value;
     if (dom.bgCanvasOptions) dom.bgCanvasOptions.classList.toggle('hidden', type !== 'canvas');
     if (dom.bgBingOptions) dom.bgBingOptions.classList.toggle('hidden', type !== 'bing');
+    if (dom.bgBraveOptions) dom.bgBraveOptions.classList.toggle('hidden', type !== 'brave');
     if (dom.bgPresetOptions) dom.bgPresetOptions.classList.toggle('hidden', type !== 'preset');
     if (dom.bgSolidOptions) dom.bgSolidOptions.classList.toggle('hidden', type !== 'solid');
     if (dom.bgLocalOptions) dom.bgLocalOptions.classList.toggle('hidden', type !== 'local');
@@ -375,6 +718,21 @@ export function updateCards() {
     const now = new Date();
     if (dom.cardDateValue) dom.cardDateValue.textContent = now.toLocaleDateString(undefined, { day: 'numeric', month: 'long' });
     if (dom.cardDateDay) dom.cardDateDay.textContent = now.toLocaleDateString(undefined, { weekday: 'long' });
+
+    if (dom.cardYearBadge) dom.cardYearBadge.textContent = now.getFullYear().toString();
+
+    // Calculate Day Progress (%)
+    const secondsToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    const dayPercent = ((secondsToday / 86400) * 100).toFixed(1);
+    if (dom.dayPercentEl) dom.dayPercentEl.textContent = `${dayPercent}%`;
+    if (dom.dayBarEl) dom.dayBarEl.style.width = `${dayPercent}%`;
+
+    // Calculate Year Progress (%)
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const endOfYear = new Date(now.getFullYear() + 1, 0, 1);
+    const yearPercent = (((now - startOfYear) / (endOfYear - startOfYear)) * 100).toFixed(1);
+    if (dom.yearPercentEl) dom.yearPercentEl.textContent = `${yearPercent}%`;
+    if (dom.yearBarEl) dom.yearBarEl.style.width = `${yearPercent}%`;
 }
 
 export function renderThemeLibrary() {

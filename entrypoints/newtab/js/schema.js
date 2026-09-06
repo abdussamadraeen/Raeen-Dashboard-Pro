@@ -1,8 +1,8 @@
 export const DEFAULT_SETTINGS = {
     dashboardTitle: 'New Tab',
     themePreference: 'dark',
-    backgroundType: 'solid',
-    backgroundValue: '#000000',
+    backgroundType: 'google_dashboard',
+    backgroundValue: 'https://www.google.com/?raeen_dashboard=true',
     showSearch: true,
     searchEngine: 'google',
     showTopSites: true,
@@ -24,6 +24,7 @@ export const DEFAULT_SETTINGS = {
     customApps: [],
     showClock: true, 
     clockFormat: 'auto',
+    showClockAmPm: true,
     showCards: true, 
     showCardDate: true, 
     showCardFocus: true, 
@@ -67,10 +68,15 @@ export function validateAndRepairSettings(settingsObj) {
         repaired.searchEngine = "google";
     }
 
-    const validBgTypes = ["solid", "preset", "custom", "bing", "local", "canvas", "google_dashboard", "bing_dashboard"];
+    const validClockFormats = ["auto", "12h", "24h"];
+    if (!validClockFormats.includes(repaired.clockFormat)) {
+        repaired.clockFormat = "auto";
+    }
+
+    const validBgTypes = ["solid", "preset", "custom", "bing", "brave", "local", "canvas", "google_dashboard", "bing_dashboard"];
     if (!validBgTypes.includes(repaired.backgroundType)) {
-        repaired.backgroundType = "solid";
-        repaired.backgroundValue = "#000000";
+        repaired.backgroundType = "google_dashboard";
+        repaired.backgroundValue = "https://www.google.com/?raeen_dashboard=true";
     }
 
     return repaired;

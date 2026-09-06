@@ -37,7 +37,8 @@ export default defineConfig({
       'https://*.bing.com/*',
       'https://*.live.com/*',
       'https://*.microsoftonline.com/*',
-      'https://bing.biturl.top/*'
+      'https://bing.biturl.top/*',
+      'https://images.unsplash.com/*'
     ],
     declarative_net_request: {
       rule_resources: [{

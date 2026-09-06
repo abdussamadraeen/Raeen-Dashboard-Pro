@@ -242,7 +242,13 @@ export default defineContentScript({
       });
 
       shadow.appendChild(btn);
-      document.body.appendChild(host);
+      if (document.body) {
+        document.body.appendChild(host);
+      } else {
+        document.addEventListener('DOMContentLoaded', () => {
+          document.body?.appendChild(host);
+        });
+      }
     }
   },
 });

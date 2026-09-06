@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="New Tab">
@@ -45,7 +45,7 @@
     
     <div class="container">
         <!-- We wrap Column 1 and Column 3 in #cards-widget so the "Show Cards" toggle handles them automatically -->
-        <section id="cards-widget" style="display: contents;">
+        <section id="cards-widget">
             <!-- Column 1: Left Column -->
             <div class="layout-column" id="column-1" data-col="0">
                 <header id="clock-widget" class="widget draggable-widget" draggable="false">
@@ -54,21 +54,50 @@
                 </header>
                 <div class="info-card draggable-widget" id="card-date" draggable="false">
                     <div class="info-card-header">
-                        <div class="info-card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <div class="header-left">
+                            <div class="info-card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            </div>
+                            <span class="info-card-title">Today</span>
                         </div>
-                        <div class="info-card-title">Today</div>
+                        <span class="year-badge" id="card-year-badge">2026</span>
                     </div>
                     <div class="info-card-content">
                         <div class="info-card-value" id="card-date-value">--</div>
                         <div class="info-card-sub" id="card-date-day">--</div>
+                    </div>
+                    <div class="time-progress-section">
+                        <div class="progress-group">
+                            <div class="progress-header">
+                                <span class="progress-label">
+                                    <span class="progress-label-dot dot-day"></span>
+                                    Day
+                                </span>
+                                <span class="progress-value" id="day-percent">--%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill progress-fill-day" id="day-progress-bar"></div>
+                            </div>
+                        </div>
+                        <div class="progress-group">
+                            <div class="progress-header">
+                                <span class="progress-label">
+                                    <span class="progress-label-dot dot-year"></span>
+                                    Year
+                                </span>
+                                <span class="progress-value" id="year-percent">--%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill progress-fill-year" id="year-progress-bar"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="resize-handle"></div>
                 </div>
 
                 <div class="info-card draggable-widget" id="card-focus" draggable="false">
                     <div class="info-card-header">
-                        <div class="info-card-icon" style="background: linear-gradient(135deg, #eab308, #ca8a04);">
+                        <div class="info-card-icon icon-focus">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         </div>
                         <div class="info-card-title">Focus Timer</div>
@@ -89,7 +118,7 @@
                 <div class="notes-panel draggable-widget" id="notes-widget" draggable="false">
                     <div class="notes-header">
                         <div class="notes-header-left">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--accent);"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                            <svg class="notes-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                             <span class="notes-title">Notes</span>
                             <span class="notes-count" id="notes-count">0</span>
                         </div>
@@ -104,8 +133,8 @@
                             <button id="note-back-btn" class="note-back-btn">← Back</button>
                             <span class="note-save-status" id="note-save-status">Saved</span>
                         </div>
-                        <input type="text" id="note-editor-title" class="note-editor-title" placeholder="Title" maxlength="60">
-                        <textarea id="note-editor-body" class="note-editor-body" placeholder="Start typing..."></textarea>
+                        <input type="text" id="note-editor-title" class="note-editor-title" placeholder="Title" maxlength="60" title="Note Title" aria-label="Note Title">
+                        <textarea id="note-editor-body" class="note-editor-body" placeholder="Start typing..." title="Note Body" aria-label="Note Body"></textarea>
                         <div class="note-editor-footer">
                             <span id="note-char-count" class="note-char-count">0 characters</span>
                             <button id="note-delete-btn" class="note-delete-btn">🗑 Delete</button>
@@ -121,10 +150,55 @@
             <main id="search-widget" class="search-container draggable-widget" draggable="false">
                 <form id="search-form" action="https://www.google.com/search" method="GET">
                     <div class="input-wrapper">
-                        <svg id="search-provider-icon" class="search-icon" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-                        </svg>
-                        <input type="text" id="search-input" name="q" placeholder="Search..." autocomplete="off" autofocus>
+                        <button type="button" id="search-engine-btn" class="search-engine-btn" title="Change Search Engine" aria-label="Change Search Engine">
+                            <img id="search-engine-current-icon" class="search-engine-current-icon" src="https://www.google.com/favicon.ico" alt="Google">
+                            <svg class="search-engine-caret" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                        </button>
+                        <div id="search-engine-menu" class="search-engine-menu hidden">
+                            <div class="engine-menu-header">Search Engines</div>
+                            <div class="engine-menu-list">
+                                <button type="button" class="engine-menu-item" data-engine="google">
+                                    <img src="https://www.google.com/favicon.ico" alt="Google">
+                                    <span>Google</span>
+                                </button>
+                                <button type="button" class="engine-menu-item" data-engine="brave">
+                                    <img src="https://brave.com/favicon.ico" alt="Brave">
+                                    <span>Brave</span>
+                                </button>
+                                <button type="button" class="engine-menu-item" data-engine="duckduckgo">
+                                    <img src="https://duckduckgo.com/favicon.ico" alt="DuckDuckGo">
+                                    <span>DuckDuckGo</span>
+                                </button>
+                                <button type="button" class="engine-menu-item" data-engine="bing">
+                                    <img src="https://www.bing.com/favicon.ico" alt="Bing">
+                                    <span>Bing</span>
+                                </button>
+                                <div class="engine-menu-divider"></div>
+                                <div class="engine-menu-subheader">AI Engines</div>
+                                <button type="button" class="engine-menu-item" data-engine="chatgpt">
+                                    <img src="https://chatgpt.com/favicon.ico" alt="ChatGPT">
+                                    <span>ChatGPT</span>
+                                </button>
+                                <button type="button" class="engine-menu-item" data-engine="perplexity">
+                                    <img src="https://www.google.com/s2/favicons?sz=64&domain=perplexity.ai" alt="Perplexity">
+                                    <span>Perplexity</span>
+                                </button>
+                                <button type="button" class="engine-menu-item" data-engine="claude">
+                                    <img src="https://www.google.com/s2/favicons?sz=64&domain=claude.ai" alt="Claude">
+                                    <span>Claude</span>
+                                </button>
+                                <button type="button" class="engine-menu-item" data-engine="robot_ai">
+                                    <span class="engine-icon-robot">🤖</span>
+                                    <span>Robot AI Router</span>
+                                </button>
+                            </div>
+                            <div class="engine-menu-divider"></div>
+                            <button type="button" id="customize-engines-btn" class="engine-menu-customize">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                                <span>Customize list</span>
+                            </button>
+                        </div>
+                        <input type="text" id="search-input" name="q" placeholder="Search the web" autocomplete="off" autofocus title="Search query" aria-label="Search">
                         <ul id="search-suggestions" class="suggestions-dropdown hidden"></ul>
                     </div>
                 </form>
@@ -144,17 +218,17 @@
     </button>
 
     <!-- Add Custom App Modal -->
-    <div id="add-app-modal" class="modal-overlay hidden" style="z-index: 101;">
-        <div class="modal-container" style="max-width: 400px; height: auto;">
+    <div id="add-app-modal" class="modal-overlay hidden">
+        <div class="modal-container">
             <header class="modal-header">
                 <h2>Add Custom App</h2>
                 <button id="close-add-app-btn" class="close-btn">&times;</button>
             </header>
-            <div class="modal-body" style="display: block; padding: 20px;">
-                <input type="text" id="app-name" class="text-input mb-2" placeholder="App Name (e.g., Netflix)">
-                <input type="text" id="app-url" class="text-input mb-2" placeholder="URL (e.g., https://netflix.com)">
-                <input type="text" id="app-icon" class="text-input mb-4" placeholder="Icon URL (optional)">
-                <button id="save-app-btn" class="primary-btn" style="width: 100%;">Save</button>
+            <div class="modal-body">
+                <input type="text" id="app-name" class="text-input mb-2" placeholder="App Name (e.g., Netflix)" title="App Name" aria-label="App Name">
+                <input type="text" id="app-url" class="text-input mb-2" placeholder="URL (e.g., https://netflix.com)" title="App URL" aria-label="App URL">
+                <input type="text" id="app-icon" class="text-input mb-4" placeholder="Icon URL (optional)" title="Icon URL" aria-label="Icon URL">
+                <button id="save-app-btn" class="primary-btn">Save</button>
             </div>
         </div>
     </div>
@@ -199,12 +273,13 @@
                     <div id="tab-background" class="tab-pane active">
                         <div class="settings-group mt-0">
                             <label>Background Type</label>
-                            <select id="bg-type-select" class="custom-select">
+                            <select id="bg-type-select" class="custom-select" title="Background Type" aria-label="Background Type">
+                                <option value="google_dashboard" selected>Google</option>
+                                <option value="brave">Brave Wallpapers (Ad-Free)</option>
                                 <option value="canvas">Interactive Canvas (Neural/Rain)</option>
                                 <option value="bing">Bing Daily Wallpaper</option>
                                 <option value="preset">Theme Library</option>
                                 <option value="solid">Solid Colors & Gradients</option>
-                                <option value="google_dashboard">Google</option>
                                 <option value="bing_dashboard">Bing</option>
                                 <option value="local">Local File (Image/Video)</option>
                                 <option value="custom">Custom Media URL</option>
@@ -213,18 +288,44 @@
                         
                         <div id="bg-canvas-options" class="settings-group hidden">
                             <label>Canvas Style</label>
-                            <select id="canvas-style-select" class="custom-select">
+                            <select id="canvas-style-select" class="custom-select" title="Canvas Style" aria-label="Canvas Style">
                                 <option value="neural">Neural Network (Interactive)</option>
                                 <option value="bubbles">Water Bubbles (Interactive)</option>
                                 <option value="rain">Glass Rain (Interactive)</option>
                             </select>
                             <p class="subtext">Move your mouse to interact with the animation.</p>
                         </div>
+
+                        <div id="bg-brave-options" class="settings-group hidden">
+                            <div class="brave-header-row">
+                                <label class="brave-label">Brave Wallpapers</label>
+                                <span class="badge-adfree">100% Ad-Free</span>
+                            </div>
+                            <p class="subtext">Curated high-resolution 4K nature &amp; landscape photography inspired by Brave NTP — completely free of sponsored takeovers or ads.</p>
+                            <div class="card-container settings-card-compact mt-3">
+                                <div class="settings-row settings-row-compact">
+                                    <div class="settings-row-info">
+                                        <span class="settings-title-medium">Rotate Randomly on Each New Tab</span>
+                                        <span class="subtext subtext-xs">Cycles through fresh scenic wallpapers every time you open a tab</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="brave-random-toggle" checked title="Rotate Randomly on Each New Tab" aria-label="Rotate Randomly on Each New Tab">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="gallery-section-label">Or Pick a Specific Wallpaper</label>
+                                <div id="brave-gallery" class="brave-gallery-grid">
+                                    <!-- Dynamically populated -->
+                                </div>
+                            </div>
+                        </div>
                         
                         <div id="bg-bing-options" class="settings-group hidden">
                             <label>Bing Daily Wallpaper</label>
                             <p class="subtext">Automatically fetches the beautiful Bing Image of the Day. Click an image to apply it.</p>
-                            <div id="bing-gallery-container" style="margin-top: 12px;">
+                            <div id="bing-gallery-container">
                                 <div id="bing-gallery" class="bing-gallery-grid">
                                     <!-- Dynamically populated -->
                                 </div>
@@ -242,35 +343,35 @@
                         <div id="bg-solid-options" class="settings-group hidden">
                             <label>Color Palette</label>
                             <div class="color-palette mb-4">
-                                <div class="color-swatch" style="background: #0f172a" data-color="#0f172a" title="Midnight"></div>
-                                <div class="color-swatch" style="background: #1e293b" data-color="#1e293b" title="Slate"></div>
-                                <div class="color-swatch" style="background: #000000" data-color="#000000" title="Pure Black"></div>
-                                <div class="color-swatch" style="background: #f8fafc" data-color="#f8fafc" title="Ice White"></div>
-                                <div class="color-swatch" style="background: linear-gradient(135deg, #0f172a 0%, #020617 100%)" data-color="linear-gradient(135deg, #0f172a 0%, #020617 100%)" title="Midnight Depth"></div>
-                                <div class="color-swatch" style="background: linear-gradient(120deg, #3a82ff 0%, #22d3ee 100%)" data-color="linear-gradient(120deg, #3a82ff 0%, #22d3ee 100%)" title="Electric Horizon"></div>
-                                <div class="color-swatch" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%)" data-color="linear-gradient(135deg, #6366f1 0%, #a855f7 100%)" title="Purple Haze"></div>
-                                <div class="color-swatch" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" data-color="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" title="Cyberpunk"></div>
-                                <div class="color-swatch" style="background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%)" data-color="linear-gradient(135deg, #00b09b 0%, #96c93d 100%)" title="Lush Green"></div>
-                                <div class="color-swatch" style="background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)" data-color="linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)" title="Sunset Bliss"></div>
-                                <div class="color-swatch" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)" data-color="linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)" title="Ocean Breeze"></div>
-                                <div class="color-swatch" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%)" data-color="linear-gradient(135deg, #f6d365 0%, #fda085 100%)" title="Golden Hour"></div>
+                                <div class="color-swatch swatch-midnight" data-color="#0f172a" title="Midnight"></div>
+                                <div class="color-swatch swatch-slate" data-color="#1e293b" title="Slate"></div>
+                                <div class="color-swatch swatch-black" data-color="#000000" title="Pure Black"></div>
+                                <div class="color-swatch swatch-white" data-color="#f8fafc" title="Ice White"></div>
+                                <div class="color-swatch swatch-grad-midnight" data-color="linear-gradient(135deg, #0f172a 0%, #020617 100%)" title="Midnight Depth"></div>
+                                <div class="color-swatch swatch-grad-electric" data-color="linear-gradient(120deg, #3a82ff 0%, #22d3ee 100%)" title="Electric Horizon"></div>
+                                <div class="color-swatch swatch-grad-purple" data-color="linear-gradient(135deg, #6366f1 0%, #a855f7 100%)" title="Purple Haze"></div>
+                                <div class="color-swatch swatch-grad-cyberpunk" data-color="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" title="Cyberpunk"></div>
+                                <div class="color-swatch swatch-grad-lush" data-color="linear-gradient(135deg, #00b09b 0%, #96c93d 100%)" title="Lush Green"></div>
+                                <div class="color-swatch swatch-grad-sunset" data-color="linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)" title="Sunset Bliss"></div>
+                                <div class="color-swatch swatch-grad-ocean" data-color="linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)" title="Ocean Breeze"></div>
+                                <div class="color-swatch swatch-grad-golden" data-color="linear-gradient(135deg, #f6d365 0%, #fda085 100%)" title="Golden Hour"></div>
                             </div>
                             <label>Custom Color</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="color" id="bg-color-picker" value="#1a1a2e" style="height: 40px; cursor: pointer;">
+                            <div class="color-picker-row">
+                                <input type="color" id="bg-color-picker" value="#1a1a2e" title="Pick Custom Solid Color" aria-label="Pick Custom Solid Color">
                                 <span class="subtext">Pick a custom solid color</span>
                             </div>
                         </div>
 
                         <div id="bg-local-options" class="settings-group hidden">
                             <label>Upload Local Media</label>
-                            <input type="file" id="bg-local-file" class="text-input" accept="image/*,video/*">
+                            <input type="file" id="bg-local-file" class="text-input" accept="image/*,video/*" title="Upload Local Media File" aria-label="Upload Local Media File">
                             <p class="subtext mt-2">Select an image or video (.mp4, .webm) from your computer.</p>
                         </div>
 
                         <div id="bg-custom-options" class="settings-group hidden">
                             <label>Media URL (Image or Video)</label>
-                            <input type="text" id="bg-custom-url" class="text-input" placeholder="https://example.com/video.mp4">
+                            <input type="text" id="bg-custom-url" class="text-input" placeholder="https://example.com/video.mp4" title="Media URL" aria-label="Media URL">
                         </div>
                     </div>
 
@@ -279,24 +380,24 @@
                         <div class="settings-group mt-0">
                             <label>Dashboard Title</label>
                             <p class="subtext mb-4">Customize the title displayed in the browser tab.</p>
-                            <input type="text" id="dashboard-title-input" class="text-input" placeholder="New Tab" value="New Tab" style="max-width: 300px; margin-bottom: 20px;">
+                            <input type="text" id="dashboard-title-input" class="text-input" placeholder="New Tab" value="New Tab" title="Dashboard Title" aria-label="Dashboard Title">
                         </div>
                         <div class="settings-group">
                             <label>Dashboard Theme</label>
                             <p class="subtext mb-4">Choose how the settings menu and widgets should look.</p>
                             <div class="radio-list">
                                 <label class="radio-item">
-                                    <input type="radio" name="theme_preference" value="system" checked>
+                                    <input type="radio" name="theme_preference" value="system" checked title="Follow System Settings" aria-label="Follow System Settings">
                                     <span class="custom-radio"></span>
                                     Follow System Settings
                                 </label>
                                 <label class="radio-item">
-                                    <input type="radio" name="theme_preference" value="dark">
+                                    <input type="radio" name="theme_preference" value="dark" title="Dark Mode" aria-label="Dark Mode">
                                     <span class="custom-radio"></span>
                                     Dark Mode
                                 </label>
                                 <label class="radio-item">
-                                    <input type="radio" name="theme_preference" value="light">
+                                    <input type="radio" name="theme_preference" value="light" title="Light Mode" aria-label="Light Mode">
                                     <span class="custom-radio"></span>
                                     Light Mode
                                 </label>
@@ -306,21 +407,21 @@
                             <div class="settings-row">
                                 <span>Noosphere CDI Bar</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="show-noosphere-toggle" checked>
+                                    <input type="checkbox" id="show-noosphere-toggle" checked title="Show Noosphere CDI Bar" aria-label="Show Noosphere CDI Bar">
                                     <span class="slider round"></span>
                                 </label>
                             </div>
                             <div class="settings-row">
                                 <span>Show Settings Button in Immersive Mode</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="show-settings-in-immersive-toggle" checked>
+                                    <input type="checkbox" id="show-settings-in-immersive-toggle" checked title="Show Settings Button in Immersive Mode" aria-label="Show Settings Button in Immersive Mode">
                                     <span class="slider round"></span>
                                 </label>
                             </div>
-                            <div class="settings-row" style="border-bottom: none;">
+                            <div class="settings-row no-border">
                                 <span>Enable Free-Space Drag &amp; Drop</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="toggle-drag-drop" checked>
+                                    <input type="checkbox" id="toggle-drag-drop" checked title="Enable Free-Space Drag &amp; Drop" aria-label="Enable Free-Space Drag &amp; Drop">
                                     <span class="slider round"></span>
                                 </label>
                             </div>
@@ -328,18 +429,18 @@
                         <div class="settings-group mt-4">
                             <label>Data Management</label>
                             <p class="subtext mb-2">Backup and restore your settings, custom links, and notes.</p>
-                            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <button id="export-settings-btn" class="primary-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <div class="settings-action-row">
+                                <button id="export-settings-btn" class="primary-btn">
                                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                     Export Backup
                                 </button>
-                                <button id="import-settings-btn" class="focus-btn focus-btn-secondary" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; font-weight: 500; font-size: 14px;">
+                                <button id="import-settings-btn" class="focus-btn focus-btn-secondary">
                                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                                     Import Backup
                                 </button>
-                                <input type="file" id="import-settings-input" accept=".json" style="display: none;">
+                                <input type="file" id="import-settings-input" accept=".json" title="Import Settings Backup File" aria-label="Import Settings Backup File">
                             </div>
-                            <button id="reset-layout-btn" class="focus-btn focus-btn-secondary" style="width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; font-weight: 500; font-size: 14px;">
+                            <button id="reset-layout-btn" class="focus-btn focus-btn-secondary">
                                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
                                 Reset Widget Positions &amp; Sizes
                             </button>
@@ -352,31 +453,31 @@
                             <div class="settings-row">
                                 <span>Show search widget in new tabs</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="toggle-search" checked>
+                                    <input type="checkbox" id="toggle-search" checked title="Show search widget in new tabs" aria-label="Show search widget in new tabs">
                                     <span class="slider round"></span>
                                 </label>
                             </div>
                         </div>
                         <div class="settings-group mt-0">
                             <label>Standard Engines</label>
-                            <div class="radio-list card-container" style="padding: 16px;">
+                            <div class="radio-list card-container card-container-pad">
                                 <label class="radio-item">
-                                    <input type="radio" name="search_engine" value="google" checked>
+                                    <input type="radio" name="search_engine" value="google" checked title="Google Search" aria-label="Google Search">
                                     <span class="custom-radio"></span>
                                     <img src="https://www.google.com/favicon.ico" class="engine-icon" alt=""> Google
                                 </label>
                                 <label class="radio-item mt-2">
-                                    <input type="radio" name="search_engine" value="duckduckgo">
+                                    <input type="radio" name="search_engine" value="duckduckgo" title="DuckDuckGo Search" aria-label="DuckDuckGo Search">
                                     <span class="custom-radio"></span>
                                     <img src="https://duckduckgo.com/favicon.ico" class="engine-icon" alt=""> DuckDuckGo
                                 </label>
                                 <label class="radio-item mt-2">
-                                    <input type="radio" name="search_engine" value="brave">
+                                    <input type="radio" name="search_engine" value="brave" title="Brave Search" aria-label="Brave Search">
                                     <span class="custom-radio"></span>
                                     <img src="https://brave.com/favicon.ico" class="engine-icon" alt=""> Brave
                                 </label>
                                 <label class="radio-item mt-2">
-                                    <input type="radio" name="search_engine" value="bing">
+                                    <input type="radio" name="search_engine" value="bing" title="Bing Search" aria-label="Bing Search">
                                     <span class="custom-radio"></span>
                                     <img src="https://www.bing.com/favicon.ico" class="engine-icon" alt=""> Bing
                                 </label>
@@ -385,19 +486,19 @@
 
                         <div class="settings-group">
                             <label>AI Models</label>
-                            <div class="radio-list card-container" style="padding: 16px;">
+                            <div class="radio-list card-container card-container-pad">
                                 <label class="radio-item">
-                                    <input type="radio" name="search_engine" value="chatgpt">
+                                    <input type="radio" name="search_engine" value="chatgpt" title="ChatGPT" aria-label="ChatGPT">
                                     <span class="custom-radio"></span>
                                     <img src="https://chatgpt.com/favicon.ico" class="engine-icon" alt=""> ChatGPT
                                 </label>
                                 <label class="radio-item mt-2">
-                                    <input type="radio" name="search_engine" value="perplexity">
+                                    <input type="radio" name="search_engine" value="perplexity" title="Perplexity" aria-label="Perplexity">
                                     <span class="custom-radio"></span>
                                     <img src="https://www.google.com/s2/favicons?sz=64&domain=perplexity.ai" class="engine-icon" alt=""> Perplexity
                                 </label>
                                 <label class="radio-item mt-2">
-                                    <input type="radio" name="search_engine" value="claude">
+                                    <input type="radio" name="search_engine" value="claude" title="Claude" aria-label="Claude">
                                     <span class="custom-radio"></span>
                                     <img src="https://www.google.com/s2/favicons?sz=64&domain=claude.ai" class="engine-icon" alt=""> Claude
                                 </label>
@@ -406,13 +507,13 @@
 
                         <div class="settings-group">
                             <label>Robot AI Mode</label>
-                            <div class="card-container" style="padding: 16px;">
+                            <div class="card-container card-container-pad">
                                 <label class="radio-item">
-                                    <input type="radio" name="search_engine" value="robot_ai">
+                                    <input type="radio" name="search_engine" value="robot_ai" title="Robot AI Router" aria-label="Robot AI Router">
                                     <span class="custom-radio"></span>
-                                    <span style="font-weight: 500; color: #a78bfa;">🤖 Robot AI Router</span>
+                                    <span class="robot-ai-badge">🤖 Robot AI Router</span>
                                 </label>
-                                <p class="subtext mt-2" style="font-size:0.75rem; margin-left: 28px;">
+                                <p class="subtext mt-2 robot-ai-subtext">
                                     Uses a smart classifier to auto-route queries (e.g. coding to Claude, research to Perplexity, search to Google). Supports slash overrides like <code>/gpt</code>, <code>/claude</code>, <code>/gemini</code>, <code>/perp</code>.
                                 </p>
                             </div>
@@ -420,15 +521,15 @@
 
                         <div class="settings-group">
                             <label>Custom Search Engine</label>
-                            <div class="card-container" style="padding: 16px;">
+                            <div class="card-container card-container-pad">
                                 <label class="radio-item">
-                                    <input type="radio" name="search_engine" value="custom_engine">
+                                    <input type="radio" name="search_engine" value="custom_engine" title="Use Custom Engine" aria-label="Use Custom Engine">
                                     <span class="custom-radio"></span>
                                     Use Custom Engine
                                 </label>
-                                <div id="custom-engine-input-group" class="mt-4" style="display: block;">
+                                <div id="custom-engine-input-group" class="mt-4">
                                     <p class="subtext mb-2">Enter search URL with <strong>%s</strong> as placeholder for query.</p>
-                                    <input type="text" id="custom-search-url" class="text-input" placeholder="https://www.google.com/search?q=%s">
+                                    <input type="text" id="custom-search-url" class="text-input" placeholder="https://www.google.com/search?q=%s" title="Custom Search URL" aria-label="Custom Search URL">
                                 </div>
                             </div>
                         </div>
@@ -440,7 +541,7 @@
                             <div class="settings-row">
                                 <span>Show Top Sites</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="toggle-topsites" checked>
+                                    <input type="checkbox" id="toggle-topsites" checked title="Show Top Sites" aria-label="Show Top Sites">
                                     <span class="slider round"></span>
                                 </label>
                             </div>
@@ -449,7 +550,7 @@
                             <label>Source</label>
                             <div class="source-cards-grid">
                                 <label class="source-card">
-                                    <input type="radio" name="topsites_source" value="favorites" checked>
+                                    <input type="radio" name="topsites_source" value="favorites" checked title="Curated Favorites" aria-label="Curated Favorites">
                                     <div class="source-card-content">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                                         <div class="source-card-text">
@@ -459,7 +560,7 @@
                                     </div>
                                 </label>
                                 <label class="source-card">
-                                    <input type="radio" name="topsites_source" value="frequently_visited">
+                                    <input type="radio" name="topsites_source" value="frequently_visited" title="Frequently Visited" aria-label="Frequently Visited">
                                     <div class="source-card-content">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                                         <div class="source-card-text">
@@ -474,9 +575,9 @@
                             <label>Manage Shortcuts</label>
                             <p class="subtext">Add or remove your custom shortcuts below.</p>
                             <div class="shortcut-manager mt-2">
-                                <input type="text" id="new-shortcut-name" class="text-input mb-2" placeholder="Name (e.g. GitHub)">
-                                <input type="text" id="new-shortcut-url" class="text-input mb-2" placeholder="URL (e.g. https://github.com)">
-                                <button id="add-shortcut-btn" class="primary-btn" style="width: 100%;">Add Shortcut</button>
+                                <input type="text" id="new-shortcut-name" class="text-input mb-2" placeholder="Name (e.g. GitHub)" title="Shortcut Name" aria-label="Shortcut Name">
+                                <input type="text" id="new-shortcut-url" class="text-input mb-2" placeholder="URL (e.g. https://github.com)" title="Shortcut URL" aria-label="Shortcut URL">
+                                <button id="add-shortcut-btn" class="primary-btn">Add Shortcut</button>
                             </div>
                             <div id="shortcuts-list" class="managed-list mt-4">
                                 <!-- Managed items go here -->
@@ -490,17 +591,24 @@
                             <div class="settings-row">
                                 <span>Show clock</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="toggle-clock" checked>
+                                    <input type="checkbox" id="toggle-clock" checked title="Show Clock" aria-label="Show Clock">
                                     <span class="slider round"></span>
                                 </label>
                             </div>
-                            <div class="settings-row" style="border-bottom: none;">
+                            <div class="settings-row">
                                 <span>Format</span>
-                                <select id="clock-format-select" class="custom-select" style="width: auto; min-width: 180px;">
+                                <select id="clock-format-select" class="custom-select" title="Clock Format" aria-label="Clock Format">
                                     <option value="auto">Automatic (based on your system)</option>
                                     <option value="12h">12-hour</option>
                                     <option value="24h">24-hour</option>
                                 </select>
+                            </div>
+                            <div class="settings-row no-border">
+                                <span>Show AM / PM</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-clock-ampm" checked title="Show AM / PM" aria-label="Show AM / PM">
+                                    <span class="slider round"></span>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -511,57 +619,57 @@
                             <div class="settings-row">
                                 <span>Show Cards</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="toggle-cards">
+                                    <input type="checkbox" id="toggle-cards" title="Show Cards" aria-label="Show Cards">
                                     <span class="slider round"></span>
                                 </label>
                             </div>
-                            <div class="settings-row" style="border-bottom: none;">
+                            <div class="settings-row no-border">
                                 <span>Hide All UI (Immersive)</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="show-main-ui-toggle" checked>
+                                    <input type="checkbox" id="show-main-ui-toggle" checked title="Hide All UI (Immersive)" aria-label="Hide All UI (Immersive)">
                                     <span class="slider round"></span>
                                 </label>
                             </div>
                         </div>
                         <div class="settings-group">
                             <label>Available Widgets</label>
-                            <div class="source-cards-grid" style="grid-template-columns: 1fr;">
-                                <div class="settings-row" style="margin-top: 6px; padding: 12px 16px; background: var(--glass-bg); border-radius: 12px; border: 1px solid var(--glass-border);">
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="width:22px;height:22px;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <div class="source-cards-grid source-cards-single-col">
+                                <div class="settings-row widget-setting-item">
+                                    <div class="widget-setting-header">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="widget-icon icon-accent"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                                         <div class="source-card-text">
                                             <strong>Date Card</strong>
                                             <span>Shows today's date and day of the week</span>
                                         </div>
                                     </div>
                                     <label class="switch">
-                                        <input type="checkbox" id="toggle-card-date" checked>
+                                        <input type="checkbox" id="toggle-card-date" checked title="Show Date Card" aria-label="Show Date Card">
                                         <span class="slider round"></span>
                                     </label>
                                 </div>
-                                <div class="settings-row" style="margin-top: 8px; padding: 12px 16px; background: var(--glass-bg); border-radius: 12px; border: 1px solid var(--glass-border);">
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" style="width:22px;height:22px;flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                <div class="settings-row widget-setting-item">
+                                    <div class="widget-setting-header">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="widget-icon icon-amber"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                                         <div class="source-card-text">
                                             <strong>Focus Timer</strong>
                                             <span>25-minute Pomodoro timer for productivity</span>
                                         </div>
                                     </div>
                                     <label class="switch">
-                                        <input type="checkbox" id="toggle-card-focus" checked>
+                                        <input type="checkbox" id="toggle-card-focus" checked title="Show Focus Timer" aria-label="Show Focus Timer">
                                         <span class="slider round"></span>
                                     </label>
                                 </div>
-                                <div class="settings-row" style="margin-top: 8px; padding: 12px 16px; background: var(--glass-bg); border-radius: 12px; border: 1px solid var(--glass-border);">
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="width:22px;height:22px;flex-shrink:0;"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                                <div class="settings-row widget-setting-item">
+                                    <div class="widget-setting-header">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="widget-icon icon-emerald"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                                         <div class="source-card-text">
                                             <strong>Quick Note</strong>
                                             <span>Jot down ideas, saved automatically</span>
                                         </div>
                                     </div>
                                     <label class="switch">
-                                        <input type="checkbox" id="toggle-card-note" checked>
+                                        <input type="checkbox" id="toggle-card-note" checked title="Show Quick Note" aria-label="Show Quick Note">
                                         <span class="slider round"></span>
                                     </label>
                                 </div>
@@ -579,6 +687,12 @@
             <path id="sound-icon-path" d="M3 9v6h4l5 5V4L7 9H3zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
         </svg>
     </button>
+
+    <div id="photographer-credit" class="photographer-credit hidden" title="Brave NTP Curated Photography">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+        <span>Photo by <strong id="photographer-name">Brave Curated</strong></span>
+    </div>
+
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>

@@ -6,6 +6,7 @@ import {
     syncSettingsUI, 
     updateTime, 
     loadBingGallery, 
+    loadBraveGallery,
     updateCards, 
     syncBackgroundOptions, 
     renderThemeLibrary 
@@ -19,7 +20,7 @@ import {
     updateCharCount 
 } from './notes.js';
 import { renderShortcuts, addShortcut } from './shortcuts.js';
-import { setupSearch } from './search.js';
+import { setupSearch, updateSearchEngineUI } from './search.js';
 import { initFocusTimer } from './focus.js';
 import { validateAndRepairSettings } from './schema.js';
 import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
@@ -165,16 +166,21 @@ import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
         dom.bgTypeSelect.oninput = (e) => {
             state.settings.backgroundType = e.target.value;
             if (e.target.value === 'bing') state.settings.backgroundValue = 'bing_latest_v2';
+            if (e.target.value === 'brave') state.settings.backgroundValue = 'brave_random';
+            if (e.target.value === 'google_dashboard') state.settings.backgroundValue = 'https://www.google.com/?raeen_dashboard=true';
+            if (e.target.value === 'bing_dashboard') state.settings.backgroundValue = 'https://www.bing.com/?raeen_dashboard=true';
             commitSettings();
             syncBackgroundOptions();
             if (e.target.value === 'bing') loadBingGallery();
+            if (e.target.value === 'brave') loadBraveGallery();
         };
     }
 
     bindVal(dom.canvasStyleSelect, 'canvasStyle');
     bindVal(dom.bgCustomUrl, 'backgroundValue', 'onchange');
     bindVal(dom.customSearchUrlInput, 'customSearchUrl', 'onchange');
-    bindVal(dom.clockFormatSelect, 'clockFormat');
+    bindVal(dom.clockFormatSelect, 'clockFormat', 'oninput', () => { if (dom.timeEl) dom.timeEl._lastFormat = null; updateTime(); });
+    bindToggle(dom.toggleClockAmPm, 'showClockAmPm', () => { if (dom.timeEl) dom.timeEl._lastFormat = null; updateTime(); });
 
     bindToggle(dom.showNoosphereToggle, 'showNoosphereBar');
     bindToggle(dom.showSettingsInImmersiveToggle, 'showSettingsButtonInImmersive');
@@ -189,7 +195,7 @@ import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
     bindToggle(dom.toggleDragDrop, 'enableDragAndDrop');
 
     bindRadio('theme_preference', 'themePreference');
-    bindRadio('search_engine', 'searchEngine');
+    bindRadio('search_engine', 'searchEngine', updateSearchEngineUI);
     bindRadio('topsites_source', 'topSitesSource', renderShortcuts);
 
 function optimizeImage(file) {
@@ -333,6 +339,7 @@ function optimizeImage(file) {
 
     if (dom.addAppBtn) dom.addAppBtn.onclick = () => dom.addAppModal.classList.remove('hidden');
     if (state.settings.backgroundType === 'bing') loadBingGallery();
+    if (state.settings.backgroundType === 'brave') loadBraveGallery();
 
     // Dashboard Title Change
     const titleIn = document.getElementById('dashboard-title-input');
@@ -1332,8 +1339,8 @@ function optimizeImage(file) {
     (function() {
         const defaultPositions = {
             "clock-widget": { left: "4%", top: "4%" },
-            "card-date": { left: "4%", top: "22%" },
-            "card-focus": { left: "4%", top: "42%" },
+            "card-date": { left: "4%", top: "21%" },
+            "card-focus": { left: "4%", top: "44%" },
             "search-widget": { left: "30%", top: "6%" },
             "directory-widget": { left: "30%", top: "22%" },
             "notes-widget": { left: "70%", top: "22%" },
@@ -1342,7 +1349,7 @@ function optimizeImage(file) {
 
         const defaultSizes = {
             "clock-widget": { width: "auto", height: "auto" },
-            "card-date": { width: "280px", height: "140px" },
+            "card-date": { width: "280px", height: "175px" },
             "card-focus": { width: "280px", height: "170px" },
             "search-widget": { width: "640px", height: "auto" },
             "directory-widget": { width: "640px", height: "380px" },

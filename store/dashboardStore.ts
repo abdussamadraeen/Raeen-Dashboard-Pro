@@ -391,8 +391,8 @@ interface DashboardState {
 export const defaultSettings: Settings = {
   dashboardTitle: 'New Tab',
   themePreference: 'dark',
-  backgroundType: 'solid',
-  backgroundValue: '#000000',
+  backgroundType: 'google_dashboard',
+  backgroundValue: 'https://www.google.com/?raeen_dashboard=true',
   showSearch: true,
   searchEngine: 'google',
   showTopSites: true,
@@ -414,6 +414,7 @@ export const defaultSettings: Settings = {
   customApps: [],
   showClock: true,
   clockFormat: 'auto',
+  showClockAmPm: true,
   showCards: true,
   showCardDate: true,
   showCardFocus: true,

@@ -30,9 +30,9 @@ export function renderShortcuts() {
         });
         dom.topSitesWidget.classList.toggle('hidden', !state.settings.showTopSites || !hasShortcuts);
     } else {
-        if (typeof chrome !== 'undefined' && chrome.topSites) {
+        if (typeof chrome !== 'undefined' && chrome.topSites?.get) {
             chrome.topSites.get(sites => {
-                const list = sites.slice(0, 8);
+                const list = (sites || []).slice(0, 8);
                 hasShortcuts = list.length > 0;
                 list.forEach((site, i) => {
                     const a = document.createElement('a');
@@ -42,23 +42,34 @@ export function renderShortcuts() {
                     let domain = 'google.com';
                     try { domain = new URL(site.url).hostname; } catch(e){}
                     const iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-                    a.innerHTML = `<img src="${escapeAttribute(iconUrl)}" alt="${escapeAttribute(site.title)}"><span>${escapeHTML(site.title)}</span>`;
+                    a.innerHTML = `<img src="${escapeAttribute(iconUrl)}" alt="${escapeAttribute(site.title || '')}"><span>${escapeHTML(site.title || domain)}</span>`;
                     dom.topSitesWidget.appendChild(a);
                 });
+                if (resizeHandle && !dom.topSitesWidget.contains(resizeHandle)) {
+                    dom.topSitesWidget.appendChild(resizeHandle);
+                }
                 dom.topSitesWidget.classList.toggle('hidden', !state.settings.showTopSites || !hasShortcuts);
             });
+        } else {
+            dom.topSitesWidget.classList.toggle('hidden', true);
         }
     }
     
-    if (resizeHandle) dom.topSitesWidget.appendChild(resizeHandle);
+    if (resizeHandle && !dom.topSitesWidget.contains(resizeHandle)) {
+        dom.topSitesWidget.appendChild(resizeHandle);
+    }
     
     renderManagedShortcuts();
 }
 
 export function addShortcut() {
+    if (!dom.newShortcutName || !dom.newShortcutUrl) return;
     const name = dom.newShortcutName.value.trim();
-    const url = dom.newShortcutUrl.value.trim();
+    let url = dom.newShortcutUrl.value.trim();
     if (name && url) {
+        if (!/^https?:\/\//i.test(url)) {
+            url = 'https://' + url;
+        }
         if (!state.settings.shortcuts) state.settings.shortcuts = [];
         state.settings.shortcuts.push({ name, url, icon: '' });
         saveSettings(state.settings);

@@ -1,21 +1,52 @@
-import { state } from './state.js';
+import { state, saveSettings } from './state.js';
 import { dom } from './dom.js';
+import { escapeHTML } from './security.js';
 
-export function getSearchUrl() {
-    const engine = state.settings.searchEngine;
-    if (engine === 'custom_engine') {
-        return state.settings.customSearchUrl || 'https://www.google.com/search?q=%s';
+export const SEARCH_ENGINE_METADATA = {
+    google: { name: 'Google', icon: 'https://www.google.com/favicon.ico', placeholder: 'Search the web with Google' },
+    brave: { name: 'Brave', icon: 'https://brave.com/favicon.ico', placeholder: 'Search the web with Brave' },
+    duckduckgo: { name: 'DuckDuckGo', icon: 'https://duckduckgo.com/favicon.ico', placeholder: 'Search privately with DuckDuckGo' },
+    bing: { name: 'Bing', icon: 'https://www.bing.com/favicon.ico', placeholder: 'Search the web with Bing' },
+    chatgpt: { name: 'ChatGPT', icon: 'https://chatgpt.com/favicon.ico', placeholder: 'Ask ChatGPT anything...' },
+    perplexity: { name: 'Perplexity', icon: 'https://www.google.com/s2/favicons?sz=64&domain=perplexity.ai', placeholder: 'Ask Perplexity anything...' },
+    claude: { name: 'Claude', icon: 'https://www.google.com/s2/favicons?sz=64&domain=claude.ai', placeholder: 'Talk to Claude...' },
+    robot_ai: { name: 'Robot AI', icon: '', isRobot: true, placeholder: 'Ask AI or search (Auto-routed)...' },
+    custom_engine: { name: 'Custom', icon: 'https://www.google.com/favicon.ico', placeholder: 'Search custom engine...' }
+};
+
+export function updateSearchEngineUI() {
+    const engine = state.settings.searchEngine || 'google';
+    const meta = SEARCH_ENGINE_METADATA[engine] || SEARCH_ENGINE_METADATA.google;
+
+    if (dom.searchEngineCurrentIcon) {
+        if (meta.isRobot) {
+            dom.searchEngineCurrentIcon.style.display = 'none';
+            let robotSpan = dom.searchEngineBtn?.querySelector('.engine-icon-robot');
+            if (!robotSpan) {
+                robotSpan = document.createElement('span');
+                robotSpan.className = 'engine-icon-robot';
+                robotSpan.textContent = '🤖';
+                dom.searchEngineBtn?.insertBefore(robotSpan, dom.searchEngineBtn.firstChild);
+            }
+            robotSpan.style.display = 'inline-flex';
+        } else {
+            const robotSpan = dom.searchEngineBtn?.querySelector('.engine-icon-robot');
+            if (robotSpan) robotSpan.style.display = 'none';
+            dom.searchEngineCurrentIcon.style.display = 'block';
+            dom.searchEngineCurrentIcon.src = meta.icon;
+            dom.searchEngineCurrentIcon.alt = meta.name;
+        }
     }
-    const urls = {
-        google: 'https://www.google.com/search?q=%s',
-        duckduckgo: 'https://duckduckgo.com/?q=%s',
-        bing: 'https://www.bing.com/search?q=%s',
-        brave: 'https://search.brave.com/search?q=%s',
-        chatgpt: 'https://chatgpt.com/?q=%s',
-        perplexity: 'https://www.perplexity.ai/search?q=%s',
-        claude: 'https://claude.ai/?q=%s',
-    };
-    return urls[engine] || urls.google;
+
+    if (dom.searchInput) {
+        dom.searchInput.placeholder = meta.placeholder;
+    }
+
+    if (dom.searchEngineMenu) {
+        dom.searchEngineMenu.querySelectorAll('.engine-menu-item').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.engine === engine);
+        });
+    }
 }
 
 export function resolveSearch(rawQuery) {
@@ -128,40 +159,61 @@ export function setupSearch() {
             }
         };
 
-        dom.searchInput.oninput = async (e) => {
-            let query = e.target.value.trim();
-            selectedIndex = -1;
-            if (!query) { dom.searchSuggestions.classList.add('hidden'); return; }
+        let debounceTimer = null;
+        let latestQuerySeq = 0;
 
-            // Strip slash command prefix for autocomplete queries
-            if (query.startsWith('/')) {
-                const parts = query.split(/\s+/);
-                if (parts.length > 1) {
-                    query = parts.slice(1).join(' ');
-                } else {
+        dom.searchInput.oninput = (e) => {
+            const queryRaw = e.target.value;
+            let query = queryRaw.trim();
+            selectedIndex = -1;
+            
+            if (!query) {
+                if (dom.searchSuggestions) {
                     dom.searchSuggestions.classList.add('hidden');
-                    return;
+                    dom.searchSuggestions.innerHTML = '';
                 }
+                return;
             }
 
-            try {
-                const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`);
-                const data = await res.json();
-                const suggestions = (data[1] || []).slice(0, 6);
-                dom.searchSuggestions.innerHTML = suggestions.map((s, i) => `
-                    <li class="suggestion-item" data-index="${i}">
-                        <svg viewBox="0 0 24 24" width="16" height="16" style="opacity:0.5"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
-                        <span>${s}</span>
-                    </li>`).join('');
-                dom.searchSuggestions.classList.toggle('hidden', suggestions.length === 0);
-                
-                dom.searchSuggestions.querySelectorAll('li').forEach(li => {
-                    li.onclick = () => { 
-                        dom.searchInput.value = li.querySelector('span').textContent; 
-                        dom.searchForm.requestSubmit(); 
-                    };
-                });
-            } catch (err) { }
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                const currentSeq = ++latestQuerySeq;
+
+                // Strip slash command prefix for autocomplete queries
+                if (query.startsWith('/')) {
+                    const parts = query.split(/\s+/);
+                    if (parts.length > 1) {
+                        query = parts.slice(1).join(' ');
+                    } else {
+                        if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                        return;
+                    }
+                }
+
+                try {
+                    const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`);
+                    if (currentSeq !== latestQuerySeq) return; // Discard stale responses
+                    const data = await res.json();
+                    const suggestions = (data[1] || []).slice(0, 6);
+                    if (currentSeq !== latestQuerySeq) return;
+
+                    if (dom.searchSuggestions) {
+                        dom.searchSuggestions.innerHTML = suggestions.map((s, i) => `
+                            <li class="suggestion-item" data-index="${i}">
+                                <svg viewBox="0 0 24 24" width="16" height="16" style="opacity:0.5"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+                                <span>${escapeHTML(s)}</span>
+                            </li>`).join('');
+                        dom.searchSuggestions.classList.toggle('hidden', suggestions.length === 0);
+                        
+                        dom.searchSuggestions.querySelectorAll('li').forEach(li => {
+                            li.onclick = () => { 
+                                dom.searchInput.value = li.querySelector('span')?.textContent || ''; 
+                                dom.searchForm?.requestSubmit(); 
+                            };
+                        });
+                    }
+                } catch (err) { }
+            }, 180);
         };
 
         dom.searchInput.onkeydown = (e) => {
@@ -205,7 +257,64 @@ export function setupSearch() {
         document.addEventListener('click', (e) => {
             if (!dom.searchContainer.contains(e.target)) {
                 dom.searchSuggestions.classList.add('hidden');
+                dom.searchEngineMenu?.classList.add('hidden');
+                dom.searchEngineBtn?.classList.remove('open');
             }
         });
+
+        // Search engine switcher button toggle
+        if (dom.searchEngineBtn && dom.searchEngineMenu) {
+            dom.searchEngineBtn.onclick = (e) => {
+                e.stopPropagation();
+                const isHidden = dom.searchEngineMenu.classList.contains('hidden');
+                dom.searchEngineMenu.classList.toggle('hidden', !isHidden);
+                dom.searchEngineBtn.classList.toggle('open', isHidden);
+                if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+            };
+
+            // Select engine from dropdown
+            dom.searchEngineMenu.querySelectorAll('.engine-menu-item').forEach(item => {
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    const chosenEngine = item.dataset.engine;
+                    if (chosenEngine) {
+                        state.settings.searchEngine = chosenEngine;
+                        saveSettings(state.settings);
+                        updateSearchEngineUI();
+                        // Sync settings modal radio buttons if open
+                        const radio = document.querySelector(`input[name="search_engine"][value="${chosenEngine}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                    dom.searchEngineMenu.classList.add('hidden');
+                    dom.searchEngineBtn.classList.remove('open');
+                    dom.searchInput?.focus();
+                };
+            });
+
+            // Customize list button -> open Settings Modal on Search Tab
+            if (dom.customizeEnginesBtn) {
+                dom.customizeEnginesBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    dom.searchEngineMenu.classList.add('hidden');
+                    dom.searchEngineBtn.classList.remove('open');
+                    // Open settings modal
+                    if (dom.modalOverlay) {
+                        dom.modalOverlay.classList.remove('hidden');
+                        // Switch to Search tab
+                        dom.sidebarTabs.forEach(t => t.classList.remove('active'));
+                        dom.tabPanes.forEach(p => p.classList.remove('active'));
+                        const searchTab = document.querySelector('.sidebar-tab[data-target="tab-search"]');
+                        const searchPane = document.getElementById('tab-search');
+                        if (searchTab && searchPane) {
+                            searchTab.classList.add('active');
+                            searchPane.classList.add('active');
+                        }
+                    }
+                };
+            }
+        }
+
+        // Initialize UI state
+        updateSearchEngineUI();
     }
 }

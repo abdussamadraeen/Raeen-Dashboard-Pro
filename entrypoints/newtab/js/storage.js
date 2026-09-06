@@ -28,10 +28,9 @@ export const StorageManager = (() => {
                     if (!upgradeDb.objectStoreNames.contains('mediaStore')) upgradeDb.createObjectStore('mediaStore');
                     if (!upgradeDb.objectStoreNames.contains('imageCache')) upgradeDb.createObjectStore('imageCache');
                     
-                    if (upgradeDb.objectStoreNames.contains('notes')) {
-                        upgradeDb.deleteObjectStore('notes');
+                    if (!upgradeDb.objectStoreNames.contains('notes')) {
+                        upgradeDb.createObjectStore('notes', { keyPath: 'id' });
                     }
-                    upgradeDb.createObjectStore('notes', { keyPath: 'id' });
                 };
 
                 request.onsuccess = (e) => { 
