@@ -1545,25 +1545,25 @@ function optimizeImage(file) {
     // ─── Free-Position Drag & Drop / Resize Widget System ───
     (function() {
         const defaultPositions = {
-            "clock-widget": { left: "4%", top: "3%" },
-            "card-date": { left: "4%", top: "18%" },
-            "card-focus": { left: "4%", top: "39%" },
-            "card-security": { left: "4%", top: "58%" },
-            "search-widget": { left: "30%", top: "6%" },
-            "directory-widget": { left: "30%", top: "22%" },
-            "notes-widget": { left: "70%", top: "22%" },
-            "top-sites-widget": { left: "30%", top: "15%" }
+            "clock-widget": { left: "1.5%", top: "2%" },
+            "search-widget": { left: "30%", top: "4.5%" },
+            "card-date": { left: "10%", top: "19%" },
+            "card-security": { left: "10%", top: "50%" },
+            "directory-widget": { left: "31%", top: "19%" },
+            "notes-widget": { left: "71%", top: "19%" },
+            "card-focus": { left: "71%", top: "56%" },
+            "top-sites-widget": { left: "31%", top: "72%" }
         };
 
         const defaultSizes = {
             "clock-widget": { width: "auto", height: "auto" },
-            "card-date": { width: "280px", height: "auto" },
-            "card-focus": { width: "280px", height: "170px" },
-            "card-security": { width: "280px", height: "auto" },
-            "search-widget": { width: "640px", height: "auto" },
-            "directory-widget": { width: "640px", height: "380px" },
-            "notes-widget": { width: "340px", height: "380px" },
-            "top-sites-widget": { width: "640px", height: "auto" }
+            "search-widget": { width: "620px", height: "auto" },
+            "card-date": { width: "270px", height: "auto" },
+            "card-security": { width: "270px", height: "auto" },
+            "directory-widget": { width: "560px", height: "460px" },
+            "notes-widget": { width: "270px", height: "320px" },
+            "card-focus": { width: "270px", height: "170px" },
+            "top-sites-widget": { width: "560px", height: "auto" }
         };
 
         // Create snap guide lines dynamically if they don't exist
@@ -1639,9 +1639,9 @@ function optimizeImage(file) {
 
             document.querySelectorAll(".draggable-widget").forEach(widget => {
                 if (!widget.id) return;
-                if (widget.id === "card-date" || widget.id === "clock-widget" || widget.id === "card-security") {
+                if (widget.id === "clock-widget") {
+                    widget.style.width = "auto";
                     widget.style.height = "auto";
-                    if (widget.id === "card-date" || widget.id === "card-security") widget.style.width = "280px";
                     return;
                 }
                 const size = sizes[widget.id] || defaultSizes[widget.id];
@@ -1663,6 +1663,22 @@ function optimizeImage(file) {
                 } catch (e) {
                     console.error("Failed to parse saved positions", e);
                 }
+            }
+
+            // Detect and discard corrupted or colliding positions from previous versions
+            let isCorrupted = false;
+            if (saved && positions) {
+                const keys = Object.keys(positions);
+                if (keys.length > 0) {
+                    const zeroes = keys.filter(k => positions[k]?.left === "0%" || positions[k]?.top === "0%").length;
+                    if (zeroes >= 2 || positions["card-focus"]?.left === "4%" || positions["card-date"]?.left === "4%") {
+                        isCorrupted = true;
+                    }
+                }
+            }
+            if (isCorrupted) {
+                localStorage.removeItem("raeen_widget_positions");
+                positions = {};
             }
 
             document.querySelectorAll(".draggable-widget").forEach(widget => {
@@ -1697,27 +1713,32 @@ function optimizeImage(file) {
         }
 
         let clampFrame = null;
-        let clampSaveTimeout = null;
 
-        // Perform layout clamping on window resize
+        // Perform layout clamping on window resize (without overwriting default positions)
         function clampWidgetsOnScreen() {
             clampFrame = null;
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
+            if (viewportWidth < 500 || viewportHeight < 400) return;
+
             document.querySelectorAll(".draggable-widget").forEach(widget => {
+                if (widget.classList.contains("hidden")) return;
                 const rect = widget.getBoundingClientRect();
+                if (rect.width === 0 || rect.height === 0) return;
+                
                 let leftPx = rect.left;
                 let topPx = rect.top;
                 
-                leftPx = Math.max(0, Math.min(leftPx, viewportWidth - rect.width));
-                topPx = Math.max(0, Math.min(topPx, viewportHeight - rect.height));
+                const maxLeft = Math.max(0, viewportWidth - rect.width);
+                const maxTop = Math.max(0, viewportHeight - rect.height);
                 
-                widget.style.left = `${(leftPx / viewportWidth) * 100}%`;
-                widget.style.top = `${(topPx / viewportHeight) * 100}%`;
+                if (leftPx > maxLeft || topPx > maxTop || leftPx < 0 || topPx < 0) {
+                    leftPx = Math.max(0, Math.min(leftPx, maxLeft));
+                    topPx = Math.max(0, Math.min(topPx, maxTop));
+                    widget.style.left = `${(leftPx / viewportWidth) * 100}%`;
+                    widget.style.top = `${(topPx / viewportHeight) * 100}%`;
+                }
             });
-
-            clearTimeout(clampSaveTimeout);
-            clampSaveTimeout = setTimeout(saveWidgetPositions, 180);
         }
 
         function scheduleWidgetClamp() {
