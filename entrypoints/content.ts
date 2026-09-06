@@ -318,7 +318,12 @@ export default defineContentScript({
       homeBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (window.self !== window.top) {
-          window.parent.postMessage({ action: 'close_dashboard_iframe' }, '*');
+          try {
+            if (window.top) window.top.postMessage({ action: 'close_dashboard_iframe' }, '*');
+          } catch (err) {}
+          try {
+            if (window.parent && window.parent !== window.top) window.parent.postMessage({ action: 'close_dashboard_iframe' }, '*');
+          } catch (err) {}
         } else {
           browser.runtime.sendMessage({ action: 'open_dashboard' });
         }
@@ -342,7 +347,12 @@ export default defineContentScript({
       settingsBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (window.self !== window.top) {
-          window.parent.postMessage({ action: 'open_dashboard_settings' }, '*');
+          try {
+            if (window.top) window.top.postMessage({ action: 'open_dashboard_settings' }, '*');
+          } catch (err) {}
+          try {
+            if (window.parent && window.parent !== window.top) window.parent.postMessage({ action: 'open_dashboard_settings' }, '*');
+          } catch (err) {}
         } else {
           browser.runtime.sendMessage({ action: 'open_dashboard', openSettings: true });
         }

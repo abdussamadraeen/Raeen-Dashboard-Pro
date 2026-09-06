@@ -236,6 +236,11 @@ export function cleanupBackground() {
                 video.load();
             } catch (e) {}
         }
+        const iframe = dom.bgLayer.querySelector('iframe');
+        if (iframe) {
+            iframe.src = 'about:blank';
+            iframe.remove();
+        }
         dom.bgLayer.innerHTML = '';
         dom.bgLayer.style.backgroundImage = '';
         dom.bgLayer.style.backgroundColor = 'transparent';
@@ -448,6 +453,16 @@ export async function applySettings() {
     // Handle Live Background interaction (Immersive Mode)
     const isLive = bgType === 'google_dashboard' || bgType === 'bing_dashboard';
     document.body.classList.toggle('live-bg-active', isLive);
+
+    if (!isLive) {
+        document.documentElement.classList.remove('live-bg-pre-active');
+        document.querySelectorAll('#raeen-preloader-style, #raeen-theme-preloader-style, #raeen-live-preloader-style, style[data-preloader]').forEach(el => el.remove());
+        document.querySelectorAll('style').forEach(s => {
+            if (s.textContent && s.textContent.includes('.container') && s.textContent.includes('display: none !important')) {
+                s.remove();
+            }
+        });
+    }
 
     // Hide all UI in Immersive Mode, except settings
     const hideUI = isLive;

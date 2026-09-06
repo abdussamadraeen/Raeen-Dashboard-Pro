@@ -538,34 +538,65 @@ function optimizeImage(file) {
     // Frame message listener (using postMessage to prevent tab cross-talk)
     window.addEventListener('message', async (event) => {
         const msg = event.data;
-        if (!msg) return;
+        if (!msg || typeof msg !== 'object') return;
 
-        // Verify the message is coming from our active background iframe to prevent tab cross-talk
         const iframe = dom.bgLayer ? dom.bgLayer.querySelector('iframe') : null;
-        if (!iframe || event.source !== iframe.contentWindow) return;
 
         if (msg.action === 'iframe_navigated' && msg.title) {
-            document.title = msg.title;
+            if (iframe && event.source === iframe.contentWindow) {
+                document.title = msg.title;
+            }
+            return;
         }
+
         if (msg.action === 'close_dashboard_iframe' || msg.action === 'open_dashboard_settings') {
             try {
-                const settings = await StorageManager.get('settings', 'main');
-                if (settings) {
-                    settings.backgroundType = 'solid';
-                    settings.backgroundValue = '#0f0f17';
-                    updateSettings(settings);
-                    await saveSettings(settings);
-                    localStorage.setItem('raeen_bg_type', settings.backgroundType);
-                    localStorage.setItem('raeen_bg_value', settings.backgroundValue || '');
+                // 1. Immediately scrub all live-bg preloader classes and style overrides
+                document.documentElement.classList.remove('live-bg-pre-active');
+                document.body.classList.remove('live-bg-active');
+                document.querySelectorAll('#raeen-preloader-style, #raeen-theme-preloader-style, #raeen-live-preloader-style, style[data-preloader]').forEach(el => el.remove());
+                document.querySelectorAll('style').forEach(s => {
+                    if (s.textContent && s.textContent.includes('.container') && s.textContent.includes('display: none !important')) {
+                        s.remove();
+                    }
+                });
+
+                // 2. Immediately tear down background iframe
+                if (dom.bgLayer) {
+                    const ifr = dom.bgLayer.querySelector('iframe');
+                    if (ifr) {
+                        ifr.src = 'about:blank';
+                        ifr.remove();
+                    }
+                    dom.bgLayer.innerHTML = '';
+                    dom.bgLayer.style.backgroundImage = 'none';
+                    dom.bgLayer.style.backgroundColor = '#0f0f17';
                 }
+
+                // 3. Synchronously switch active state to solid so applySettings() immediately shows widgets
+                state.settings.backgroundType = 'solid';
+                state.settings.backgroundValue = '#0f0f17';
+                localStorage.setItem('raeen_bg_type', 'solid');
+                localStorage.setItem('raeen_bg_value', '#0f0f17');
+
                 applySettings();
                 syncSettingsUI();
                 updateTime();
 
+                // 4. Asynchronously persist to StorageManager
+                let settings = await StorageManager.get('settings', 'main');
+                if (!settings) {
+                    settings = { ...state.settings };
+                }
+                settings.backgroundType = 'solid';
+                settings.backgroundValue = '#0f0f17';
+                updateSettings(settings);
+                await saveSettings(settings);
+
                 if (msg.action === 'open_dashboard_settings') {
                     setTimeout(() => {
                         if (dom.settingsBtn) dom.settingsBtn.click();
-                    }, 100);
+                    }, 50);
                 }
             } catch (err) {
                 console.error("Failed to restore settings:", err);
