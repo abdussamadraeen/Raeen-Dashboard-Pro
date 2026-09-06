@@ -1,0 +1,5 @@
+SocksPort 127.0.0.1:9050
+DataDirectory C:\Workspace\Extension\google\tools\tor\data-dir
+GeoIPFile C:\Workspace\Extension\google\tools\tor\data\geoip
+GeoIPv6File C:\Workspace\Extension\google\tools\tor\data\geoip6
+Log notice stdout

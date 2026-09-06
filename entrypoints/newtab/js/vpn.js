@@ -160,17 +160,21 @@ class SecurityManager {
         if (chromeProxy && chromeProxy.settings) {
             return new Promise((resolve) => {
                 const isTor = !!nodeConfig.isTor;
-                let pacScript;
+                let proxyConfig;
                 
-                if (isTor) {
-                    pacScript = `
-                        function FindProxyForURL(url, host) {
-                            if (isPlainHostName(host) || shExpMatch(host, "*.local") || shExpMatch(host, "127.0.0.1") || shExpMatch(host, "localhost")) {
-                                return "DIRECT";
-                            }
-                            return "SOCKS5 127.0.0.1:9050; SOCKS5 127.0.0.1:9150";
+                if (isTor || (nodeConfig.scheme || '').toLowerCase() === 'socks5') {
+                    // Bulletproof native SOCKS5 routing for Tor
+                    proxyConfig = {
+                        mode: 'fixed_servers',
+                        rules: {
+                            singleProxy: {
+                                scheme: 'socks5',
+                                host: nodeConfig.host || '127.0.0.1',
+                                port: parseInt(nodeConfig.port || 9050, 10)
+                            },
+                            bypassList: ['<local>', 'localhost', '127.0.0.1']
                         }
-                    `;
+                    };
                 } else {
                     const endpoints = [{ host: nodeConfig.host, port: nodeConfig.port }, ...(nodeConfig.fallbacks || [])];
                     const proxyEntries = endpoints.map(e => {
@@ -178,7 +182,7 @@ class SecurityManager {
                         return `${kw} ${e.host}:${e.port}`;
                     }).join('; ');
 
-                    pacScript = `
+                    const pacScript = `
                         function FindProxyForURL(url, host) {
                             if (isPlainHostName(host) || shExpMatch(host, "*.local") || shExpMatch(host, "127.0.0.1") || shExpMatch(host, "localhost")) {
                                 return "DIRECT";
@@ -186,13 +190,14 @@ class SecurityManager {
                             return "${proxyEntries}";
                         }
                     `;
+                    proxyConfig = {
+                        mode: 'pac_script',
+                        pacScript: { data: pacScript }
+                    };
                 }
 
                 chromeProxy.settings.set({
-                    value: {
-                        mode: 'pac_script',
-                        pacScript: { data: pacScript }
-                    },
+                    value: proxyConfig,
                     scope: 'regular'
                 }, () => {
                     const err = chrome.runtime?.lastError;

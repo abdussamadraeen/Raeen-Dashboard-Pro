@@ -24,3 +24,8 @@ web-ext.config.ts
 *.njsproj
 *.sln
 *.sw?
+
+# Local Tor binaries and state
+tools/tor/data-dir/
+tools/tor/tor/
+tools/tor/tor.tar.gz
