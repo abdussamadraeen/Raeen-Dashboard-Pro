@@ -23,7 +23,9 @@ export default defineConfig({
       'declarativeNetRequest',
       'declarativeNetRequestWithHostAccess',
       'browsingData',
-      'tabs'
+      'tabs',
+      'proxy',
+      'privacy'
     ],
     host_permissions: [
       'https://suggestqueries.google.com/*',
@@ -38,7 +40,10 @@ export default defineConfig({
       'https://*.live.com/*',
       'https://*.microsoftonline.com/*',
       'https://bing.biturl.top/*',
-      'https://images.unsplash.com/*'
+      'https://images.unsplash.com/*',
+      'https://api.ipify.org/*',
+      'https://ipapi.co/*',
+      'https://icanhazip.com/*'
     ],
     declarative_net_request: {
       rule_resources: [{

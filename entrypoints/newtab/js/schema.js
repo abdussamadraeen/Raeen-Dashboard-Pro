@@ -29,6 +29,7 @@ export const DEFAULT_SETTINGS = {
     showCardDate: true, 
     showCardFocus: true, 
     showCardNote: true,
+    showCardSecurity: true,
     showNoosphereBar: true, 
     showMainUI: true, 
     showSettingsButtonInImmersive: true, 

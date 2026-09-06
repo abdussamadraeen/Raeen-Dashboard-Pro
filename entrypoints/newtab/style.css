@@ -3576,5 +3576,355 @@ body.boss-mode-active .noosphere-status-horizontal {
     font-weight: 500;
 }
 
+/* ─── Military-Grade Tactical Security HUD & VPN ─── */
+.tactical-security-hud {
+    min-height: auto;
+    padding: 18px 20px 22px 20px;
+    gap: 12px;
+    position: relative;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 0 18px rgba(16, 185, 129, 0.12), var(--glass-inner-sheen);
+}
+
+.tactical-security-hud.hud-engaged {
+    border-color: rgba(16, 185, 129, 0.55);
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55), 0 0 28px rgba(16, 185, 129, 0.28), var(--glass-inner-sheen);
+}
+
+.icon-security {
+    background: linear-gradient(135deg, #059669, #0284c7) !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
+}
+
+.defcon-badge {
+    font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 750;
+    letter-spacing: 0.8px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.defcon-idle {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.14);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.defcon-hot {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.16);
+    border: 1px solid rgba(16, 185, 129, 0.45);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+    animation: defconPulse 2s infinite ease-in-out;
+}
+
+@keyframes defconPulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.25); }
+    50% { box-shadow: 0 0 16px rgba(16, 185, 129, 0.55); }
+}
+
+/* Radar Scope */
+.hud-radar-section {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 12px;
+    background: rgba(5, 12, 22, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+}
+[data-theme="light"] .hud-radar-section {
+    background: rgba(241, 245, 249, 0.85);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.radar-scope {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(2, 6, 23, 0.95) 75%);
+    border: 1.5px solid rgba(16, 185, 129, 0.45);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.radar-sweep {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, rgba(16, 185, 129, 0.55) 0deg, rgba(16, 185, 129, 0) 65deg, transparent 360deg);
+    animation: radarSpin 3s linear infinite;
+    opacity: 0.6;
+}
+
+.radar-active .radar-sweep {
+    animation-duration: 1.5s;
+    opacity: 0.9;
+}
+
+@keyframes radarSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.radar-crosshair-x {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(16, 185, 129, 0.25);
+}
+
+.radar-crosshair-y {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(16, 185, 129, 0.25);
+}
+
+.radar-ping {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: #10b981;
+    border-radius: 50%;
+    top: 35%;
+    left: 65%;
+    box-shadow: 0 0 8px #10b981;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.radar-active .radar-ping {
+    opacity: 1;
+    animation: pingPulse 1.5s infinite;
+}
+
+@keyframes pingPulse {
+    0% { transform: scale(0.8); opacity: 0.3; }
+    50% { transform: scale(1.6); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0.3; }
+}
+
+.hud-status-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.hud-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.72rem;
+}
+
+.hud-label {
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    font-size: 0.68rem;
+}
+
+.hud-val {
+    font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.hud-cipher {
+    color: #38bdf8;
+}
+
+.hud-sealed {
+    color: #10b981;
+    text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+/* Node selector */
+.hud-node-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.hud-node-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.hud-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.hud-select {
+    width: 100%;
+    padding: 7px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.25s, background 0.25s;
+}
+
+[data-theme="light"] .hud-select {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+.hud-select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.hud-custom-proxy {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.hud-input {
+    flex: 1;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.76rem;
+    font-family: 'SF Mono', monospace;
+    outline: none;
+}
+
+.hud-input-port {
+    width: 70px;
+    flex: none;
+}
+
+/* Telemetry display */
+.hud-telemetry {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .hud-telemetry {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.hud-tele-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hud-tele-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.6px;
+}
+
+.hud-tele-val {
+    font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Action row */
+.hud-action-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: 2px;
+}
+
+.hud-btn {
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 0.76rem;
+    font-weight: 750;
+    letter-spacing: 0.6px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.hud-btn:active {
+    transform: scale(0.96);
+}
+
+.hud-btn-engage {
+    flex: 1;
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.hud-btn-engage:hover {
+    background: linear-gradient(135deg, #047857, #059669);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.48);
+}
+
+.hud-btn-engage.btn-active {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+}
+
+.hud-btn-scram {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    padding: 8px 12px;
+    flex-shrink: 0;
+}
+
+.hud-btn-scram:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: #ef4444;
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+}
+
+/* Nuclear purge visual alarm flash */
+body.nuclear-scram-active {
+    animation: scramAlertFlash 0.6s infinite alternate;
+}
+
+@keyframes scramAlertFlash {
+    from { filter: drop-shadow(0 0 0 red); }
+    to { filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.8)); }
+}
+
+
 
 

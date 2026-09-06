@@ -694,6 +694,7 @@ export function syncSettingsUI() {
     if (dom.toggleCardDate) dom.toggleCardDate.checked = state.settings.showCardDate;
     if (dom.toggleCardFocus) dom.toggleCardFocus.checked = state.settings.showCardFocus;
     if (dom.toggleCardNote) dom.toggleCardNote.checked = state.settings.showCardNote;
+    if (dom.toggleCardSecurity) dom.toggleCardSecurity.checked = state.settings.showCardSecurity !== false;
     if (dom.toggleDragDrop) dom.toggleDragDrop.checked = state.settings.enableDragAndDrop;
 }
 
@@ -721,6 +722,7 @@ export function updateCards() {
     if (dom.cardDateEl) dom.cardDateEl.classList.toggle('hidden', !state.settings.showCardDate);
     if (dom.cardFocusEl) dom.cardFocusEl.classList.toggle('hidden', !state.settings.showCardFocus);
     if (dom.cardNoteEl) dom.cardNoteEl.classList.toggle('hidden', !state.settings.showCardNote);
+    if (dom.cardSecurityEl) dom.cardSecurityEl.classList.toggle('hidden', state.settings.showCardSecurity === false);
 
     const now = new Date();
     const currentDateKey = now.getDate();

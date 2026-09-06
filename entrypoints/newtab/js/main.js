@@ -24,6 +24,7 @@ import { setupSearch, updateSearchEngineUI } from './search.js';
 import { initFocusTimer } from './focus.js';
 import { validateAndRepairSettings } from './schema.js';
 import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
+import { securityManager, TACTICAL_NODES } from './vpn.js';
 
 (async function init() {
     // 1. Immediate UI Load (using defaults to prevent lag)
@@ -99,6 +100,136 @@ import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
     // 3. Feature setup (instant zero-latency execution)
     setupSearch();
     initFocusTimer();
+    initSecurityHud();
+
+    function initSecurityHud() {
+        if (!dom.cardSecurityEl) return;
+
+        window.renderSecurityHud = () => {
+            const isEngaged = securityManager.isActive;
+            const currentNode = TACTICAL_NODES.find(n => n.id === securityManager.currentNodeId) || TACTICAL_NODES[0];
+
+            dom.cardSecurityEl.classList.toggle('hud-engaged', isEngaged);
+            const radar = document.getElementById('hud-radar-scope');
+            if (radar) radar.classList.toggle('radar-active', isEngaged);
+
+            if (dom.hudDefconBadge) {
+                dom.hudDefconBadge.textContent = isEngaged ? 'DEFCON 1 (HOT)' : 'DEFCON 5';
+                dom.hudDefconBadge.className = 'defcon-badge ' + (isEngaged ? 'defcon-hot' : 'defcon-idle');
+            }
+
+            if (dom.hudShieldStatus) {
+                dom.hudShieldStatus.textContent = isEngaged ? 'ACTIVE [CLOAKED]' : 'READY';
+                dom.hudShieldStatus.style.color = isEngaged ? '#10b981' : '#38bdf8';
+            }
+
+            if (dom.hudCipherVal) {
+                dom.hudCipherVal.textContent = isEngaged ? (currentNode.cipher || 'AES-256-GCM') : 'STANDBY';
+            }
+
+            if (dom.hudWebrtcStatus) {
+                dom.hudWebrtcStatus.textContent = securityManager.webrtcSealed ? 'SEALED' : 'UNSEALED';
+                dom.hudWebrtcStatus.style.color = securityManager.webrtcSealed ? '#10b981' : '#ef4444';
+            }
+
+            if (dom.hudIpVal) {
+                dom.hudIpVal.textContent = isEngaged ? securityManager.maskedIp : securityManager.realIp;
+            }
+
+            if (dom.hudPingVal) {
+                dom.hudPingVal.textContent = securityManager.pingMs;
+            }
+
+            if (dom.hudToggleBtnText) {
+                dom.hudToggleBtnText.textContent = isEngaged ? 'DISENGAGE SHIELD' : 'ENGAGE SHIELD';
+            }
+
+            if (dom.hudToggleShieldBtn) {
+                dom.hudToggleShieldBtn.classList.toggle('btn-active', isEngaged);
+            }
+
+            if (dom.hudNodeSelect) {
+                dom.hudNodeSelect.value = securityManager.currentNodeId;
+            }
+
+            if (dom.hudCustomFields) {
+                dom.hudCustomFields.classList.toggle('hidden', securityManager.currentNodeId !== 'custom');
+            }
+        };
+
+        if (dom.hudNodeSelect) {
+            dom.hudNodeSelect.onchange = async (e) => {
+                const nodeId = e.target.value;
+                securityManager.currentNodeId = nodeId;
+                if (dom.hudCustomFields) {
+                    dom.hudCustomFields.classList.toggle('hidden', nodeId !== 'custom');
+                }
+                if (securityManager.isActive) {
+                    await securityManager.connect(nodeId);
+                }
+                window.renderSecurityHud();
+            };
+        }
+
+        if (dom.hudCustomHost && dom.hudCustomPort) {
+            const saveCustom = () => {
+                securityManager.customProxy = {
+                    scheme: 'socks5',
+                    host: dom.hudCustomHost.value.trim(),
+                    port: dom.hudCustomPort.value.trim()
+                };
+                localStorage.setItem('raeen_vpn_custom', JSON.stringify(securityManager.customProxy));
+            };
+            dom.hudCustomHost.oninput = saveCustom;
+            dom.hudCustomPort.oninput = saveCustom;
+            if (securityManager.customProxy) {
+                dom.hudCustomHost.value = securityManager.customProxy.host || '';
+                dom.hudCustomPort.value = securityManager.customProxy.port || '';
+            }
+        }
+
+        if (dom.hudToggleShieldBtn) {
+            dom.hudToggleShieldBtn.onclick = async () => {
+                dom.hudToggleShieldBtn.disabled = true;
+                try {
+                    if (securityManager.isActive) {
+                        await securityManager.disconnect();
+                    } else {
+                        await securityManager.connect();
+                    }
+                } finally {
+                    dom.hudToggleShieldBtn.disabled = false;
+                    window.renderSecurityHud();
+                }
+            };
+        }
+
+        if (dom.hudNuclearScramBtn) {
+            dom.hudNuclearScramBtn.onclick = async () => {
+                const confirmed = confirm("☢ INITIATE EMERGENCY NUCLEAR SCRAM PROTOCOL?\n\nThis will instantly vaporize all browsing session cookies, tracking caches, and temporary data across the browser.\n\nLocal notes and extension settings are protected.");
+                if (!confirmed) return;
+
+                dom.hudNuclearScramBtn.disabled = true;
+                dom.hudNuclearScramBtn.textContent = 'PURGING...';
+                document.body.classList.add('nuclear-scram-active');
+
+                try {
+                    await securityManager.triggerEmergencyNuclearPurge();
+                    alert("✓ NUCLEAR PROTOCOL EXECUTED.\n\nAll tracking cookies, cache, and session traces have been vaporized.");
+                } catch (err) {
+                    alert("Failed to execute purge: " + (err?.message || err));
+                } finally {
+                    dom.hudNuclearScramBtn.disabled = false;
+                    dom.hudNuclearScramBtn.textContent = '☢ SCRAM';
+                    document.body.classList.remove('nuclear-scram-active');
+                }
+            };
+        }
+
+        securityManager.init().then(() => {
+            window.renderSecurityHud();
+        });
+    }
 
     // Start background storage hydration without blocking immediate UI interactivity
     loadStorage();
@@ -201,6 +332,7 @@ import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
     bindToggle(dom.toggleCardDate, 'showCardDate');
     bindToggle(dom.toggleCardFocus, 'showCardFocus');
     bindToggle(dom.toggleCardNote, 'showCardNote');
+    bindToggle(dom.toggleCardSecurity, 'showCardSecurity');
     bindToggle(dom.toggleDragDrop, 'enableDragAndDrop');
 
     bindRadio('theme_preference', 'themePreference');
@@ -1350,6 +1482,7 @@ function optimizeImage(file) {
             "clock-widget": { left: "4%", top: "4%" },
             "card-date": { left: "4%", top: "21%" },
             "card-focus": { left: "4%", top: "44%" },
+            "card-security": { left: "4%", top: "67%" },
             "search-widget": { left: "30%", top: "6%" },
             "directory-widget": { left: "30%", top: "22%" },
             "notes-widget": { left: "70%", top: "22%" },
@@ -1360,6 +1493,7 @@ function optimizeImage(file) {
             "clock-widget": { width: "auto", height: "auto" },
             "card-date": { width: "280px", height: "auto" },
             "card-focus": { width: "280px", height: "170px" },
+            "card-security": { width: "280px", height: "auto" },
             "search-widget": { width: "640px", height: "auto" },
             "directory-widget": { width: "640px", height: "380px" },
             "notes-widget": { width: "340px", height: "380px" },
@@ -1439,9 +1573,9 @@ function optimizeImage(file) {
 
             document.querySelectorAll(".draggable-widget").forEach(widget => {
                 if (!widget.id) return;
-                if (widget.id === "card-date" || widget.id === "clock-widget") {
+                if (widget.id === "card-date" || widget.id === "clock-widget" || widget.id === "card-security") {
                     widget.style.height = "auto";
-                    if (widget.id === "card-date") widget.style.width = "280px";
+                    if (widget.id === "card-date" || widget.id === "card-security") widget.style.width = "280px";
                     return;
                 }
                 const size = sizes[widget.id] || defaultSizes[widget.id];
@@ -1480,7 +1614,7 @@ function optimizeImage(file) {
 
         function ensureDragAndResizeHandles() {
             const activeWidgets = document.querySelectorAll(".draggable-widget");
-            const nonResizableWidgets = ["clock-widget", "card-date", "card-focus"];
+            const nonResizableWidgets = ["clock-widget", "card-date", "card-focus", "card-security"];
             activeWidgets.forEach(widget => {
                 if (!widget.querySelector(".drag-handle")) {
                     const handle = document.createElement("div");
@@ -1731,7 +1865,7 @@ function optimizeImage(file) {
                     const widget = resizeHandle.closest(".draggable-widget");
                     if (!widget) return;
                     
-                    const nonResizableWidgets = ["clock-widget", "card-date", "card-focus"];
+                    const nonResizableWidgets = ["clock-widget", "card-date", "card-focus", "card-security"];
                     if (nonResizableWidgets.includes(widget.id)) return;
                     
                     e.preventDefault();

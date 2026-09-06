@@ -99,5 +99,20 @@ export const dom = {
     focusToggleBtn: document.getElementById('focus-toggle-btn'),
     focusResetBtn: document.getElementById('focus-reset-btn'),
     dashboardTitleInput: document.getElementById('dashboard-title-input'),
-    toggleDragDrop: document.getElementById('toggle-drag-drop')
+    toggleDragDrop: document.getElementById('toggle-drag-drop'),
+    toggleCardSecurity: document.getElementById('toggle-card-security'),
+    cardSecurityEl: document.getElementById('card-security'),
+    hudDefconBadge: document.getElementById('hud-defcon-badge'),
+    hudShieldStatus: document.getElementById('hud-shield-status'),
+    hudCipherVal: document.getElementById('hud-cipher-val'),
+    hudWebrtcStatus: document.getElementById('hud-webrtc-status'),
+    hudNodeSelect: document.getElementById('hud-node-select'),
+    hudCustomFields: document.getElementById('hud-custom-fields'),
+    hudCustomHost: document.getElementById('hud-custom-host'),
+    hudCustomPort: document.getElementById('hud-custom-port'),
+    hudIpVal: document.getElementById('hud-ip-val'),
+    hudPingVal: document.getElementById('hud-ping-val'),
+    hudToggleShieldBtn: document.getElementById('hud-toggle-shield-btn'),
+    hudToggleBtnText: document.getElementById('hud-toggle-btn-text'),
+    hudNuclearScramBtn: document.getElementById('hud-nuclear-scram-btn')
 };
