@@ -5,6 +5,53 @@
 
 export const TACTICAL_NODES = [
     {
+        id: 'us_secure',
+        name: 'United States (Fast Secure)',
+        flag: '🇺🇸',
+        location: 'United States (Utah / Los Angeles)',
+        isTor: false,
+        scheme: 'http',
+        host: '107.181.252.58',
+        port: 1082,
+        fallbacks: [
+            { host: '45.66.249.187', port: 8080 },
+            { host: '167.233.89.17', port: 1084 }
+        ],
+        cipher: 'AES-256 Tunnel',
+        description: 'High-speed US privacy route (verified live)'
+    },
+    {
+        id: 'asia_apac',
+        name: 'Asia Pacific (High Speed)',
+        flag: '🌏',
+        location: 'Asia Pacific (Vietnam / Singapore)',
+        isTor: false,
+        scheme: 'http',
+        host: '163.181.207.213',
+        port: 9999,
+        fallbacks: [
+            { host: '112.216.54.226', port: 12121 }
+        ],
+        cipher: 'ChaCha20-Poly1305',
+        description: 'Fast APAC route (verified live)'
+    },
+    {
+        id: 'europe_secure',
+        name: 'Europe (Secure Vault)',
+        flag: '🇪🇺',
+        location: 'Europe / UK Relay',
+        isTor: false,
+        scheme: 'http',
+        host: '2.27.63.250',
+        port: 8888,
+        fallbacks: [
+            { host: '95.3.69.222', port: 8080 },
+            { host: '217.77.2.242', port: 3129 }
+        ],
+        cipher: 'AES-256-GCM',
+        description: 'European privacy tunnel'
+    },
+    {
         id: 'fast_tor',
         name: 'Fast Tor (127.0.0.1:9050)',
         flag: '🧅',
@@ -14,7 +61,7 @@ export const TACTICAL_NODES = [
         host: '127.0.0.1',
         port: 9050,
         cipher: 'Tor Multi-Hop Onion',
-        description: 'Instant local Tor or Brave Tor SOCKS5 route with 0s connection lag'
+        description: 'Instant local Tor SOCKS5 daemon (9050)'
     },
     {
         id: 'fast_tor_alt',
@@ -29,68 +76,8 @@ export const TACTICAL_NODES = [
         description: 'Tor Browser SOCKS5 port (9150)'
     },
     {
-        id: 'swiss_vault',
-        name: 'Switzerland (Privacy Vault)',
-        flag: '🇨🇭',
-        location: 'Zurich Secure Vault',
-        isTor: false,
-        scheme: 'socks5',
-        host: '194.26.29.13',
-        port: 4145,
-        cipher: 'CHACHA20-POLY1305',
-        description: 'Strict Swiss privacy laws'
-    },
-    {
-        id: 'us_secure',
-        name: 'United States (Fast Secure)',
-        flag: '🇺🇸',
-        location: 'New York / Ashburn',
-        isTor: false,
-        scheme: 'socks5',
-        host: '104.248.63.15',
-        port: 30588,
-        cipher: 'AES-256-GCM',
-        description: 'High-speed US privacy route'
-    },
-    {
-        id: 'frankfurt_speed',
-        name: 'Germany (High Speed)',
-        flag: '🇩🇪',
-        location: 'Frankfurt Central',
-        isTor: false,
-        scheme: 'socks5',
-        host: '159.65.122.91',
-        port: 1080,
-        cipher: 'AES-256-GCM',
-        description: 'Ultra low-latency European relay'
-    },
-    {
-        id: 'singapore_apac',
-        name: 'Singapore (Asia Fast)',
-        flag: '🇸🇬',
-        location: 'Singapore Central',
-        isTor: false,
-        scheme: 'socks5',
-        host: '139.59.229.117',
-        port: 1080,
-        cipher: 'AES-256-GCM',
-        description: 'Fast APAC route'
-    },
-    {
-        id: 'london_shield',
-        name: 'United Kingdom (Secure)',
-        flag: '🇬🇧',
-        location: 'London High-Speed',
-        isTor: false,
-        scheme: 'socks5',
-        host: '178.62.83.195',
-        port: 1080,
-        cipher: 'AES-256-GCM',
-        description: 'Secure UK tunnel'
-    },
-    {
         id: 'custom',
-        name: 'Custom SOCKS5 / Tor Bridge',
+        name: 'Custom SOCKS5 / HTTP Proxy',
         flag: '⚙️',
         location: 'User Defined Host & Port',
         isTor: false,
@@ -183,14 +170,18 @@ class SecurityManager {
                         }
                     `;
                 } else {
-                    const scheme = (nodeConfig.scheme || 'socks5').toLowerCase();
-                    const proxyKeyword = scheme === 'socks5' ? 'SOCKS5' : (scheme === 'https' ? 'HTTPS' : 'PROXY');
+                    const endpoints = [{ host: nodeConfig.host, port: nodeConfig.port }, ...(nodeConfig.fallbacks || [])];
+                    const proxyEntries = endpoints.map(e => {
+                        const kw = (nodeConfig.scheme || 'http').toLowerCase() === 'socks5' ? 'SOCKS5' : 'PROXY';
+                        return `${kw} ${e.host}:${e.port}`;
+                    }).join('; ');
+
                     pacScript = `
                         function FindProxyForURL(url, host) {
                             if (isPlainHostName(host) || shExpMatch(host, "*.local") || shExpMatch(host, "127.0.0.1") || shExpMatch(host, "localhost")) {
                                 return "DIRECT";
                             }
-                            return "${proxyKeyword} ${nodeConfig.host}:${nodeConfig.port}; DIRECT";
+                            return "${proxyEntries}; DIRECT";
                         }
                     `;
                 }
@@ -316,19 +307,27 @@ class SecurityManager {
     async probeIp() {
         if (this.isQueryingIp) return;
         this.isQueryingIp = true;
+        
+        // Brief pause after activating to let Chrome proxy routing socket initialize
+        if (this.isActive) {
+            await new Promise(r => setTimeout(r, 400));
+        }
+
         const t0 = performance.now();
         try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 4000);
+            const timeout = setTimeout(() => controller.abort(), 5000);
             let ip = null;
             try {
                 const res = await fetch(`https://api.ipify.org?format=json&nocache=${Date.now()}`, { signal: controller.signal });
                 const data = await res.json();
                 ip = data.ip;
             } catch (e1) {
-                const res2 = await fetch(`https://icanhazip.com/?nocache=${Date.now()}`, { signal: controller.signal });
-                const text = await res2.text();
-                ip = text.trim();
+                try {
+                    const res2 = await fetch(`https://icanhazip.com/?nocache=${Date.now()}`, { signal: controller.signal });
+                    const text = await res2.text();
+                    ip = text.trim();
+                } catch (e2) {}
             }
             clearTimeout(timeout);
             const lat = Math.round(performance.now() - t0);
