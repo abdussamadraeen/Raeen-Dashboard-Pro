@@ -226,8 +226,8 @@ html.live-bg-pre-active .background-layer {
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 35px rgba(255, 255, 255, 0.18);
     transition: transform 0.3s var(--ease-spring);
-    user-select: none;
     -webkit-user-select: none;
+    user-select: none;
 }
 [data-theme="light"] .time {
     background: linear-gradient(180deg, #0f172a 0%, #1e293b 80%, #334155 100%);
@@ -571,8 +571,8 @@ html.live-bg-pre-active .background-layer {
     transition: transform 0.35s var(--ease-spring), background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease; 
     cursor: pointer;
     position: relative;
-    user-select: none;
     -webkit-user-select: none;
+    user-select: none;
     animation: slideUpFade 0.5s ease-out forwards;
     animation-delay: calc(var(--item-index, 0) * 30ms);
     opacity: 0;
@@ -625,8 +625,8 @@ html.live-bg-pre-active .background-layer {
     box-shadow: var(--shadow-ambient), var(--glass-inner-sheen);
     transition: transform 0.35s var(--ease-spring), box-shadow 0.35s ease, border-color 0.35s ease;
     display: flex; flex-direction: column; gap: 10px;
-    user-select: none;
     -webkit-user-select: none;
+    user-select: none;
 }
 .info-card:hover { 
     transform: translateY(-4px); 
@@ -657,7 +657,7 @@ html.live-bg-pre-active .background-layer {
 
 /* ─── Premium Date Card & Time Vector ─── */
 #card-date {
-    min-height: auto;
+    min-height: 0;
     padding: 18px 20px 24px 20px;
     gap: 12px;
 }
@@ -3588,7 +3588,7 @@ body.boss-mode-active .noosphere-status-horizontal {
 
 /* ─── Military-Grade Tactical Security HUD & VPN ─── */
 .tactical-security-hud {
-    min-height: auto;
+    min-height: 0;
     padding: 12px 14px 14px 14px;
     gap: 8px;
     position: relative;
