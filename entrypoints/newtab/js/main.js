@@ -119,8 +119,13 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
             }
 
             if (dom.hudShieldStatus) {
-                dom.hudShieldStatus.textContent = isEngaged ? 'Connected' : 'Ready';
-                dom.hudShieldStatus.style.color = isEngaged ? '#10b981' : '#38bdf8';
+                if (isEngaged && securityManager.torOffline) {
+                    dom.hudShieldStatus.textContent = 'Tor Offline';
+                    dom.hudShieldStatus.style.color = '#ef4444';
+                } else {
+                    dom.hudShieldStatus.textContent = isEngaged ? 'Connected' : 'Ready';
+                    dom.hudShieldStatus.style.color = isEngaged ? '#10b981' : '#38bdf8';
+                }
             }
 
             if (dom.hudCipherVal) {
@@ -164,7 +169,11 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
 
             if (dom.hudNodeHint) {
                 if (currentNode.isTor) {
-                    dom.hudNodeHint.innerHTML = '🧅 <strong>Fast Tor:</strong> Routes via local Tor or Brave Tor (127.0.0.1:9050 / 9150).';
+                    if (securityManager.torOffline) {
+                        dom.hudNodeHint.innerHTML = '⚠️ <strong>Local Tor Offline:</strong> Run Tor daemon or Brave Tor (127.0.0.1:9050), or choose US VPN above for instant cloud protection.';
+                    } else {
+                        dom.hudNodeHint.innerHTML = '🧅 <strong>Fast Tor:</strong> SOCKS5 127.0.0.1:9050 (requires local Tor or Brave Tor Alt+Shift+N).';
+                    }
                 } else if (currentNode.id === 'custom') {
                     dom.hudNodeHint.innerHTML = '⚙️ <strong>Custom:</strong> Enter your own SOCKS5 or HTTPS proxy host and port.';
                 } else {
@@ -1500,10 +1509,10 @@ function optimizeImage(file) {
     // ─── Free-Position Drag & Drop / Resize Widget System ───
     (function() {
         const defaultPositions = {
-            "clock-widget": { left: "4%", top: "4%" },
-            "card-date": { left: "4%", top: "21%" },
-            "card-focus": { left: "4%", top: "44%" },
-            "card-security": { left: "4%", top: "67%" },
+            "clock-widget": { left: "4%", top: "3%" },
+            "card-date": { left: "4%", top: "18%" },
+            "card-focus": { left: "4%", top: "39%" },
+            "card-security": { left: "4%", top: "58%" },
             "search-widget": { left: "30%", top: "6%" },
             "directory-widget": { left: "30%", top: "22%" },
             "notes-widget": { left: "70%", top: "22%" },

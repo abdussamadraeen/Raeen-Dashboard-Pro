@@ -77,8 +77,8 @@ body {
     align-items: center;
     overflow-y: auto;
     overflow-x: hidden;
-    padding-top: 5vh;
-    padding-bottom: 5vh;
+    padding-top: 14px;
+    padding-bottom: 20px;
     position: relative;
     background-color: var(--bg-body);
     -webkit-font-smoothing: antialiased;
@@ -2856,23 +2856,32 @@ input:checked + .slider:before { transform: translateX(20px); }
 .layout-column {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 12px;
     width: 100%;
 }
 .cards-container {
     display: contents;
 }
 
+#column-1 {
+    max-height: calc(100vh - 44px);
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+}
+#column-1::-webkit-scrollbar {
+    display: none; /* WebKit */
+}
+
 @media (min-width: 1025px) {
     .container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 24px;
+        gap: 16px;
         width: 100%;
-        max-width: 1200px;
-        padding: 20px 0;
+        max-width: 1260px;
+        padding: 4px 16px;
         align-items: start;
-        margin-top: 100px;
+        margin-top: 10px;
     }
     
     #column-1 {
@@ -2896,9 +2905,10 @@ input:checked + .slider:before { transform: translateX(20px); }
     .container {
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: 14px;
         width: 100%;
-        padding: 16px;
+        padding: 12px;
+        margin-top: 8px;
     }
     
     #column-2 {
@@ -3579,8 +3589,8 @@ body.boss-mode-active .noosphere-status-horizontal {
 /* ─── Military-Grade Tactical Security HUD & VPN ─── */
 .tactical-security-hud {
     min-height: auto;
-    padding: 18px 20px 22px 20px;
-    gap: 12px;
+    padding: 12px 14px 14px 14px;
+    gap: 8px;
     position: relative;
     border: 1px solid rgba(16, 185, 129, 0.25);
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 0 18px rgba(16, 185, 129, 0.12), var(--glass-inner-sheen);
@@ -3598,11 +3608,11 @@ body.boss-mode-active .noosphere-status-horizontal {
 
 .defcon-badge {
     font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.68rem;
+    font-size: 0.64rem;
     font-weight: 700;
-    letter-spacing: 0.6px;
-    padding: 3px 9px;
-    border-radius: 6px;
+    letter-spacing: 0.5px;
+    padding: 2px 7px;
+    border-radius: 5px;
     text-transform: uppercase;
     transition: all 0.3s ease;
 }
@@ -3622,24 +3632,24 @@ body.boss-mode-active .noosphere-status-horizontal {
     color: #10b981;
     background: rgba(16, 185, 129, 0.16);
     border: 1px solid rgba(16, 185, 129, 0.45);
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
     animation: defconPulse 2s infinite ease-in-out;
 }
 
 @keyframes defconPulse {
-    0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.25); }
-    50% { box-shadow: 0 0 16px rgba(16, 185, 129, 0.55); }
+    0%, 100% { box-shadow: 0 0 6px rgba(16, 185, 129, 0.25); }
+    50% { box-shadow: 0 0 14px rgba(16, 185, 129, 0.55); }
 }
 
 /* Radar Scope */
 .hud-radar-section {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 10px 12px;
+    gap: 10px;
+    padding: 6px 10px;
     background: rgba(5, 12, 22, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
+    border-radius: 10px;
 }
 [data-theme="light"] .hud-radar-section {
     background: rgba(241, 245, 249, 0.85);
@@ -3647,15 +3657,15 @@ body.boss-mode-active .noosphere-status-horizontal {
 }
 
 .radar-scope {
-    width: 52px;
-    height: 52px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(2, 6, 23, 0.95) 75%);
-    border: 1.5px solid rgba(16, 185, 129, 0.45);
+    border: 1.2px solid rgba(16, 185, 129, 0.45);
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
-    box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.3);
+    box-shadow: inset 0 0 8px rgba(16, 185, 129, 0.3);
 }
 
 .radar-sweep {
@@ -3698,13 +3708,13 @@ body.boss-mode-active .noosphere-status-horizontal {
 
 .radar-ping {
     position: absolute;
-    width: 5px;
-    height: 5px;
+    width: 4px;
+    height: 4px;
     background: #10b981;
     border-radius: 50%;
     top: 35%;
     left: 65%;
-    box-shadow: 0 0 8px #10b981;
+    box-shadow: 0 0 6px #10b981;
     opacity: 0;
     transition: opacity 0.3s;
 }
@@ -3723,7 +3733,7 @@ body.boss-mode-active .noosphere-status-horizontal {
 .hud-status-meta {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     flex: 1;
 }
 
@@ -3731,22 +3741,22 @@ body.boss-mode-active .noosphere-status-horizontal {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    font-size: 0.72rem;
+    gap: 6px;
+    font-size: 0.68rem;
 }
 
 .hud-label {
     font-weight: 700;
     color: var(--text-secondary);
-    letter-spacing: 0.5px;
-    font-size: 0.66rem;
+    letter-spacing: 0.4px;
+    font-size: 0.60rem;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .hud-val {
     font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
     color: var(--text-primary);
     white-space: nowrap;
@@ -3768,14 +3778,14 @@ body.boss-mode-active .noosphere-status-horizontal {
 .hud-node-selector {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     width: 100%;
 }
 
 .hud-node-label {
-    font-size: 0.66rem;
+    font-size: 0.60rem;
     font-weight: 700;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.6px;
     color: var(--text-secondary);
     text-transform: uppercase;
 }
@@ -3787,12 +3797,12 @@ body.boss-mode-active .noosphere-status-horizontal {
 
 .hud-select {
     width: 100%;
-    padding: 7px 12px;
+    padding: 5px 8px;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--border);
-    border-radius: 9px;
+    border-radius: 7px;
     color: var(--text-primary);
-    font-size: 0.8rem;
+    font-size: 0.74rem;
     font-weight: 600;
     outline: none;
     cursor: pointer;
@@ -3810,12 +3820,12 @@ body.boss-mode-active .noosphere-status-horizontal {
 }
 
 .hud-node-info {
-    font-size: 0.64rem;
+    font-size: 0.60rem;
     color: var(--text-secondary);
-    padding: 4px 8px;
+    padding: 3px 6px;
     background: rgba(255, 255, 255, 0.04);
-    border-radius: 6px;
-    line-height: 1.35;
+    border-radius: 5px;
+    line-height: 1.3;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -3832,18 +3842,18 @@ body.boss-mode-active .noosphere-status-horizontal {
 
 .hud-input {
     flex: 1;
-    padding: 6px 10px;
+    padding: 5px 8px;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 6px;
     color: var(--text-primary);
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     font-family: 'SF Mono', monospace;
     outline: none;
 }
 
 .hud-input-port {
-    width: 70px;
+    width: 65px;
     flex: none;
 }
 
@@ -3851,9 +3861,9 @@ body.boss-mode-active .noosphere-status-horizontal {
 .hud-telemetry {
     display: flex;
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: 5px 10px;
     background: rgba(255, 255, 255, 0.03);
-    border-radius: 10px;
+    border-radius: 8px;
     border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
@@ -3865,31 +3875,31 @@ body.boss-mode-active .noosphere-status-horizontal {
 .hud-tele-col {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
 }
 
 .hud-tele-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .hud-tele-label {
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     font-weight: 700;
     color: var(--text-secondary);
-    letter-spacing: 0.6px;
+    letter-spacing: 0.5px;
 }
 
 .hud-verify-tag {
-    font-size: 0.60rem;
+    font-size: 0.58rem;
     font-weight: 700;
     color: #10b981;
     text-decoration: none;
     background: rgba(16, 185, 129, 0.12);
-    padding: 1px 5px;
-    border-radius: 4px;
+    padding: 1px 4px;
+    border-radius: 3px;
     border: 1px solid rgba(16, 185, 129, 0.25);
     transition: all 0.15s ease;
 }
@@ -3902,7 +3912,7 @@ body.boss-mode-active .noosphere-status-horizontal {
 
 .hud-tele-val {
     font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.76rem;
+    font-size: 0.70rem;
     font-weight: 700;
     color: var(--text-primary);
 }
@@ -3910,23 +3920,23 @@ body.boss-mode-active .noosphere-status-horizontal {
 /* Action row */
 .hud-action-row {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
     margin-top: 2px;
 }
 
 .hud-btn {
-    padding: 8px 14px;
-    border-radius: 9px;
-    font-size: 0.76rem;
-    font-weight: 750;
-    letter-spacing: 0.6px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 0.70rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
     border: none;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 5px;
     transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease, background 0.2s ease;
 }
 
@@ -3938,17 +3948,17 @@ body.boss-mode-active .noosphere-status-horizontal {
     flex: 1;
     background: linear-gradient(135deg, #059669, #10b981);
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
 }
 
 .hud-btn-engage:hover {
     background: linear-gradient(135deg, #047857, #059669);
-    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.48);
+    box-shadow: 0 5px 16px rgba(16, 185, 129, 0.48);
 }
 
 .hud-btn-engage.btn-active {
     background: linear-gradient(135deg, #dc2626, #ef4444);
-    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
 .hud-btn-scram {
@@ -3956,12 +3966,12 @@ body.boss-mode-active .noosphere-status-horizontal {
     border: 1px solid var(--border);
     color: var(--text-secondary);
     font-weight: 650;
-    letter-spacing: 0.4px;
-    padding: 8px 12px;
+    letter-spacing: 0.3px;
+    padding: 6px 9px;
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     transition: all 0.25s ease;
 }
 

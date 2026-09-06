@@ -14,8 +14,8 @@ export const TACTICAL_NODES = [
         host: '107.181.252.58',
         port: 1082,
         fallbacks: [
-            { host: '45.66.249.187', port: 8080 },
-            { host: '167.233.89.17', port: 1084 }
+            { host: '163.181.207.213', port: 9999 },
+            { host: '2.27.63.250', port: 8888 }
         ],
         cipher: 'AES-256 Tunnel',
         description: 'High-speed US privacy route (verified live)'
@@ -30,7 +30,8 @@ export const TACTICAL_NODES = [
         host: '163.181.207.213',
         port: 9999,
         fallbacks: [
-            { host: '112.216.54.226', port: 12121 }
+            { host: '107.181.252.58', port: 1082 },
+            { host: '2.27.63.250', port: 8888 }
         ],
         cipher: 'ChaCha20-Poly1305',
         description: 'Fast APAC route (verified live)'
@@ -45,11 +46,11 @@ export const TACTICAL_NODES = [
         host: '2.27.63.250',
         port: 8888,
         fallbacks: [
-            { host: '95.3.69.222', port: 8080 },
-            { host: '217.77.2.242', port: 3129 }
+            { host: '107.181.252.58', port: 1082 },
+            { host: '163.181.207.213', port: 9999 }
         ],
         cipher: 'AES-256-GCM',
-        description: 'European privacy tunnel'
+        description: 'European privacy tunnel (verified live)'
     },
     {
         id: 'fast_tor',
@@ -61,7 +62,7 @@ export const TACTICAL_NODES = [
         host: '127.0.0.1',
         port: 9050,
         cipher: 'Tor Multi-Hop Onion',
-        description: 'Instant local Tor SOCKS5 daemon (9050)'
+        description: 'Local Tor daemon (run Tor / Brave Alt+Shift+N)'
     },
     {
         id: 'fast_tor_alt',
@@ -73,7 +74,7 @@ export const TACTICAL_NODES = [
         host: '127.0.0.1',
         port: 9150,
         cipher: 'Tor Multi-Hop Onion',
-        description: 'Tor Browser SOCKS5 port (9150)'
+        description: 'Tor Browser port (open Tor Browser on PC)'
     },
     {
         id: 'custom',
@@ -92,7 +93,7 @@ export const TACTICAL_NODES = [
 class SecurityManager {
     constructor() {
         this.isActive = false;
-        this.currentNodeId = localStorage.getItem('raeen_vpn_node') || 'fast_tor';
+        this.currentNodeId = localStorage.getItem('raeen_vpn_node') || 'us_secure';
         this.killSwitch = localStorage.getItem('raeen_vpn_killswitch') !== 'false';
         this.webrtcSealed = localStorage.getItem('raeen_vpn_webrtc') !== 'false';
         this.customProxy = JSON.parse(localStorage.getItem('raeen_vpn_custom') || '{"scheme":"socks5","host":"127.0.0.1","port":"9050"}');
@@ -100,6 +101,7 @@ class SecurityManager {
         this.maskedIp = 'Checking...';
         this.pingMs = '--';
         this.isQueryingIp = false;
+        this.torOffline = false;
     }
 
     async sendMsg(msg) {
@@ -166,7 +168,7 @@ class SecurityManager {
                             if (isPlainHostName(host) || shExpMatch(host, "*.local") || shExpMatch(host, "127.0.0.1") || shExpMatch(host, "localhost")) {
                                 return "DIRECT";
                             }
-                            return "SOCKS5 127.0.0.1:9050; SOCKS5 127.0.0.1:9150; DIRECT";
+                            return "SOCKS5 127.0.0.1:9050; SOCKS5 127.0.0.1:9150";
                         }
                     `;
                 } else {
@@ -181,7 +183,7 @@ class SecurityManager {
                             if (isPlainHostName(host) || shExpMatch(host, "*.local") || shExpMatch(host, "127.0.0.1") || shExpMatch(host, "localhost")) {
                                 return "DIRECT";
                             }
-                            return "${proxyEntries}; DIRECT";
+                            return "${proxyEntries}";
                         }
                     `;
                 }
@@ -222,7 +224,8 @@ class SecurityManager {
                 host: this.customProxy.host || '127.0.0.1',
                 port: this.customProxy.port || 9050,
                 nodeName: 'Custom SOCKS5 / Tor Bridge',
-                isTor: (this.customProxy.port == 9050 || this.customProxy.port == 9150)
+                isTor: (this.customProxy.port == 9050 || this.customProxy.port == 9150),
+                fallbacks: []
             };
         } else {
             const found = TACTICAL_NODES.find(n => n.id === this.currentNodeId) || TACTICAL_NODES[0];
@@ -231,7 +234,8 @@ class SecurityManager {
                 host: found.host,
                 port: found.port,
                 nodeName: found.name,
-                isTor: !!found.isTor
+                isTor: !!found.isTor,
+                fallbacks: found.fallbacks || []
             };
         }
 
@@ -307,27 +311,54 @@ class SecurityManager {
     async probeIp() {
         if (this.isQueryingIp) return;
         this.isQueryingIp = true;
+        this.torOffline = false;
         
         // Brief pause after activating to let Chrome proxy routing socket initialize
         if (this.isActive) {
-            await new Promise(r => setTimeout(r, 400));
+            await new Promise(r => setTimeout(r, 600));
         }
 
         const t0 = performance.now();
         try {
+            const currentNode = TACTICAL_NODES.find(n => n.id === this.currentNodeId) || TACTICAL_NODES[0];
+            const isTor = currentNode && currentNode.isTor;
+
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 5000);
+            const timeout = setTimeout(() => controller.abort(), 6000);
             let ip = null;
-            try {
-                const res = await fetch(`https://api.ipify.org?format=json&nocache=${Date.now()}`, { signal: controller.signal });
-                const data = await res.json();
-                ip = data.ip;
-            } catch (e1) {
+
+            if (this.isActive && isTor) {
+                // Test Tor network connectivity
                 try {
-                    const res2 = await fetch(`https://icanhazip.com/?nocache=${Date.now()}`, { signal: controller.signal });
-                    const text = await res2.text();
-                    ip = text.trim();
-                } catch (e2) {}
+                    const torRes = await fetch(`https://check.torproject.org/api/ip?nocache=${Date.now()}`, { signal: controller.signal });
+                    const torData = await torRes.json();
+                    if (torData && torData.IsTor) {
+                        ip = torData.IP;
+                        this.torOffline = false;
+                    } else if (torData && torData.IP) {
+                        ip = torData.IP;
+                        this.torOffline = true;
+                    }
+                } catch (torErr) {
+                    this.torOffline = true;
+                    this.maskedIp = 'Tor Offline (9050)';
+                    clearTimeout(timeout);
+                    return;
+                }
+            }
+
+            if (!ip) {
+                try {
+                    const res = await fetch(`https://api.ipify.org?format=json&nocache=${Date.now()}`, { signal: controller.signal });
+                    const data = await res.json();
+                    ip = data.ip;
+                } catch (e1) {
+                    try {
+                        const res2 = await fetch(`https://icanhazip.com/?nocache=${Date.now()}`, { signal: controller.signal });
+                        const text = await res2.text();
+                        ip = text.trim();
+                    } catch (e2) {}
+                }
             }
             clearTimeout(timeout);
             const lat = Math.round(performance.now() - t0);
