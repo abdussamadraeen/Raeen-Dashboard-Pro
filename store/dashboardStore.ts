@@ -419,6 +419,8 @@ export const defaultSettings: Settings = {
   showCardDate: true,
   showCardFocus: true,
   showCardNote: true,
+  showCardSecurity: true,
+  showCardDirectories: true,
   showNoosphereBar: true,
   showMainUI: true,
   showSettingsButtonInImmersive: true,

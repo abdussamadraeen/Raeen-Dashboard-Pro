@@ -47,6 +47,8 @@ export const SettingsSchema = z.object({
   showCardDate: z.boolean().default(true),
   showCardFocus: z.boolean().default(true),
   showCardNote: z.boolean().default(true),
+  showCardSecurity: z.boolean().default(true),
+  showCardDirectories: z.boolean().default(true),
   showNoosphereBar: z.boolean().default(true),
   showMainUI: z.boolean().default(true),
   showSettingsButtonInImmersive: z.boolean().default(true),

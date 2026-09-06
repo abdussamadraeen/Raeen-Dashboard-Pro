@@ -363,6 +363,9 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     bindToggle(dom.toggleCardFocus, 'showCardFocus');
     bindToggle(dom.toggleCardNote, 'showCardNote');
     bindToggle(dom.toggleCardSecurity, 'showCardSecurity');
+    bindToggle(dom.toggleCardDirectories, 'showCardDirectories', () => {
+        if (typeof window.renderDirectoriesWidget === 'function') window.renderDirectoriesWidget();
+    });
     bindToggle(dom.toggleDragDrop, 'enableDragAndDrop');
 
     bindRadio('theme_preference', 'themePreference');
@@ -705,13 +708,29 @@ function optimizeImage(file) {
             console.error("Failed to migrate title", err);
         }
 
-        let directoriesData = await StorageManager.get("settings", "directories_data");
+        let directoriesData = null;
+        try {
+            const cached = localStorage.getItem("raeen_directories_data");
+            if (cached) directoriesData = JSON.parse(cached);
+        } catch (e) {}
+
         if (!directoriesData) {
+            try {
+                directoriesData = await StorageManager.get("settings", "directories_data");
+            } catch (err) {
+                console.warn("StorageManager directories_data not ready, fallback to defaults", err);
+            }
+        }
+
+        if (!directoriesData || !Array.isArray(directoriesData.list)) {
             directoriesData = {
                 show: true,
                 list: defaultDirectories
             };
-            await StorageManager.set("settings", "directories_data", directoriesData);
+            try {
+                localStorage.setItem("raeen_directories_data", JSON.stringify(directoriesData));
+                StorageManager.set("settings", "directories_data", directoriesData).catch(() => {});
+            } catch (e) {}
         }
 
         let activeCategoryId = null;
@@ -998,20 +1017,20 @@ function optimizeImage(file) {
                 color: #fff;
             }
         `;
-        document.head.appendChild(styleEl);
-
-        // Inject HTML markup for the Directories widget
-        const searchWidget = document.getElementById("search-widget");
-        const dirWidget = document.createElement("section");
-        dirWidget.id = "directory-widget";
-        dirWidget.className = "directory-container hidden draggable-widget";
-        dirWidget.setAttribute("draggable", "false");
-        
-        if (searchWidget) {
-            searchWidget.parentNode.insertBefore(dirWidget, searchWidget.nextSibling);
-        } else {
-            const mainContainer = document.querySelector(".container");
-            if (mainContainer) mainContainer.appendChild(dirWidget);
+        // Reference existing or create widget container in DOM
+        let dirWidget = document.getElementById("directory-widget");
+        if (!dirWidget) {
+            const searchWidget = document.getElementById("search-widget");
+            dirWidget = document.createElement("section");
+            dirWidget.id = "directory-widget";
+            dirWidget.className = "directory-container draggable-widget";
+            dirWidget.setAttribute("draggable", "false");
+            if (searchWidget && searchWidget.parentNode) {
+                searchWidget.parentNode.insertBefore(dirWidget, searchWidget.nextSibling);
+            } else {
+                const col2 = document.getElementById("column-2") || document.querySelector(".container");
+                if (col2) col2.appendChild(dirWidget);
+            }
         }
         
         if (typeof window.applyWidgetLayout === "function") {
@@ -1103,13 +1122,19 @@ function optimizeImage(file) {
 
         // 4. Rendering Functions
         const saveDirectories = async () => {
-            await StorageManager.set("settings", "directories_data", directoriesData);
+            try {
+                localStorage.setItem("raeen_directories_data", JSON.stringify(directoriesData));
+                await StorageManager.set("settings", "directories_data", directoriesData);
+            } catch (err) {
+                console.warn("Failed to persist directories data:", err);
+            }
             renderWidget();
             renderSettings();
         };
 
         const renderWidget = () => {
-            if (!directoriesData.show) {
+            const isVisible = (directoriesData.show !== false) && (state.settings.showCardDirectories !== false);
+            if (!isVisible) {
                 dirWidget.classList.add("hidden");
                 return;
             }
@@ -1299,9 +1324,12 @@ function optimizeImage(file) {
 
         const showToggle = document.getElementById("toggle-directories-show");
         if (showToggle) {
-            showToggle.checked = directoriesData.show;
+            showToggle.checked = (directoriesData.show !== false) && (state.settings.showCardDirectories !== false);
             showToggle.onchange = () => {
                 directoriesData.show = showToggle.checked;
+                state.settings.showCardDirectories = showToggle.checked;
+                if (dom.toggleCardDirectories) dom.toggleCardDirectories.checked = showToggle.checked;
+                saveSettings(state.settings);
                 saveDirectories();
             };
         }
@@ -1500,6 +1528,14 @@ function optimizeImage(file) {
                 reader.readAsText(file);
             };
         }
+
+        // Expose renderWidget globally so settings toggles can re-render it
+        window.renderDirectoriesWidget = () => {
+            if (dom.toggleCardDirectories) {
+                directoriesData.show = dom.toggleCardDirectories.checked;
+            }
+            renderWidget();
+        };
 
         // Render initially
         renderWidget();
