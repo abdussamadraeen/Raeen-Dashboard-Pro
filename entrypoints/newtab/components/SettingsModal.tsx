@@ -37,6 +37,11 @@ const themeLibrary = {
     { name: 'Neural (Interactive)', url: 'canvas:neural' },
     { name: 'Bubbles (Interactive)', url: 'canvas:bubbles' },
     { name: 'Rain (Interactive)', url: 'canvas:rain' },
+    { name: 'Matrix Code (Interactive)', url: 'canvas:matrix' },
+    { name: 'Hyperspace Warp (Interactive)', url: 'canvas:warp' },
+    { name: 'Aurora Wave (Interactive)', url: 'canvas:wave' },
+    { name: 'Galaxy Vortex (Interactive)', url: 'canvas:galaxy' },
+    { name: 'Fireflies (Interactive)', url: 'canvas:fireflies' },
     { name: 'Animated GIF', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2I4Y2M1N2YyYzhjYjYyYjYyYjYyYjYyYjYyJmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxu5L9Yx7u8/giphy.gif' }
   ]
 };
