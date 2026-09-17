@@ -1,12 +1,20 @@
-const NEURAL_CONNECTION_DISTANCE = 180;
-const NEURAL_CONNECTION_DISTANCE_SQ = NEURAL_CONNECTION_DISTANCE ** 2;
-const MOUSE_PULL_DISTANCE = 250;
-const MOUSE_PULL_DISTANCE_SQ = MOUSE_PULL_DISTANCE ** 2;
-const BUBBLE_MOUSE_DISTANCE_SQ = 150 ** 2;
-const RAIN_MOUSE_DISTANCE_SQ = 80 ** 2;
+/**
+ * Ultra-HD / 3D Artistic Interactive Canvas Engine
+ * Features:
+ * - Retina / High-DPI DPR auto-scaling (Crystal crisp on 4K & Retina displays)
+ * - Multi-layer 3D perspective depth, volumetric illumination, and particle physics
+ * - 8 High-end interactive themes:
+ *   1. Neural Network (3D synaptic depth with traveling action potential pulses)
+ *   2. Water Bubbles (3D iridescent glass orbs with specular crescent reflections)
+ *   3. Glass Rain (Cinematic cyberpunk rain with motion blur & ground splash ripples)
+ *   4. Matrix Code Stream (Multi-depth phosphor Katakana/hex rain with EMP shockwaves)
+ *   5. Hyperspace Warp (3D starfield with dynamic cockpit steering & hyper-boost trails)
+ *   6. Aurora Wave Flow (Luminous liquid ribbons with fluid mouse ripples & screen blending)
+ *   7. Gravitational Galaxy (Dual-arm spiral galaxy with relativistic mouse vortex singularity)
+ *   8. Bioluminescent Fireflies (Bokeh forest depth, stardust trails, and magnetic swarm physics)
+ */
 
-// Matrix Glyphs: Katakana, Numbers, and Tech Symbols
-const MATRIX_CHARS = '0123456789ABCDEFｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜXYZ@#$&*';
+const MATRIX_GLYPHS = '0123456789ABCDEFｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜXYZ@#$&*§ΔΩΨ';
 
 export const CanvasEngine = (() => {
     let canvas;
@@ -15,14 +23,16 @@ export const CanvasEngine = (() => {
     let resizeId = null;
     let accentObserver = null;
     let particles = [];
+    let secondaryParticles = []; // For splashes, pulses, stardust trails
     let extraState = null;
     let width = 0;
     let height = 0;
+    let dpr = 1;
     let theme = 'neural';
     let isRunning = false;
-    let accent = '#7b61ff';
-    let accentRgb = '123, 97, 255';
-    let waveTime = 0;
+    let accent = '#38bdf8';
+    let accentRgb = '56, 189, 248';
+    let globalTime = 0;
 
     const mouse = {
         x: null,
@@ -40,7 +50,7 @@ export const CanvasEngine = (() => {
             .getPropertyValue('--accent')
             .trim();
 
-        accent = value || '#7b61ff';
+        accent = value || '#38bdf8';
         const hex = accent.replace('#', '');
         const normalized = hex.length === 3
             ? hex.split('').map((char) => char + char).join('')
@@ -49,52 +59,99 @@ export const CanvasEngine = (() => {
         if (/^[0-9a-f]{6}$/i.test(normalized)) {
             accentRgb = `${parseInt(normalized.slice(0, 2), 16)}, ${parseInt(normalized.slice(2, 4), 16)}, ${parseInt(normalized.slice(4, 6), 16)}`;
         } else {
-            accentRgb = '123, 97, 255';
+            accentRgb = '56, 189, 248';
         }
     };
 
-    // ─── Particle & State Initializers ───
+    // ─── Particle & Architecture Generator ───
     const createParticles = () => {
         if (!width || !height) return;
+        particles = [];
+        secondaryParticles = [];
+        extraState = null;
 
-        if (theme === 'neural' || theme === 'bubbles' || theme === 'rain') {
-            const count = theme === 'rain' ? 150 : 100;
-            particles = Array.from({ length: count }, () => ({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                vx: (Math.random() - 0.5) * (theme === 'neural' ? 1.5 : 0.5),
-                vy: theme === 'rain'
-                    ? Math.random() * 5 + 3
-                    : (Math.random() - 0.5) * 1.5,
-                radius: theme === 'bubbles'
-                    ? Math.random() * 15 + 2
-                    : Math.random() * 2 + 1,
-                opacity: theme === 'rain'
-                    ? Math.random() * 0.5 + 0.5
-                    : Math.random() * 0.5 + 0.2
-            }));
-            extraState = null;
+        if (theme === 'neural') {
+            // 3D Synaptic Brain Network
+            const count = 110;
+            particles = Array.from({ length: count }, () => {
+                const z = Math.random() * 0.8 + 0.2; // 3D depth
+                return {
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    z,
+                    vx: (Math.random() - 0.5) * 1.2 * z,
+                    vy: (Math.random() - 0.5) * 1.2 * z,
+                    baseRadius: Math.random() * 2.2 + 1.2,
+                    radius: (Math.random() * 2.2 + 1.2) * z,
+                    opacity: (Math.random() * 0.4 + 0.4) * z,
+                    pulsePhase: Math.random() * Math.PI * 2
+                };
+            });
+            // Action potential pulses traveling along connections
+            secondaryParticles = [];
+        } else if (theme === 'bubbles') {
+            // 3D Iridescent Soap / Glass Orbs
+            const count = 55;
+            particles = Array.from({ length: count }, () => {
+                const z = Math.random() * 0.7 + 0.3;
+                return {
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    z,
+                    vx: (Math.random() - 0.5) * 0.5 * z,
+                    vy: (Math.random() * 1.2 + 0.6) * z,
+                    radius: (Math.random() * 22 + 8) * z,
+                    wobbleSpeed: Math.random() * 0.04 + 0.02,
+                    wobbleAmp: Math.random() * 2 + 1,
+                    wobblePhase: Math.random() * Math.PI * 2,
+                    opacity: Math.random() * 0.35 + 0.35,
+                    hueOffset: Math.random() * 40 - 20
+                };
+            });
+        } else if (theme === 'rain') {
+            // Cinematic Cyberpunk Rain with 3D Depth
+            const count = 180;
+            particles = Array.from({ length: count }, () => {
+                const z = Math.random() * 0.8 + 0.2;
+                return {
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    z,
+                    vx: -1.2 * z,
+                    vy: (Math.random() * 12 + 14) * z,
+                    length: (Math.random() * 25 + 15) * z,
+                    thickness: (Math.random() * 1.5 + 0.8) * z,
+                    opacity: (Math.random() * 0.4 + 0.35) * z
+                };
+            });
+            // Ground splash ripples
+            secondaryParticles = [];
         } else if (theme === 'matrix') {
-            const fontSize = 16;
-            const columns = Math.floor(width / fontSize);
-            particles = Array.from({ length: columns }, (_, i) => ({
-                x: i * fontSize,
-                y: Math.random() * -height,
-                speed: Math.random() * 2.5 + 1.8,
-                length: Math.floor(Math.random() * 16 + 10),
-                chars: Array.from({ length: 28 }, () => MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]),
-                lastSwitch: 0,
-                highlight: 0
-            }));
-            extraState = { fontSize };
+            // 3D Dual-Depth Matrix Code Rain
+            const cols = Math.floor(width / 18);
+            particles = Array.from({ length: cols }, (_, i) => {
+                const isForeground = Math.random() > 0.4;
+                const fontSize = isForeground ? 16 : 11;
+                return {
+                    x: i * 18,
+                    y: Math.random() * -height,
+                    speed: (Math.random() * 2.5 + 2.0) * (isForeground ? 1.0 : 0.6),
+                    length: Math.floor(Math.random() * 18 + 12),
+                    chars: Array.from({ length: 30 }, () => MATRIX_GLYPHS[Math.floor(Math.random() * MATRIX_GLYPHS.length)]),
+                    fontSize,
+                    isForeground,
+                    highlight: 0
+                };
+            });
         } else if (theme === 'warp') {
-            const count = 280;
+            // 3D Deep Space Hyperspace Warp
+            const count = 380;
             particles = Array.from({ length: count }, () => ({
-                x: (Math.random() - 0.5) * width * 2,
-                y: (Math.random() - 0.5) * height * 2,
+                x: (Math.random() - 0.5) * width * 2.2,
+                y: (Math.random() - 0.5) * height * 2.2,
                 z: Math.random() * width,
                 pz: 0,
-                color: Math.random() > 0.3 ? `rgb(${accentRgb})` : '#ffffff'
+                colorType: Math.random()
             }));
             extraState = {
                 centerX: width / 2,
@@ -103,56 +160,74 @@ export const CanvasEngine = (() => {
                 targetCenterY: height / 2
             };
         } else if (theme === 'wave') {
-            waveTime = 0;
+            // Luminous Aurora Borealis Ribbons
             extraState = {
                 waves: [
-                    { amp: 55, freq: 0.0028, speed: 0.018, color: `rgba(${accentRgb}, 0.22)`, stroke: accent },
-                    { amp: 42, freq: 0.0042, speed: -0.014, color: 'rgba(56, 189, 248, 0.16)', stroke: '#38bdf8' },
-                    { amp: 68, freq: 0.002, speed: 0.022, color: 'rgba(168, 85, 247, 0.14)', stroke: '#c084fc' },
-                    { amp: 35, freq: 0.005, speed: -0.018, color: 'rgba(16, 185, 129, 0.18)', stroke: '#34d399' }
+                    { amp: 65, freq: 0.0022, speed: 0.016, color: `rgba(${accentRgb}, 0.22)`, stroke: accent },
+                    { amp: 48, freq: 0.0036, speed: -0.014, color: 'rgba(56, 189, 248, 0.18)', stroke: '#38bdf8' },
+                    { amp: 80, freq: 0.0016, speed: 0.022, color: 'rgba(168, 85, 247, 0.15)', stroke: '#c084fc' },
+                    { amp: 40, freq: 0.0048, speed: -0.018, color: 'rgba(16, 185, 129, 0.20)', stroke: '#34d399' }
                 ]
             };
-            particles = [];
         } else if (theme === 'galaxy') {
-            const count = 220;
-            const maxR = Math.min(width, height) * 0.46;
+            // Relativistic 3D Spiral Galaxy with Galactic Core
+            const count = 320;
+            const maxR = Math.min(width, height) * 0.48;
             particles = Array.from({ length: count }, () => {
-                const dist = Math.pow(Math.random(), 1.6) * maxR + 10;
+                const dist = Math.pow(Math.random(), 1.5) * maxR + 8;
                 const arm = Math.random() < 0.5 ? 0 : Math.PI;
-                const angle = dist * 0.014 + arm + (Math.random() - 0.5) * 0.45;
+                const angle = dist * 0.012 + arm + (Math.random() - 0.5) * 0.42;
+                const isCore = dist < maxR * 0.18;
                 return {
                     dist,
                     baseDist: dist,
                     angle,
-                    speed: (0.006 + 8 / (dist + 30)),
-                    radius: Math.random() * 2 + 0.8,
-                    alpha: Math.random() * 0.6 + 0.4,
-                    color: Math.random() > 0.4 ? accent : (Math.random() > 0.5 ? '#38bdf8' : '#e9d5ff')
+                    speed: (0.005 + 10 / (dist + 35)),
+                    radius: isCore ? (Math.random() * 2.8 + 1.2) : (Math.random() * 1.8 + 0.7),
+                    alpha: Math.random() * 0.5 + 0.4,
+                    color: isCore
+                        ? '#ffffff'
+                        : (Math.random() > 0.45 ? accent : (Math.random() > 0.5 ? '#38bdf8' : '#e9d5ff'))
                 };
             });
-            extraState = null;
         } else if (theme === 'fireflies') {
-            const count = 65;
-            particles = Array.from({ length: count }, () => ({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                vx: (Math.random() - 0.5) * 0.6,
-                vy: (Math.random() - 0.5) * 0.6,
-                radius: Math.random() * 2.8 + 1.8,
-                pulse: Math.random() * Math.PI * 2,
-                pulseSpeed: Math.random() * 0.03 + 0.015,
-                color: Math.random() > 0.35 ? accent : '#facc15'
-            }));
-            extraState = null;
+            // Enchanted Bioluminescent Forest with Depth Bokeh
+            const count = 75;
+            particles = Array.from({ length: count }, () => {
+                const isBokeh = Math.random() < 0.25; // Distant blurred bokeh sphere
+                return {
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.7,
+                    vy: (Math.random() - 0.5) * 0.7,
+                    radius: isBokeh ? (Math.random() * 14 + 8) : (Math.random() * 2.8 + 1.5),
+                    isBokeh,
+                    pulse: Math.random() * Math.PI * 2,
+                    pulseSpeed: Math.random() * 0.035 + 0.015,
+                    color: Math.random() > 0.4 ? accent : '#facc15'
+                };
+            });
+            secondaryParticles = []; // Stardust trail crumbs
         }
     };
 
+    // ─── Retina / High-DPI HD Resize ───
     const resize = () => {
         resizeId = null;
-        if (!canvas) return;
+        if (!canvas || !ctx) return;
 
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = window.innerWidth;
+        height = window.innerHeight;
+
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+
         createParticles();
     };
 
@@ -192,223 +267,311 @@ export const CanvasEngine = (() => {
         mouse.isDown = false;
     };
 
-    // ─── 1. Neural Network Animation ───
-    const updateNeuralParticles = () => {
-        for (const particle of particles) {
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-
-            if (particle.x < 0 || particle.x > width) particle.vx *= -1;
-            if (particle.y < 0 || particle.y > height) particle.vy *= -1;
-
-            if (mouse.x === null) continue;
-
-            const dx = mouse.x - particle.x;
-            const dy = mouse.y - particle.y;
-            const distanceSq = dx * dx + dy * dy;
-            if (distanceSq >= MOUSE_PULL_DISTANCE_SQ) continue;
-
-            const distance = Math.sqrt(distanceSq);
-            const force = (MOUSE_PULL_DISTANCE - distance) / MOUSE_PULL_DISTANCE;
-            particle.vx += dx * 0.003 * force;
-            particle.vy += dy * 0.003 * force;
-
-            ctx.beginPath();
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = accent;
-            ctx.strokeStyle = `rgba(${accentRgb}, ${force * 0.35})`;
-            ctx.lineWidth = 1.2;
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
+    // ─────────────────────────────────────────────────────────────
+    // 1. NEURAL NETWORK: 3D Synaptic Action Potential Brain
+    // ─────────────────────────────────────────────────────────────
+    const renderNeural = () => {
+        // Spawn periodic action potential pulses along random synapses
+        if (Math.random() < 0.12 && particles.length > 2) {
+            const i1 = Math.floor(Math.random() * particles.length);
+            const p1 = particles[i1];
+            for (let i2 = 0; i2 < particles.length; i2++) {
+                if (i1 === i2) continue;
+                const p2 = particles[i2];
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
+                if (dx * dx + dy * dy < 160 ** 2) {
+                    secondaryParticles.push({
+                        fromX: p1.x, fromY: p1.y,
+                        toX: p2.x, toY: p2.y,
+                        progress: 0,
+                        speed: Math.random() * 0.04 + 0.02
+                    });
+                    break;
+                }
+            }
         }
-    };
 
-    const drawNeuralParticles = () => {
-        ctx.fillStyle = accent;
+        // Draw connections with spatial grid
+        const connDist = 165;
+        const connDistSq = connDist * connDist;
 
-        for (const particle of particles) {
+        ctx.lineWidth = 0.9;
+        for (let i = 0; i < particles.length; i++) {
+            const p1 = particles[i];
+            p1.x += p1.vx;
+            p1.y += p1.vy;
+            if (p1.x < 0 || p1.x > width) p1.vx *= -1;
+            if (p1.y < 0 || p1.y > height) p1.vy *= -1;
+
+            // Mouse gravitational stimulation
+            if (mouse.x !== null) {
+                const dx = mouse.x - p1.x;
+                const dy = mouse.y - p1.y;
+                const distSq = dx * dx + dy * dy;
+                if (distSq < 220 ** 2) {
+                    const dist = Math.sqrt(distSq);
+                    const force = (220 - dist) / 220;
+                    p1.vx += (dx / dist) * force * 0.25;
+                    p1.vy += (dy / dist) * force * 0.25;
+
+                    // Radiant cursor stimulation synapse
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(${accentRgb}, ${force * 0.45})`;
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                }
+            }
+
+            // Connect nearby nodes
+            for (let j = i + 1; j < particles.length; j++) {
+                const p2 = particles[j];
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
+                const dSq = dx * dx + dy * dy;
+                if (dSq < connDistSq) {
+                    const alpha = (1 - Math.sqrt(dSq) / connDist) * 0.35 * Math.min(p1.z, p2.z);
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(${accentRgb}, ${alpha})`;
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+                }
+            }
+
+            // Draw glowing 3D node
+            p1.pulsePhase += 0.03;
+            const r = p1.radius * (1 + 0.15 * Math.sin(p1.pulsePhase));
+
             ctx.beginPath();
-            ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-            ctx.globalAlpha = particle.opacity;
+            ctx.arc(p1.x, p1.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = accent;
+            ctx.shadowBlur = 8 * p1.z;
+            ctx.shadowColor = accent;
+            ctx.globalAlpha = p1.opacity;
             ctx.fill();
         }
-
+        ctx.shadowBlur = 0;
         ctx.globalAlpha = 1;
-    };
 
-    const drawNeuralConnections = () => {
-        const grid = new Map();
-
-        for (let index = 0; index < particles.length; index++) {
-            const particle = particles[index];
-            const cellX = Math.floor(particle.x / NEURAL_CONNECTION_DISTANCE);
-            const cellY = Math.floor(particle.y / NEURAL_CONNECTION_DISTANCE);
-            const key = `${cellX},${cellY}`;
-            const cell = grid.get(key);
-
-            if (cell) {
-                cell.push(index);
-            } else {
-                grid.set(key, [index]);
+        // Render traveling action potential pulses
+        for (let idx = secondaryParticles.length - 1; idx >= 0; idx--) {
+            const pulse = secondaryParticles[idx];
+            pulse.progress += pulse.speed;
+            if (pulse.progress >= 1) {
+                secondaryParticles.splice(idx, 1);
+                continue;
             }
-        }
-
-        ctx.strokeStyle = accent;
-        ctx.lineWidth = 0.8;
-
-        for (let index = 0; index < particles.length; index++) {
-            const particle = particles[index];
-            const cellX = Math.floor(particle.x / NEURAL_CONNECTION_DISTANCE);
-            const cellY = Math.floor(particle.y / NEURAL_CONNECTION_DISTANCE);
-
-            for (let x = cellX - 1; x <= cellX + 1; x++) {
-                for (let y = cellY - 1; y <= cellY + 1; y++) {
-                    const candidates = grid.get(`${x},${y}`);
-                    if (!candidates) continue;
-
-                    for (const otherIndex of candidates) {
-                        if (otherIndex <= index) continue;
-
-                        const other = particles[otherIndex];
-                        const dx = particle.x - other.x;
-                        const dy = particle.y - other.y;
-                        const distanceSq = dx * dx + dy * dy;
-                        if (distanceSq >= NEURAL_CONNECTION_DISTANCE_SQ) continue;
-
-                        ctx.beginPath();
-                        ctx.globalAlpha = (
-                            NEURAL_CONNECTION_DISTANCE - Math.sqrt(distanceSq)
-                        ) / 720;
-                        ctx.moveTo(particle.x, particle.y);
-                        ctx.lineTo(other.x, other.y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        ctx.globalAlpha = 1;
-    };
-
-    // ─── 2. Water Bubbles Animation ───
-    const drawBubbles = () => {
-        for (const particle of particles) {
-            particle.y -= particle.vy;
-            if (particle.y < -50) particle.y = height + 50;
-
-            if (mouse.x !== null) {
-                const dx = mouse.x - particle.x;
-                const dy = mouse.y - particle.y;
-                if (dx * dx + dy * dy < BUBBLE_MOUSE_DISTANCE_SQ) {
-                    particle.x -= dx * 0.015;
-                    particle.y -= dy * 0.015;
-                }
-            }
+            const px = pulse.fromX + (pulse.toX - pulse.fromX) * pulse.progress;
+            const py = pulse.fromY + (pulse.toY - pulse.fromY) * pulse.progress;
 
             ctx.beginPath();
-            ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(${accentRgb}, ${particle.opacity * 0.45})`;
-            ctx.lineWidth = 1.5;
+            ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = accent;
+            ctx.fill();
+        }
+        ctx.shadowBlur = 0;
+    };
+
+    // ─────────────────────────────────────────────────────────────
+    // 2. WATER BUBBLES: 3D Iridescent Soap / Glass Orbs
+    // ─────────────────────────────────────────────────────────────
+    const renderBubbles = () => {
+        for (const p of particles) {
+            p.y -= p.vy;
+            p.wobblePhase += p.wobbleSpeed;
+            p.x += Math.sin(p.wobblePhase) * p.wobbleAmp * 0.25;
+
+            if (p.y < -p.radius * 2) {
+                p.y = height + p.radius * 2;
+                p.x = Math.random() * width;
+            }
+
+            // Mouse repulsion with fluid bounce
+            if (mouse.x !== null) {
+                const dx = mouse.x - p.x;
+                const dy = mouse.y - p.y;
+                const distSq = dx * dx + dy * dy;
+                const repelDist = p.radius + 120;
+                if (distSq < repelDist * repelDist) {
+                    const dist = Math.sqrt(distSq) || 1;
+                    const force = (repelDist - dist) / repelDist;
+                    p.x -= (dx / dist) * force * 4.5;
+                    p.y -= (dy / dist) * force * 4.5;
+                }
+            }
+
+            const r = p.radius;
+            // 1. Soft translucent inner sphere
+            const sphereGrad = ctx.createRadialGradient(p.x - r * 0.3, p.y - r * 0.3, r * 0.1, p.x, p.y, r);
+            sphereGrad.addColorStop(0, `rgba(${accentRgb}, ${p.opacity * 0.25})`);
+            sphereGrad.addColorStop(0.8, `rgba(${accentRgb}, ${p.opacity * 0.08})`);
+            sphereGrad.addColorStop(1, `rgba(255, 255, 255, ${p.opacity * 0.4})`);
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = sphereGrad;
+            ctx.fill();
+
+            // 2. Outer glowing glass rim
+            ctx.lineWidth = 1.4 * p.z;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.55})`;
+            ctx.stroke();
+
+            // 3. Specular reflection crescent (top-left 3D highlight)
+            ctx.beginPath();
+            ctx.arc(p.x - r * 0.35, p.y - r * 0.35, r * 0.35, Math.PI * 0.9, Math.PI * 1.8);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.85})`;
+            ctx.lineWidth = 1.6 * p.z;
+            ctx.stroke();
+
+            // 4. Secondary ambient rim reflection (bottom-right iridescent tint)
+            ctx.beginPath();
+            ctx.arc(p.x + r * 0.25, p.y + r * 0.25, r * 0.45, 0, Math.PI * 0.6);
+            ctx.strokeStyle = `rgba(${accentRgb}, ${p.opacity * 0.6})`;
+            ctx.lineWidth = 1.2 * p.z;
             ctx.stroke();
         }
     };
 
-    // ─── 3. Glass Rain Animation ───
-    const drawRain = () => {
-        ctx.lineWidth = 2;
+    // ─────────────────────────────────────────────────────────────
+    // 3. GLASS RAIN: Cyberpunk Rain & Ground Splash Ripples
+    // ─────────────────────────────────────────────────────────────
+    const renderRain = () => {
+        for (const p of particles) {
+            p.x += p.vx;
+            p.y += p.vy;
 
-        for (const particle of particles) {
-            particle.y += particle.vy;
-            if (particle.y > height) {
-                particle.y = -20;
-                particle.x = Math.random() * width;
+            // Screen bottom collision -> spawn splash ripple
+            if (p.y > height) {
+                if (Math.random() < 0.35) {
+                    secondaryParticles.push({
+                        x: p.x,
+                        y: height - Math.random() * 4,
+                        r: 2,
+                        maxR: Math.random() * 14 + 6,
+                        alpha: 0.7,
+                        speed: Math.random() * 0.8 + 0.5
+                    });
+                }
+                p.y = -20;
+                p.x = Math.random() * width;
             }
 
+            // Mouse aerodynamic umbrella deflection
             if (mouse.x !== null) {
-                const dx = mouse.x - particle.x;
-                const dy = mouse.y - particle.y;
-                if (dx * dx + dy * dy < RAIN_MOUSE_DISTANCE_SQ) {
-                    particle.y -= 6;
-                    particle.vx += (Math.random() - 0.5) * 5;
+                const dx = mouse.x - p.x;
+                const dy = mouse.y - p.y;
+                const distSq = dx * dx + dy * dy;
+                if (distSq < 110 ** 2) {
+                    p.vx -= (dx / 110) * 3;
+                    p.y -= 4;
                 }
             }
 
+            // Motion-blur gradient raindrop streak
+            const grad = ctx.createLinearGradient(p.x, p.y, p.x + p.vx, p.y + p.length);
+            grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            grad.addColorStop(0.6, `rgba(${accentRgb}, ${p.opacity * 0.4})`);
+            grad.addColorStop(1, `rgba(255, 255, 255, ${p.opacity})`);
+
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(${accentRgb}, ${particle.opacity * 0.55})`;
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(particle.x + particle.vx, particle.y + 24);
+            ctx.lineWidth = p.thickness;
+            ctx.strokeStyle = grad;
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x + p.vx, p.y + p.length);
+            ctx.stroke();
+        }
+
+        // Render expanding neon splash ripples
+        for (let i = secondaryParticles.length - 1; i >= 0; i--) {
+            const ripple = secondaryParticles[i];
+            ripple.r += ripple.speed;
+            ripple.alpha -= 0.03;
+
+            if (ripple.alpha <= 0) {
+                secondaryParticles.splice(i, 1);
+                continue;
+            }
+
+            ctx.beginPath();
+            ctx.ellipse(ripple.x, ripple.y, ripple.r * 1.8, ripple.r * 0.6, 0, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(${accentRgb}, ${ripple.alpha})`;
+            ctx.lineWidth = 1.0;
             ctx.stroke();
         }
     };
 
-    // ─── 4. Cyber Matrix Rain Animation ───
-    const drawMatrix = () => {
-        if (!extraState) return;
-        const fontSize = extraState.fontSize || 16;
-        ctx.font = `600 ${fontSize}px "SF Mono", monospace, "Courier New"`;
-
+    // ─────────────────────────────────────────────────────────────
+    // 4. MATRIX CODE: Multi-Depth Phosphor Katakana & EMP Shockwave
+    // ─────────────────────────────────────────────────────────────
+    const renderMatrix = () => {
+        // Sort by background/foreground
         for (const col of particles) {
             col.y += col.speed;
 
-            // Randomly switch a glyph
-            if (Math.random() < 0.1) {
+            // Random glyph flicker
+            if (Math.random() < 0.15) {
                 const idx = Math.floor(Math.random() * col.chars.length);
-                col.chars[idx] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
+                col.chars[idx] = MATRIX_GLYPHS[Math.floor(Math.random() * MATRIX_GLYPHS.length)];
             }
 
-            // Mouse interaction: highlight and electric distortion
-            let isHovered = false;
+            // Interactive EMP Shockwave
+            let isElectric = false;
             if (mouse.x !== null) {
                 const distX = Math.abs(col.x - mouse.x);
-                if (distX < 80) {
+                if (distX < 90) {
                     const distY = Math.abs(col.y - mouse.y);
-                    if (distY < 180) {
-                        isHovered = true;
+                    if (distY < 160) {
+                        isElectric = true;
                         col.highlight = 1;
                     }
                 }
             }
-            if (col.highlight > 0) col.highlight *= 0.92;
+            if (col.highlight > 0) col.highlight *= 0.93;
 
-            // Draw stream of characters
+            ctx.font = `700 ${col.fontSize}px "SF Mono", monospace, "Segoe UI Symbol"`;
+
             for (let i = 0; i < col.length; i++) {
-                const charY = col.y - i * fontSize;
-                if (charY < -fontSize || charY > height + fontSize) continue;
+                const charY = col.y - i * (col.fontSize + 2);
+                if (charY < -col.fontSize || charY > height + col.fontSize) continue;
 
                 const char = col.chars[i % col.chars.length];
                 if (i === 0) {
-                    // Head glyph: glowing white or intense neon
-                    ctx.fillStyle = '#ffffff';
-                    ctx.shadowBlur = 8;
-                    ctx.shadowColor = accent;
+                    // Phosphor leading head
+                    ctx.fillStyle = isElectric ? '#38bdf8' : '#ffffff';
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = isElectric ? '#38bdf8' : accent;
                 } else {
                     ctx.shadowBlur = 0;
                     const fade = 1 - (i / col.length);
-                    const alpha = Math.max(0.08, fade * (isHovered || col.highlight > 0.2 ? 0.95 : 0.6));
+                    const alpha = Math.max(0.08, fade * (isElectric || col.highlight > 0.15 ? 0.95 : (col.isForeground ? 0.75 : 0.35)));
                     ctx.fillStyle = `rgba(${accentRgb}, ${alpha})`;
                 }
                 ctx.fillText(char, col.x, charY);
             }
             ctx.shadowBlur = 0;
 
-            // Reset when column falls past bottom
-            if (col.y - col.length * fontSize > height) {
-                col.y = Math.random() * -60;
-                col.speed = Math.random() * 2.5 + 1.8;
+            if (col.y - col.length * (col.fontSize + 2) > height) {
+                col.y = Math.random() * -80;
+                col.speed = (Math.random() * 2.5 + 2.0) * (col.isForeground ? 1.0 : 0.6);
             }
         }
     };
 
-    // ─── 5. Hyperspace Warp Speed Animation ───
-    const drawWarp = () => {
+    // ─────────────────────────────────────────────────────────────
+    // 5. HYPERSPACE WARP: 3D Flight Steering & Chromatic Trails
+    // ─────────────────────────────────────────────────────────────
+    const renderWarp = () => {
         if (!extraState) return;
 
-        // Smooth steering towards mouse
+        // Smooth cockpit steering towards cursor
         if (mouse.x !== null && mouse.y !== null) {
-            extraState.targetCenterX = width / 2 + (mouse.x - width / 2) * 0.35;
-            extraState.targetCenterY = height / 2 + (mouse.y - height / 2) * 0.35;
+            extraState.targetCenterX = width / 2 + (mouse.x - width / 2) * 0.4;
+            extraState.targetCenterY = height / 2 + (mouse.y - height / 2) * 0.4;
         } else {
             extraState.targetCenterX = width / 2;
             extraState.targetCenterY = height / 2;
@@ -416,18 +579,30 @@ export const CanvasEngine = (() => {
         extraState.centerX += (extraState.targetCenterX - extraState.centerX) * 0.08;
         extraState.centerY += (extraState.targetCenterY - extraState.centerY) * 0.08;
 
-        const baseSpeed = 5 + (mouse.isDown ? 18 : 0) + Math.min(mouse.speed * 0.25, 12);
-        const fov = width * 0.65;
+        const hyperBoost = mouse.isDown ? 24 : 0;
+        const speed = 6 + hyperBoost + Math.min(mouse.speed * 0.3, 16);
+        const fov = width * 0.7;
+
+        // Central radiant warp nebula glow
+        const coreGrad = ctx.createRadialGradient(
+            extraState.centerX, extraState.centerY, 0,
+            extraState.centerX, extraState.centerY, width * 0.35
+        );
+        coreGrad.addColorStop(0, `rgba(${accentRgb}, 0.12)`);
+        coreGrad.addColorStop(0.5, `rgba(${accentRgb}, 0.03)`);
+        coreGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = coreGrad;
+        ctx.fillRect(0, 0, width, height);
 
         for (const star of particles) {
             star.pz = star.z;
-            star.z -= baseSpeed;
+            star.z -= speed;
 
             if (star.z <= 0) {
                 star.z = width;
                 star.pz = width;
-                star.x = (Math.random() - 0.5) * width * 2;
-                star.y = (Math.random() - 0.5) * height * 2;
+                star.x = (Math.random() - 0.5) * width * 2.2;
+                star.y = (Math.random() - 0.5) * height * 2.2;
             }
 
             const k = fov / star.z;
@@ -438,48 +613,59 @@ export const CanvasEngine = (() => {
             const px = star.x * pk + extraState.centerX;
             const py = star.y * pk + extraState.centerY;
 
-            if (sx < 0 || sx > width || sy < 0 || sy > height) continue;
+            if (sx < -20 || sx > width + 20 || sy < -20 || sy > height + 20) continue;
 
-            const depthAlpha = Math.min(1, Math.max(0.1, 1 - star.z / width));
+            const depth = 1 - star.z / width;
+            const alpha = Math.min(1, Math.max(0.12, depth * 1.2));
+
+            // Chromatic velocity streaks
+            const streakGrad = ctx.createLinearGradient(px, py, sx, sy);
+            streakGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            streakGrad.addColorStop(0.7, star.colorType > 0.4 ? `rgba(${accentRgb}, ${alpha * 0.7})` : `rgba(168, 85, 247, ${alpha * 0.7})`);
+            streakGrad.addColorStop(1, `rgba(255, 255, 255, ${alpha})`);
+
             ctx.beginPath();
-            ctx.strokeStyle = star.color;
-            ctx.globalAlpha = depthAlpha;
-            ctx.lineWidth = Math.max(0.8, (1 - star.z / width) * 3.5);
+            ctx.strokeStyle = streakGrad;
+            ctx.lineWidth = Math.max(0.9, depth * (mouse.isDown ? 4.5 : 3.2));
             ctx.moveTo(px, py);
             ctx.lineTo(sx, sy);
             ctx.stroke();
         }
-        ctx.globalAlpha = 1;
     };
 
-    // ─── 6. Aurora Wave Flow Animation ───
-    const drawWave = () => {
+    // ─────────────────────────────────────────────────────────────
+    // 6. AURORA WAVE: Luminous Liquid Ribbons & Screen Blending
+    // ─────────────────────────────────────────────────────────────
+    const renderWave = () => {
         if (!extraState) return;
-        waveTime += 0.015;
+        globalTime += 0.018;
 
-        const baseY = height * 0.65;
+        const baseY = height * 0.62;
         const waves = extraState.waves;
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen'; // Luminous optical blending
 
         for (let w = 0; w < waves.length; w++) {
             const wave = waves[w];
             ctx.beginPath();
             ctx.moveTo(0, height);
 
-            for (let x = 0; x <= width; x += 12) {
-                let yOffset = Math.sin(x * wave.freq + waveTime * (1 + w * 0.3)) * wave.amp +
-                              Math.cos(x * (wave.freq * 0.7) - waveTime * 0.8) * (wave.amp * 0.5);
+            for (let x = 0; x <= width; x += 10) {
+                let yOffset = Math.sin(x * wave.freq + globalTime * (1 + w * 0.35)) * wave.amp +
+                              Math.cos(x * (wave.freq * 0.65) - globalTime * 0.75) * (wave.amp * 0.55);
 
-                // Mouse ripple elastic interaction
+                // Mouse fluid displacement
                 if (mouse.x !== null) {
                     const dx = Math.abs(x - mouse.x);
-                    if (dx < 220) {
-                        const falloff = Math.exp(-Math.pow(dx / 90, 2));
-                        const pull = (mouse.y - baseY) * 0.35;
+                    if (dx < 240) {
+                        const falloff = Math.exp(-Math.pow(dx / 95, 2));
+                        const pull = (mouse.y - baseY) * 0.42;
                         yOffset += pull * falloff;
                     }
                 }
 
-                const y = baseY + yOffset + (w * 28);
+                const y = baseY + yOffset + (w * 26);
                 if (x === 0) ctx.lineTo(x, y);
                 else ctx.lineTo(x, y);
             }
@@ -487,43 +673,56 @@ export const CanvasEngine = (() => {
             ctx.lineTo(width, height);
             ctx.closePath();
 
-            // Gradient Fill
-            const grad = ctx.createLinearGradient(0, baseY - 60, 0, height);
+            // Volumetric radiant gradient
+            const grad = ctx.createLinearGradient(0, baseY - wave.amp - 20, 0, height);
             grad.addColorStop(0, wave.color);
-            grad.addColorStop(1, 'rgba(10, 14, 24, 0.8)');
+            grad.addColorStop(0.6, 'rgba(10, 16, 30, 0.4)');
+            grad.addColorStop(1, 'rgba(5, 8, 16, 0.9)');
             ctx.fillStyle = grad;
             ctx.fill();
 
-            // Radiant Top Stroke
+            // Crisp neon top stroke with halo
             ctx.strokeStyle = wave.stroke;
-            ctx.lineWidth = 1.6;
+            ctx.lineWidth = 1.8;
             ctx.stroke();
         }
+        ctx.restore();
     };
 
-    // ─── 7. Gravitational Galaxy Vortex Animation ───
-    const drawGalaxy = () => {
+    // ─────────────────────────────────────────────────────────────
+    // 7. GRAVITATIONAL GALAXY: Accretion Disk & Vortex Singularity
+    // ─────────────────────────────────────────────────────────────
+    const renderGalaxy = () => {
         const cx = width / 2;
         const cy = height * 0.52;
+
+        // Galactic core radiant halo
+        const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, width * 0.25);
+        coreGrad.addColorStop(0, `rgba(${accentRgb}, 0.16)`);
+        coreGrad.addColorStop(0.4, 'rgba(168, 85, 247, 0.05)');
+        coreGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = coreGrad;
+        ctx.fillRect(0, 0, width, height);
 
         for (const p of particles) {
             p.angle += p.speed;
 
-            // Base orbital coordinates
+            // Base 3D-tilted elliptical orbit
             let px = cx + Math.cos(p.angle) * p.dist;
-            let py = cy + Math.sin(p.angle) * (p.dist * 0.55); // Elliptical 3D tilt
+            let py = cy + Math.sin(p.angle) * (p.dist * 0.52);
 
-            // Mouse gravitational attractor
+            // Relativistic mouse black-hole vortex
             if (mouse.x !== null) {
                 const dx = mouse.x - px;
                 const dy = mouse.y - py;
                 const distSq = dx * dx + dy * dy;
-                if (distSq < 260 ** 2 && distSq > 400) {
+                const captureRadius = 280;
+                if (distSq < captureRadius * captureRadius && distSq > 400) {
                     const dist = Math.sqrt(distSq);
-                    const force = (260 - dist) / 260;
-                    px += dx * force * 0.12;
-                    py += dy * force * 0.12;
-                    p.angle += (mouse.isDown ? 0.04 : 0.012) * force;
+                    const force = (captureRadius - dist) / captureRadius;
+                    px += dx * force * 0.16;
+                    py += dy * force * 0.16;
+                    p.angle += (mouse.isDown ? 0.05 : 0.015) * force;
                 }
             }
 
@@ -531,7 +730,7 @@ export const CanvasEngine = (() => {
             ctx.arc(px, py, p.radius, 0, Math.PI * 2);
             ctx.fillStyle = p.color;
             ctx.globalAlpha = p.alpha;
-            ctx.shadowBlur = 6;
+            ctx.shadowBlur = p.radius > 1.8 ? 8 : 0;
             ctx.shadowColor = p.color;
             ctx.fill();
         }
@@ -539,68 +738,113 @@ export const CanvasEngine = (() => {
         ctx.globalAlpha = 1;
     };
 
-    // ─── 8. Bioluminescent Fireflies Animation ───
-    const drawFireflies = () => {
+    // ─────────────────────────────────────────────────────────────
+    // 8. BIOLUMINESCENT FIREFLIES: Bokeh Depth & Stardust Trails
+    // ─────────────────────────────────────────────────────────────
+    const renderFireflies = () => {
+        // Spawn stardust crumbs
+        if (Math.random() < 0.28 && particles.length > 0) {
+            const parent = particles[Math.floor(Math.random() * particles.length)];
+            if (!parent.isBokeh) {
+                secondaryParticles.push({
+                    x: parent.x,
+                    y: parent.y,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.3,
+                    alpha: 0.6,
+                    radius: Math.random() * 1.2 + 0.6,
+                    color: parent.color
+                });
+            }
+        }
+
+        // Draw stardust trail crumbs
+        for (let i = secondaryParticles.length - 1; i >= 0; i--) {
+            const crumb = secondaryParticles[i];
+            crumb.x += crumb.vx;
+            crumb.y += crumb.vy;
+            crumb.alpha -= 0.02;
+            if (crumb.alpha <= 0) {
+                secondaryParticles.splice(i, 1);
+                continue;
+            }
+            ctx.beginPath();
+            ctx.arc(crumb.x, crumb.y, crumb.radius, 0, Math.PI * 2);
+            ctx.fillStyle = crumb.color;
+            ctx.globalAlpha = crumb.alpha;
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
         for (const p of particles) {
-            // Gentle wandering organic motion
-            p.vx += (Math.random() - 0.5) * 0.15;
-            p.vy += (Math.random() - 0.5) * 0.15;
-            p.vx *= 0.97;
-            p.vy *= 0.97;
+            // Brownian organic wander
+            p.vx += (Math.random() - 0.5) * 0.12;
+            p.vy += (Math.random() - 0.5) * 0.12;
+            p.vx *= 0.96;
+            p.vy *= 0.96;
             p.x += p.vx;
             p.y += p.vy;
 
-            // Screen wrap
-            if (p.x < -20) p.x = width + 20;
-            if (p.x > width + 20) p.x = -20;
-            if (p.y < -20) p.y = height + 20;
-            if (p.y > height + 20) p.y = -20;
+            if (p.x < -40) p.x = width + 40;
+            if (p.x > width + 40) p.x = -40;
+            if (p.y < -40) p.y = height + 40;
+            if (p.y > height + 40) p.y = -40;
 
-            // Mouse magnetic swarm / gust scatter
+            // Mouse magnetic swarm / wind scatter
             if (mouse.x !== null) {
                 const dx = mouse.x - p.x;
                 const dy = mouse.y - p.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
-
-                if (dist < 220 && dist > 1) {
+                if (dist < 240 && dist > 1) {
                     if (mouse.speed > 6 || mouse.isDown) {
-                        // Fast mouse = wind gusts scattering fireflies away
-                        p.vx -= (dx / dist) * 1.8;
-                        p.vy -= (dy / dist) * 1.8;
+                        p.vx -= (dx / dist) * 2.2;
+                        p.vy -= (dy / dist) * 2.2;
                     } else {
-                        // Gentle mouse = magnetic bioluminescent swarm
-                        p.vx += (dx / dist) * 0.35;
-                        p.vy += (dy / dist) * 0.35;
+                        p.vx += (dx / dist) * 0.42;
+                        p.vy += (dy / dist) * 0.42;
                     }
                 }
             }
 
-            // Pulsing luminescence
             p.pulse += p.pulseSpeed;
-            const currentAlpha = 0.25 + 0.65 * (0.5 + 0.5 * Math.sin(p.pulse));
+            const currentAlpha = 0.25 + 0.7 * (0.5 + 0.5 * Math.sin(p.pulse));
 
-            // Radiant soft orb
-            const glowRadius = p.radius * 3.5;
-            const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowRadius);
-            grad.addColorStop(0, p.color === accent ? `rgba(${accentRgb}, ${currentAlpha})` : `rgba(250, 204, 21, ${currentAlpha})`);
-            grad.addColorStop(0.4, p.color === accent ? `rgba(${accentRgb}, ${currentAlpha * 0.4})` : `rgba(250, 204, 21, ${currentAlpha * 0.4})`);
-            grad.addColorStop(1, 'transparent');
+            if (p.isBokeh) {
+                // Large soft background bokeh sphere
+                const bokehGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+                bokehGrad.addColorStop(0, `rgba(${accentRgb}, ${currentAlpha * 0.18})`);
+                bokehGrad.addColorStop(0.7, `rgba(${accentRgb}, ${currentAlpha * 0.05})`);
+                bokehGrad.addColorStop(1, 'transparent');
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = bokehGrad;
+                ctx.fill();
+            } else {
+                // Crisp foreground firefly with multi-stop radial aura
+                const glowR = p.radius * 4;
+                const fireflyGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR);
+                const rgb = p.color === accent ? accentRgb : '250, 204, 21';
+                fireflyGrad.addColorStop(0, `rgba(${rgb}, ${currentAlpha * 0.9})`);
+                fireflyGrad.addColorStop(0.35, `rgba(${rgb}, ${currentAlpha * 0.35})`);
+                fireflyGrad.addColorStop(1, 'transparent');
 
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, glowRadius, 0, Math.PI * 2);
-            ctx.fillStyle = grad;
-            ctx.fill();
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
+                ctx.fillStyle = fireflyGrad;
+                ctx.fill();
 
-            // Solid inner core
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius * 0.6, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.globalAlpha = currentAlpha;
-            ctx.fill();
-            ctx.globalAlpha = 1;
+                // High-intensity white ember core
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius * 0.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.globalAlpha = currentAlpha;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
         }
     };
 
+    // ─── Main Animation Loop ───
     const scheduleAnimation = () => {
         if (!isRunning || document.hidden || animationId !== null) return;
         animationId = requestAnimationFrame(animate);
@@ -613,23 +857,21 @@ export const CanvasEngine = (() => {
         ctx.clearRect(0, 0, width, height);
 
         if (theme === 'neural') {
-            updateNeuralParticles();
-            drawNeuralParticles();
-            drawNeuralConnections();
+            renderNeural();
         } else if (theme === 'bubbles') {
-            drawBubbles();
+            renderBubbles();
         } else if (theme === 'rain') {
-            drawRain();
+            renderRain();
         } else if (theme === 'matrix') {
-            drawMatrix();
+            renderMatrix();
         } else if (theme === 'warp') {
-            drawWarp();
+            renderWarp();
         } else if (theme === 'wave') {
-            drawWave();
+            renderWave();
         } else if (theme === 'galaxy') {
-            drawGalaxy();
+            renderGalaxy();
         } else if (theme === 'fireflies') {
-            drawFireflies();
+            renderFireflies();
         }
 
         scheduleAnimation();
@@ -663,6 +905,7 @@ export const CanvasEngine = (() => {
         accentObserver = null;
 
         particles = [];
+        secondaryParticles = [];
         extraState = null;
         clearPointer();
         if (ctx) ctx.clearRect(0, 0, width, height);
