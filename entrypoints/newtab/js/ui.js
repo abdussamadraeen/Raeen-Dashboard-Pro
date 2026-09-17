@@ -718,6 +718,14 @@ export function syncSettingsUI() {
     if (dom.toggleCardFileShare) dom.toggleCardFileShare.checked = state.settings.showCardFileShare !== false;
     if (dom.toggleCardDirectories) dom.toggleCardDirectories.checked = state.settings.showCardDirectories !== false;
     if (dom.toggleDragDrop) dom.toggleDragDrop.checked = state.settings.enableDragAndDrop;
+
+    // Render Dashboard Chooser Presets
+    renderDashboardChooser();
+
+    if (dom.dashboardSwitcherLabel) {
+        const curPreset = DASHBOARD_PRESETS.find(p => p.id === state.settings.dashboardMode) || DASHBOARD_PRESETS[0];
+        dom.dashboardSwitcherLabel.textContent = curPreset.name;
+    }
 }
 
 export function syncBackgroundOptions() {
@@ -852,4 +860,212 @@ export function renderThemeLibrary() {
             }
         });
     }
+}
+
+// ─── DASHBOARD CHOOSER & PRESET LAYOUTS ───
+export const DASHBOARD_PRESETS = [
+    {
+        id: 'pro',
+        name: 'Pro Workspace',
+        badge: 'Recommended • Balanced 3-Column',
+        icon: '⚡',
+        accentColor: '#38bdf8',
+        tagline: 'Complete all-in-one productivity dashboard with Clock, Date, Notes, Focus Pomodoro, VPN Shield, File Share, AI Hub & Search.',
+        widgets: ['Clock & Date', 'Pomodoro Timer', 'Quick Notes', 'VPN Shield', 'P2P File Share', 'AI Hub', 'Multi-Search'],
+        config: {
+            dashboardMode: 'pro',
+            showCards: true,
+            showCardDate: true,
+            showCardFocus: true,
+            showCardNote: true,
+            showCardSecurity: true,
+            showCardFileShare: true,
+            showCardDirectories: true,
+            showTopSites: true,
+            showClock: true,
+            showSearch: true,
+            showMainUI: true
+        }
+    },
+    {
+        id: 'minimal',
+        name: 'Minimalist Clean',
+        badge: 'Distraction-Free Zen',
+        icon: '🧘',
+        accentColor: '#10b981',
+        tagline: 'Serene distraction-free view with large Clock, clean Search bar, and Top Sites. Hides heavy cards for total focus.',
+        widgets: ['Large Clock', 'Clean Web Search', 'Top Sites Shortcuts', 'Serene Wallpaper'],
+        config: {
+            dashboardMode: 'minimal',
+            showCards: false,
+            showCardDate: false,
+            showCardFocus: false,
+            showCardNote: false,
+            showCardSecurity: false,
+            showCardFileShare: false,
+            showCardDirectories: false,
+            showTopSites: true,
+            showClock: true,
+            showSearch: true,
+            showMainUI: true
+        }
+    },
+    {
+        id: 'focus',
+        name: 'Productivity & Focus',
+        badge: 'Deep Work & Study',
+        icon: '⏱️',
+        accentColor: '#f59e0b',
+        tagline: 'Tailored for deep work: Pomodoro Focus Timer, Quick Notes notepad, and Date & Year progress.',
+        widgets: ['Pomodoro Focus Timer', 'Quick Notes', 'Date & Year Progress', 'Web Search'],
+        config: {
+            dashboardMode: 'focus',
+            showCards: true,
+            showCardDate: true,
+            showCardFocus: true,
+            showCardNote: true,
+            showCardSecurity: false,
+            showCardFileShare: false,
+            showCardDirectories: false,
+            showTopSites: true,
+            showClock: true,
+            showSearch: true,
+            showMainUI: true
+        }
+    },
+    {
+        id: 'security',
+        name: 'Cyber & Privacy Shield',
+        badge: 'Stealth Defense HUD',
+        icon: '🛡️',
+        accentColor: '#06b6d4',
+        tagline: 'Dedicated to privacy: Real-time VPN Shield HUD, WebRTC Leak Guard, Tor Onion telemetry, and Quick Notes.',
+        widgets: ['VPN & Tor Shield HUD', 'WebRTC Leak Guard', 'Clear Traces SCRAM', 'Quick Notes', 'Search'],
+        config: {
+            dashboardMode: 'security',
+            showCards: true,
+            showCardDate: false,
+            showCardFocus: false,
+            showCardNote: true,
+            showCardSecurity: true,
+            showCardFileShare: false,
+            showCardDirectories: false,
+            showTopSites: true,
+            showClock: true,
+            showSearch: true,
+            showMainUI: true
+        }
+    },
+    {
+        id: 'google_live',
+        name: 'Live Google Search',
+        badge: 'Interactive Google Engine',
+        icon: '🌐',
+        accentColor: '#4285f4',
+        tagline: 'Full-screen Google search interface with floating frosted glass dock to switch back anytime.',
+        widgets: ['Native Google.com Search', 'Iframe Sandboxed', 'Floating Dock Controls'],
+        config: {
+            dashboardMode: 'google_live',
+            backgroundType: 'google_dashboard',
+            backgroundValue: 'https://www.google.com/?raeen_dashboard=true',
+            showMainUI: true
+        }
+    },
+    {
+        id: 'bing_live',
+        name: 'Live Bing Search',
+        badge: 'Interactive Bing Engine',
+        icon: '🔍',
+        accentColor: '#008373',
+        tagline: 'Full-screen Bing search interface with floating frosted glass dock to switch back anytime.',
+        widgets: ['Native Bing.com Search', 'Iframe Sandboxed', 'Floating Dock Controls'],
+        config: {
+            dashboardMode: 'bing_live',
+            backgroundType: 'bing_dashboard',
+            backgroundValue: 'https://www.bing.com/?raeen_dashboard=true',
+            showMainUI: true
+        }
+    },
+    {
+        id: 'custom',
+        name: 'Custom Layout',
+        badge: 'Fit For You',
+        icon: '🎨',
+        accentColor: '#a855f7',
+        tagline: 'Your bespoke setup. Freely position and resize any widget on the free-space canvas.',
+        widgets: ['Free-Space Drag & Drop', 'Custom Resizing', 'Selective Widget Toggles'],
+        config: {
+            dashboardMode: 'custom'
+        }
+    }
+];
+
+export function renderDashboardChooser() {
+    const container = document.getElementById('dashboard-presets-grid');
+    if (!container) return;
+
+    const currentMode = state.settings.dashboardMode || 'pro';
+
+    container.innerHTML = DASHBOARD_PRESETS.map(preset => {
+        const isActive = currentMode === preset.id;
+        const widgetPills = preset.widgets.map(w => `<span class="preset-pill">${w}</span>`).join('');
+
+        return `
+            <div class="dashboard-preset-card ${isActive ? 'active' : ''}" data-preset-id="${preset.id}" style="--accent-mode: ${preset.accentColor}">
+                <div class="preset-header">
+                    <span class="preset-icon">${preset.icon}</span>
+                    <div class="preset-title-group">
+                        <div class="preset-title-row">
+                            <h4 class="preset-title">${preset.name}</h4>
+                            ${isActive ? '<span class="preset-active-tag">✓ Active &amp; Kept</span>' : ''}
+                        </div>
+                        <span class="preset-badge">${preset.badge}</span>
+                    </div>
+                </div>
+                <p class="preset-tagline">${preset.tagline}</p>
+                <div class="preset-pills">${widgetPills}</div>
+                <div class="preset-footer">
+                    <button type="button" class="preset-select-btn ${isActive ? 'btn-active' : ''}" data-preset-id="${preset.id}">
+                        ${isActive ? '✓ Kept as Default' : 'Keep This Dashboard'}
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    if (!container._hasPresetListener) {
+        container._hasPresetListener = true;
+        container.addEventListener('click', (e) => {
+            const card = e.target.closest('.dashboard-preset-card');
+            const btn = e.target.closest('.preset-select-btn');
+            const target = btn || card;
+            if (target && target.dataset.presetId) {
+                applyDashboardPreset(target.dataset.presetId);
+            }
+        });
+    }
+}
+
+export async function applyDashboardPreset(presetId) {
+    const preset = DASHBOARD_PRESETS.find(p => p.id === presetId);
+    if (!preset) return;
+
+    // Manage background switching safely between live iframe and native
+    if (preset.id === 'google_live' || preset.id === 'bing_live') {
+        if (state.settings.backgroundType !== 'google_dashboard' && state.settings.backgroundType !== 'bing_dashboard') {
+            state.settings.lastNonLiveBgType = state.settings.backgroundType || 'brave';
+            state.settings.lastNonLiveBgValue = state.settings.backgroundValue || 'brave_random';
+        }
+    } else if (state.settings.backgroundType === 'google_dashboard' || state.settings.backgroundType === 'bing_dashboard') {
+        state.settings.backgroundType = state.settings.lastNonLiveBgType || 'brave';
+        state.settings.backgroundValue = state.settings.lastNonLiveBgValue || 'brave_random';
+    }
+
+    Object.assign(state.settings, preset.config);
+    state.settings.dashboardMode = preset.id;
+
+    await saveSettings(state.settings);
+    syncSettingsUI();
+    renderDashboardChooser();
+    updateCards();
 }

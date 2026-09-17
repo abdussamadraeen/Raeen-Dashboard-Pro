@@ -9,7 +9,10 @@ import {
     loadBraveGallery,
     updateCards, 
     syncBackgroundOptions, 
-    renderThemeLibrary 
+    renderThemeLibrary,
+    renderDashboardChooser,
+    applyDashboardPreset,
+    DASHBOARD_PRESETS
 } from './ui.js';
 import { 
     renderNotesList, 
@@ -53,6 +56,16 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
                     saved.backgroundValue = saved.backgroundType === 'google_dashboard'
                         ? "https://www.google.com/?raeen_dashboard=true"
                         : "https://www.bing.com/?raeen_dashboard=true";
+                    await saveSettings(saved);
+                }
+
+                // If user had old default google_dashboard without explicitly setting dashboardMode, switch to pro
+                if (!saved.dashboardMode || (saved.dashboardMode === 'pro' && saved.backgroundType === 'google_dashboard')) {
+                    saved.dashboardMode = 'pro';
+                    if (saved.backgroundType === 'google_dashboard') {
+                        saved.backgroundType = 'brave';
+                        saved.backgroundValue = 'brave_random';
+                    }
                     await saveSettings(saved);
                 }
 
@@ -267,6 +280,49 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     loadStorage();
 
     // Event Listeners
+    if (dom.dashboardSwitcherBtn) {
+        dom.dashboardSwitcherBtn.onclick = () => {
+            renderDashboardChooser();
+            syncSettingsUI();
+            const tabs = document.querySelectorAll('.sidebar-tab');
+            const panes = document.querySelectorAll('.tab-pane');
+            tabs.forEach(t => t.classList.toggle('active', t.dataset.target === 'tab-dashboards'));
+            panes.forEach(p => p.classList.toggle('active', p.id === 'tab-dashboards'));
+            dom.modalOverlay.classList.remove('hidden');
+        };
+    }
+
+    if (dom.saveCustomDashboardBtn) {
+        dom.saveCustomDashboardBtn.onclick = async () => {
+            state.settings.dashboardMode = 'custom';
+            if (typeof window.saveWidgetLayout === 'function') {
+                window.saveWidgetLayout();
+            }
+            await commitSettings();
+            syncSettingsUI();
+            alert('✓ Your current dashboard layout is saved and kept as your default.');
+        };
+    }
+
+    if (dom.resetDashboardLayoutBtn) {
+        dom.resetDashboardLayoutBtn.onclick = () => {
+            const confirmed = confirm("Reset all widget positions and sizes to the default balanced layout?");
+            if (!confirmed) return;
+            localStorage.removeItem("raeen_widget_positions");
+            localStorage.removeItem("raeen_widget_sizes");
+            document.querySelectorAll(".draggable-widget").forEach(widget => {
+                widget.style.left = "";
+                widget.style.top = "";
+                widget.style.width = "";
+                widget.style.height = "";
+            });
+            if (typeof window.applyWidgetLayout === 'function') {
+                window.applyWidgetLayout();
+            }
+            applyDashboardPreset('pro');
+        };
+    }
+
     if (dom.settingsBtn) {
         dom.settingsBtn.onclick = () => {
             renderThemeLibrary();

@@ -1,8 +1,11 @@
 export const DEFAULT_SETTINGS = {
     dashboardTitle: 'New Tab',
     themePreference: 'dark',
-    backgroundType: 'google_dashboard',
-    backgroundValue: 'https://www.google.com/?raeen_dashboard=true',
+    dashboardMode: 'pro',
+    backgroundType: 'brave',
+    backgroundValue: 'brave_random',
+    lastNonLiveBgType: 'brave',
+    lastNonLiveBgValue: 'brave_random',
     showSearch: true,
     searchEngine: 'google',
     showTopSites: true,
@@ -66,6 +69,11 @@ export function validateAndRepairSettings(settingsObj) {
     }
 
     // Safety checks for enum validations
+    const validDashboardModes = ["pro", "minimal", "focus", "security", "google_live", "bing_live", "custom"];
+    if (!validDashboardModes.includes(repaired.dashboardMode)) {
+        repaired.dashboardMode = "pro";
+    }
+
     const validEngines = ["google", "duckduckgo", "bing", "brave", "chatgpt", "perplexity", "claude", "robot_ai", "custom_engine"];
     if (!validEngines.includes(repaired.searchEngine)) {
         repaired.searchEngine = "google";
@@ -78,8 +86,8 @@ export function validateAndRepairSettings(settingsObj) {
 
     const validBgTypes = ["solid", "preset", "custom", "bing", "brave", "local", "canvas", "google_dashboard", "bing_dashboard"];
     if (!validBgTypes.includes(repaired.backgroundType)) {
-        repaired.backgroundType = "google_dashboard";
-        repaired.backgroundValue = "https://www.google.com/?raeen_dashboard=true";
+        repaired.backgroundType = "brave";
+        repaired.backgroundValue = "brave_random";
     }
 
     return repaired;

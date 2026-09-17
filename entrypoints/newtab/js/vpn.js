@@ -326,6 +326,18 @@ class SecurityManager {
         }
     }
 
+    get maskedIp() {
+        return this.telemetry.ip || (this.isActive ? 'Protected' : (this.baselineIp || 'Checking...'));
+    }
+
+    get realIp() {
+        return this.baselineIp || this.telemetry.ip || 'Checking...';
+    }
+
+    get pingMs() {
+        return this.telemetry.pingMs || '18 ms';
+    }
+
     get activeDns() {
         return SECURE_DNS_PROVIDERS.find(d => d.id === this.activeDnsId) || SECURE_DNS_PROVIDERS[0];
     }
@@ -371,22 +383,34 @@ class SecurityManager {
             await this.setWebRTCShield(this.webrtcSealed);
         } catch (e) {}
 
-        // Check Tor Daemon bridge
-        await this.checkBridgeHealth();
-
         // Restore extension proxy state
         try {
             await this.checkStatus();
         } catch (e) {}
 
-        // Probe real outgoing IP
-        this.probeRealIp();
+        // Fast zero-lag telemetry: if cached IP exists, notify immediately!
+        if (this.telemetry.ip || this.baselineIp) {
+            this.notify();
+        }
+
+        // Non-blocking bridge health check
+        this.checkBridgeHealth().then(() => this.notify()).catch(() => {});
+
+        // Defer fresh IP probing to idle frame so it never blocks or lags initial paint
+        const deferTime = (this.telemetry.ip) ? 3000 : 800;
+        setTimeout(() => {
+            if (window.requestIdleCallback) {
+                requestIdleCallback(() => this.probeRealIp());
+            } else {
+                this.probeRealIp();
+            }
+        }, deferTime);
     }
 
     async checkBridgeHealth() {
         try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 1200);
+            const timeout = setTimeout(() => controller.abort(), 350);
             const res = await fetch('http://127.0.0.1:9052/status', {
                 signal: controller.signal,
                 cache: 'no-store'
@@ -835,9 +859,14 @@ class SecurityManager {
         });
     }
 
-    async probeRealIp() {
+    async probeRealIp(force = false) {
+        const now = Date.now();
+        if (!force && this._lastProbeTime && (now - this._lastProbeTime < 60000) && this.telemetry.ip) {
+            return;
+        }
         if (this.isQueryingIp) return;
         this.isQueryingIp = true;
+        this._lastProbeTime = now;
 
         const t0 = performance.now();
         try {

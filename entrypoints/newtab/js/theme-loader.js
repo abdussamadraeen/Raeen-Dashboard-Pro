@@ -2,8 +2,8 @@
     try {
         var theme = localStorage.getItem('raeen_theme') || 'dark';
         document.documentElement.setAttribute('data-theme', theme);
-        var bgType = localStorage.getItem('raeen_bg_type') || 'google_dashboard';
-        var bgValue = localStorage.getItem('raeen_bg_value') || 'https://www.google.com/?raeen_dashboard=true';
+        var bgType = localStorage.getItem('raeen_bg_type') || 'brave';
+        var bgValue = localStorage.getItem('raeen_bg_value') || 'brave_random';
         if (bgType === 'google_dashboard' || bgType === 'bing_dashboard') {
             document.documentElement.classList.add('live-bg-pre-active');
             var s = document.createElement('style');
