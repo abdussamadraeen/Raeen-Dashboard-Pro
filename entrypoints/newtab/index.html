@@ -184,6 +184,96 @@
 
                     <div class="resize-handle"></div>
                 </div>
+
+                <!-- Image Compressor Card -->
+                <div class="info-card draggable-widget image-compressor-card hidden" id="card-image-compressor" draggable="false">
+                    <div class="info-card-header">
+                        <div class="info-card-icon icon-image-comp">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </div>
+                        <div class="info-card-title">Image Compressor</div>
+                        <span class="fileshare-badge">100% Local</span>
+                    </div>
+
+                    <!-- Dropzone -->
+                    <input type="file" id="img-comp-input" accept="image/*" class="hidden" title="Select Image to Compress" aria-label="Select Image to Compress">
+                    <div class="img-comp-dropzone" id="img-comp-dropzone">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropzone-icon">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span class="dropzone-text">Drop image to compress</span>
+                        <span class="dropzone-sub">PNG, JPG, WebP • zero upload</span>
+                    </div>
+
+                    <!-- Controls (revealed on image load) -->
+                    <div class="img-comp-controls hidden" id="img-comp-controls">
+                        <div class="img-comp-slider-group">
+                            <div class="slider-header">
+                                <span class="control-label">Quality</span>
+                                <span class="control-val" id="img-comp-quality-val">80%</span>
+                            </div>
+                            <input type="range" id="img-comp-quality" min="10" max="100" value="80" class="custom-range" title="Compression Quality" aria-label="Compression Quality">
+                        </div>
+
+                        <div class="img-comp-row">
+                            <div class="select-group">
+                                <label for="img-comp-format" class="control-label">Format</label>
+                                <select id="img-comp-format" class="hud-select" aria-label="Target Format">
+                                    <option value="image/webp" selected>WebP (Smallest)</option>
+                                    <option value="image/jpeg">JPEG (Standard)</option>
+                                    <option value="image/png">PNG (Lossless)</option>
+                                </select>
+                            </div>
+                            <div class="select-group">
+                                <label for="img-comp-resize" class="control-label">Max Width</label>
+                                <select id="img-comp-resize" class="hud-select" aria-label="Max Width Resize">
+                                    <option value="original" selected>Original</option>
+                                    <option value="1920">1920px (FHD)</option>
+                                    <option value="1280">1280px (HD)</option>
+                                    <option value="800">800px (Mobile)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Preview & Savings Metrics -->
+                        <div class="img-comp-preview-area hidden" id="img-comp-preview-area">
+                            <div class="img-comp-preview-split">
+                                <div class="preview-thumb-box">
+                                    <img id="img-comp-thumb" class="preview-thumb" alt="Compressed Preview">
+                                </div>
+                                <div class="img-comp-metrics">
+                                    <div class="metric-row">
+                                        <span class="metric-label">Original:</span>
+                                        <span class="metric-val" id="img-comp-orig-size">--</span>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span class="metric-label">Compressed:</span>
+                                        <span class="metric-val" id="img-comp-comp-size">--</span>
+                                    </div>
+                                    <div class="savings-row">
+                                        <span class="img-comp-savings-badge badge-green" id="img-comp-savings">-0%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="img-comp-actions">
+                                <button type="button" id="img-comp-download-btn" class="primary-btn img-action-btn">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    Download Image
+                                </button>
+                                <button type="button" id="img-comp-reset-btn" class="focus-btn focus-btn-secondary img-reset-btn" title="Compress another image">✕</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resize-handle"></div>
+                </div>
             </div>
 
             <!-- Column 3: Right Column -->
@@ -334,6 +424,70 @@
 
                     <div class="resize-handle"></div>
                 </div>
+
+                <!-- PDF Tools Card -->
+                <div class="info-card draggable-widget pdf-tools-card hidden" id="card-pdf-tools" draggable="false">
+                    <div class="info-card-header">
+                        <div class="info-card-icon icon-pdf-tools">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="info-card-title">PDF Tools</div>
+                        <span class="fileshare-badge">100% Local</span>
+                    </div>
+
+                    <!-- Dropzone -->
+                    <input type="file" id="pdf-file-input" accept="application/pdf" class="hidden" title="Select PDF" aria-label="Select PDF">
+                    <div class="pdf-dropzone" id="pdf-dropzone">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropzone-icon">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span class="dropzone-text">Drop PDF here</span>
+                        <span class="dropzone-sub">Inspect, extract text, or open</span>
+                    </div>
+
+                    <!-- PDF Details -->
+                    <div class="pdf-details hidden" id="pdf-details">
+                        <div class="pdf-info-pill">
+                            <div class="pdf-info-meta">
+                                <strong id="pdf-name-val" class="pdf-name">document.pdf</strong>
+                                <div class="pdf-sub-meta">
+                                    <span id="pdf-size-val">0 KB</span> • 
+                                    <span id="pdf-pages-val">1 page</span> • 
+                                    <span id="pdf-version-val">PDF 1.4</span>
+                                </div>
+                            </div>
+                            <button type="button" id="pdf-reset-btn" class="file-pill-remove" title="Clear PDF" aria-label="Clear PDF">×</button>
+                        </div>
+
+                        <div class="pdf-actions-row">
+                            <button type="button" id="pdf-open-btn" class="primary-btn pdf-action-btn">
+                                ↗ Open in Tab
+                            </button>
+                            <button type="button" id="pdf-extract-text-btn" class="focus-btn focus-btn-secondary pdf-action-btn">
+                                📝 Extract Text
+                            </button>
+                        </div>
+
+                        <textarea id="pdf-extracted-text" class="pdf-extracted-textarea hidden" readonly placeholder="Extracted text preview..." title="Extracted Text" aria-label="Extracted Text"></textarea>
+                    </div>
+
+                    <div class="pdf-footer-tools">
+                        <input type="file" id="pdf-img-to-pdf-input" accept="image/*" multiple class="hidden" title="Select Images for PDF" aria-label="Select Images for PDF">
+                        <button type="button" id="pdf-img-to-pdf-btn" class="pdf-convert-btn">
+                            📷 Images to PDF
+                        </button>
+                        <span id="pdf-img-status" class="pdf-convert-status hidden"></span>
+                    </div>
+
+                    <div class="resize-handle"></div>
+                </div>
             </div>
         </section>
 
@@ -413,6 +567,10 @@
 
     <!-- Dashboard Switcher & Settings Floating Controls -->
     <div class="top-floating-controls">
+        <button id="open-add-widget-btn" class="dashboard-switcher-btn add-widget-btn-glow" aria-label="Add Widget" title="Explore Widget Catalog & Add to Dashboard">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span class="switcher-text">+ Add Widget</span>
+        </button>
         <button id="dashboard-switcher-btn" class="dashboard-switcher-btn" aria-label="Choose Dashboard Layout" title="Choose &amp; Keep Dashboard Layout">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span class="switcher-text" id="dashboard-switcher-label">Layouts</span>
@@ -495,13 +653,21 @@
                                 <span class="subtext">Drag &amp; drop any widget freely across the screen. Your exact layout is automatically saved and kept.</span>
                             </div>
                             <div class="custom-actions-btns">
-                                <button type="button" id="save-custom-dashboard-btn" class="primary-btn">
-                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                                    Save as Custom Layout
+                                <button type="button" id="open-studio-btn" class="primary-btn studio-action-btn" title="Open Custom Dashboard Studio">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                    Dashboard Studio
                                 </button>
-                                <button type="button" id="reset-dashboard-layout-btn" class="focus-btn focus-btn-secondary">
+                                <button type="button" id="open-import-btn" class="focus-btn focus-btn-secondary" title="Import a shared dashboard code or file">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    Import Shared
+                                </button>
+                                <button type="button" id="save-custom-dashboard-btn" class="focus-btn focus-btn-secondary" title="Save current setup as custom profile">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                    Save Setup
+                                </button>
+                                <button type="button" id="reset-dashboard-layout-btn" class="focus-btn focus-btn-secondary" title="Reset widget positions and sizes">
                                     <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
-                                    Reset Positions &amp; Sizes
+                                    Reset Layout
                                 </button>
                             </div>
                         </div>
@@ -971,6 +1137,39 @@
                                         <span class="slider round"></span>
                                     </label>
                                 </div>
+                                <div class="settings-row widget-setting-item">
+                                    <div class="widget-setting-header">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="widget-icon icon-image-comp">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                        </svg>
+                                        <div class="source-card-text">
+                                            <strong>In-Browser Image Compressor</strong>
+                                            <span>Zero-upload offline compression, WebP/JPG conversion &amp; resize</span>
+                                        </div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-card-image-compressor" title="Show Image Compressor" aria-label="Show Image Compressor">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="settings-row widget-setting-item">
+                                    <div class="widget-setting-header">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="widget-icon icon-pdf-tools">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                        </svg>
+                                        <div class="source-card-text">
+                                            <strong>PDF Tools &amp; Generator</strong>
+                                            <span>Offline PDF inspector, text extractor &amp; images-to-PDF compiler</span>
+                                        </div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-card-pdf-tools" title="Show PDF Tools" aria-label="Show PDF Tools">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -989,6 +1188,131 @@
     <div id="photographer-credit" class="photographer-credit hidden" title="Brave NTP Curated Photography">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
         <span>Photo by <strong id="photographer-name">Brave Curated</strong></span>
+    </div>
+
+    <!-- Add Widget Catalog Modal -->
+    <div id="add-widget-modal" class="modal-overlay hidden">
+        <div class="modal-container studio-catalog-modal">
+            <header class="modal-header">
+                <div class="modal-header-title-group">
+                    <h2>Widget Ecosystem &amp; Store</h2>
+                    <span class="subtext">Add powerful tools tailored to your daily workflow</span>
+                </div>
+                <button id="close-add-widget-btn" class="close-btn" aria-label="Close">&times;</button>
+            </header>
+            <div class="modal-body">
+                <div class="widget-catalog-grid" id="widget-catalog-grid">
+                    <!-- Injected dynamically by dashboard-studio.js -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Studio Modal (Profile Manager) -->
+    <div id="dashboard-studio-modal" class="modal-overlay hidden">
+        <div class="modal-container studio-profiles-modal">
+            <header class="modal-header">
+                <div class="modal-header-title-group">
+                    <h2>Custom Dashboard Studio</h2>
+                    <span class="subtext">Create, save, and switch between your personalized layouts</span>
+                </div>
+                <button id="close-studio-btn" class="close-btn" aria-label="Close">&times;</button>
+            </header>
+            <div class="modal-body">
+                <div class="studio-create-row">
+                    <input type="text" id="studio-new-profile-name" class="text-input studio-input" placeholder="Profile Name (e.g., Designer Studio, Study Hub)" maxlength="40" title="Profile Name" aria-label="Profile Name">
+                    <button type="button" id="studio-save-new-btn" class="primary-btn">
+                        Save Current Setup
+                    </button>
+                </div>
+                <div class="studio-profiles-section">
+                    <h3>Saved Dashboard Profiles</h3>
+                    <div class="studio-profiles-list" id="studio-profiles-list">
+                        <!-- Rendered by studio JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Share Modal (QR & Cryptographic Code) -->
+    <div id="dashboard-share-modal" class="modal-overlay hidden">
+        <div class="modal-container studio-share-modal">
+            <header class="modal-header">
+                <div class="modal-header-title-group">
+                    <h2>Share Dashboard Across Devices</h2>
+                    <span class="subtext">Zero-backend, tamper-proof cryptographic synchronization</span>
+                </div>
+                <button id="close-share-modal-btn" class="close-btn" aria-label="Close">&times;</button>
+            </header>
+            <div class="modal-body">
+                <div class="share-profile-header">
+                    <strong id="share-dashboard-title" class="share-profile-name">Custom Workspace</strong>
+                    <div class="share-integrity-badge">
+                        <span>🔒 SHA-256: <code id="share-integrity-hash">Verified</code></span>
+                    </div>
+                </div>
+
+                <div class="share-columns">
+                    <!-- QR Visual Pairing -->
+                    <div class="share-col-qr">
+                        <canvas id="share-qr-canvas" class="share-qr-canvas"></canvas>
+                        <span class="qr-sub">Scan with phone or second laptop to import instantly</span>
+                    </div>
+
+                    <!-- Code / File Export -->
+                    <div class="share-col-code">
+                        <label class="control-label" for="share-code-input">One-Click Share Code (Compressed Gzip Stream):</label>
+                        <textarea id="share-code-input" class="share-code-textarea" readonly rows="4" title="Share Code" aria-label="Share Code"></textarea>
+                        <div class="share-btn-row">
+                            <button type="button" id="share-copy-code-btn" class="primary-btn">
+                                📋 Copy Code
+                            </button>
+                            <button type="button" id="share-export-file-btn" class="focus-btn focus-btn-secondary">
+                                💾 Export .raeen.json
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Import Modal -->
+    <div id="dashboard-import-modal" class="modal-overlay hidden">
+        <div class="modal-container studio-import-modal">
+            <header class="modal-header">
+                <div class="modal-header-title-group">
+                    <h2>Import Shared Dashboard</h2>
+                    <span class="subtext">Paste a shared code or drop an exported dashboard file</span>
+                </div>
+                <button id="close-import-btn" class="close-btn" aria-label="Close">&times;</button>
+            </header>
+            <div class="modal-body">
+                <!-- Dropzone for File -->
+                <input type="file" id="import-file-input" accept=".json,.raeen" class="hidden" title="Select Dashboard File" aria-label="Select Dashboard File">
+                <div class="import-file-dropzone" id="import-file-dropzone">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropzone-icon">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span class="dropzone-text">Drop .raeen or .json file here</span>
+                    <span class="dropzone-sub">or click to browse local files</span>
+                </div>
+
+                <div class="import-or-divider"><span>OR PASTE CODE</span></div>
+
+                <div class="import-code-box">
+                    <textarea id="import-code-input" class="text-input import-textarea" placeholder="Paste RDB1_... or raw dashboard JSON here" rows="3" title="Import Code" aria-label="Import Code"></textarea>
+                    <button type="button" id="import-code-btn" class="primary-btn import-btn">
+                        Verify &amp; Apply Dashboard
+                    </button>
+                </div>
+
+                <div id="import-status-msg" class="import-status hidden"></div>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="./js/main.js"></script>

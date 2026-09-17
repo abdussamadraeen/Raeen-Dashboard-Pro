@@ -717,6 +717,8 @@ export function syncSettingsUI() {
     if (dom.toggleCardSecurity) dom.toggleCardSecurity.checked = state.settings.showCardSecurity !== false;
     if (dom.toggleCardFileShare) dom.toggleCardFileShare.checked = state.settings.showCardFileShare !== false;
     if (dom.toggleCardDirectories) dom.toggleCardDirectories.checked = state.settings.showCardDirectories !== false;
+    if (dom.toggleCardImageCompressor) dom.toggleCardImageCompressor.checked = state.settings.showCardImageCompressor === true;
+    if (dom.toggleCardPdfTools) dom.toggleCardPdfTools.checked = state.settings.showCardPdfTools === true;
     if (dom.toggleDragDrop) dom.toggleDragDrop.checked = state.settings.enableDragAndDrop;
 
     // Render Dashboard Chooser Presets
@@ -755,6 +757,8 @@ export function updateCards() {
     if (dom.cardSecurityEl) dom.cardSecurityEl.classList.toggle('hidden', state.settings.showCardSecurity === false);
     if (dom.cardFileShareEl) dom.cardFileShareEl.classList.toggle('hidden', state.settings.showCardFileShare === false);
     if (dom.cardDirectoriesEl) dom.cardDirectoriesEl.classList.toggle('hidden', state.settings.showCardDirectories === false);
+    if (dom.cardImageCompressorEl) dom.cardImageCompressorEl.classList.toggle('hidden', state.settings.showCardImageCompressor !== true);
+    if (dom.cardPdfToolsEl) dom.cardPdfToolsEl.classList.toggle('hidden', state.settings.showCardPdfTools !== true);
 
     const now = new Date();
     const currentDateKey = now.getDate();
@@ -950,6 +954,33 @@ export const DASHBOARD_PRESETS = [
             showCardSecurity: true,
             showCardFileShare: false,
             showCardDirectories: false,
+            showCardImageCompressor: false,
+            showCardPdfTools: false,
+            showTopSites: true,
+            showClock: true,
+            showSearch: true,
+            showMainUI: true
+        }
+    },
+    {
+        id: 'creator',
+        name: 'Creator & Media Studio',
+        badge: 'Design & Documents',
+        icon: '🎨',
+        accentColor: '#ec4899',
+        tagline: 'Built for designers and content creators: In-Browser Image Compressor, Offline PDF Tools, Quick Notes, and P2P File Share.',
+        widgets: ['Image Compressor', 'PDF Tools', 'Quick Notes', 'P2P File Share', 'Web Search'],
+        config: {
+            dashboardMode: 'creator',
+            showCards: true,
+            showCardDate: false,
+            showCardFocus: false,
+            showCardNote: true,
+            showCardSecurity: false,
+            showCardFileShare: true,
+            showCardDirectories: false,
+            showCardImageCompressor: true,
+            showCardPdfTools: true,
             showTopSites: true,
             showClock: true,
             showSearch: true,

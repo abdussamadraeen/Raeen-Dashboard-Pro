@@ -35,6 +35,10 @@ export const DEFAULT_SETTINGS = {
     showCardSecurity: true,
     showCardFileShare: true,
     showCardDirectories: true,
+    showCardImageCompressor: false,
+    showCardPdfTools: false,
+    customDashboards: [],
+    activeCustomDashboardId: null,
     showNoosphereBar: true, 
     showMainUI: true, 
     showSettingsButtonInImmersive: true, 
@@ -69,7 +73,7 @@ export function validateAndRepairSettings(settingsObj) {
     }
 
     // Safety checks for enum validations
-    const validDashboardModes = ["pro", "minimal", "focus", "security", "google_live", "bing_live", "custom"];
+    const validDashboardModes = ["pro", "minimal", "focus", "security", "creator", "google_live", "bing_live", "custom"];
     if (!validDashboardModes.includes(repaired.dashboardMode)) {
         repaired.dashboardMode = "pro";
     }

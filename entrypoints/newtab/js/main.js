@@ -26,6 +26,9 @@ import { renderShortcuts, addShortcut } from './shortcuts.js';
 import { setupSearch, updateSearchEngineUI } from './search.js';
 import { initFocusTimer } from './focus.js';
 import { initFileShare } from './fileshare.js';
+import { initImageCompressor } from './image-compressor.js';
+import { initPdfTools } from './pdf-tools.js';
+import { initDashboardStudio, createDashboardSnapshot } from './dashboard-studio.js';
 import { validateAndRepairSettings } from './schema.js';
 import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
 import { securityManager, TACTICAL_NODES } from './vpn.js';
@@ -116,6 +119,9 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     initFocusTimer();
     initFileShare();
     initSecurityHud();
+    initImageCompressor();
+    initPdfTools();
+    initDashboardStudio();
 
     function initSecurityHud() {
         if (!dom.cardSecurityEl) return;
@@ -298,9 +304,18 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
             if (typeof window.saveWidgetLayout === 'function') {
                 window.saveWidgetLayout();
             }
+            const name = prompt('Name this custom dashboard profile:', `Custom Layout ${(state.settings.customDashboards?.length || 0) + 1}`);
+            if (name && name.trim()) {
+                const snapshot = await createDashboardSnapshot(name.trim());
+                if (!Array.isArray(state.settings.customDashboards)) {
+                    state.settings.customDashboards = [];
+                }
+                state.settings.customDashboards.push(snapshot);
+                state.settings.activeCustomDashboardId = snapshot.id;
+            }
             await commitSettings();
             syncSettingsUI();
-            alert('✓ Your current dashboard layout is saved and kept as your default.');
+            alert('✓ Your custom dashboard layout is saved and kept as your default.');
         };
     }
 
@@ -432,6 +447,8 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     bindToggle(dom.toggleCardNote, 'showCardNote');
     bindToggle(dom.toggleCardSecurity, 'showCardSecurity');
     bindToggle(dom.toggleCardFileShare, 'showCardFileShare');
+    bindToggle(dom.toggleCardImageCompressor, 'showCardImageCompressor');
+    bindToggle(dom.toggleCardPdfTools, 'showCardPdfTools');
     bindToggle(dom.toggleCardDirectories, 'showCardDirectories', () => {
         if (typeof window.renderDirectoriesWidget === 'function') window.renderDirectoriesWidget();
     });
