@@ -876,6 +876,22 @@ export const DASHBOARD_PRESETS = [
         accentColor: '#38bdf8',
         tagline: 'Complete all-in-one productivity dashboard with Clock, Date, Notes, Focus Pomodoro, VPN Shield, File Share, AI Hub & Search.',
         widgets: ['Clock & Date', 'Pomodoro Timer', 'Quick Notes', 'VPN Shield', 'P2P File Share', 'AI Hub', 'Multi-Search'],
+        mockupHtml: `
+            <div class="mockup-screen mockup-pro">
+                <div class="mockup-col col-left">
+                    <div class="m-card m-clock"><span class="m-time">10:42</span><span class="m-date">Sep 17</span></div>
+                    <div class="m-card m-vpn"><span class="m-dot dot-green"></span><span>VPN Shield</span></div>
+                </div>
+                <div class="mockup-col col-center">
+                    <div class="m-search-bar"><span class="m-search-dot"></span><span>Search Web &amp; AI...</span></div>
+                    <div class="m-apps-row"><span class="m-app"></span><span class="m-app"></span><span class="m-app"></span><span class="m-app"></span></div>
+                </div>
+                <div class="mockup-col col-right">
+                    <div class="m-card m-focus"><span class="m-ring"></span><span>25:00</span></div>
+                    <div class="m-card m-notes"><span class="m-line"></span><span class="m-line short"></span></div>
+                </div>
+            </div>
+        `,
         config: {
             dashboardMode: 'pro',
             showCards: true,
@@ -885,75 +901,6 @@ export const DASHBOARD_PRESETS = [
             showCardSecurity: true,
             showCardFileShare: true,
             showCardDirectories: true,
-            showTopSites: true,
-            showClock: true,
-            showSearch: true,
-            showMainUI: true
-        }
-    },
-    {
-        id: 'minimal',
-        name: 'Minimalist Clean',
-        badge: 'Distraction-Free Zen',
-        icon: '🧘',
-        accentColor: '#10b981',
-        tagline: 'Serene distraction-free view with large Clock, clean Search bar, and Top Sites. Hides heavy cards for total focus.',
-        widgets: ['Large Clock', 'Clean Web Search', 'Top Sites Shortcuts', 'Serene Wallpaper'],
-        config: {
-            dashboardMode: 'minimal',
-            showCards: false,
-            showCardDate: false,
-            showCardFocus: false,
-            showCardNote: false,
-            showCardSecurity: false,
-            showCardFileShare: false,
-            showCardDirectories: false,
-            showTopSites: true,
-            showClock: true,
-            showSearch: true,
-            showMainUI: true
-        }
-    },
-    {
-        id: 'focus',
-        name: 'Productivity & Focus',
-        badge: 'Deep Work & Study',
-        icon: '⏱️',
-        accentColor: '#f59e0b',
-        tagline: 'Tailored for deep work: Pomodoro Focus Timer, Quick Notes notepad, and Date & Year progress.',
-        widgets: ['Pomodoro Focus Timer', 'Quick Notes', 'Date & Year Progress', 'Web Search'],
-        config: {
-            dashboardMode: 'focus',
-            showCards: true,
-            showCardDate: true,
-            showCardFocus: true,
-            showCardNote: true,
-            showCardSecurity: false,
-            showCardFileShare: false,
-            showCardDirectories: false,
-            showTopSites: true,
-            showClock: true,
-            showSearch: true,
-            showMainUI: true
-        }
-    },
-    {
-        id: 'security',
-        name: 'Cyber & Privacy Shield',
-        badge: 'Stealth Defense HUD',
-        icon: '🛡️',
-        accentColor: '#06b6d4',
-        tagline: 'Dedicated to privacy: Real-time VPN Shield HUD, WebRTC Leak Guard, Tor Onion telemetry, and Quick Notes.',
-        widgets: ['VPN & Tor Shield HUD', 'WebRTC Leak Guard', 'Clear Traces SCRAM', 'Quick Notes', 'Search'],
-        config: {
-            dashboardMode: 'security',
-            showCards: true,
-            showCardDate: false,
-            showCardFocus: false,
-            showCardNote: true,
-            showCardSecurity: true,
-            showCardFileShare: false,
-            showCardDirectories: false,
             showCardImageCompressor: false,
             showCardPdfTools: false,
             showTopSites: true,
@@ -970,6 +917,29 @@ export const DASHBOARD_PRESETS = [
         accentColor: '#ec4899',
         tagline: 'Built for designers and content creators: In-Browser Image Compressor, Offline PDF Tools, Quick Notes, and P2P File Share.',
         widgets: ['Image Compressor', 'PDF Tools', 'Quick Notes', 'P2P File Share', 'Web Search'],
+        mockupHtml: `
+            <div class="mockup-screen mockup-creator">
+                <div class="mockup-col col-left">
+                    <div class="m-card m-imgcomp">
+                        <div class="m-comp-split">
+                            <span class="m-photo-icon">🖼️</span>
+                            <span class="m-badge-save">-78% Saved</span>
+                        </div>
+                        <div class="m-slider-line"></div>
+                    </div>
+                </div>
+                <div class="mockup-col col-center">
+                    <div class="m-search-bar"><span class="m-search-dot dot-pink"></span><span>Creative Studio...</span></div>
+                    <div class="m-apps-row"><span class="m-app app-pink"></span><span class="m-app app-pink"></span><span class="m-app app-pink"></span></div>
+                </div>
+                <div class="mockup-col col-right">
+                    <div class="m-card m-pdf">
+                        <div class="m-pdf-header"><span class="m-pdf-tag">PDF</span><span>Doc.pdf</span></div>
+                        <div class="m-btn-pill">Images to PDF ↗</div>
+                    </div>
+                </div>
+            </div>
+        `,
         config: {
             dashboardMode: 'creator',
             showCards: true,
@@ -988,6 +958,128 @@ export const DASHBOARD_PRESETS = [
         }
     },
     {
+        id: 'minimal',
+        name: 'Minimalist Clean',
+        badge: 'Distraction-Free Zen',
+        icon: '🧘',
+        accentColor: '#10b981',
+        tagline: 'Serene distraction-free view with large Clock, clean Search bar, and Top Sites. Hides heavy cards for total focus.',
+        widgets: ['Large Clock', 'Clean Web Search', 'Top Sites Shortcuts', 'Serene Wallpaper'],
+        mockupHtml: `
+            <div class="mockup-screen mockup-minimal">
+                <div class="m-zen-wallpaper">
+                    <div class="m-zen-clock">10:42</div>
+                    <div class="m-search-bar search-zen"><span>Search with Zen...</span></div>
+                    <div class="m-apps-row apps-zen"><span class="m-app"></span><span class="m-app"></span><span class="m-app"></span><span class="m-app"></span></div>
+                </div>
+            </div>
+        `,
+        config: {
+            dashboardMode: 'minimal',
+            showCards: false,
+            showCardDate: false,
+            showCardFocus: false,
+            showCardNote: false,
+            showCardSecurity: false,
+            showCardFileShare: false,
+            showCardDirectories: false,
+            showCardImageCompressor: false,
+            showCardPdfTools: false,
+            showTopSites: true,
+            showClock: true,
+            showSearch: true,
+            showMainUI: true
+        }
+    },
+    {
+        id: 'focus',
+        name: 'Productivity & Focus',
+        badge: 'Deep Work & Study',
+        icon: '⏱️',
+        accentColor: '#f59e0b',
+        tagline: 'Tailored for deep work: Pomodoro Focus Timer, Quick Notes notepad, and Date & Year progress.',
+        widgets: ['Pomodoro Focus Timer', 'Quick Notes', 'Date & Year Progress', 'Web Search'],
+        mockupHtml: `
+            <div class="mockup-screen mockup-focus">
+                <div class="mockup-col col-left">
+                    <div class="m-card m-date-progress">
+                        <div class="m-line-label"><span>Year</span> <span>71%</span></div>
+                        <div class="m-track"><div class="m-fill fill-amber" style="width: 71%"></div></div>
+                    </div>
+                </div>
+                <div class="mockup-col col-center">
+                    <div class="m-focus-circle">
+                        <div class="m-focus-time">25:00</div>
+                        <div class="m-focus-label">Deep Work</div>
+                    </div>
+                    <div class="m-search-bar search-amber"><span>Focus Search...</span></div>
+                </div>
+                <div class="mockup-col col-right">
+                    <div class="m-card m-notepad">
+                        <div class="m-notepad-header">Tasks</div>
+                        <div class="m-line"></div><div class="m-line"></div><div class="m-line short"></div>
+                    </div>
+                </div>
+            </div>
+        `,
+        config: {
+            dashboardMode: 'focus',
+            showCards: true,
+            showCardDate: true,
+            showCardFocus: true,
+            showCardNote: true,
+            showCardSecurity: false,
+            showCardFileShare: false,
+            showCardDirectories: false,
+            showCardImageCompressor: false,
+            showCardPdfTools: false,
+            showTopSites: true,
+            showClock: true,
+            showSearch: true,
+            showMainUI: true
+        }
+    },
+    {
+        id: 'security',
+        name: 'Cyber & Privacy Shield',
+        badge: 'Stealth Defense HUD',
+        icon: '🛡️',
+        accentColor: '#06b6d4',
+        tagline: 'Dedicated to privacy: Real-time VPN Shield HUD, WebRTC Leak Guard, Tor Onion telemetry, and Quick Notes.',
+        widgets: ['VPN & Tor Shield HUD', 'WebRTC Leak Guard', 'Clear Traces SCRAM', 'Quick Notes', 'Search'],
+        mockupHtml: `
+            <div class="mockup-screen mockup-security">
+                <div class="m-sec-grid">
+                    <div class="m-radar-mini">
+                        <div class="m-sweep"></div>
+                        <div class="m-cross"></div>
+                    </div>
+                    <div class="m-sec-info">
+                        <div class="m-sec-badge">DEFCON 1 • PROTECTED</div>
+                        <div class="m-hop-row"><span>US</span> → <span>TOR 9050</span> → <span>SECURE</span></div>
+                        <div class="m-tele-pill">IP: 185.220.*** • 0ms Leak</div>
+                    </div>
+                </div>
+            </div>
+        `,
+        config: {
+            dashboardMode: 'security',
+            showCards: true,
+            showCardDate: false,
+            showCardFocus: false,
+            showCardNote: true,
+            showCardSecurity: true,
+            showCardFileShare: false,
+            showCardDirectories: false,
+            showCardImageCompressor: false,
+            showCardPdfTools: false,
+            showTopSites: true,
+            showClock: true,
+            showSearch: true,
+            showMainUI: true
+        }
+    },
+    {
         id: 'google_live',
         name: 'Live Google Search',
         badge: 'Interactive Google Engine',
@@ -995,6 +1087,22 @@ export const DASHBOARD_PRESETS = [
         accentColor: '#4285f4',
         tagline: 'Full-screen Google search interface with floating frosted glass dock to switch back anytime.',
         widgets: ['Native Google.com Search', 'Iframe Sandboxed', 'Floating Dock Controls'],
+        mockupHtml: `
+            <div class="mockup-screen mockup-google">
+                <div class="m-google-brand">
+                    <span style="color:#4285f4">G</span><span style="color:#ea4335">o</span><span style="color:#fbbc05">o</span><span style="color:#4285f4">g</span><span style="color:#34a853">l</span><span style="color:#ea4335">e</span>
+                </div>
+                <div class="m-google-search-pill">
+                    <span class="m-search-lens">🔍</span>
+                    <span class="m-search-ghost">Search Google or type URL</span>
+                    <span class="m-mic-icon">🎙️</span>
+                </div>
+                <div class="m-google-btns">
+                    <span>Google Search</span>
+                    <span>I'm Feeling Lucky</span>
+                </div>
+            </div>
+        `,
         config: {
             dashboardMode: 'google_live',
             backgroundType: 'google_dashboard',
@@ -1010,6 +1118,17 @@ export const DASHBOARD_PRESETS = [
         accentColor: '#008373',
         tagline: 'Full-screen Bing search interface with floating frosted glass dock to switch back anytime.',
         widgets: ['Native Bing.com Search', 'Iframe Sandboxed', 'Floating Dock Controls'],
+        mockupHtml: `
+            <div class="mockup-screen mockup-bing">
+                <div class="m-bing-brand">
+                    <span class="m-bing-icon">🔍</span> Bing
+                </div>
+                <div class="m-bing-search-pill">
+                    <span>Ask anything or chat with Copilot</span>
+                    <span class="m-copilot-sparkle">✨</span>
+                </div>
+            </div>
+        `,
         config: {
             dashboardMode: 'bing_live',
             backgroundType: 'bing_dashboard',
@@ -1025,6 +1144,15 @@ export const DASHBOARD_PRESETS = [
         accentColor: '#a855f7',
         tagline: 'Your bespoke setup. Freely position and resize any widget on the free-space canvas.',
         widgets: ['Free-Space Drag & Drop', 'Custom Resizing', 'Selective Widget Toggles'],
+        mockupHtml: `
+            <div class="mockup-screen mockup-custom">
+                <div class="m-canvas-grid">
+                    <div class="m-box box-a"><span>Widget A</span><div class="m-resize"></div></div>
+                    <div class="m-box box-b"><span>Widget B</span><div class="m-resize"></div></div>
+                    <div class="m-box box-c"><span>Widget C</span><div class="m-resize"></div></div>
+                </div>
+            </div>
+        `,
         config: {
             dashboardMode: 'custom'
         }
@@ -1043,22 +1171,27 @@ export function renderDashboardChooser() {
 
         return `
             <div class="dashboard-preset-card ${isActive ? 'active' : ''}" data-preset-id="${preset.id}" style="--accent-mode: ${preset.accentColor}">
-                <div class="preset-header">
-                    <span class="preset-icon">${preset.icon}</span>
-                    <div class="preset-title-group">
-                        <div class="preset-title-row">
-                            <h4 class="preset-title">${preset.name}</h4>
-                            ${isActive ? '<span class="preset-active-tag">✓ Active &amp; Kept</span>' : ''}
-                        </div>
-                        <span class="preset-badge">${preset.badge}</span>
-                    </div>
+                <div class="preset-preview-banner">
+                    ${preset.mockupHtml || ''}
                 </div>
-                <p class="preset-tagline">${preset.tagline}</p>
-                <div class="preset-pills">${widgetPills}</div>
-                <div class="preset-footer">
-                    <button type="button" class="preset-select-btn ${isActive ? 'btn-active' : ''}" data-preset-id="${preset.id}">
-                        ${isActive ? '✓ Kept as Default' : 'Keep This Dashboard'}
-                    </button>
+                <div class="preset-card-body">
+                    <div class="preset-header">
+                        <span class="preset-icon">${preset.icon}</span>
+                        <div class="preset-title-group">
+                            <div class="preset-title-row">
+                                <h4 class="preset-title">${preset.name}</h4>
+                                ${isActive ? '<span class="preset-active-tag">✓ Active &amp; Kept</span>' : ''}
+                            </div>
+                            <span class="preset-badge">${preset.badge}</span>
+                        </div>
+                    </div>
+                    <p class="preset-tagline">${preset.tagline}</p>
+                    <div class="preset-pills">${widgetPills}</div>
+                    <div class="preset-footer">
+                        <button type="button" class="preset-select-btn ${isActive ? 'btn-active' : ''}" data-preset-id="${preset.id}">
+                            ${isActive ? '✓ Kept as Default' : 'Keep This Dashboard'}
+                        </button>
+                    </div>
                 </div>
             </div>
         `;

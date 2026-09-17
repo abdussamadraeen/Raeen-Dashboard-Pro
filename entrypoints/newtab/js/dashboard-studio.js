@@ -19,7 +19,19 @@ export const WIDGET_CATALOG = [
         category: 'Creative & Media',
         icon: '🖼️',
         desc: 'Compress, resize and convert PNG/JPG/WebP images 100% locally with zero server upload.',
-        badge: 'New Tool'
+        badge: 'New Tool',
+        previewHtml: `
+            <div class="cat-preview cat-imgcomp">
+                <div class="cat-thumb-split">
+                    <div class="cat-thumb-box"><span>🖼️</span></div>
+                    <div class="cat-thumb-stats">
+                        <span class="cat-metric">2.4 MB → 480 KB</span>
+                        <span class="cat-savings-badge">-80% WebP</span>
+                    </div>
+                </div>
+                <div class="cat-slider-track"><div class="cat-slider-fill" style="width: 80%"></div></div>
+            </div>
+        `
     },
     {
         id: 'showCardPdfTools',
@@ -27,7 +39,16 @@ export const WIDGET_CATALOG = [
         category: 'Creative & Media',
         icon: '📄',
         desc: 'Inspect metadata, extract readable text, and convert images into clean PDFs completely offline.',
-        badge: 'New Tool'
+        badge: 'New Tool',
+        previewHtml: `
+            <div class="cat-preview cat-pdf">
+                <div class="cat-pdf-row">
+                    <span class="cat-pdf-badge">PDF</span>
+                    <span class="cat-pdf-title">Contract.pdf (4 pages)</span>
+                </div>
+                <div class="cat-btn-pill">Images to PDF ↗</div>
+            </div>
+        `
     },
     {
         id: 'showCardSecurity',
@@ -35,7 +56,18 @@ export const WIDGET_CATALOG = [
         category: 'Privacy & Security',
         icon: '🛡️',
         desc: 'Tactical security radar, fast Tor relay routing, WebRTC leak guard, and nuclear trace scram.',
-        badge: 'High Security'
+        badge: 'High Security',
+        previewHtml: `
+            <div class="cat-preview cat-security">
+                <div class="cat-radar-box">
+                    <div class="cat-radar-sweep"></div>
+                </div>
+                <div class="cat-sec-meta">
+                    <span class="cat-badge-green">DEFCON 1 • ACTIVE</span>
+                    <span class="cat-sec-sub">256-Bit Shield • Tor 9050</span>
+                </div>
+            </div>
+        `
     },
     {
         id: 'showCardFileShare',
@@ -43,7 +75,16 @@ export const WIDGET_CATALOG = [
         category: 'Privacy & Security',
         icon: '⚡',
         desc: 'AirDrop-style direct peer-to-peer file transfer over local Wi-Fi with encrypted pairing codes.',
-        badge: 'Offline P2P'
+        badge: 'Offline P2P',
+        previewHtml: `
+            <div class="cat-preview cat-fileshare">
+                <span class="cat-p2p-icon">⚡</span>
+                <div class="cat-p2p-info">
+                    <span class="cat-code-pill">Code: 482-901</span>
+                    <span class="cat-p2p-sub">Local Wi-Fi P2P Encrypted</span>
+                </div>
+            </div>
+        `
     },
     {
         id: 'showCardFocus',
@@ -51,7 +92,15 @@ export const WIDGET_CATALOG = [
         category: 'Productivity',
         icon: '⏱️',
         desc: '25-minute deep work intervals to boost concentration and eliminate distractions.',
-        badge: 'Productivity'
+        badge: 'Productivity',
+        previewHtml: `
+            <div class="cat-preview cat-focus">
+                <div class="cat-circle-timer">25:00</div>
+                <div class="cat-focus-meta">
+                    <span class="cat-focus-pill">▶ Deep Work Interval</span>
+                </div>
+            </div>
+        `
     },
     {
         id: 'showCardNote',
@@ -59,7 +108,14 @@ export const WIDGET_CATALOG = [
         category: 'Productivity',
         icon: '📝',
         desc: 'Instantly jot down thoughts, links, and code snippets with automatic local persistence.',
-        badge: 'Productivity'
+        badge: 'Productivity',
+        previewHtml: `
+            <div class="cat-preview cat-notes">
+                <div class="cat-note-header"><span>Quick Thoughts</span><span class="cat-saved-pill">Saved ✓</span></div>
+                <div class="cat-line"></div>
+                <div class="cat-line cat-line-short"></div>
+            </div>
+        `
     },
     {
         id: 'showCardDirectories',
@@ -67,7 +123,21 @@ export const WIDGET_CATALOG = [
         category: 'Productivity',
         icon: '📁',
         desc: 'Organized tabbed launcher for AI models, developer tools, work, and essential bookmarks.',
-        badge: 'Organization'
+        badge: 'Organization',
+        previewHtml: `
+            <div class="cat-preview cat-directories">
+                <div class="cat-dir-tabs">
+                    <span class="cat-tab active">🤖 AI Hub</span>
+                    <span class="cat-tab">💻 Dev</span>
+                    <span class="cat-tab">💼 Work</span>
+                </div>
+                <div class="cat-app-bubbles">
+                    <span class="cat-bubble">ChatGPT</span>
+                    <span class="cat-bubble">Claude</span>
+                    <span class="cat-bubble">Gemini</span>
+                </div>
+            </div>
+        `
     },
     {
         id: 'showCardDate',
@@ -75,7 +145,16 @@ export const WIDGET_CATALOG = [
         category: 'Time & Status',
         icon: '📅',
         desc: 'Localized daily date badge, annual progress gauge, and Civilization Development Index.',
-        badge: 'Daily Tracker'
+        badge: 'Daily Tracker',
+        previewHtml: `
+            <div class="cat-preview cat-date">
+                <div class="cat-date-row">
+                    <span class="cat-today-badge">Sep 17 • Today</span>
+                    <span class="cat-year-badge">2026</span>
+                </div>
+                <div class="cat-progress-track"><div class="cat-progress-fill" style="width: 71.2%"></div></div>
+            </div>
+        `
     },
     {
         id: 'showClock',
@@ -83,7 +162,13 @@ export const WIDGET_CATALOG = [
         category: 'Time & Status',
         icon: '⏰',
         desc: '12h/24h precision digital clock with customizable seconds and meridian markers.',
-        badge: 'Essential'
+        badge: 'Essential',
+        previewHtml: `
+            <div class="cat-preview cat-clock">
+                <div class="cat-clock-digits">10:42<span class="cat-clock-sec">:18</span></div>
+                <span class="cat-clock-meridian">AM // UTC+5:30</span>
+            </div>
+        `
     },
     {
         id: 'showSearch',
@@ -91,7 +176,15 @@ export const WIDGET_CATALOG = [
         category: 'Search & AI',
         icon: '🔍',
         desc: 'Instant web search supporting Google, Brave, DuckDuckGo, Bing, ChatGPT, Perplexity, and Claude.',
-        badge: 'Essential'
+        badge: 'Essential',
+        previewHtml: `
+            <div class="cat-preview cat-search">
+                <div class="cat-search-box">
+                    <span class="cat-search-engine-icon">🌐</span>
+                    <span class="cat-search-ghost">Search Google, Perplexity, Claude...</span>
+                </div>
+            </div>
+        `
     }
 ];
 
@@ -233,21 +326,26 @@ export function renderWidgetCatalog() {
 
         return `
             <div class="catalog-card ${isEnabled ? 'card-enabled' : ''}" data-widget-id="${widget.id}">
-                <div class="catalog-card-header">
-                    <div class="catalog-card-icon">${widget.icon}</div>
-                    <div class="catalog-card-info">
-                        <div class="catalog-card-title-row">
-                            <h4 class="catalog-card-title">${widget.name}</h4>
-                            <span class="catalog-badge">${widget.badge}</span>
-                        </div>
-                        <span class="catalog-category">${widget.category}</span>
-                    </div>
+                <div class="catalog-preview-banner">
+                    ${widget.previewHtml || ''}
                 </div>
-                <p class="catalog-desc">${widget.desc}</p>
-                <div class="catalog-card-footer">
-                    <button type="button" class="catalog-toggle-btn ${isEnabled ? 'btn-remove' : 'btn-add'}" data-widget-key="${widget.id}">
-                        ${isEnabled ? '✓ Added (Click to Hide)' : '+ Add to Dashboard'}
-                    </button>
+                <div class="catalog-card-body">
+                    <div class="catalog-card-header">
+                        <div class="catalog-card-icon">${widget.icon}</div>
+                        <div class="catalog-card-info">
+                            <div class="catalog-card-title-row">
+                                <h4 class="catalog-card-title">${widget.name}</h4>
+                                <span class="catalog-badge">${widget.badge}</span>
+                            </div>
+                            <span class="catalog-category">${widget.category}</span>
+                        </div>
+                    </div>
+                    <p class="catalog-desc">${widget.desc}</p>
+                    <div class="catalog-card-footer">
+                        <button type="button" class="catalog-toggle-btn ${isEnabled ? 'btn-remove' : 'btn-add'}" data-widget-key="${widget.id}">
+                            ${isEnabled ? '✓ Added (Click to Hide)' : '+ Add to Dashboard'}
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
