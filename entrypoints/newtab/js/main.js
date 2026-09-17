@@ -286,18 +286,6 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     loadStorage();
 
     // Event Listeners
-    if (dom.dashboardSwitcherBtn) {
-        dom.dashboardSwitcherBtn.onclick = () => {
-            renderDashboardChooser();
-            syncSettingsUI();
-            const tabs = document.querySelectorAll('.sidebar-tab');
-            const panes = document.querySelectorAll('.tab-pane');
-            tabs.forEach(t => t.classList.toggle('active', t.dataset.target === 'tab-dashboards'));
-            panes.forEach(p => p.classList.toggle('active', p.id === 'tab-dashboards'));
-            dom.modalOverlay.classList.remove('hidden');
-        };
-    }
-
     if (dom.saveCustomDashboardBtn) {
         dom.saveCustomDashboardBtn.onclick = async () => {
             state.settings.dashboardMode = 'custom';

@@ -723,11 +723,6 @@ export function syncSettingsUI() {
 
     // Render Dashboard Chooser Presets
     renderDashboardChooser();
-
-    if (dom.dashboardSwitcherLabel) {
-        const curPreset = DASHBOARD_PRESETS.find(p => p.id === state.settings.dashboardMode) || DASHBOARD_PRESETS[0];
-        dom.dashboardSwitcherLabel.textContent = curPreset.name;
-    }
 }
 
 export function syncBackgroundOptions() {
