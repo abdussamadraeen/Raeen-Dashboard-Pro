@@ -5937,3 +5937,86 @@ body.boss-mode-active .noosphere-status-horizontal {
     border: 1px solid #ef4444;
     color: #ef4444;
 }
+
+/* ─── Canvas Visual Controls & Fine-Tuning Sliders ─── */
+.canvas-controls-box {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.canvas-control-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.canvas-control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.canvas-control-badge {
+    font-size: 0.72rem;
+    font-family: var(--font-mono, monospace);
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.canvas-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    transition: background 0.2s ease;
+    cursor: pointer;
+}
+
+.canvas-range:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.canvas-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent, #38bdf8);
+    box-shadow: 0 0 10px var(--accent-glow, rgba(56, 189, 248, 0.5));
+    border: 2px solid #ffffff;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.canvas-range::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 14px var(--accent-glow, rgba(56, 189, 248, 0.8));
+}
+
+.canvas-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent, #38bdf8);
+    box-shadow: 0 0 10px var(--accent-glow, rgba(56, 189, 248, 0.5));
+    border: 2px solid #ffffff;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+

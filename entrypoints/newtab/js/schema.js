@@ -45,6 +45,9 @@ export const DEFAULT_SETTINGS = {
     customSearchUrl: 'https://www.google.com/search?q=%s',
     videoMuted: true,
     canvasStyle: 'neural',
+    canvasSpeed: 1.0,
+    canvasDensity: 1.0,
+    canvasGlow: 1.0,
     enableDragAndDrop: true
 };
 

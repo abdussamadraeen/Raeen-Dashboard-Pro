@@ -687,18 +687,48 @@
                         </div>
                         
                         <div id="bg-canvas-options" class="settings-group hidden">
-                            <label>Canvas Style</label>
+                            <label>Canvas Visual Style</label>
                             <select id="canvas-style-select" class="custom-select" title="Canvas Style" aria-label="Canvas Style">
-                                <option value="neural">Neural Network (Interactive)</option>
-                                <option value="bubbles">Water Bubbles (Interactive)</option>
-                                <option value="rain">Glass Rain (Interactive)</option>
-                                <option value="matrix">Matrix Code Stream (Interactive)</option>
-                                <option value="warp">Hyperspace Warp Speed (Interactive)</option>
-                                <option value="wave">Aurora Wave Flow (Interactive)</option>
-                                <option value="galaxy">Gravitational Galaxy (Interactive)</option>
-                                <option value="fireflies">Bioluminescent Fireflies (Interactive)</option>
+                                <option value="neural">Neural Network (Interactive 3D)</option>
+                                <option value="bubbles">Water Bubbles (Interactive 3D)</option>
+                                <option value="rain">Glass Rain (Interactive 3D)</option>
+                                <option value="matrix">Matrix Code Stream (Interactive 3D)</option>
+                                <option value="warp">Hyperspace Warp Speed (Interactive 3D)</option>
+                                <option value="wave">Aurora Wave Flow (Interactive 3D)</option>
+                                <option value="galaxy">Gravitational Galaxy (Interactive 3D)</option>
+                                <option value="fireflies">Bioluminescent Fireflies (Interactive 3D)</option>
+                                <option value="synthwave">Retro Synthwave Wireframe (Interactive 3D)</option>
+                                <option value="quantum">Quantum Flow Field (Interactive 3D)</option>
+                                <option value="mandala">Sacred Geometry Mandala (Interactive 3D)</option>
                             </select>
-                            <p class="subtext">Move your mouse to interact with the animation.</p>
+                            <p class="subtext">Move your mouse across the wallpaper to interact with the 3D physics.</p>
+
+                            <!-- Fine-Tuning Sliders -->
+                            <div class="canvas-controls-box mt-3">
+                                <div class="canvas-control-item">
+                                    <div class="canvas-control-header">
+                                        <span>Animation Speed</span>
+                                        <span id="canvas-speed-val" class="canvas-control-badge">1.0×</span>
+                                    </div>
+                                    <input type="range" id="canvas-speed-slider" min="0.2" max="2.5" step="0.1" value="1.0" class="canvas-range" title="Animation Speed" aria-label="Animation Speed">
+                                </div>
+
+                                <div class="canvas-control-item mt-2">
+                                    <div class="canvas-control-header">
+                                        <span>Particle Density</span>
+                                        <span id="canvas-density-val" class="canvas-control-badge">100%</span>
+                                    </div>
+                                    <input type="range" id="canvas-density-slider" min="0.4" max="2.0" step="0.1" value="1.0" class="canvas-range" title="Particle Density" aria-label="Particle Density">
+                                </div>
+
+                                <div class="canvas-control-item mt-2">
+                                    <div class="canvas-control-header">
+                                        <span>Bloom &amp; Glow Intensity</span>
+                                        <span id="canvas-glow-val" class="canvas-control-badge">100%</span>
+                                    </div>
+                                    <input type="range" id="canvas-glow-slider" min="0.3" max="2.0" step="0.1" value="1.0" class="canvas-range" title="Bloom & Glow Intensity" aria-label="Bloom & Glow Intensity">
+                                </div>
+                            </div>
                         </div>
 
                         <div id="bg-brave-options" class="settings-group hidden">

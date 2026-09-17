@@ -32,6 +32,9 @@ export const themeLibrary = {
         { name: 'Aurora Wave (Interactive)', url: 'canvas:wave' },
         { name: 'Galaxy Vortex (Interactive)', url: 'canvas:galaxy' },
         { name: 'Fireflies (Interactive)', url: 'canvas:fireflies' },
+        { name: 'Retro Synthwave (Interactive)', url: 'canvas:synthwave' },
+        { name: 'Quantum Flow (Interactive)', url: 'canvas:quantum' },
+        { name: 'Sacred Mandala (Interactive)', url: 'canvas:mandala' },
         { name: 'Animated GIF', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2I4Y2M1N2YyYzhjYjYyYjYyYjYyYjYyYjYyJmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxu5L9Yx7u8/giphy.gif' }
     ]
 };

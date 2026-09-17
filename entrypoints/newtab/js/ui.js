@@ -296,7 +296,11 @@ export async function applySettings() {
         if (bgType === 'canvas') {
             if (dom.canvasLayer) {
                 dom.canvasLayer.classList.remove('hidden');
-                CanvasEngine.init(dom.canvasLayer, state.settings.canvasStyle || 'neural');
+                CanvasEngine.init(dom.canvasLayer, state.settings.canvasStyle || 'neural', {
+                    speed: state.settings.canvasSpeed ?? 1.0,
+                    density: state.settings.canvasDensity ?? 1.0,
+                    glow: state.settings.canvasGlow ?? 1.0
+                });
             }
             if (dom.bgLayer) {
                 dom.bgLayer.style.backgroundImage = 'none';
@@ -691,6 +695,18 @@ export function syncSettingsUI() {
 
     if (dom.bgTypeSelect) dom.bgTypeSelect.value = state.settings.backgroundType;
     if (dom.canvasStyleSelect) dom.canvasStyleSelect.value = state.settings.canvasStyle || 'neural';
+    if (dom.canvasSpeedSlider) {
+        dom.canvasSpeedSlider.value = state.settings.canvasSpeed ?? 1.0;
+        if (dom.canvasSpeedVal) dom.canvasSpeedVal.textContent = `${Number(state.settings.canvasSpeed ?? 1.0).toFixed(1)}×`;
+    }
+    if (dom.canvasDensitySlider) {
+        dom.canvasDensitySlider.value = state.settings.canvasDensity ?? 1.0;
+        if (dom.canvasDensityVal) dom.canvasDensityVal.textContent = `${Math.round((state.settings.canvasDensity ?? 1.0) * 100)}%`;
+    }
+    if (dom.canvasGlowSlider) {
+        dom.canvasGlowSlider.value = state.settings.canvasGlow ?? 1.0;
+        if (dom.canvasGlowVal) dom.canvasGlowVal.textContent = `${Math.round((state.settings.canvasGlow ?? 1.0) * 100)}%`;
+    }
     syncBackgroundOptions();
     if (dom.bgCustomUrl) dom.bgCustomUrl.value = state.settings.backgroundType === 'custom' ? state.settings.backgroundValue : '';
     if (dom.braveRandomToggle) {

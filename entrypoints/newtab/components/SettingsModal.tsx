@@ -42,6 +42,9 @@ const themeLibrary = {
     { name: 'Aurora Wave (Interactive)', url: 'canvas:wave' },
     { name: 'Galaxy Vortex (Interactive)', url: 'canvas:galaxy' },
     { name: 'Fireflies (Interactive)', url: 'canvas:fireflies' },
+    { name: 'Retro Synthwave (Interactive)', url: 'canvas:synthwave' },
+    { name: 'Quantum Flow (Interactive)', url: 'canvas:quantum' },
+    { name: 'Sacred Mandala (Interactive)', url: 'canvas:mandala' },
     { name: 'Animated GIF', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2I4Y2M1N2YyYzhjYjYyYjYyYjYyYjYyYjYyJmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxu5L9Yx7u8/giphy.gif' }
   ]
 };
@@ -734,9 +737,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       value={settings.canvasStyle}
                       onChange={(e) => updateSettings({ canvasStyle: e.target.value, backgroundValue: e.target.value })}
                     >
-                      <option value="neural">Neural Network / Constellations</option>
-                      <option value="bubbles">Bokeh Floating Bubbles</option>
-                      <option value="rain">Cyberpunk Neon Rain Matrix</option>
+                      <option value="neural">Neural Network (Interactive 3D)</option>
+                      <option value="bubbles">Water Bubbles (Interactive 3D)</option>
+                      <option value="rain">Glass Rain (Interactive 3D)</option>
+                      <option value="matrix">Matrix Code Stream (Interactive 3D)</option>
+                      <option value="warp">Hyperspace Warp Speed (Interactive 3D)</option>
+                      <option value="wave">Aurora Wave Flow (Interactive 3D)</option>
+                      <option value="galaxy">Gravitational Galaxy (Interactive 3D)</option>
+                      <option value="fireflies">Bioluminescent Fireflies (Interactive 3D)</option>
+                      <option value="synthwave">Retro Synthwave Wireframe (Interactive 3D)</option>
+                      <option value="quantum">Quantum Flow Field (Interactive 3D)</option>
+                      <option value="mandala">Sacred Geometry Mandala (Interactive 3D)</option>
                     </select>
                   </div>
                 )}

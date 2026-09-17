@@ -3,7 +3,7 @@
  * Features:
  * - Retina / High-DPI DPR auto-scaling (Crystal crisp on 4K & Retina displays)
  * - Multi-layer 3D perspective depth, volumetric illumination, and particle physics
- * - 8 High-end interactive themes:
+ * - 11 High-end interactive themes:
  *   1. Neural Network (3D synaptic depth with traveling action potential pulses)
  *   2. Water Bubbles (3D iridescent glass orbs with specular crescent reflections)
  *   3. Glass Rain (Cinematic cyberpunk rain with motion blur & ground splash ripples)
@@ -12,6 +12,9 @@
  *   6. Aurora Wave Flow (Luminous liquid ribbons with fluid mouse ripples & screen blending)
  *   7. Gravitational Galaxy (Dual-arm spiral galaxy with relativistic mouse vortex singularity)
  *   8. Bioluminescent Fireflies (Bokeh forest depth, stardust trails, and magnetic swarm physics)
+ *   9. Retro Synthwave Wireframe (3D undulating neon terrain, horizon sun, wireframe peaks & mouse elevation warp)
+ *   10. Quantum Flow Field (Multi-curl vector stream fibers, chromatic dispersion & cursor vortex steering)
+ *   11. Sacred Geometry Mandala (Kaleidoscopic breathing polyhedra, harmonic flower of life & radiant bloom)
  */
 
 const MATRIX_GLYPHS = '0123456789ABCDEFｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜXYZ@#$&*§ΔΩΨ';
@@ -29,6 +32,9 @@ export const CanvasEngine = (() => {
     let height = 0;
     let dpr = 1;
     let theme = 'neural';
+    let speedMult = 1.0;
+    let densityMult = 1.0;
+    let glowMult = 1.0;
     let isRunning = false;
     let accent = '#38bdf8';
     let accentRgb = '56, 189, 248';
@@ -192,7 +198,7 @@ export const CanvasEngine = (() => {
             });
         } else if (theme === 'fireflies') {
             // Enchanted Bioluminescent Forest with Depth Bokeh
-            const count = 75;
+            const count = Math.max(20, Math.floor(75 * densityMult));
             particles = Array.from({ length: count }, () => {
                 const isBokeh = Math.random() < 0.25; // Distant blurred bokeh sphere
                 return {
@@ -208,6 +214,41 @@ export const CanvasEngine = (() => {
                 };
             });
             secondaryParticles = []; // Stardust trail crumbs
+        } else if (theme === 'synthwave') {
+            // 3D Retro Synthwave Grid & Sunset Horizon
+            extraState = {
+                gridOffset: 0,
+                elevationMap: []
+            };
+        } else if (theme === 'quantum') {
+            // Quantum Flow Field with Vector Streamers
+            const count = Math.max(60, Math.floor(220 * densityMult));
+            particles = Array.from({ length: count }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: 0,
+                vy: 0,
+                speed: Math.random() * 1.5 + 1.5,
+                history: [],
+                maxHistory: Math.floor(Math.random() * 14 + 10),
+                colorOffset: Math.random() * 60 - 30,
+                energy: Math.random() * 0.5 + 0.5
+            }));
+        } else if (theme === 'mandala') {
+            // Sacred Geometry Mandala & Kaleidoscope
+            extraState = {
+                angle: 0,
+                expansion: 1.0,
+                targetExpansion: 1.0
+            };
+            const starCount = Math.max(30, Math.floor(70 * densityMult));
+            particles = Array.from({ length: starCount }, () => ({
+                dist: Math.random() * Math.min(width, height) * 0.45 + 20,
+                angle: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.008,
+                radius: Math.random() * 2.2 + 0.8,
+                alpha: Math.random() * 0.6 + 0.3
+            }));
         }
     };
 
@@ -844,6 +885,288 @@ export const CanvasEngine = (() => {
         }
     };
 
+    // ─────────────────────────────────────────────────────────────
+    // 9. RETRO SYNTHWAVE: 3D Wireframe Terrain & Sunset Horizon
+    // ─────────────────────────────────────────────────────────────
+    const renderSynthwave = () => {
+        if (!extraState) return;
+        const horizonY = height * 0.48;
+        const effectiveSpeed = 2.4 * speedMult;
+        extraState.gridOffset = (extraState.gridOffset + effectiveSpeed) % 40;
+
+        // 1. Neon Sunset Sun
+        const sunRadius = Math.min(width, height) * 0.18;
+        const sunX = width / 2;
+        const sunY = horizonY - sunRadius * 0.35;
+
+        // Background dark sky gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+        skyGrad.addColorStop(0, '#0a0518');
+        skyGrad.addColorStop(0.7, '#1b0e36');
+        skyGrad.addColorStop(1, '#3b1259');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, width, horizonY);
+
+        // Sun gradient with horizontal blind stripes
+        const sunGrad = ctx.createLinearGradient(sunX, sunY - sunRadius, sunX, sunY + sunRadius);
+        sunGrad.addColorStop(0, '#fef08a');
+        sunGrad.addColorStop(0.4, '#f43f5e');
+        sunGrad.addColorStop(1, '#c026d3');
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+        ctx.fillStyle = sunGrad;
+        ctx.shadowBlur = 35 * glowMult;
+        ctx.shadowColor = '#f43f5e';
+        ctx.fill();
+        ctx.restore();
+
+        // Horizontal sun blind slots (classic 80s synthwave)
+        const blindCount = 8;
+        for (let b = 0; b < blindCount; b++) {
+            const by = sunY + (b / blindCount) * sunRadius * 0.95;
+            const bHeight = 2 + b * 1.4;
+            ctx.fillStyle = '#0f0821';
+            ctx.fillRect(sunX - sunRadius - 10, by, sunRadius * 2 + 20, bHeight);
+        }
+
+        // 2. 3D Wireframe Perspective Grid Floor
+        const floorGrad = ctx.createLinearGradient(0, horizonY, 0, height);
+        floorGrad.addColorStop(0, '#0d061f');
+        floorGrad.addColorStop(1, '#05020c');
+        ctx.fillStyle = floorGrad;
+        ctx.fillRect(0, horizonY, width, height - horizonY);
+
+        // Horizon radiant glow line
+        ctx.beginPath();
+        ctx.moveTo(0, horizonY);
+        ctx.lineTo(width, horizonY);
+        ctx.strokeStyle = '#f43f5e';
+        ctx.lineWidth = 2.0;
+        ctx.shadowBlur = 16 * glowMult;
+        ctx.shadowColor = '#f43f5e';
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Perspective longitudinal lines converging to center horizon
+        const linesCount = 28;
+        const centerX = width / 2;
+        ctx.strokeStyle = `rgba(${accentRgb}, ${0.45 * glowMult})`;
+        ctx.lineWidth = 1.2;
+
+        for (let l = -linesCount / 2; l <= linesCount / 2; l++) {
+            const bottomX = centerX + l * (width / (linesCount * 0.45));
+            ctx.beginPath();
+            ctx.moveTo(centerX + l * 2, horizonY);
+            ctx.lineTo(bottomX, height);
+            ctx.stroke();
+        }
+
+        // Perspective latitudinal moving gridlines
+        const zSlices = 24;
+        for (let z = 1; z <= zSlices; z++) {
+            const rawZ = z * 40 - extraState.gridOffset;
+            if (rawZ <= 0) continue;
+            const norm = rawZ / (zSlices * 40);
+            const y = horizonY + Math.pow(norm, 2.2) * (height - horizonY);
+
+            let elevWarp = 0;
+            if (mouse.x !== null && mouse.y > horizonY) {
+                const distY = Math.abs(y - mouse.y);
+                if (distY < 80) {
+                    elevWarp = (1 - distY / 80) * (mouse.isDown ? -30 : -14);
+                }
+            }
+
+            const alpha = norm * 0.85 * glowMult;
+            ctx.beginPath();
+            ctx.moveTo(0, y + elevWarp);
+            ctx.lineTo(width, y + elevWarp);
+            ctx.strokeStyle = z % 4 === 0 ? '#f43f5e' : `rgba(${accentRgb}, ${alpha})`;
+            ctx.lineWidth = Math.max(0.8, norm * 2.2);
+            ctx.stroke();
+        }
+    };
+
+    // ─────────────────────────────────────────────────────────────
+    // 10. QUANTUM FLOW: Multi-Curl Vector Field & Chromatic Stream
+    // ─────────────────────────────────────────────────────────────
+    const renderQuantum = () => {
+        globalTime += 0.008 * speedMult;
+        const effectiveGlow = glowMult;
+
+        for (const p of particles) {
+            // Multi-curl Perlin mathematical approximation
+            const scale = 0.0035;
+            const angle1 = Math.sin(p.x * scale + globalTime) * Math.cos(p.y * scale + globalTime) * Math.PI * 4;
+            const angle2 = Math.cos(p.x * (scale * 1.5) - globalTime * 0.5) * Math.PI * 2;
+            let targetAngle = angle1 + angle2;
+
+            // Interactive mouse vortex deflection
+            if (mouse.x !== null) {
+                const dx = mouse.x - p.x;
+                const dy = mouse.y - p.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 220 && dist > 2) {
+                    const mouseAngle = Math.atan2(dy, dx) + (mouse.isDown ? Math.PI : Math.PI / 2);
+                    const blend = (220 - dist) / 220;
+                    targetAngle = targetAngle * (1 - blend) + mouseAngle * blend;
+                    p.energy = Math.min(1.0, p.energy + 0.05);
+                }
+            }
+
+            p.vx = Math.cos(targetAngle) * p.speed * speedMult;
+            p.vy = Math.sin(targetAngle) * p.speed * speedMult;
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Wrap edges
+            if (p.x < 0) p.x = width;
+            if (p.x > width) p.x = 0;
+            if (p.y < 0) p.y = height;
+            if (p.y > height) p.y = 0;
+
+            // Record trajectory history for smooth fluid streamers
+            p.history.push({ x: p.x, y: p.y });
+            if (p.history.length > p.maxHistory) {
+                p.history.shift();
+            }
+
+            if (p.history.length > 2) {
+                ctx.beginPath();
+                ctx.moveTo(p.history[0].x, p.history[0].y);
+                for (let h = 1; h < p.history.length; h++) {
+                    const prev = p.history[h - 1];
+                    const curr = p.history[h];
+                    // Skip wrapping breaks
+                    if (Math.abs(curr.x - prev.x) > 60 || Math.abs(curr.y - prev.y) > 60) {
+                        ctx.moveTo(curr.x, curr.y);
+                        continue;
+                    }
+                    ctx.lineTo(curr.x, curr.y);
+                }
+
+                const streamAlpha = p.energy * 0.45 * effectiveGlow;
+                ctx.strokeStyle = p.colorOffset > 10 ? `rgba(168, 85, 247, ${streamAlpha})` : (p.colorOffset < -10 ? `rgba(56, 189, 248, ${streamAlpha})` : `rgba(${accentRgb}, ${streamAlpha})`);
+                ctx.lineWidth = Math.max(0.8, p.energy * 2.0);
+                ctx.stroke();
+            }
+
+            // Head particle
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.energy * 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.globalAlpha = p.energy * effectiveGlow;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            p.energy = Math.max(0.35, p.energy - 0.005);
+        }
+    };
+
+    // ─────────────────────────────────────────────────────────────
+    // 11. SACRED MANDALA: Kaleidoscopic Polyhedra & Harmonic Bloom
+    // ─────────────────────────────────────────────────────────────
+    const renderMandala = () => {
+        if (!extraState) return;
+        const cx = width / 2;
+        const cy = height / 2;
+        const maxR = Math.min(width, height) * 0.44;
+
+        extraState.angle += 0.005 * speedMult;
+        if (mouse.x !== null) {
+            const dx = mouse.x - cx;
+            const dy = mouse.y - cy;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            extraState.targetExpansion = 0.8 + (dist / maxR) * 0.6;
+        } else {
+            extraState.targetExpansion = 1.0;
+        }
+        extraState.expansion += (extraState.targetExpansion - extraState.expansion) * 0.05;
+
+        // Ambient background sacred glow
+        const glowGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 1.2);
+        glowGrad.addColorStop(0, `rgba(${accentRgb}, ${0.12 * glowMult})`);
+        glowGrad.addColorStop(0.5, `rgba(168, 85, 247, ${0.04 * glowMult})`);
+        glowGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = glowGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw ambient orbiting stars
+        for (const s of particles) {
+            s.angle += s.rotSpeed * speedMult;
+            const sx = cx + Math.cos(s.angle) * s.dist * extraState.expansion;
+            const sy = cy + Math.sin(s.angle) * s.dist * extraState.expansion;
+            ctx.beginPath();
+            ctx.arc(sx, sy, s.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${accentRgb}, ${s.alpha * glowMult})`;
+            ctx.fill();
+        }
+
+        // Draw 12-fold geometric sacred petal rings
+        const petals = 12;
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // Ring 1: Inner breathing dodecagon
+        ctx.rotate(extraState.angle);
+        ctx.beginPath();
+        for (let i = 0; i <= petals; i++) {
+            const theta = (i / petals) * Math.PI * 2;
+            const r = (maxR * 0.35 + Math.sin(extraState.angle * 3 + i) * 15) * extraState.expansion;
+            const x = Math.cos(theta) * r;
+            const y = Math.sin(theta) * r;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = `rgba(${accentRgb}, ${0.7 * glowMult})`;
+        ctx.lineWidth = 1.6;
+        ctx.shadowBlur = 10 * glowMult;
+        ctx.shadowColor = accent;
+        ctx.stroke();
+
+        // Ring 2: Counter-rotating flower of life arcs
+        ctx.rotate(-extraState.angle * 2);
+        for (let i = 0; i < petals; i++) {
+            const theta = (i / petals) * Math.PI * 2;
+            const arcR = (maxR * 0.28) * extraState.expansion;
+            const px = Math.cos(theta) * arcR;
+            const py = Math.sin(theta) * arcR;
+            ctx.beginPath();
+            ctx.arc(px, py, arcR * 0.65, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(168, 85, 247, ${0.45 * glowMult})`;
+            ctx.lineWidth = 1.0;
+            ctx.stroke();
+        }
+
+        // Ring 3: Outer radiant sacred star rays
+        ctx.rotate(extraState.angle * 1.5);
+        ctx.beginPath();
+        for (let i = 0; i < petals * 2; i++) {
+            const theta = (i / (petals * 2)) * Math.PI * 2;
+            const r = (i % 2 === 0 ? maxR * 0.82 : maxR * 0.52) * extraState.expansion;
+            const x = Math.cos(theta) * r;
+            const y = Math.sin(theta) * r;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.5 * glowMult})`;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // Core jewel
+        ctx.beginPath();
+        ctx.arc(0, 0, 8 * extraState.expansion, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 16 * glowMult;
+        ctx.shadowColor = '#ffffff';
+        ctx.fill();
+
+        ctx.restore();
+    };
+
     // ─── Main Animation Loop ───
     const scheduleAnimation = () => {
         if (!isRunning || document.hidden || animationId !== null) return;
@@ -872,6 +1195,12 @@ export const CanvasEngine = (() => {
             renderGalaxy();
         } else if (theme === 'fireflies') {
             renderFireflies();
+        } else if (theme === 'synthwave') {
+            renderSynthwave();
+        } else if (theme === 'quantum') {
+            renderQuantum();
+        } else if (theme === 'mandala') {
+            renderMandala();
         }
 
         scheduleAnimation();
@@ -885,6 +1214,27 @@ export const CanvasEngine = (() => {
         }
 
         scheduleAnimation();
+    };
+
+    const setOptions = (opts = {}) => {
+        let needsRebuild = false;
+        if (typeof opts.speed === 'number' && !isNaN(opts.speed)) {
+            speedMult = Math.max(0.2, Math.min(3.0, opts.speed));
+        }
+        if (typeof opts.density === 'number' && !isNaN(opts.density)) {
+            const nextDensity = Math.max(0.4, Math.min(2.5, opts.density));
+            if (Math.abs(nextDensity - densityMult) > 0.15) {
+                densityMult = nextDensity;
+                needsRebuild = true;
+            }
+        }
+        if (typeof opts.glow === 'number' && !isNaN(opts.glow)) {
+            glowMult = Math.max(0.2, Math.min(2.5, opts.glow));
+        }
+
+        if (needsRebuild && isRunning) {
+            createParticles();
+        }
     };
 
     const stop = () => {
@@ -911,7 +1261,7 @@ export const CanvasEngine = (() => {
         if (ctx) ctx.clearRect(0, 0, width, height);
     };
 
-    const init = (element, style) => {
+    const init = (element, style, opts = {}) => {
         stop();
         canvas = element;
         if (!canvas) return;
@@ -920,6 +1270,10 @@ export const CanvasEngine = (() => {
         if (!ctx) return;
 
         theme = style || 'neural';
+        if (opts.speed) speedMult = Number(opts.speed) || 1.0;
+        if (opts.density) densityMult = Number(opts.density) || 1.0;
+        if (opts.glow) glowMult = Number(opts.glow) || 1.0;
+
         isRunning = true;
         updateAccent();
         resize();
@@ -940,5 +1294,5 @@ export const CanvasEngine = (() => {
         scheduleAnimation();
     };
 
-    return { init, stop };
+    return { init, stop, setOptions };
 })();

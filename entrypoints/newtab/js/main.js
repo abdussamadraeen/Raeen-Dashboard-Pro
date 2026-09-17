@@ -14,6 +14,7 @@ import {
     applyDashboardPreset,
     DASHBOARD_PRESETS
 } from './ui.js';
+import { CanvasEngine } from './canvas.js';
 import { 
     renderNotesList, 
     openNoteEditor, 
@@ -418,6 +419,33 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     }
 
     bindVal(dom.canvasStyleSelect, 'canvasStyle');
+    if (dom.canvasSpeedSlider) {
+        dom.canvasSpeedSlider.oninput = (e) => {
+            const val = parseFloat(e.target.value);
+            state.settings.canvasSpeed = val;
+            if (dom.canvasSpeedVal) dom.canvasSpeedVal.textContent = `${val.toFixed(1)}×`;
+            CanvasEngine.setOptions({ speed: val });
+            saveSettingsSoon();
+        };
+    }
+    if (dom.canvasDensitySlider) {
+        dom.canvasDensitySlider.oninput = (e) => {
+            const val = parseFloat(e.target.value);
+            state.settings.canvasDensity = val;
+            if (dom.canvasDensityVal) dom.canvasDensityVal.textContent = `${Math.round(val * 100)}%`;
+            CanvasEngine.setOptions({ density: val });
+            saveSettingsSoon();
+        };
+    }
+    if (dom.canvasGlowSlider) {
+        dom.canvasGlowSlider.oninput = (e) => {
+            const val = parseFloat(e.target.value);
+            state.settings.canvasGlow = val;
+            if (dom.canvasGlowVal) dom.canvasGlowVal.textContent = `${Math.round(val * 100)}%`;
+            CanvasEngine.setOptions({ glow: val });
+            saveSettingsSoon();
+        };
+    }
     bindVal(dom.bgCustomUrl, 'backgroundValue', 'onchange');
     bindVal(dom.customSearchUrlInput, 'customSearchUrl', 'onchange');
     bindVal(dom.clockFormatSelect, 'clockFormat', 'oninput', () => { if (dom.timeEl) dom.timeEl._lastFormat = null; updateTime(); });
