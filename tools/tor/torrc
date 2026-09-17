@@ -1,6 +1,15 @@
 SocksPort 127.0.0.1:9050
 SocksPort 127.0.0.1:9150
+ControlPort 127.0.0.1:9051
+CookieAuthentication 0
 DataDirectory C:\Workspace\Extension\google\tools\tor\data-dir
 GeoIPFile C:\Workspace\Extension\google\tools\tor\data\geoip
 GeoIPv6File C:\Workspace\Extension\google\tools\tor\data\geoip6
-Log notice stdout
+Log notice file C:\Workspace\Extension\google\tools\tor\tor.log
+
+# High-Performance Speed & Rapid IP Rotation Tuning
+MaxCircuitDirtiness 30
+NewCircuitPeriod 15
+CircuitBuildTimeout 8
+NumEntryGuards 6
+EnforceDistinctSubnets 0

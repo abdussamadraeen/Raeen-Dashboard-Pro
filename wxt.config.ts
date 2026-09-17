@@ -25,7 +25,8 @@ export default defineConfig({
       'browsingData',
       'tabs',
       'proxy',
-      'privacy'
+      'privacy',
+      'downloads'
     ],
     host_permissions: [
       'https://suggestqueries.google.com/*',
@@ -42,8 +43,22 @@ export default defineConfig({
       'https://bing.biturl.top/*',
       'https://images.unsplash.com/*',
       'https://api.ipify.org/*',
+      'https://freeipapi.com/*',
       'https://ipapi.co/*',
-      'https://icanhazip.com/*'
+      'https://ipwho.is/*',
+      'https://icanhazip.com/*',
+      'https://check.torproject.org/*',
+      'https://1.1.1.1/*',
+      'https://api.proxyscrape.com/*',
+      'https://raw.githubusercontent.com/*',
+      'https://*.uguu.se/*',
+      'https://uguu.se/*',
+      'https://*.tmpfiles.org/*',
+      'https://tmpfiles.org/*',
+      'https://*.peerjs.com/*',
+      'https://0.peerjs.com/*',
+      'wss://*.emqx.io/*',
+      'wss://broker.emqx.io/*'
     ],
     declarative_net_request: {
       rule_resources: [{
@@ -53,7 +68,7 @@ export default defineConfig({
       }]
     },
     content_security_policy: {
-      extension_pages: "script-src 'self'; object-src 'self'; frame-src https://google.com https://*.google.com https://google.co.in https://*.google.co.in https://bing.com https://*.bing.com https://*.microsoft.com;"
+      extension_pages: "script-src 'self'; object-src 'self'; connect-src 'self' https: wss: blob: data:; frame-src https://google.com https://*.google.com https://google.co.in https://*.google.co.in https://bing.com https://*.bing.com https://*.microsoft.com;"
     }
   },
   vite: () => ({

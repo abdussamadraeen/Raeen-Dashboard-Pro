@@ -38,7 +38,11 @@ export function initFocusTimer() {
         });
     }
 
-    setInterval(() => {
+let timerInterval = null;
+
+function startTicker() {
+    if (timerInterval) return;
+    timerInterval = setInterval(() => {
         if (focusTimerData.isRunning) {
             const left = Math.floor((focusTimerData.endTime - Date.now()) / 1000);
             if (left >= 0) {
@@ -47,11 +51,22 @@ export function initFocusTimer() {
             } else {
                 focusTimerData.isRunning = false;
                 focusTimerData.pausedLeft = 25 * 60;
+                stopTicker();
                 saveFocusState();
                 syncFocusState();
             }
+        } else {
+            stopTicker();
         }
     }, 1000);
+}
+
+function stopTicker() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
 
     if (dom.focusToggleBtn) {
         dom.focusToggleBtn.addEventListener('click', () => {
@@ -91,9 +106,11 @@ function syncFocusState() {
     if (focusTimerData.isRunning) {
         focusTimeLeft = Math.max(0, Math.floor((focusTimerData.endTime - Date.now()) / 1000));
         if (dom.focusToggleBtn) dom.focusToggleBtn.innerHTML = '⏸ Pause';
+        startTicker();
     } else {
         focusTimeLeft = focusTimerData.pausedLeft;
         if (dom.focusToggleBtn) dom.focusToggleBtn.innerHTML = '▶ Start';
+        stopTicker();
     }
     updateFocusDisplay();
 }

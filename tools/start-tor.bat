@@ -1,10 +1,10 @@
 @echo off
+cd /d "%~dp0"
 tasklist /FI "IMAGENAME eq tor.exe" 2>NUL | find /I /N "tor.exe">NUL
 if "%ERRORLEVEL%"=="0" (
-    echo Tor is already running.
+    echo [Raeen Privacy] Tor is already running on 127.0.0.1:9050.
 ) else (
-    echo Starting Tor background daemon...
-    wscript.exe "C:\Workspace\Extension\google\tools\run-tor-daemon.vbs"
-    timeout /t 3 /nobreak >NUL
-    echo Tor daemon launched on 127.0.0.1:9050.
+    echo [Raeen Privacy] Starting Tor background daemon...
+    powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "%~dp0start-tor.ps1"
+    echo [Raeen Privacy] Tor daemon launched on 127.0.0.1:9050.
 )

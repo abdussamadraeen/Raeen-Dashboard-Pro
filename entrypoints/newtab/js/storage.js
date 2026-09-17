@@ -1,27 +1,68 @@
+/**
+ * StorageManager - High-Performance Dual-Layer Storage Engine
+ * L1: In-memory write-through cache (0.00ms instantaneous reads)
+ * L2: IndexedDB with automatic schema migrations + localStorage fallback
+ * Resilient against blocking, upgrade locks, and cold-start latency.
+ */
+
 export const StorageManager = (() => {
     const DB_NAME = 'RaeenPremiumDB';
     const DB_VERSION = 5;
     let db = null;
     let isFallbackMode = false;
     let initPromise = null;
-    const memoryCache = {}; // Cache in memory if both DB and localstorage fail
+    const memoryCache = Object.create(null);
+
+    const getL1 = (storeName, key) => {
+        return memoryCache[storeName] ? memoryCache[storeName][key] : undefined;
+    };
+
+    const setL1 = (storeName, key, value) => {
+        if (!memoryCache[storeName]) {
+            memoryCache[storeName] = Object.create(null);
+        }
+        memoryCache[storeName][key] = value;
+    };
+
+    const removeL1 = (storeName, key) => {
+        if (memoryCache[storeName]) {
+            delete memoryCache[storeName][key];
+        }
+    };
 
     const init = () => {
         if (initPromise) return initPromise;
         initPromise = new Promise((resolve) => {
+            let settled = false;
+            const safeResolve = () => {
+                if (!settled) {
+                    settled = true;
+                    resolve();
+                }
+            };
+
+            // Hard safety timeout: if IndexedDB blocks or hangs for > 800ms, switch to fast fallback
+            const timeoutId = setTimeout(() => {
+                if (!db) {
+                    console.warn('[Storage] IndexedDB open timeout, activating instant fallback.');
+                    isFallbackMode = true;
+                    safeResolve();
+                }
+            }, 800);
+
             try {
                 if (typeof window === 'undefined' || !window.indexedDB) {
-                    console.warn("IndexedDB not supported, using localStorage fallback.");
                     isFallbackMode = true;
-                    return resolve();
+                    clearTimeout(timeoutId);
+                    return safeResolve();
                 }
 
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
-                
-                // Handle blocking from other tabs
+
                 request.onblocked = () => {
-                    console.warn("Database upgrade blocked. Please close other tabs.");
-                    resolve(); 
+                    console.warn('[Storage] DB upgrade blocked by other tab.');
+                    clearTimeout(timeoutId);
+                    safeResolve();
                 };
 
                 request.onupgradeneeded = (e) => {
@@ -29,34 +70,35 @@ export const StorageManager = (() => {
                     if (!upgradeDb.objectStoreNames.contains('settings')) upgradeDb.createObjectStore('settings');
                     if (!upgradeDb.objectStoreNames.contains('mediaStore')) upgradeDb.createObjectStore('mediaStore');
                     if (!upgradeDb.objectStoreNames.contains('imageCache')) upgradeDb.createObjectStore('imageCache');
-                    
                     if (!upgradeDb.objectStoreNames.contains('notes')) {
                         upgradeDb.createObjectStore('notes', { keyPath: 'id' });
                     }
                 };
 
-                request.onsuccess = (e) => { 
-                    db = e.target.result; 
-                    
-                    // Handle version changes in other tabs
+                request.onsuccess = (e) => {
+                    clearTimeout(timeoutId);
+                    db = e.target.result;
+
                     db.onversionchange = () => {
-                        db.close();
-                        console.log("Database version changed elsewhere. Reloading...");
-                        window.location.reload();
+                        try { db.close(); } catch (err) {}
+                        db = null;
+                        isFallbackMode = true;
                     };
-                    
-                    resolve(); 
+
+                    safeResolve();
                 };
 
                 request.onerror = (e) => {
-                    console.error('DB Error, using fallback: ', e.target.error || e.target.errorCode);
+                    clearTimeout(timeoutId);
+                    console.warn('[Storage] DB error, using fallback:', e.target.error || e.target.errorCode);
                     isFallbackMode = true;
-                    resolve(); 
+                    safeResolve();
                 };
             } catch (err) {
-                console.error("IndexedDB open threw error, using fallback: ", err);
+                clearTimeout(timeoutId);
+                console.warn('[Storage] IndexedDB thrown error, using fallback:', err);
                 isFallbackMode = true;
-                resolve(); 
+                safeResolve();
             }
         });
         return initPromise;
@@ -69,76 +111,87 @@ export const StorageManager = (() => {
     };
 
     const get = async (storeName, key) => {
+        // 1. Fast L1 Memory Cache Check (0.00ms)
+        const cached = getL1(storeName, key);
+        if (cached !== undefined) {
+            return cached;
+        }
+
         await ensureInit();
+
+        // 2. LocalStorage Fallback Check
         if (isFallbackMode || !db) {
             try {
                 const fallbackKey = `raeen_db_${storeName}_${key}`;
-                const cached = localStorage.getItem(fallbackKey);
-                if (cached) {
-                    return JSON.parse(cached);
+                const raw = localStorage.getItem(fallbackKey);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    setL1(storeName, key, parsed);
+                    return parsed;
                 }
             } catch (err) {
-                console.error("Fallback read failed:", err);
+                console.warn('[Storage] Fallback read failed:', err);
             }
-            return memoryCache[storeName]?.[key] || null;
+            return null;
         }
 
+        // 3. IndexedDB Read
         return new Promise((resolve) => {
             try {
-                const transaction = db.transaction([storeName], 'readonly');
-                const store = transaction.objectStore(storeName);
-                const request = store.get(key);
-                request.onsuccess = () => resolve(request.result || null);
-                request.onerror = () => resolve(null);
+                const tx = db.transaction([storeName], 'readonly');
+                const store = tx.objectStore(storeName);
+                const req = store.get(key);
+
+                req.onsuccess = () => {
+                    const res = req.result !== undefined ? req.result : null;
+                    if (res !== null) setL1(storeName, key, res);
+                    resolve(res);
+                };
+
+                req.onerror = () => resolve(null);
             } catch (e) {
-                console.error(`Read transaction failed for ${storeName}:`, e);
+                console.warn(`[Storage] Read failed for ${storeName}:`, e);
                 resolve(null);
             }
         });
     };
 
     const set = async (storeName, key, value) => {
+        const itemKey = value?.id || key;
+        // Immediate write to L1 cache for instant synchronous consistency
+        setL1(storeName, itemKey, value);
+
         await ensureInit();
+
         if (isFallbackMode || !db) {
             try {
-                if (!memoryCache[storeName]) {
-                    memoryCache[storeName] = {};
-                }
-                const itemKey = value?.id || key;
-                memoryCache[storeName][itemKey] = value;
-                
                 const fallbackKey = `raeen_db_${storeName}_${itemKey}`;
                 localStorage.setItem(fallbackKey, JSON.stringify(value));
-                return;
             } catch (err) {
-                console.error("Fallback write failed:", err);
-                return;
+                console.warn('[Storage] Fallback write failed:', err);
             }
+            return;
         }
 
         return new Promise((resolve) => {
             try {
-                const transaction = db.transaction([storeName], 'readwrite');
-                const store = transaction.objectStore(storeName);
-                
-                // If the store has a keyPath, we should NOT provide a separate key argument
-                const request = store.keyPath ? store.put(value) : store.put(value, key);
-                
-                request.onsuccess = () => resolve();
-                request.onerror = (e) => {
-                    console.error(`Error saving to ${storeName}:`, e.target.error);
+                const tx = db.transaction([storeName], 'readwrite');
+                const store = tx.objectStore(storeName);
+                const req = store.keyPath ? store.put(value) : store.put(value, key);
+
+                req.onsuccess = () => resolve();
+                req.onerror = (e) => {
+                    console.warn(`[Storage] Put failed for ${storeName}, mirroring to localStorage:`, e.target.error);
                     try {
-                        const itemKey = value?.id || key;
                         localStorage.setItem(`raeen_db_${storeName}_${itemKey}`, JSON.stringify(value));
-                    } catch {}
+                    } catch (err) {}
                     resolve();
                 };
             } catch (e) {
-                console.error(`Transaction failed for ${storeName}:`, e);
+                console.warn(`[Storage] Transaction failed for ${storeName}:`, e);
                 try {
-                    const itemKey = value?.id || key;
                     localStorage.setItem(`raeen_db_${storeName}_${itemKey}`, JSON.stringify(value));
-                } catch {}
+                } catch (err) {}
                 resolve();
             }
         });
@@ -146,66 +199,69 @@ export const StorageManager = (() => {
 
     const getAll = async (storeName) => {
         await ensureInit();
+
         if (isFallbackMode || !db) {
             try {
                 const results = [];
                 for (let i = 0; i < localStorage.length; i++) {
                     const lKey = localStorage.key(i);
                     if (lKey && lKey.startsWith(`raeen_db_${storeName}_`)) {
-                        const cached = localStorage.getItem(lKey);
-                        if (cached) {
-                            results.push(JSON.parse(cached));
-                        }
+                        const raw = localStorage.getItem(lKey);
+                        if (raw) results.push(JSON.parse(raw));
                     }
                 }
-                if (results.length > 0) {
-                    return results;
-                }
+                if (results.length > 0) return results;
             } catch (err) {
-                console.error("Fallback getAll failed:", err);
+                console.warn('[Storage] Fallback getAll failed:', err);
             }
-            const cachedStore = memoryCache[storeName];
-            return cachedStore ? Object.values(cachedStore) : [];
+            return memoryCache[storeName] ? Object.values(memoryCache[storeName]) : [];
         }
 
         return new Promise((resolve) => {
             try {
-                const transaction = db.transaction([storeName], 'readonly');
-                const store = transaction.objectStore(storeName);
-                const request = store.getAll();
-                request.onsuccess = () => resolve(request.result || []);
-                request.onerror = () => resolve([]);
+                const tx = db.transaction([storeName], 'readonly');
+                const store = tx.objectStore(storeName);
+                const req = store.getAll();
+                req.onsuccess = () => {
+                    const list = req.result || [];
+                    // Populate L1 cache
+                    list.forEach(item => {
+                        const k = item?.id || (store.keyPath ? item[store.keyPath] : null);
+                        if (k) setL1(storeName, k, item);
+                    });
+                    resolve(list);
+                };
+                req.onerror = () => resolve([]);
             } catch (e) {
-                console.error(`GetAll failed for ${storeName}:`, e);
+                console.warn(`[Storage] GetAll failed for ${storeName}:`, e);
                 resolve([]);
             }
         });
     };
 
     const remove = async (storeName, key) => {
+        removeL1(storeName, key);
+
         await ensureInit();
+
         if (isFallbackMode || !db) {
             try {
-                if (memoryCache[storeName]) {
-                    delete memoryCache[storeName][key];
-                }
-                const fallbackKey = `raeen_db_${storeName}_${key}`;
-                localStorage.removeItem(fallbackKey);
+                localStorage.removeItem(`raeen_db_${storeName}_${key}`);
             } catch (err) {
-                console.error("Fallback remove failed:", err);
+                console.warn('[Storage] Fallback remove failed:', err);
             }
             return;
         }
 
         return new Promise((resolve) => {
             try {
-                const transaction = db.transaction([storeName], 'readwrite');
-                const store = transaction.objectStore(storeName);
-                const request = store.delete(key);
-                request.onsuccess = () => resolve();
-                request.onerror = () => resolve();
+                const tx = db.transaction([storeName], 'readwrite');
+                const store = tx.objectStore(storeName);
+                const req = store.delete(key);
+                req.onsuccess = () => resolve();
+                req.onerror = () => resolve();
             } catch (e) {
-                console.error(`Remove failed for ${storeName}:`, e);
+                console.warn(`[Storage] Remove failed for ${storeName}:`, e);
                 resolve();
             }
         });

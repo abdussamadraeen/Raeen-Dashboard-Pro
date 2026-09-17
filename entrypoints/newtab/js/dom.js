@@ -66,6 +66,8 @@ export const dom = {
     addShortcutBtn: document.getElementById('add-shortcut-btn'),
     newShortcutName: document.getElementById('new-shortcut-name'),
     newShortcutUrl: document.getElementById('new-shortcut-url'),
+    newShortcutIcon: document.getElementById('new-shortcut-icon'),
+    newShortcutStatType: document.getElementById('new-shortcut-stat-type'),
     shortcutsList: document.getElementById('shortcuts-list'),
     toggleClock: document.getElementById('toggle-clock'),
     clockFormatSelect: document.getElementById('clock-format-select'),

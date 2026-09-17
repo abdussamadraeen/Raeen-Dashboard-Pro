@@ -204,17 +204,21 @@ export function setupSearch() {
                                 <span>${escapeHTML(s)}</span>
                             </li>`).join('');
                         dom.searchSuggestions.classList.toggle('hidden', suggestions.length === 0);
-                        
-                        dom.searchSuggestions.querySelectorAll('li').forEach(li => {
-                            li.onclick = () => { 
-                                dom.searchInput.value = li.querySelector('span')?.textContent || ''; 
-                                dom.searchForm?.requestSubmit(); 
-                            };
-                        });
                     }
                 } catch (err) { }
             }, 180);
         };
+
+        if (dom.searchSuggestions && !dom.searchSuggestions._hasListener) {
+            dom.searchSuggestions._hasListener = true;
+            dom.searchSuggestions.onclick = (e) => {
+                const li = e.target.closest('.suggestion-item');
+                if (li) {
+                    dom.searchInput.value = li.querySelector('span')?.textContent || '';
+                    dom.searchForm?.requestSubmit();
+                }
+            };
+        }
 
         dom.searchInput.onkeydown = (e) => {
             const items = dom.searchSuggestions.querySelectorAll('.suggestion-item');

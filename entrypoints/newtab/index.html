@@ -473,15 +473,21 @@
                         <div class="settings-group mt-0">
                             <label>Background Type</label>
                             <select id="bg-type-select" class="custom-select" title="Background Type" aria-label="Background Type">
-                                <option value="google_dashboard" selected>Google</option>
-                                <option value="brave">Brave Wallpapers (Ad-Free)</option>
-                                <option value="canvas">Interactive Canvas (Neural/Rain)</option>
-                                <option value="bing">Bing Daily Wallpaper</option>
-                                <option value="preset">Theme Library</option>
-                                <option value="solid">Solid Colors & Gradients</option>
-                                <option value="bing_dashboard">Bing</option>
-                                <option value="local">Local File (Image/Video)</option>
-                                <option value="custom">Custom Media URL</option>
+                                <optgroup label="🛡️ Privacy &amp; Stealth Modes">
+                                    <option value="brave">Brave Wallpapers (Ad-Free 4K)</option>
+                                    <option value="canvas">Interactive Canvas (Neural/Rain)</option>
+                                    <option value="solid">Solid Colors &amp; Gradients</option>
+                                </optgroup>
+                                <optgroup label="🌐 Live Interactive Dashboards">
+                                    <option value="google_dashboard" selected>Google</option>
+                                    <option value="bing_dashboard">Bing</option>
+                                </optgroup>
+                                <optgroup label="💻 Desktop &amp; Custom Wallpapers">
+                                    <option value="bing">Bing Daily Wallpaper</option>
+                                    <option value="preset">Theme Library</option>
+                                    <option value="local">Local File (Image/Video)</option>
+                                    <option value="custom">Custom Media URL</option>
+                                </optgroup>
                             </select>
                         </div>
                         
@@ -771,12 +777,23 @@
                             </div>
                         </div>
                         <div class="settings-group" id="manage-shortcuts-group">
-                            <label>Manage Shortcuts</label>
-                            <p class="subtext">Add or remove your custom shortcuts below.</p>
+                            <label>Custom Extension Sites &amp; Bookmarks</label>
+                            <p class="subtext">Create custom site links with real-time stats (visit counter, ping latency, SSL shield).</p>
                             <div class="shortcut-manager mt-2">
-                                <input type="text" id="new-shortcut-name" class="text-input mb-2" placeholder="Name (e.g. GitHub)" title="Shortcut Name" aria-label="Shortcut Name">
-                                <input type="text" id="new-shortcut-url" class="text-input mb-2" placeholder="URL (e.g. https://github.com)" title="Shortcut URL" aria-label="Shortcut URL">
-                                <button id="add-shortcut-btn" class="primary-btn">Add Shortcut</button>
+                                <div class="shortcut-input-row mb-2">
+                                    <input type="text" id="new-shortcut-name" class="text-input" placeholder="Site Name (e.g. GitHub)" title="Shortcut Name" aria-label="Shortcut Name">
+                                    <input type="text" id="new-shortcut-url" class="text-input" placeholder="URL (e.g. https://github.com)" title="Shortcut URL" aria-label="Shortcut URL">
+                                </div>
+                                <div class="shortcut-input-row mb-2">
+                                    <input type="text" id="new-shortcut-icon" class="text-input" placeholder="Icon URL / Favicon (Optional)" title="Custom Icon URL" aria-label="Custom Icon URL">
+                                    <select id="new-shortcut-stat-type" class="custom-select" title="Display Stat">
+                                        <option value="visits" selected>⚡ Show Visits Counter</option>
+                                        <option value="ping">🟢 Show Ping Latency</option>
+                                        <option value="shield">🛡️ Show SSL Shield</option>
+                                        <option value="none">No Stat Badge</option>
+                                    </select>
+                                </div>
+                                <button id="add-shortcut-btn" class="primary-btn mt-1">Add Custom Site</button>
                             </div>
                             <div id="shortcuts-list" class="managed-list mt-4">
                                 <!-- Managed items go here -->

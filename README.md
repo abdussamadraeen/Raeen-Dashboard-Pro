@@ -38,14 +38,18 @@ A premium, minimalist new tab dashboard for Chrome and Edge. Designed for produc
 This extension is built on **WXT** (a next-generation web extension framework powered by Vite).
 
 ### Installation (Local Dev)
+
 1. Clone this repository or download the source code.
 2. In the project root, install dependencies:
+
    ```bash
    pnpm install
    # Or using npm
    npm install
    ```
+
 3. Start the hot-reloading development server:
+
    ```bash
    pnpm dev
    # Or using npm
@@ -53,6 +57,7 @@ This extension is built on **WXT** (a next-generation web extension framework po
    ```
 
 ### Loading the Unpacked Extension in Chrome/Edge
+
 1. Open Chrome/Edge and go to `chrome://extensions` or `edge://extensions`.
 2. Enable **Developer Mode** (toggle button in top right).
 3. Click **Load unpacked**.
@@ -73,13 +78,14 @@ For building and preparing store-ready deployment packages:
 
 ## 🎨 Branding & Visual Assets
 
-* **Extension Icons**: Located in [public/icon/](public/icon/) (`16.png`, `32.png`, `48.png`, `96.png`, `128.png`). These are automatically optimized and bundled on every build.
-* **Store Listing Assets**: Includes your custom cropped transparent superellipse "N" logo and a pre-rendered premium **440x280px Store Listing Banner** for promotional purposes.
+- **Extension Icons**: Located in [public/icon/](public/icon/) (`16.png`, `32.png`, `48.png`, `96.png`, `128.png`). These are automatically optimized and bundled on every build.
+- **Store Listing Assets**: Includes your custom cropped transparent superellipse "N" logo and a pre-rendered premium **440x280px Store Listing Banner** for promotional purposes.
 
 ---
 
 ## 📄 License
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
-Built with ❤️ by Abdussamad Raeen
+Built with ❤️ by Abdus Samad Raeen

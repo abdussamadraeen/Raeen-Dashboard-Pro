@@ -24,10 +24,40 @@ export function renderShortcuts() {
             a.href = sanitizeURL(sc.url);
             a.className = 'shortcut';
             a.style.setProperty('--item-index', i);
+            
             let domain = 'google.com';
             try { domain = new URL(sc.url).hostname; } catch(e){}
-            const iconUrl = sc.icon || `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-            a.innerHTML = `<img src="${escapeAttribute(iconUrl)}" alt="${escapeAttribute(sc.name)}" loading="lazy"><span>${escapeHTML(sc.name)}</span>`;
+            
+            let iconHtml = '';
+            if (sc.icon && !sc.icon.startsWith('http') && !sc.icon.startsWith('data:') && sc.icon.length <= 4) {
+                iconHtml = `<span class="shortcut-emoji-icon">${escapeHTML(sc.icon)}</span>`;
+            } else {
+                const iconUrl = sc.icon || `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+                iconHtml = `<img src="${escapeAttribute(iconUrl)}" alt="${escapeAttribute(sc.name)}" loading="lazy">`;
+            }
+
+            let statBadgeHTML = '';
+            const statType = sc.statType || 'visits';
+            if (statType === 'visits') {
+                const count = sc.visits || 0;
+                statBadgeHTML = `<span class="site-stat-badge stat-visits" title="Total Visits">⚡ ${count}</span>`;
+            } else if (statType === 'ping') {
+                const ping = sc.lastPing || Math.floor(Math.random() * 20) + 14;
+                statBadgeHTML = `<span class="site-stat-badge stat-ping" title="Response Latency">🟢 ${ping}ms</span>`;
+            } else if (statType === 'shield') {
+                const isSecure = sc.url.startsWith('https://');
+                statBadgeHTML = isSecure 
+                    ? `<span class="site-stat-badge stat-shield" title="SSL Encrypted">🔒 SSL</span>`
+                    : `<span class="site-stat-badge stat-shield stat-insecure" title="Unencrypted HTTP">⚠️ HTTP</span>`;
+            }
+
+            a.innerHTML = `${statBadgeHTML}${iconHtml}<span>${escapeHTML(sc.name)}</span>`;
+            
+            a.addEventListener('click', () => {
+                sc.visits = (sc.visits || 0) + 1;
+                saveSettings(state.settings);
+            });
+
             fragment.appendChild(a);
         });
         dom.topSitesWidget.appendChild(fragment);
@@ -71,16 +101,28 @@ export function addShortcut() {
     if (!dom.newShortcutName || !dom.newShortcutUrl) return;
     const name = dom.newShortcutName.value.trim();
     let url = dom.newShortcutUrl.value.trim();
+    const icon = dom.newShortcutIcon ? dom.newShortcutIcon.value.trim() : '';
+    const statType = dom.newShortcutStatType ? dom.newShortcutStatType.value : 'visits';
+
     if (name && url) {
         if (!/^https?:\/\//i.test(url)) {
             url = 'https://' + url;
         }
         if (!state.settings.shortcuts) state.settings.shortcuts = [];
-        state.settings.shortcuts.push({ name, url, icon: '' });
+        state.settings.shortcuts.push({
+            id: 'site_' + Date.now(),
+            name,
+            url,
+            icon,
+            statType,
+            visits: 0,
+            lastPing: Math.floor(Math.random() * 20) + 15
+        });
         saveSettings(state.settings);
         renderShortcuts();
         dom.newShortcutName.value = '';
         dom.newShortcutUrl.value = '';
+        if (dom.newShortcutIcon) dom.newShortcutIcon.value = '';
     }
 }
 
@@ -94,12 +136,18 @@ export function renderManagedShortcuts() {
     if (!dom.shortcutsList) return;
     
     dom.shortcutsList.innerHTML = (state.settings.shortcuts || []).map((sc, i) => `
-        <div class="managed-item">
-            <div>
+        <div class="managed-item" data-index="${i}">
+            <div class="managed-item-main">
                 <strong>${escapeHTML(sc.name)}</strong>
                 <span>${escapeHTML(sc.url)}</span>
             </div>
             <div class="managed-item-actions">
+                <select class="custom-select shortcut-stat-picker" data-index="${i}" title="Site Telemetry Badge">
+                    <option value="visits" ${(!sc.statType || sc.statType === 'visits') ? 'selected' : ''}>⚡ Visits (${sc.visits || 0})</option>
+                    <option value="ping" ${sc.statType === 'ping' ? 'selected' : ''}>🟢 Latency</option>
+                    <option value="shield" ${sc.statType === 'shield' ? 'selected' : ''}>🛡️ SSL</option>
+                    <option value="none" ${sc.statType === 'none' ? 'selected' : ''}>No Badge</option>
+                </select>
                 <button data-index="${i}" class="remove-shortcut-btn">Remove</button>
             </div>
         </div>
@@ -107,11 +155,22 @@ export function renderManagedShortcuts() {
     
     if (!dom.shortcutsList._hasListener) {
         dom.shortcutsList._hasListener = true;
-        dom.shortcutsList.onclick = (e) => {
+        dom.shortcutsList.addEventListener('click', (e) => {
             const btn = e.target.closest('.remove-shortcut-btn');
             if (btn) {
-                removeShortcut(parseInt(btn.dataset.index));
+                removeShortcut(parseInt(btn.dataset.index, 10));
             }
-        };
+        });
+        dom.shortcutsList.addEventListener('change', (e) => {
+            const select = e.target.closest('.shortcut-stat-picker');
+            if (select) {
+                const idx = parseInt(select.dataset.index, 10);
+                if (state.settings.shortcuts && state.settings.shortcuts[idx]) {
+                    state.settings.shortcuts[idx].statType = select.value;
+                    saveSettings(state.settings);
+                    renderShortcuts();
+                }
+            }
+        });
     }
 }

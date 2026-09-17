@@ -69,20 +69,71 @@ export default defineBackground(() => {
   registerDynamicRules();
   clearServiceWorkers();
 
-  // ─── MILITARY DEFENSE & PROXY / WEBRTC ENGINE ───
+  // ─── MILITARY DEFENSE & PERSISTENT MV3 PROXY / WEBRTC ENGINE ───
   let isVpnActive = false;
   let activeVpnNode: any = null;
+  let webrtcSealed = true;
+  let killSwitchEnabled = false;
 
-  // Restore proxy state check on startup
-  try {
-    if ((globalThis as any).chrome?.proxy?.settings) {
-      (globalThis as any).chrome.proxy.settings.get({ incognito: false }, (config: any) => {
-        if (config && config.levelOfControl === 'controlled_by_this_extension') {
-          isVpnActive = true;
-        }
-      });
+  const getStoredVpnState = async () => {
+    try {
+      const stored = await browser.storage.local.get([
+        'raeen_vpn_active',
+        'raeen_vpn_node_config',
+        'raeen_vpn_webrtc',
+        'raeen_vpn_killswitch'
+      ]);
+      return stored || {};
+    } catch (e) {
+      return {};
     }
-  } catch (e) {}
+  };
+
+  const persistVpnState = async (data: Record<string, any>) => {
+    try {
+      await browser.storage.local.set(data);
+    } catch (e) {}
+  };
+
+  // Restore proxy and privacy state on startup / worker wake-up
+  const restoreVpnState = async () => {
+    try {
+      const stored = await getStoredVpnState();
+      if (stored.raeen_vpn_active !== undefined) {
+        isVpnActive = stored.raeen_vpn_active === true;
+      }
+      if (stored.raeen_vpn_node_config) {
+        activeVpnNode = stored.raeen_vpn_node_config;
+      }
+      if (stored.raeen_vpn_webrtc !== undefined) {
+        webrtcSealed = stored.raeen_vpn_webrtc !== false;
+      }
+      if (stored.raeen_vpn_killswitch !== undefined) {
+        killSwitchEnabled = stored.raeen_vpn_killswitch === true;
+      }
+
+      // Check real Chrome proxy level of control
+      if ((globalThis as any).chrome?.proxy?.settings) {
+        (globalThis as any).chrome.proxy.settings.get({ incognito: false }, (config: any) => {
+          if (config && config.levelOfControl === 'controlled_by_this_extension') {
+            isVpnActive = true;
+          }
+        });
+      }
+
+      // Enforce WebRTC hardware leak protection
+      if (webrtcSealed) {
+        try {
+          const privacy = (globalThis as any).chrome?.privacy;
+          if (privacy?.network?.webRTCIPHandlingPolicy) {
+            privacy.network.webRTCIPHandlingPolicy.set({ value: 'disable_non_proxied_udp' });
+          }
+        } catch (e) {}
+      }
+    } catch (e) {}
+  };
+
+  restoreVpnState();
 
   // Native Chrome runtime messaging with async sendResponse pattern (return true)
   (globalThis as any).chrome?.runtime?.onMessage?.addListener((request: any, sender: any, sendResponse: (res: any) => void) => {
@@ -103,49 +154,96 @@ export default defineBackground(() => {
         }
         
         if (request.action === 'vpn_connect') {
-          const { scheme = 'socks5', host = '127.0.0.1', port = 9050, nodeName = 'Secure VPN', isTor = false } = request.payload || {};
+          const {
+            scheme = 'socks5',
+            host = '127.0.0.1',
+            port = 9050,
+            nodeName = 'Secure VPN',
+            isTor = false,
+            isShieldOnly = false,
+            endpoints = [],
+            killSwitch = false
+          } = request.payload || {};
+
+          killSwitchEnabled = !!killSwitch;
           const chromeProxy = (globalThis as any).chrome?.proxy;
           if (!chromeProxy || !chromeProxy.settings) {
             sendResponse({ success: false, error: 'Chrome Proxy API not available or permission denied.' });
             return;
           }
 
-          let pacScript: string;
-          if (isTor) {
-            // Fast Tor Network: connects to local Tor SOCKS5 daemon (9050 or 9150) with seamless fallback
-            pacScript = `
+          let proxyConfig: any;
+          if (isShieldOnly || scheme === 'direct') {
+            proxyConfig = { mode: 'direct' };
+          } else if (scheme === 'http' || scheme === 'https' || scheme === 'socks4') {
+            proxyConfig = {
+              mode: 'fixed_servers',
+              rules: {
+                singleProxy: {
+                  scheme: scheme.toLowerCase(),
+                  host: host,
+                  port: parseInt(String(port), 10)
+                },
+                bypassList: ['<local>', 'localhost', '127.0.0.1']
+              }
+            };
+          } else if (isTor || (scheme || '').toLowerCase() === 'socks5') {
+            // High-resilience PAC script for SOCKS5/Tor routing
+            // If killSwitch is true, traffic never falls back to DIRECT (zero leaks)
+            // If killSwitch is false, fallback to DIRECT ensures zero-break continuous browsing
+            const fallbackChain = killSwitchEnabled
+              ? `SOCKS5 ${host || '127.0.0.1'}:${port || 9050}; SOCKS5 127.0.0.1:9150`
+              : `SOCKS5 ${host || '127.0.0.1'}:${port || 9050}; SOCKS5 127.0.0.1:9150; DIRECT`;
+
+            const pacScript = `
               function FindProxyForURL(url, host) {
                 if (isPlainHostName(host) || 
                     shExpMatch(host, "*.local") || 
                     shExpMatch(host, "127.0.0.1") || 
-                    shExpMatch(host, "localhost")) {
+                    shExpMatch(host, "localhost") ||
+                    shExpMatch(host, "*.internal")) {
                   return "DIRECT";
                 }
-                return "SOCKS5 127.0.0.1:9050; SOCKS5 127.0.0.1:9150; SOCKS 127.0.0.1:9050; DIRECT";
+                return "${fallbackChain}";
               }
             `;
+            proxyConfig = {
+              mode: 'pac_script',
+              pacScript: { data: pacScript }
+            };
           } else {
-            const proxyKeyword = scheme.toLowerCase() === 'socks5' ? 'SOCKS5' : (scheme.toLowerCase() === 'https' ? 'HTTPS' : 'PROXY');
-            pacScript = `
+            const candidateEndpoints = Array.isArray(endpoints) && endpoints.length > 0
+              ? endpoints
+              : [{ host, port, scheme }];
+
+            const proxyChain = candidateEndpoints.map((ep: any) => {
+              const sc = (ep.scheme || scheme || 'http').toLowerCase();
+              const kw = sc === 'socks5' ? 'SOCKS5' : (sc === 'https' ? 'HTTPS' : (sc === 'socks4' ? 'SOCKS' : 'PROXY'));
+              return `${kw} ${ep.host}:${ep.port}`;
+            }).join('; ') + (killSwitchEnabled ? '' : '; DIRECT');
+
+            const pacScript = `
               function FindProxyForURL(url, host) {
                 if (isPlainHostName(host) || 
                     shExpMatch(host, "*.local") || 
                     shExpMatch(host, "127.0.0.1") || 
-                    shExpMatch(host, "localhost")) {
+                    shExpMatch(host, "localhost") ||
+                    shExpMatch(host, "*.internal")) {
                   return "DIRECT";
                 }
-                return "${proxyKeyword} ${host}:${port}; DIRECT";
+                return "${proxyChain}";
               }
             `;
+            proxyConfig = {
+              mode: 'pac_script',
+              pacScript: { data: pacScript }
+            };
           }
 
           chromeProxy.settings.set({
-            value: {
-              mode: 'pac_script',
-              pacScript: { data: pacScript }
-            },
+            value: proxyConfig,
             scope: 'regular'
-          }, () => {
+          }, async () => {
             const err = (globalThis as any).chrome?.runtime?.lastError;
             if (err) {
               console.error('Proxy settings error:', err);
@@ -153,7 +251,15 @@ export default defineBackground(() => {
               return;
             }
             isVpnActive = true;
-            activeVpnNode = { scheme, host, port, nodeName, isTor };
+            activeVpnNode = { scheme, host, port, nodeName, isTor, isShieldOnly, killSwitch: killSwitchEnabled };
+            
+            // Persist state to survive MV3 worker restarts
+            await persistVpnState({
+              raeen_vpn_active: true,
+              raeen_vpn_node_config: activeVpnNode,
+              raeen_vpn_killswitch: killSwitchEnabled
+            });
+
             // Enforce hardware WebRTC leak protection
             try {
               const privacy = (globalThis as any).chrome?.privacy;
@@ -161,29 +267,40 @@ export default defineBackground(() => {
                 privacy.network.webRTCIPHandlingPolicy.set({ value: 'disable_non_proxied_udp' });
               }
             } catch (e) {}
-            sendResponse({ success: true, activeVpnNode });
+
+            sendResponse({ success: true, activeVpnNode, isVpnActive });
           });
           return;
         }
         
         if (request.action === 'vpn_disconnect') {
           const chromeProxy = (globalThis as any).chrome?.proxy;
-          if (chromeProxy?.settings) {
-            chromeProxy.settings.clear({ scope: 'regular' }, () => {
-              isVpnActive = false;
-              activeVpnNode = null;
+          const finalizeDisconnect = async () => {
+            isVpnActive = false;
+            activeVpnNode = null;
+            await persistVpnState({
+              raeen_vpn_active: false,
+              raeen_vpn_node_config: null
+            });
+
+            // Only clear WebRTC leak shield if user turned off the shield toggle
+            if (!webrtcSealed) {
               try {
                 const privacy = (globalThis as any).chrome?.privacy;
                 if (privacy?.network?.webRTCIPHandlingPolicy) {
                   privacy.network.webRTCIPHandlingPolicy.clear({});
                 }
               } catch (e) {}
-              sendResponse({ success: true });
+            }
+            sendResponse({ success: true });
+          };
+
+          if (chromeProxy?.settings) {
+            chromeProxy.settings.clear({ scope: 'regular' }, () => {
+              finalizeDisconnect();
             });
           } else {
-            isVpnActive = false;
-            activeVpnNode = null;
-            sendResponse({ success: true });
+            finalizeDisconnect();
           }
           return;
         }
@@ -197,27 +314,43 @@ export default defineBackground(() => {
                 success: true,
                 isActive: isControlled || isVpnActive,
                 activeVpnNode,
-                levelOfControl: config?.levelOfControl || 'not_controllable'
+                levelOfControl: config?.levelOfControl || 'not_controllable',
+                webrtcSealed,
+                killSwitchEnabled
               });
             });
           } else {
-            sendResponse({ success: true, isActive: isVpnActive, activeVpnNode });
+            sendResponse({ 
+              success: true, 
+              isActive: isVpnActive, 
+              activeVpnNode, 
+              webrtcSealed, 
+              killSwitchEnabled 
+            });
           }
           return;
         }
         
         if (request.action === 'webrtc_shield_set') {
-          const enabled = request.enabled !== false;
+          webrtcSealed = request.enabled !== false;
+          await persistVpnState({ raeen_vpn_webrtc: webrtcSealed });
           const privacy = (globalThis as any).chrome?.privacy;
           if (privacy?.network?.webRTCIPHandlingPolicy) {
             privacy.network.webRTCIPHandlingPolicy.set({
-              value: enabled ? 'disable_non_proxied_udp' : 'default'
+              value: webrtcSealed ? 'disable_non_proxied_udp' : 'default'
             }, () => {
-              sendResponse({ success: true, enabled });
+              sendResponse({ success: true, enabled: webrtcSealed });
             });
           } else {
             sendResponse({ success: false, error: 'WebRTC privacy API unavailable' });
           }
+          return;
+        }
+
+        if (request.action === 'killswitch_set') {
+          killSwitchEnabled = !!request.enabled;
+          await persistVpnState({ raeen_vpn_killswitch: killSwitchEnabled });
+          sendResponse({ success: true, killSwitchEnabled });
           return;
         }
         
@@ -279,14 +412,12 @@ export default defineBackground(() => {
   // Only register mobile fallback redirects on Android to keep Desktop address bars clean
   browser.runtime.getPlatformInfo().then((info) => {
     if (info.os === 'android') {
-      // Intercept tab creation
       browser.tabs.onCreated.addListener((tab) => {
         if (tab.id) {
           redirectToDashboard(tab.id, tab.url || tab.pendingUrl);
         }
       });
 
-      // Intercept tab navigation updates
       browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         if (changeInfo.url) {
           redirectToDashboard(tabId, changeInfo.url);
