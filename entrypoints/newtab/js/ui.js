@@ -362,9 +362,16 @@ export async function applySettings() {
                 }
 
                 if (braveItem?.url) {
-                    dom.bgLayer.style.backgroundImage = `url('${braveItem.url}')`;
+                    const bgUrl = braveItem.url;
+                    // Async pre-decode to prevent main thread frame drops
                     try {
-                        localStorage.setItem('raeen_bg_value', braveItem.url);
+                        const preloader = new Image();
+                        preloader.decoding = 'async';
+                        preloader.src = bgUrl;
+                    } catch (e) {}
+                    dom.bgLayer.style.backgroundImage = `url('${bgUrl}')`;
+                    try {
+                        localStorage.setItem('raeen_bg_value', bgUrl);
                     } catch (e) {}
                 }
                 break;

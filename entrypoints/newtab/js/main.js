@@ -37,8 +37,31 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
 (async function init() {
     // 1. Immediate UI Load (using defaults to prevent lag)
     applySettings();
-    updateTime();
-    const clockInterval = setInterval(updateTime, 1000);
+    // Battery-Saving Clock Scheduler: minute-boundary synchronization + Page Visibility pause
+    let clockTimer = null;
+    const scheduleClockUpdate = () => {
+        if (clockTimer) {
+            clearTimeout(clockTimer);
+            clockTimer = null;
+        }
+        updateTime();
+        if (document.hidden) return; // Tab in background: 0 timer wakeups, saves CPU & battery
+        const now = new Date();
+        const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 50;
+        clockTimer = setTimeout(scheduleClockUpdate, Math.max(100, msUntilNextMinute));
+    };
+    scheduleClockUpdate();
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            if (clockTimer) {
+                clearTimeout(clockTimer);
+                clockTimer = null;
+            }
+        } else {
+            scheduleClockUpdate();
+        }
+    });
 
     // 2. Load Persisted State
     const loadStorage = async () => {
