@@ -83,7 +83,7 @@ body {
     background-color: var(--bg-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    animation: fadeIn 0.3s ease-out forwards;
+    animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 html.live-bg-pre-active body {
@@ -91,7 +91,7 @@ html.live-bg-pre-active body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
+    from { opacity: 0.82; }
     to { opacity: 1; }
 }
 
@@ -104,7 +104,7 @@ html.live-bg-pre-active body {
 .background-layer {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     z-index: -2; background-size: cover; background-position: center;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
     perspective: 1000px;
@@ -3491,84 +3491,57 @@ body.boss-mode-active .noosphere-status-horizontal {
     z-index: 100;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 6px 14px;
+    gap: 8px;
+    padding: 4px 12px;
     border-radius: 9999px;
-    background: rgba(15, 23, 42, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    backdrop-filter: blur(24px) saturate(180%);
-    color: rgba(255, 255, 255, 0.88);
-    font-size: 0.78rem;
-    font-weight: 500;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
     transition: all 0.25s var(--ease-spring);
     -webkit-user-select: none;
     user-select: none;
     pointer-events: auto;
-    cursor: pointer;
 }
 
 .photographer-credit:hover {
-    background: rgba(15, 23, 42, 0.8);
-    border-color: rgba(255, 255, 255, 0.28);
-    color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 16px rgba(20, 184, 166, 0.25);
+    background: rgba(15, 23, 42, 0.65);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .photo-cam-icon {
-    width: 15px;
-    height: 15px;
-    color: var(--accent, #14b8a6);
+    width: 13px;
+    height: 13px;
+    color: var(--accent, #38bdf8);
+    opacity: 0.75;
     flex-shrink: 0;
     transition: transform 0.25s ease;
 }
 
 .photographer-credit:hover .photo-cam-icon {
-    transform: scale(1.15);
+    transform: scale(1.1);
+    opacity: 1;
 }
 
 .photographer-credit strong {
-    color: #ffffff;
-    font-weight: 650;
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 500;
 }
 
-.photo-next-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 9999px;
-    padding: 3px 9px;
-    color: #ffffff;
-    font-size: 0.72rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-left: 2px;
-    transition: all 0.2s var(--ease-spring);
-}
-
-.photo-next-btn:hover {
-    background: var(--accent, #14b8a6);
-    border-color: var(--accent, #14b8a6);
-    color: #000000;
-    transform: scale(1.05);
-}
-
-.photo-rotate-icon {
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.photographer-credit:hover .photo-rotate-icon,
-.photo-rotate-icon.spinning {
-    transform: rotate(180deg);
-}
-
-.photographer-credit.hidden {
+.photographer-credit.hidden,
+#photographer-credit.hidden,
+body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 /* Bing Gallery Styles */
@@ -6489,14 +6462,40 @@ body[data-dashboard-mode="minimal"] #clock-widget {
                 filter 0.35s ease !important;
 }
 
+/* Smoothly and fully remove clock and corner controls during active typing for pure zero-distractions search */
+body[data-dashboard-mode="minimal"]:has(#search-widget:focus-within) #clock-widget,
+body[data-dashboard-mode="minimal"].search-focused #clock-widget {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translate3d(0, -18px, 0) scale(0.96) !important;
+    filter: blur(4px) !important;
+    pointer-events: none !important;
+    transition: opacity 0.22s ease, transform 0.22s ease, filter 0.22s ease, visibility 0.22s !important;
+}
+
+body[data-dashboard-mode="minimal"] #clock-widget {
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.35s ease,
+                visibility 0.35s !important;
+}
+
 body[data-dashboard-mode="minimal"]:has(#search-widget:focus-within) #settings-btn,
 body[data-dashboard-mode="minimal"].search-focused #settings-btn {
-    opacity: 0.25 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: scale(0.88) !important;
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s !important;
 }
 
 body[data-dashboard-mode="minimal"]:has(#search-widget:focus-within) #photographer-credit,
 body[data-dashboard-mode="minimal"].search-focused #photographer-credit {
-    opacity: 0.2 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(10px) !important;
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s !important;
 }
 
 /* ── Minimalist Frosted Glass Suggestions Dropdown ── */
@@ -6559,16 +6558,64 @@ body[data-dashboard-mode="minimal"] #settings-btn {
     top: 36px !important;
     right: 44px !important;
     z-index: 60 !important;
-    transition: opacity 0.35s ease, transform 0.2s ease, background 0.2s ease !important;
+    transition: opacity 0.35s ease, transform 0.2s ease, background 0.2s ease, visibility 0.35s !important;
 }
 
 body[data-dashboard-mode="minimal"] #photographer-credit {
     position: fixed !important;
-    bottom: 28px !important;
+    bottom: 24px !important;
     left: 44px !important;
     z-index: 60 !important;
     display: inline-flex !important;
-    transition: opacity 0.35s ease, transform 0.2s ease, background 0.2s ease !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 4px 12px !important;
+    border-radius: 9999px !important;
+    background: rgba(15, 23, 42, 0.42) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.28) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    font-size: 0.72rem !important;
+    font-weight: 400 !important;
+    color: rgba(255, 255, 255, 0.72) !important;
+    letter-spacing: 0.01em !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    transition: opacity 0.35s ease, transform 0.2s ease, background 0.2s ease, visibility 0.35s !important;
+}
+
+body[data-dashboard-mode="minimal"] #photographer-credit strong {
+    font-weight: 500 !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+}
+
+body[data-dashboard-mode="minimal"] #photographer-credit .photo-cam-icon {
+    width: 13px !important;
+    height: 13px !important;
+    opacity: 0.75 !important;
+    color: var(--accent, #38bdf8) !important;
+}
+
+[data-theme="light"] body[data-dashboard-mode="minimal"] #photographer-credit {
+    background: rgba(255, 255, 255, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.75) !important;
+    border-top: 1px solid #ffffff !important;
+    color: rgba(15, 23, 42, 0.72) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] body[data-dashboard-mode="minimal"] #photographer-credit strong {
+    color: rgba(15, 23, 42, 0.92) !important;
+}
+
+/* STRICT OVERRIDE: NEVER show credit when hidden (on Theme library, Bing, Local, Solid, Canvas etc.) */
+#photographer-credit.hidden,
+.photographer-credit.hidden,
+body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 /* ── Responsive Mobile/Tablet Minimalist Adjustments ── */

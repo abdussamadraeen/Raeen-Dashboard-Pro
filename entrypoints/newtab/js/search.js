@@ -157,7 +157,11 @@ export function setupSearch() {
             if (!query) return;
             const { url } = resolveSearch(query);
             if (url) {
-                window.open(url, '_blank');
+                if (state.settings.openSearchInNewTab) {
+                    window.open(url, '_blank');
+                } else {
+                    window.location.href = url;
+                }
             }
         };
 
@@ -216,8 +220,14 @@ export function setupSearch() {
             dom.searchSuggestions.onclick = (e) => {
                 const li = e.target.closest('.suggestion-item');
                 if (li) {
-                    dom.searchInput.value = li.querySelector('span')?.textContent || '';
-                    dom.searchForm?.requestSubmit();
+                    const text = (li.querySelector('span')?.textContent || '').trim();
+                    if (text) {
+                        handleSearch(text);
+                        dom.searchInput.value = '';
+                        if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                        dom.searchInput.blur();
+                        deactivateSearch();
+                    }
                 }
             };
         }
@@ -226,26 +236,40 @@ export function setupSearch() {
             if (e.key === 'Escape') {
                 if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
                 dom.searchInput.blur();
-                dom.searchContainer?.classList.remove('search-active');
-                document.body.classList.remove('search-focused');
+                deactivateSearch();
                 return;
             }
 
-            const items = dom.searchSuggestions.querySelectorAll('.suggestion-item');
-            if (items.length === 0) return;
+            const items = dom.searchSuggestions ? dom.searchSuggestions.querySelectorAll('.suggestion-item') : [];
 
             if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                selectedIndex = (selectedIndex + 1) % items.length;
-                updateSelection(items);
+                if (items.length > 0) {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex + 1) % items.length;
+                    updateSelection(items);
+                }
             } else if (e.key === 'ArrowUp') {
+                if (items.length > 0) {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+                    updateSelection(items);
+                }
+            } else if (e.key === 'Enter') {
                 e.preventDefault();
-                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-                updateSelection(items);
-            } else if (e.key === 'Enter' && selectedIndex > -1) {
-                e.preventDefault();
-                dom.searchInput.value = items[selectedIndex].querySelector('span').textContent;
-                dom.searchForm.requestSubmit();
+                let query = '';
+                if (selectedIndex > -1 && items[selectedIndex]) {
+                    query = (items[selectedIndex].querySelector('span')?.textContent || '').trim();
+                }
+                if (!query) {
+                    query = dom.searchInput.value.trim();
+                }
+                if (query) {
+                    handleSearch(query);
+                    dom.searchInput.value = '';
+                    if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                    dom.searchInput.blur();
+                    deactivateSearch();
+                }
             }
         };
 
@@ -283,7 +307,7 @@ export function setupSearch() {
             items.forEach((item, i) => {
                 item.classList.toggle('selected', i === selectedIndex);
                 if (i === selectedIndex) {
-                    dom.searchInput.value = item.querySelector('span').textContent;
+                    dom.searchInput.value = item.querySelector('span')?.textContent || '';
                 }
             });
         }
@@ -291,11 +315,13 @@ export function setupSearch() {
         dom.searchForm.onsubmit = (e) => {
             e.preventDefault();
             const query = dom.searchInput.value.trim();
-            handleSearch(query);
-            dom.searchInput.value = '';
-            dom.searchSuggestions.classList.add('hidden');
-            dom.searchInput.blur();
-            deactivateSearch();
+            if (query) {
+                handleSearch(query);
+                dom.searchInput.value = '';
+                if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                dom.searchInput.blur();
+                deactivateSearch();
+            }
         };
 
         document.addEventListener('click', (e) => {

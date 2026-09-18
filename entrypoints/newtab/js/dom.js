@@ -56,7 +56,6 @@ export const dom = {
     braveRandomToggle: document.getElementById('brave-random-toggle'),
     photographerCredit: document.getElementById('photographer-credit'),
     photographerName: document.getElementById('photographer-name'),
-    nextWallpaperBtn: document.getElementById('next-wallpaper-btn'),
     bgPresetOptions: document.getElementById('bg-preset-options'),
     bgSolidOptions: document.getElementById('bg-solid-options'),
     bgLocalOptions: document.getElementById('bg-local-options'),

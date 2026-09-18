@@ -346,16 +346,22 @@ export async function applySettings() {
                 break;
             case 'brave':
                 let braveItem = null;
-                if (!bgValue || bgValue === 'brave_random') {
+                const isRandomBrave = !bgValue || bgValue === 'brave_random';
+                if (isRandomBrave) {
                     if (!currentBraveWallpaper) {
-                        const randIndex = Math.floor(Math.random() * BRAVE_WALLPAPERS.length);
+                        const lastIdx = parseInt(localStorage.getItem('last_brave_index') ?? '-1', 10);
+                        let randIndex = Math.floor(Math.random() * BRAVE_WALLPAPERS.length);
+                        if (BRAVE_WALLPAPERS.length > 1 && randIndex === lastIdx) {
+                            randIndex = (randIndex + 1) % BRAVE_WALLPAPERS.length;
+                        }
+                        try { localStorage.setItem('last_brave_index', randIndex.toString()); } catch (e) {}
                         currentBraveWallpaper = BRAVE_WALLPAPERS[randIndex];
                     }
                     braveItem = currentBraveWallpaper;
                 } else {
                     braveItem = BRAVE_WALLPAPERS.find(w => w.url === bgValue || w.id === bgValue) || {
                         title: 'Brave Curated',
-                        photographer: 'Dylan Malval',
+                        photographer: 'Brave Curated',
                         url: bgValue
                     };
                     currentBraveWallpaper = braveItem;
@@ -371,7 +377,7 @@ export async function applySettings() {
                     } catch (e) {}
                     dom.bgLayer.style.backgroundImage = `url('${bgUrl}')`;
                     try {
-                        localStorage.setItem('raeen_bg_value', bgUrl);
+                        localStorage.setItem('raeen_bg_value', isRandomBrave ? 'brave_random' : bgUrl);
                     } catch (e) {}
                 }
                 break;
@@ -691,41 +697,8 @@ export function loadBraveGallery() {
     }
 }
 
-export function cycleNextBraveWallpaper() {
-    if (!BRAVE_WALLPAPERS || BRAVE_WALLPAPERS.length === 0) return;
-    const currentUrl = state.settings.backgroundValue;
-    let idx = BRAVE_WALLPAPERS.findIndex(w => w.url === currentUrl);
-    if (idx === -1 && currentBraveWallpaper) {
-        idx = BRAVE_WALLPAPERS.findIndex(w => w.url === currentBraveWallpaper.url);
-    }
-    const nextIdx = (idx + 1) % BRAVE_WALLPAPERS.length;
-    currentBraveWallpaper = BRAVE_WALLPAPERS[nextIdx];
-    state.settings.backgroundType = 'brave';
-    state.settings.backgroundValue = currentBraveWallpaper.url;
-
-    const rotateIcon = dom.photographerCredit?.querySelector('.photo-rotate-icon');
-    if (rotateIcon) {
-        rotateIcon.classList.add('spinning');
-        setTimeout(() => rotateIcon.classList.remove('spinning'), 600);
-    }
-
-    saveSettings(state.settings);
-    applySettings();
-    if (dom.braveGallery) loadBraveGallery();
-}
-
 export function initPhotographerCredit() {
-    if (!dom.photographerCredit || dom.photographerCredit._hasCreditListener) return;
-    dom.photographerCredit._hasCreditListener = true;
-    dom.photographerCredit.addEventListener('click', () => {
-        cycleNextBraveWallpaper();
-    });
-    dom.photographerCredit.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            cycleNextBraveWallpaper();
-        }
-    });
+    // Informational attribution badge for curated Brave wallpapers
 }
 
 export function syncSettingsUI() {

@@ -35,7 +35,19 @@ import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
 import { securityManager, TACTICAL_NODES } from './vpn.js';
 
 (async function init() {
-    // 1. Immediate UI Load (using defaults to prevent lag)
+    // 0. Synchronously hydrate critical state from localStorage cache to prevent reload flash
+    try {
+        const cachedMode = localStorage.getItem('raeen_dashboard_mode');
+        if (cachedMode) state.settings.dashboardMode = cachedMode;
+        const cachedBgType = localStorage.getItem('raeen_bg_type');
+        if (cachedBgType) state.settings.backgroundType = cachedBgType;
+        const cachedBgVal = localStorage.getItem('raeen_bg_value');
+        if (cachedBgVal) state.settings.backgroundValue = cachedBgVal;
+        const cachedTheme = localStorage.getItem('raeen_theme');
+        if (cachedTheme) state.settings.theme = cachedTheme;
+    } catch(e) {}
+
+    // 1. Immediate UI Load
     applySettings();
     // Battery-Saving Clock Scheduler: minute-boundary synchronization + Page Visibility pause
     let clockTimer = null;
