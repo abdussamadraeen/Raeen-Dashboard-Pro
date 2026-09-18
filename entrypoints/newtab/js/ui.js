@@ -517,6 +517,7 @@ export async function applySettings() {
     if (bgType === 'brave' && currentBraveWallpaper && !hideUI && !isImmersive) {
         if (dom.photographerCredit) {
             dom.photographerCredit.classList.remove('hidden');
+            initPhotographerCredit();
         }
         if (dom.photographerName) {
             dom.photographerName.textContent = currentBraveWallpaper.photographer || 'Brave Curated';
@@ -681,6 +682,43 @@ export function loadBraveGallery() {
             loadBraveGallery();
         });
     }
+}
+
+export function cycleNextBraveWallpaper() {
+    if (!BRAVE_WALLPAPERS || BRAVE_WALLPAPERS.length === 0) return;
+    const currentUrl = state.settings.backgroundValue;
+    let idx = BRAVE_WALLPAPERS.findIndex(w => w.url === currentUrl);
+    if (idx === -1 && currentBraveWallpaper) {
+        idx = BRAVE_WALLPAPERS.findIndex(w => w.url === currentBraveWallpaper.url);
+    }
+    const nextIdx = (idx + 1) % BRAVE_WALLPAPERS.length;
+    currentBraveWallpaper = BRAVE_WALLPAPERS[nextIdx];
+    state.settings.backgroundType = 'brave';
+    state.settings.backgroundValue = currentBraveWallpaper.url;
+
+    const rotateIcon = dom.photographerCredit?.querySelector('.photo-rotate-icon');
+    if (rotateIcon) {
+        rotateIcon.classList.add('spinning');
+        setTimeout(() => rotateIcon.classList.remove('spinning'), 600);
+    }
+
+    saveSettings(state.settings);
+    applySettings();
+    if (dom.braveGallery) loadBraveGallery();
+}
+
+export function initPhotographerCredit() {
+    if (!dom.photographerCredit || dom.photographerCredit._hasCreditListener) return;
+    dom.photographerCredit._hasCreditListener = true;
+    dom.photographerCredit.addEventListener('click', () => {
+        cycleNextBraveWallpaper();
+    });
+    dom.photographerCredit.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            cycleNextBraveWallpaper();
+        }
+    });
 }
 
 export function syncSettingsUI() {

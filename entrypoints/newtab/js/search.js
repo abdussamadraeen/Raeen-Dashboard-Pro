@@ -249,30 +249,33 @@ export function setupSearch() {
             }
         };
 
-        // Smooth interactive position animation for search bar
+        // Smooth interactive position animation for search bar (activated when text cursor/focus is inside)
         const activateSearch = () => {
             dom.searchContainer?.classList.add('search-active');
             document.body.classList.add('search-focused');
         };
 
         const deactivateSearch = () => {
-            const hasFocus = dom.searchInput && document.activeElement === dom.searchInput;
-            const isHovered = dom.searchContainer && dom.searchContainer.matches(':hover');
-            if (!hasFocus && !isHovered) {
-                dom.searchContainer?.classList.remove('search-active');
-                document.body.classList.remove('search-focused');
-            }
+            dom.searchContainer?.classList.remove('search-active');
+            document.body.classList.remove('search-focused');
         };
 
         if (dom.searchContainer) {
-            dom.searchContainer.addEventListener('mouseenter', activateSearch);
-            dom.searchContainer.addEventListener('mouseleave', deactivateSearch);
+            dom.searchContainer.addEventListener('click', () => {
+                if (dom.searchInput && document.activeElement !== dom.searchInput) {
+                    dom.searchInput.focus();
+                }
+            });
         }
 
         if (dom.searchInput) {
             dom.searchInput.addEventListener('focus', activateSearch);
             dom.searchInput.addEventListener('blur', () => {
-                setTimeout(deactivateSearch, 100);
+                setTimeout(() => {
+                    if (document.activeElement !== dom.searchInput) {
+                        deactivateSearch();
+                    }
+                }, 120);
             });
         }
 
