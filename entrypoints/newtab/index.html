@@ -497,14 +497,14 @@
                 <form id="search-form" action="https://www.google.com/search" method="GET">
                     <div class="input-wrapper">
                         <button type="button" id="search-engine-btn" class="search-engine-btn" title="Change Search Engine" aria-label="Change Search Engine">
-                            <img id="search-engine-current-icon" class="search-engine-current-icon" src="https://www.google.com/favicon.ico" alt="Google">
+                            <img id="search-engine-current-icon" class="search-engine-current-icon" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%234285F4%22%20d%3D%22M23.745%2012.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29%201.52-1.14%202.82-2.4%203.68v3.05h3.88c2.27-2.09%203.66-5.17%203.66-9.17z%22%2F%3E%3Cpath%20fill%3D%22%2334A853%22%20d%3D%22M12%2024c3.24%200%205.95-1.08%207.93-2.91l-3.88-3.05c-1.08.72-2.45%201.16-4.05%201.16-3.12%200-5.77-2.1-6.72-4.93H1.25v3.15C3.26%2021.36%207.33%2024%2012%2024z%22%2F%3E%3Cpath%20fill%3D%22%23FBBC05%22%20d%3D%22M5.28%2014.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45%208.18%200%2010.03%200%2012s.45%203.82%201.25%205.42l4.03-3.15z%22%2F%3E%3Cpath%20fill%3D%22%23EA4335%22%20d%3D%22M12%204.75c1.77%200%203.35.61%204.6%201.8l3.42-3.42C17.95%201.19%2015.24%200%2012%200%207.33%200%203.26%202.64%201.25%206.58l4.03%203.15c.95-2.83%203.6-4.98%206.72-4.98z%22%2F%3E%3C%2Fsvg%3E" alt="Google">
                             <svg class="search-engine-caret" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
                         </button>
                         <div id="search-engine-menu" class="search-engine-menu hidden">
                             <div class="engine-menu-header">Search Engines</div>
                             <div class="engine-menu-list">
                                 <button type="button" class="engine-menu-item" data-engine="google">
-                                    <img src="https://www.google.com/favicon.ico" alt="Google">
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%234285F4%22%20d%3D%22M23.745%2012.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29%201.52-1.14%202.82-2.4%203.68v3.05h3.88c2.27-2.09%203.66-5.17%203.66-9.17z%22%2F%3E%3Cpath%20fill%3D%22%2334A853%22%20d%3D%22M12%2024c3.24%200%205.95-1.08%207.93-2.91l-3.88-3.05c-1.08.72-2.45%201.16-4.05%201.16-3.12%200-5.77-2.1-6.72-4.93H1.25v3.15C3.26%2021.36%207.33%2024%2012%2024z%22%2F%3E%3Cpath%20fill%3D%22%23FBBC05%22%20d%3D%22M5.28%2014.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45%208.18%200%2010.03%200%2012s.45%203.82%201.25%205.42l4.03-3.15z%22%2F%3E%3Cpath%20fill%3D%22%23EA4335%22%20d%3D%22M12%204.75c1.77%200%203.35.61%204.6%201.8l3.42-3.42C17.95%201.19%2015.24%200%2012%200%207.33%200%203.26%202.64%201.25%206.58l4.03%203.15c.95-2.83%203.6-4.98%206.72-4.98z%22%2F%3E%3C%2Fsvg%3E" alt="Google">
                                     <span>Google</span>
                                 </button>
                                 <button type="button" class="engine-menu-item" data-engine="brave">
@@ -544,7 +544,13 @@
                                 <span>Customize list</span>
                             </button>
                         </div>
-                        <input type="text" id="search-input" name="q" placeholder="Search the web" autocomplete="off" autofocus title="Search query" aria-label="Search">
+                        <input type="text" id="search-input" name="q" placeholder="Search the web" autocomplete="off" title="Search query" aria-label="Search">
+                        <button type="submit" id="search-submit-btn" class="search-submit-btn" aria-label="Search" title="Search">
+                            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <line x1="21" y1="21" x2="16.2" y2="16.2"></line>
+                            </svg>
+                        </button>
                         <ul id="search-suggestions" class="suggestions-dropdown hidden"></ul>
                     </div>
                 </form>

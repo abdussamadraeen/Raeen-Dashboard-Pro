@@ -3559,6 +3559,12 @@ body.boss-mode-active .noosphere-status-horizontal {
 #cards-widget {
     display: contents;
 }
+#cards-widget.hidden {
+    display: contents !important;
+}
+#cards-widget.hidden .info-card {
+    display: none !important;
+}
 
 .info-card-header .header-left {
     display: flex;
@@ -6144,5 +6150,308 @@ body.boss-mode-active .noosphere-status-horizontal {
     border: 2px solid #ffffff;
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ZEN MINIMALIST DASHBOARD MODE & SMOOTH ANIMATED SEARCH BAR
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Container & Clutter Removal ── */
+body[data-dashboard-mode="minimal"] .container {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+    z-index: 10 !important;
+}
+
+body[data-dashboard-mode="minimal"] .layout-column {
+    display: contents !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+body[data-dashboard-mode="minimal"] #cards-widget {
+    display: contents !important;
+}
+
+body[data-dashboard-mode="minimal"] .info-card,
+body[data-dashboard-mode="minimal"] #directory-widget,
+body[data-dashboard-mode="minimal"] #notes-widget,
+body[data-dashboard-mode="minimal"] .noosphere-status,
+body[data-dashboard-mode="minimal"] .noosphere-status-horizontal,
+body[data-dashboard-mode="minimal"] .drag-handle,
+body[data-dashboard-mode="minimal"] .resize-handle {
+    display: none !important;
+}
+
+/* ── Minimalist Top-Left Clock ── */
+body[data-dashboard-mode="minimal"] #clock-widget {
+    position: fixed !important;
+    top: 36px !important;
+    left: 48px !important;
+    z-index: 60 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body[data-dashboard-mode="minimal"] #clock-widget .time {
+    font-size: 3rem !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: flex-start !important;
+    background: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4) !important;
+    filter: none !important;
+}
+
+body[data-dashboard-mode="minimal"] #clock-widget .time-digits {
+    line-height: 1 !important;
+    font-variant-numeric: tabular-nums !important;
+}
+
+body[data-dashboard-mode="minimal"] #clock-widget .time-ampm {
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.04em !important;
+    margin-left: 6px !important;
+    margin-top: 3px !important;
+    line-height: 1 !important;
+    background: none !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+    vertical-align: super !important;
+}
+
+body[data-dashboard-mode="minimal"] #clock-widget #clock-date {
+    display: none !important;
+}
+
+/* ── Minimalist Search Bar (Default / Resting State: Top Center) ── */
+body[data-dashboard-mode="minimal"] #search-widget {
+    position: fixed !important;
+    left: 50% !important;
+    top: 96px !important;
+    transform: translateX(-50%) !important;
+    width: 330px !important;
+    max-width: calc(100vw - 32px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 200 !important;
+    pointer-events: auto !important;
+    transition: top 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                width 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.35s ease !important;
+    filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.22)) !important;
+}
+
+body[data-dashboard-mode="minimal"] #search-widget .input-wrapper {
+    background: #ffffff !important;
+    border-radius: 9999px !important;
+    height: 40px !important;
+    padding: 0 14px 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    border: 1px solid rgba(255, 255, 255, 0.85) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: box-shadow 0.35s ease, border-color 0.35s ease !important;
+}
+
+body[data-dashboard-mode="minimal"] #search-input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #202124 !important;
+    font-size: 0.94rem !important;
+    font-weight: 400 !important;
+    padding: 0 10px !important;
+    height: 38px !important;
+    line-height: 38px !important;
+    outline: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: none !important;
+}
+
+body[data-dashboard-mode="minimal"] #search-input::placeholder {
+    color: #5f6368 !important;
+    font-weight: 400 !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+}
+
+body[data-dashboard-mode="minimal"] #search-engine-btn {
+    position: static !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    cursor: pointer !important;
+}
+
+body[data-dashboard-mode="minimal"] #search-engine-btn:hover {
+    background: transparent !important;
+    transform: scale(1.08) !important;
+}
+
+body[data-dashboard-mode="minimal"] #search-engine-current-icon {
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    filter: none !important;
+}
+
+body[data-dashboard-mode="minimal"] .search-engine-caret {
+    display: none !important;
+}
+
+body[data-dashboard-mode="minimal"] .search-submit-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    border: none !important;
+    color: #5f6368 !important;
+    padding: 4px !important;
+    cursor: pointer !important;
+    transition: color 0.2s ease, transform 0.2s ease !important;
+}
+
+body[data-dashboard-mode="minimal"] .search-submit-btn:hover {
+    color: #202124 !important;
+    transform: scale(1.1) !important;
+}
+
+/* ── Minimalist Search Bar (Active State: Cursor Inside / Hover / Focus) ── */
+body[data-dashboard-mode="minimal"] #search-widget:hover,
+body[data-dashboard-mode="minimal"] #search-widget:focus-within,
+body[data-dashboard-mode="minimal"] #search-widget.search-active {
+    top: 45vh !important;
+    transform: translate(-50%, -50%) !important;
+    width: 540px !important;
+    filter: drop-shadow(0 20px 48px rgba(0, 0, 0, 0.38)) !important;
+}
+
+body[data-dashboard-mode="minimal"] #search-widget:hover .input-wrapper,
+body[data-dashboard-mode="minimal"] #search-widget:focus-within .input-wrapper,
+body[data-dashboard-mode="minimal"] #search-widget.search-active .input-wrapper {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Smoothly hide clock and dim controls during active search focus */
+body[data-dashboard-mode="minimal"]:has(#search-widget:hover) #clock-widget,
+body[data-dashboard-mode="minimal"]:has(#search-widget:focus-within) #clock-widget,
+body[data-dashboard-mode="minimal"].search-focused #clock-widget {
+    opacity: 0 !important;
+    transform: translateY(-12px) !important;
+    pointer-events: none !important;
+}
+
+body[data-dashboard-mode="minimal"]:has(#search-widget:hover) #settings-btn,
+body[data-dashboard-mode="minimal"]:has(#search-widget:focus-within) #settings-btn,
+body[data-dashboard-mode="minimal"].search-focused #settings-btn {
+    opacity: 0.25 !important;
+}
+
+body[data-dashboard-mode="minimal"]:has(#search-widget:hover) #photographer-credit,
+body[data-dashboard-mode="minimal"]:has(#search-widget:focus-within) #photographer-credit,
+body[data-dashboard-mode="minimal"].search-focused #photographer-credit {
+    opacity: 0.2 !important;
+}
+
+/* ── Minimalist Suggestions Dropdown ── */
+body[data-dashboard-mode="minimal"] .suggestions-dropdown {
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    margin-top: 8px !important;
+    overflow: hidden !important;
+}
+
+body[data-dashboard-mode="minimal"] .suggestion-item {
+    color: #202124 !important;
+    padding: 10px 18px !important;
+}
+
+body[data-dashboard-mode="minimal"] .suggestion-item:hover,
+body[data-dashboard-mode="minimal"] .suggestion-item.selected {
+    background: #f1f3f4 !important;
+    color: #1a73e8 !important;
+}
+
+body[data-dashboard-mode="minimal"] .suggestion-item svg {
+    color: #5f6368 !important;
+}
+
+/* ── Minimalist Settings Gear & Photographer Attribution ── */
+body[data-dashboard-mode="minimal"] #settings-btn {
+    position: fixed !important;
+    top: 36px !important;
+    right: 44px !important;
+    z-index: 60 !important;
+    transition: opacity 0.35s ease, transform 0.2s ease, background 0.2s ease !important;
+}
+
+body[data-dashboard-mode="minimal"] #photographer-credit {
+    position: fixed !important;
+    bottom: 28px !important;
+    left: 44px !important;
+    z-index: 60 !important;
+    display: flex !important;
+    transition: opacity 0.35s ease !important;
+}
+
+/* ── Responsive Mobile/Tablet Minimalist Adjustments ── */
+@media (max-width: 768px) {
+    body[data-dashboard-mode="minimal"] #clock-widget {
+        top: 24px !important;
+        left: 24px !important;
+    }
+    body[data-dashboard-mode="minimal"] #clock-widget .time {
+        font-size: 2.2rem !important;
+    }
+    body[data-dashboard-mode="minimal"] #search-widget {
+        top: 84px !important;
+        width: calc(100vw - 48px) !important;
+    }
+    body[data-dashboard-mode="minimal"] #search-widget:hover,
+    body[data-dashboard-mode="minimal"] #search-widget:focus-within,
+    body[data-dashboard-mode="minimal"] #search-widget.search-active {
+        top: 40vh !important;
+        width: calc(100vw - 32px) !important;
+    }
+    body[data-dashboard-mode="minimal"] #settings-btn {
+        top: 20px !important;
+        right: 20px !important;
+    }
+    body[data-dashboard-mode="minimal"] #photographer-credit {
+        left: 20px !important;
+        bottom: 20px !important;
+    }
 }
 

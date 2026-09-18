@@ -2,6 +2,11 @@
     try {
         var theme = localStorage.getItem('raeen_theme') || 'dark';
         document.documentElement.setAttribute('data-theme', theme);
+        var mode = localStorage.getItem('raeen_dashboard_mode') || 'pro';
+        document.documentElement.setAttribute('data-dashboard-mode', mode);
+        if (mode === 'minimal') {
+            document.documentElement.classList.add('dashboard-mode-minimal');
+        }
         var bgType = localStorage.getItem('raeen_bg_type') || 'brave';
         var bgValue = localStorage.getItem('raeen_bg_value') || 'brave_random';
         if (bgType === 'google_dashboard' || bgType === 'bing_dashboard') {

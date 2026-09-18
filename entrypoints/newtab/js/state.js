@@ -53,6 +53,10 @@ export function saveSettings(settingsObj, noApply = false) {
     // Keep visual updates and the synchronous preload cache off the IDB path.
     if (!noApply) applySettings();
 
+    if (toSave.dashboardMode) {
+        localStorage.setItem('raeen_dashboard_mode', toSave.dashboardMode);
+    }
+
     if (toSave.backgroundType) {
         localStorage.setItem('raeen_bg_type', toSave.backgroundType);
         if (toSave.backgroundType !== 'brave' || toSave.backgroundValue !== 'brave_random') {

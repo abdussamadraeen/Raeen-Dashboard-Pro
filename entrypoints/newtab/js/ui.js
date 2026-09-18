@@ -265,7 +265,11 @@ export async function applySettings() {
         }
     }
     document.documentElement.setAttribute('data-theme', state.settings.themePreference);
-    document.body.classList.toggle('drag-drop-disabled', state.settings.enableDragAndDrop === false);
+    const currentDashboardMode = state.settings.dashboardMode || 'pro';
+    document.documentElement.setAttribute('data-dashboard-mode', currentDashboardMode);
+    document.body.setAttribute('data-dashboard-mode', currentDashboardMode);
+    document.body.classList.toggle('dashboard-mode-minimal', currentDashboardMode === 'minimal');
+    document.body.classList.toggle('drag-drop-disabled', state.settings.enableDragAndDrop === false || currentDashboardMode === 'minimal');
 
     let bgType = state.settings.backgroundType;
     const bgValue = state.settings.backgroundValue;
@@ -1009,7 +1013,7 @@ export const DASHBOARD_PRESETS = [
             showCardDirectories: false,
             showCardImageCompressor: false,
             showCardPdfTools: false,
-            showTopSites: true,
+            showTopSites: false,
             showClock: true,
             showSearch: true,
             showMainUI: true
@@ -1253,6 +1257,7 @@ export async function applyDashboardPreset(presetId) {
     state.settings.dashboardMode = preset.id;
 
     await saveSettings(state.settings);
+    await applySettings();
     syncSettingsUI();
     renderDashboardChooser();
     updateCards();

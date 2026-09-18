@@ -2,8 +2,10 @@ import { state, saveSettings } from './state.js';
 import { dom } from './dom.js';
 import { escapeHTML } from './security.js';
 
+export const GOOGLE_COLOR_G_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%234285F4%22%20d%3D%22M23.745%2012.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29%201.52-1.14%202.82-2.4%203.68v3.05h3.88c2.27-2.09%203.66-5.17%203.66-9.17z%22%2F%3E%3Cpath%20fill%3D%22%2334A853%22%20d%3D%22M12%2024c3.24%200%205.95-1.08%207.93-2.91l-3.88-3.05c-1.08.72-2.45%201.16-4.05%201.16-3.12%200-5.77-2.1-6.72-4.93H1.25v3.15C3.26%2021.36%207.33%2024%2012%2024z%22%2F%3E%3Cpath%20fill%3D%22%23FBBC05%22%20d%3D%22M5.28%2014.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45%208.18%200%2010.03%200%2012s.45%203.82%201.25%205.42l4.03-3.15z%22%2F%3E%3Cpath%20fill%3D%22%23EA4335%22%20d%3D%22M12%204.75c1.77%200%203.35.61%204.6%201.8l3.42-3.42C17.95%201.19%2015.24%200%2012%200%207.33%200%203.26%202.64%201.25%206.58l4.03%203.15c.95-2.83%203.6-4.98%206.72-4.98z%22%2F%3E%3C%2Fsvg%3E";
+
 export const SEARCH_ENGINE_METADATA = {
-    google: { name: 'Google', icon: 'https://www.google.com/favicon.ico', placeholder: 'Search the web with Google' },
+    google: { name: 'Google', icon: GOOGLE_COLOR_G_SVG, placeholder: 'Search the web' },
     brave: { name: 'Brave', icon: 'https://brave.com/favicon.ico', placeholder: 'Search the web with Brave' },
     duckduckgo: { name: 'DuckDuckGo', icon: 'https://duckduckgo.com/favicon.ico', placeholder: 'Search privately with DuckDuckGo' },
     bing: { name: 'Bing', icon: 'https://www.bing.com/favicon.ico', placeholder: 'Search the web with Bing' },
@@ -221,6 +223,14 @@ export function setupSearch() {
         }
 
         dom.searchInput.onkeydown = (e) => {
+            if (e.key === 'Escape') {
+                if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                dom.searchInput.blur();
+                dom.searchContainer?.classList.remove('search-active');
+                document.body.classList.remove('search-focused');
+                return;
+            }
+
             const items = dom.searchSuggestions.querySelectorAll('.suggestion-item');
             if (items.length === 0) return;
 
@@ -236,10 +246,35 @@ export function setupSearch() {
                 e.preventDefault();
                 dom.searchInput.value = items[selectedIndex].querySelector('span').textContent;
                 dom.searchForm.requestSubmit();
-            } else if (e.key === 'Escape') {
-                dom.searchSuggestions.classList.add('hidden');
             }
         };
+
+        // Smooth interactive position animation for search bar
+        const activateSearch = () => {
+            dom.searchContainer?.classList.add('search-active');
+            document.body.classList.add('search-focused');
+        };
+
+        const deactivateSearch = () => {
+            const hasFocus = dom.searchInput && document.activeElement === dom.searchInput;
+            const isHovered = dom.searchContainer && dom.searchContainer.matches(':hover');
+            if (!hasFocus && !isHovered) {
+                dom.searchContainer?.classList.remove('search-active');
+                document.body.classList.remove('search-focused');
+            }
+        };
+
+        if (dom.searchContainer) {
+            dom.searchContainer.addEventListener('mouseenter', activateSearch);
+            dom.searchContainer.addEventListener('mouseleave', deactivateSearch);
+        }
+
+        if (dom.searchInput) {
+            dom.searchInput.addEventListener('focus', activateSearch);
+            dom.searchInput.addEventListener('blur', () => {
+                setTimeout(deactivateSearch, 100);
+            });
+        }
 
         function updateSelection(items) {
             items.forEach((item, i) => {
@@ -256,6 +291,8 @@ export function setupSearch() {
             handleSearch(query);
             dom.searchInput.value = '';
             dom.searchSuggestions.classList.add('hidden');
+            dom.searchInput.blur();
+            deactivateSearch();
         };
 
         document.addEventListener('click', (e) => {
@@ -263,6 +300,7 @@ export function setupSearch() {
                 dom.searchSuggestions.classList.add('hidden');
                 dom.searchEngineMenu?.classList.add('hidden');
                 dom.searchEngineBtn?.classList.remove('open');
+                deactivateSearch();
             }
         });
 

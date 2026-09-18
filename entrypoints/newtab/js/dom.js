@@ -39,6 +39,7 @@ export const dom = {
     searchInput: document.getElementById('search-input'),
     searchSuggestions: document.getElementById('search-suggestions'),
     searchForm: document.getElementById('search-form'),
+    searchSubmitBtn: document.getElementById('search-submit-btn'),
     searchContainer: document.getElementById('search-widget'),
     searchEngineBtn: document.getElementById('search-engine-btn'),
     searchEngineMenu: document.getElementById('search-engine-menu'),
