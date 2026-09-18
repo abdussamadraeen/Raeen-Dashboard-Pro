@@ -18,9 +18,12 @@
 
 const MATRIX_GLYPHS = '0123456789ABCDEFｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜXYZ@#$&*§ΔΩΨ';
 
+const TARGET_FPS = 60;
+const FRAME_MIN_MS = 1000 / TARGET_FPS - 1.5; // ~15.1ms
+
 export const CanvasEngine = (() => {
-    let canvas;
-    let ctx;
+    let canvas = null;
+    let ctx = null;
     let animationId = null;
     let resizeId = null;
     let accentObserver = null;
@@ -38,6 +41,11 @@ export const CanvasEngine = (() => {
     let accent = '#38bdf8';
     let accentRgb = '56, 189, 248';
     let globalTime = 0;
+    let lastFrameTimestamp = 0;
+
+    // Offscreen Canvas Caches for maximum fill-rate performance
+    let glowSpriteCanvas = null;
+    let offscreenBgCanvas = null;
 
     const mouse = {
         x: null,
@@ -48,6 +56,111 @@ export const CanvasEngine = (() => {
         vy: 0,
         speed: 0,
         isDown: false
+    };
+
+    const updateGlowSprite = () => {
+        if (!glowSpriteCanvas) glowSpriteCanvas = document.createElement('canvas');
+        glowSpriteCanvas.width = 64;
+        glowSpriteCanvas.height = 64;
+        const sCtx = glowSpriteCanvas.getContext('2d');
+        if (!sCtx) return;
+        sCtx.clearRect(0, 0, 64, 64);
+
+        const grad = sCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grad.addColorStop(0, `rgba(${accentRgb}, 1.0)`);
+        grad.addColorStop(0.35, `rgba(${accentRgb}, 0.5)`);
+        grad.addColorStop(0.7, `rgba(${accentRgb}, 0.12)`);
+        grad.addColorStop(1, 'transparent');
+
+        sCtx.fillStyle = grad;
+        sCtx.beginPath();
+        sCtx.arc(32, 32, 32, 0, Math.PI * 2);
+        sCtx.fill();
+    };
+
+    const renderStaticRainMist = () => {
+        if (!width || !height || !canvas) return;
+        if (!offscreenBgCanvas) offscreenBgCanvas = document.createElement('canvas');
+        offscreenBgCanvas.width = canvas.width;
+        offscreenBgCanvas.height = canvas.height;
+        const oCtx = offscreenBgCanvas.getContext('2d');
+        if (!oCtx) return;
+
+        oCtx.setTransform(1, 0, 0, 1, 0, 0);
+        oCtx.scale(dpr, dpr);
+        oCtx.clearRect(0, 0, width, height);
+
+        const mistGrad = oCtx.createLinearGradient(0, 0, 0, height);
+        mistGrad.addColorStop(0, 'rgba(10, 16, 30, 0.38)');
+        mistGrad.addColorStop(0.5, 'rgba(15, 23, 42, 0.45)');
+        mistGrad.addColorStop(1, 'rgba(8, 12, 22, 0.58)');
+        oCtx.fillStyle = mistGrad;
+        oCtx.fillRect(0, 0, width, height);
+
+        for (const drop of secondaryParticles) {
+            oCtx.beginPath();
+            oCtx.ellipse(drop.x, drop.y, drop.r, drop.r * drop.aspect, 0, 0, Math.PI * 2);
+            oCtx.fillStyle = `rgba(255, 255, 255, ${drop.opacity * 0.75})`;
+            oCtx.fill();
+
+            oCtx.beginPath();
+            oCtx.arc(drop.x - drop.r * 0.35, drop.y - drop.r * 0.35 * drop.aspect, Math.max(0.6, drop.r * 0.3), 0, Math.PI * 2);
+            oCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            oCtx.fill();
+
+            oCtx.beginPath();
+            oCtx.arc(drop.x + drop.r * 0.2, drop.y + drop.r * 0.4 * drop.aspect, drop.r * 0.5, 0, Math.PI * 2);
+            oCtx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+            oCtx.fill();
+        }
+    };
+
+    const renderStaticSynthwaveSky = () => {
+        if (!width || !height || !canvas) return;
+        if (!offscreenBgCanvas) offscreenBgCanvas = document.createElement('canvas');
+        offscreenBgCanvas.width = canvas.width;
+        offscreenBgCanvas.height = canvas.height;
+        const oCtx = offscreenBgCanvas.getContext('2d');
+        if (!oCtx) return;
+
+        oCtx.setTransform(1, 0, 0, 1, 0, 0);
+        oCtx.scale(dpr, dpr);
+        oCtx.clearRect(0, 0, width, height);
+
+        const horizonY = height * 0.48;
+        const sunRadius = Math.min(width, height) * 0.18;
+        const sunX = width / 2;
+        const sunY = horizonY - sunRadius * 0.35;
+
+        const skyGrad = oCtx.createLinearGradient(0, 0, 0, horizonY);
+        skyGrad.addColorStop(0, '#0a0518');
+        skyGrad.addColorStop(0.7, '#1b0e36');
+        skyGrad.addColorStop(1, '#3b1259');
+        oCtx.fillStyle = skyGrad;
+        oCtx.fillRect(0, 0, width, horizonY);
+
+        const sunGrad = oCtx.createLinearGradient(sunX, sunY - sunRadius, sunX, sunY + sunRadius);
+        sunGrad.addColorStop(0, '#fef08a');
+        sunGrad.addColorStop(0.4, '#f43f5e');
+        sunGrad.addColorStop(1, '#c026d3');
+        oCtx.beginPath();
+        oCtx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+        oCtx.fillStyle = sunGrad;
+        oCtx.fill();
+
+        const blindCount = 8;
+        for (let b = 0; b < blindCount; b++) {
+            const by = sunY + (b / blindCount) * sunRadius * 0.95;
+            const bHeight = 2 + b * 1.4;
+            oCtx.fillStyle = '#0f0821';
+            oCtx.fillRect(sunX - sunRadius - 10, by, sunRadius * 2 + 20, bHeight);
+        }
+
+        const floorGrad = oCtx.createLinearGradient(0, horizonY, 0, height);
+        floorGrad.addColorStop(0, '#0d061f');
+        floorGrad.addColorStop(1, '#05020c');
+        oCtx.fillStyle = floorGrad;
+        oCtx.fillRect(0, horizonY, width, height - horizonY);
     };
 
     const updateAccent = () => {
@@ -66,6 +179,10 @@ export const CanvasEngine = (() => {
         } else {
             accentRgb = '56, 189, 248';
         }
+
+        updateGlowSprite();
+        if (theme === 'rain') renderStaticRainMist();
+        if (theme === 'synthwave') renderStaticSynthwaveSky();
     };
 
     // ─── Particle & Architecture Generator ───
@@ -76,27 +193,24 @@ export const CanvasEngine = (() => {
         extraState = null;
 
         if (theme === 'neural') {
-            // 3D Synaptic Brain Network with High-Visibility Optics
-            const count = Math.max(50, Math.floor(140 * densityMult));
+            // 55 particles provides rich synaptic depth with 85% fewer distance computations
+            const count = Math.max(25, Math.floor(55 * densityMult));
             particles = Array.from({ length: count }, () => {
-                const z = Math.random() * 0.75 + 0.25; // 3D depth
+                const z = Math.random() * 0.75 + 0.25;
                 return {
                     x: Math.random() * width,
                     y: Math.random() * height,
                     z,
-                    vx: (Math.random() - 0.5) * 1.3 * z,
-                    vy: (Math.random() - 0.5) * 1.3 * z,
-                    baseRadius: Math.random() * 2.8 + 2.0,
-                    radius: (Math.random() * 2.8 + 2.0) * z,
+                    vx: (Math.random() - 0.5) * 1.2 * z,
+                    vy: (Math.random() - 0.5) * 1.2 * z,
+                    radius: (Math.random() * 2.5 + 2.0) * z,
                     opacity: (Math.random() * 0.35 + 0.65) * z,
                     pulsePhase: Math.random() * Math.PI * 2
                 };
             });
-            // Action potential pulses traveling along connections
             secondaryParticles = [];
         } else if (theme === 'bubbles') {
-            // 3D Iridescent Soap / Glass Orbs
-            const count = Math.max(20, Math.floor(55 * densityMult));
+            const count = Math.max(15, Math.floor(28 * densityMult));
             particles = Array.from({ length: count }, () => {
                 const z = Math.random() * 0.7 + 0.3;
                 return {
@@ -105,18 +219,15 @@ export const CanvasEngine = (() => {
                     z,
                     vx: (Math.random() - 0.5) * 0.5 * z,
                     vy: (Math.random() * 1.2 + 0.6) * z,
-                    radius: (Math.random() * 22 + 8) * z,
+                    radius: (Math.random() * 20 + 8) * z,
                     wobbleSpeed: Math.random() * 0.04 + 0.02,
                     wobbleAmp: Math.random() * 2 + 1,
                     wobblePhase: Math.random() * Math.PI * 2,
-                    opacity: Math.random() * 0.35 + 0.35,
-                    hueOffset: Math.random() * 40 - 20
+                    opacity: Math.random() * 0.35 + 0.35
                 };
             });
         } else if (theme === 'rain') {
-            // Frosted Glass Window Rain with Condensation Droplets & Mist
-            const count = Math.max(60, Math.floor(160 * densityMult));
-            // Streaking raindrops running down the pane
+            const count = Math.max(25, Math.floor(65 * densityMult));
             particles = Array.from({ length: count }, () => {
                 const z = Math.random() * 0.8 + 0.2;
                 return {
@@ -124,14 +235,15 @@ export const CanvasEngine = (() => {
                     y: Math.random() * height,
                     z,
                     vx: (Math.random() * 0.4 - 0.2) * z,
-                    vy: (Math.random() * 10 + 12) * z,
-                    length: (Math.random() * 28 + 18) * z,
-                    thickness: (Math.random() * 2.0 + 1.2) * z,
+                    vy: (Math.random() * 9 + 11) * z,
+                    length: (Math.random() * 24 + 16) * z,
+                    thickness: (Math.random() * 1.8 + 1.0) * z,
                     opacity: (Math.random() * 0.4 + 0.5) * z
                 };
             });
-            // Static condensation orbs on the frosted window glass
-            const mistDropsCount = Math.max(30, Math.floor(90 * densityMult));
+
+            // Static condensation droplets pre-rendered onto offscreen canvas
+            const mistDropsCount = Math.max(25, Math.floor(65 * densityMult));
             secondaryParticles = Array.from({ length: mistDropsCount }, () => ({
                 x: Math.random() * width,
                 y: Math.random() * height,
@@ -139,30 +251,30 @@ export const CanvasEngine = (() => {
                 opacity: Math.random() * 0.3 + 0.15,
                 aspect: Math.random() * 0.4 + 0.8
             }));
-            // Splashes and trails pool
+
+            renderStaticRainMist();
+
             extraState = {
                 splashes: []
             };
         } else if (theme === 'matrix') {
-            // 3D Dual-Depth Matrix Code Rain
-            const cols = Math.floor(width / 18);
+            const cols = Math.floor(width / 24);
             particles = Array.from({ length: cols }, (_, i) => {
                 const isForeground = Math.random() > 0.4;
-                const fontSize = isForeground ? 16 : 11;
+                const fontSize = isForeground ? 15 : 11;
                 return {
-                    x: i * 18,
+                    x: i * 24,
                     y: Math.random() * -height,
                     speed: (Math.random() * 2.5 + 2.0) * (isForeground ? 1.0 : 0.6),
-                    length: Math.floor(Math.random() * 18 + 12),
-                    chars: Array.from({ length: 30 }, () => MATRIX_GLYPHS[Math.floor(Math.random() * MATRIX_GLYPHS.length)]),
+                    length: Math.floor(Math.random() * 14 + 10),
+                    chars: Array.from({ length: 22 }, () => MATRIX_GLYPHS[Math.floor(Math.random() * MATRIX_GLYPHS.length)]),
                     fontSize,
                     isForeground,
                     highlight: 0
                 };
             });
         } else if (theme === 'warp') {
-            // 3D Deep Space Hyperspace Warp
-            const count = Math.max(100, Math.floor(380 * densityMult));
+            const count = Math.max(60, Math.floor(160 * densityMult));
             particles = Array.from({ length: count }, () => ({
                 x: (Math.random() - 0.5) * width * 2.2,
                 y: (Math.random() - 0.5) * height * 2.2,
@@ -177,18 +289,15 @@ export const CanvasEngine = (() => {
                 targetCenterY: height / 2
             };
         } else if (theme === 'wave') {
-            // Luminous Aurora Borealis Ribbons
             extraState = {
                 waves: [
-                    { amp: 65, freq: 0.0022, speed: 0.016, color: `rgba(${accentRgb}, 0.22)`, stroke: accent },
+                    { amp: 65, freq: 0.0022, speed: 0.016, color: `rgba(${accentRgb}, 0.24)`, stroke: accent },
                     { amp: 48, freq: 0.0036, speed: -0.014, color: 'rgba(56, 189, 248, 0.18)', stroke: '#38bdf8' },
-                    { amp: 80, freq: 0.0016, speed: 0.022, color: 'rgba(168, 85, 247, 0.15)', stroke: '#c084fc' },
-                    { amp: 40, freq: 0.0048, speed: -0.018, color: 'rgba(16, 185, 129, 0.20)', stroke: '#34d399' }
+                    { amp: 75, freq: 0.0018, speed: 0.022, color: 'rgba(168, 85, 247, 0.16)', stroke: '#c084fc' }
                 ]
             };
         } else if (theme === 'galaxy') {
-            // Relativistic 3D Spiral Galaxy with Galactic Core
-            const count = Math.max(80, Math.floor(320 * densityMult));
+            const count = Math.max(50, Math.floor(130 * densityMult));
             const maxR = Math.min(width, height) * 0.48;
             particles = Array.from({ length: count }, () => {
                 const dist = Math.pow(Math.random(), 1.5) * maxR + 8;
@@ -197,43 +306,37 @@ export const CanvasEngine = (() => {
                 const isCore = dist < maxR * 0.18;
                 return {
                     dist,
-                    baseDist: dist,
                     angle,
                     speed: (0.005 + 10 / (dist + 35)),
-                    radius: isCore ? (Math.random() * 2.8 + 1.2) : (Math.random() * 1.8 + 0.7),
+                    radius: isCore ? (Math.random() * 2.4 + 1.2) : (Math.random() * 1.6 + 0.7),
                     alpha: Math.random() * 0.5 + 0.4,
-                    color: isCore
-                        ? '#ffffff'
-                        : (Math.random() > 0.45 ? accent : (Math.random() > 0.5 ? '#38bdf8' : '#e9d5ff'))
+                    isCore
                 };
             });
         } else if (theme === 'fireflies') {
-            // Enchanted Bioluminescent Forest with Depth Bokeh
-            const count = Math.max(20, Math.floor(75 * densityMult));
+            const count = Math.max(15, Math.floor(32 * densityMult));
             particles = Array.from({ length: count }, () => {
-                const isBokeh = Math.random() < 0.25; // Distant blurred bokeh sphere
+                const isBokeh = Math.random() < 0.25;
                 return {
                     x: Math.random() * width,
                     y: Math.random() * height,
                     vx: (Math.random() - 0.5) * 0.7,
                     vy: (Math.random() - 0.5) * 0.7,
-                    radius: isBokeh ? (Math.random() * 14 + 8) : (Math.random() * 2.8 + 1.5),
+                    radius: isBokeh ? (Math.random() * 12 + 7) : (Math.random() * 2.6 + 1.4),
                     isBokeh,
                     pulse: Math.random() * Math.PI * 2,
                     pulseSpeed: Math.random() * 0.035 + 0.015,
-                    color: Math.random() > 0.4 ? accent : '#facc15'
+                    isAccent: Math.random() > 0.4
                 };
             });
-            secondaryParticles = []; // Stardust trail crumbs
+            secondaryParticles = [];
         } else if (theme === 'synthwave') {
-            // 3D Retro Synthwave Grid & Sunset Horizon
             extraState = {
-                gridOffset: 0,
-                elevationMap: []
+                gridOffset: 0
             };
+            renderStaticSynthwaveSky();
         } else if (theme === 'quantum') {
-            // Quantum Flow Field with Vector Streamers
-            const count = Math.max(60, Math.floor(220 * densityMult));
+            const count = Math.max(25, Math.floor(70 * densityMult));
             particles = Array.from({ length: count }, () => ({
                 x: Math.random() * width,
                 y: Math.random() * height,
@@ -241,19 +344,20 @@ export const CanvasEngine = (() => {
                 vy: 0,
                 speed: Math.random() * 1.5 + 1.5,
                 history: [],
-                maxHistory: Math.floor(Math.random() * 14 + 10),
+                maxHistory: 8,
                 colorOffset: Math.random() * 60 - 30,
                 energy: Math.random() * 0.5 + 0.5
             }));
         }
     };
 
-    // ─── Retina / High-DPI HD Resize ───
+    // ─── High-DPI Smart Clamped Resize ───
     const resize = () => {
         resizeId = null;
         if (!canvas || !ctx) return;
 
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        // Clamp DPR to 1.25 max to preserve 60 FPS on 1440p / 4K / scaled displays
+        dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 1.25));
         width = window.innerWidth;
         height = window.innerHeight;
 
@@ -308,8 +412,8 @@ export const CanvasEngine = (() => {
     // 1. NEURAL NETWORK: 3D Synaptic Action Potential Brain
     // ─────────────────────────────────────────────────────────────
     const renderNeural = () => {
-        // Spawn periodic action potential pulses along random synapses
-        if (Math.random() < 0.12 && particles.length > 2) {
+        // Periodic traveling pulse (max 4 concurrent)
+        if (Math.random() < 0.08 && secondaryParticles.length < 4 && particles.length > 2) {
             const i1 = Math.floor(Math.random() * particles.length);
             const p1 = particles[i1];
             for (let i2 = 0; i2 < particles.length; i2++) {
@@ -317,23 +421,22 @@ export const CanvasEngine = (() => {
                 const p2 = particles[i2];
                 const dx = p1.x - p2.x;
                 const dy = p1.y - p2.y;
-                if (dx * dx + dy * dy < 160 ** 2) {
+                if (Math.abs(dx) < 150 && Math.abs(dy) < 150 && dx * dx + dy * dy < 150 ** 2) {
                     secondaryParticles.push({
                         fromX: p1.x, fromY: p1.y,
                         toX: p2.x, toY: p2.y,
                         progress: 0,
-                        speed: Math.random() * 0.04 + 0.02
+                        speed: Math.random() * 0.04 + 0.025
                     });
                     break;
                 }
             }
         }
 
-        // Draw connections with spatial grid
-        const connDist = 185;
+        const connDist = 160;
         const connDistSq = connDist * connDist;
-        const glowFactor = glowMult;
 
+        // 1. Update particle positions
         for (let i = 0; i < particles.length; i++) {
             const p1 = particles[i];
             p1.x += p1.vx * speedMult;
@@ -341,108 +444,115 @@ export const CanvasEngine = (() => {
             if (p1.x < 0 || p1.x > width) p1.vx *= -1;
             if (p1.y < 0 || p1.y > height) p1.vy *= -1;
 
-            // Mouse gravitational stimulation
             if (mouse.x !== null) {
                 const dx = mouse.x - p1.x;
                 const dy = mouse.y - p1.y;
-                const distSq = dx * dx + dy * dy;
-                if (distSq < 260 ** 2) {
-                    const dist = Math.sqrt(distSq);
-                    const force = (260 - dist) / 260;
-                    p1.vx += (dx / dist) * force * 0.35;
-                    p1.vy += (dy / dist) * force * 0.35;
-
-                    // Radiant cursor stimulation synapse
-                    ctx.beginPath();
-                    ctx.strokeStyle = `rgba(${accentRgb}, ${force * 0.75 * glowFactor})`;
-                    ctx.lineWidth = 1.6;
-                    ctx.shadowBlur = 12 * glowFactor;
-                    ctx.shadowColor = accent;
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(mouse.x, mouse.y);
-                    ctx.stroke();
-                    ctx.shadowBlur = 0;
+                if (Math.abs(dx) < 220 && Math.abs(dy) < 220) {
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq < 220 ** 2) {
+                        const dist = Math.sqrt(distSq) || 1;
+                        const force = (220 - dist) / 220;
+                        p1.vx += (dx / dist) * force * 0.28;
+                        p1.vy += (dy / dist) * force * 0.28;
+                    }
                 }
             }
+        }
 
-            // Connect nearby nodes
+        // 2. Batched Synaptic Connection Lines (Single stroke draw call)
+        ctx.beginPath();
+        for (let i = 0; i < particles.length; i++) {
+            const p1 = particles[i];
             for (let j = i + 1; j < particles.length; j++) {
                 const p2 = particles[j];
                 const dx = p1.x - p2.x;
+                if (dx > connDist || dx < -connDist) continue;
                 const dy = p1.y - p2.y;
+                if (dy > connDist || dy < -connDist) continue;
+
                 const dSq = dx * dx + dy * dy;
                 if (dSq < connDistSq) {
-                    const distNorm = 1 - Math.sqrt(dSq) / connDist;
-                    const alpha = distNorm * (0.45 + 0.4 * Math.min(p1.z, p2.z)) * glowFactor;
-                    ctx.beginPath();
-                    ctx.lineWidth = Math.max(0.9, distNorm * 1.8 * Math.min(p1.z, p2.z));
-                    ctx.strokeStyle = `rgba(${accentRgb}, ${alpha})`;
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(p2.x, p2.y);
-                    ctx.stroke();
                 }
             }
-
-            // Draw glowing 3D node with dual-pass inner spark
-            p1.pulsePhase += 0.035 * speedMult;
-            const r = p1.radius * (1 + 0.2 * Math.sin(p1.pulsePhase));
-
-            // Outer radiant aura
-            const aura = ctx.createRadialGradient(p1.x, p1.y, 0, p1.x, p1.y, r * 3.5);
-            aura.addColorStop(0, `rgba(${accentRgb}, ${p1.opacity * 0.85 * glowFactor})`);
-            aura.addColorStop(0.5, `rgba(${accentRgb}, ${p1.opacity * 0.3 * glowFactor})`);
-            aura.addColorStop(1, 'transparent');
-
-            ctx.beginPath();
-            ctx.arc(p1.x, p1.y, r * 3.5, 0, Math.PI * 2);
-            ctx.fillStyle = aura;
-            ctx.fill();
-
-            // Saturated node body
-            ctx.beginPath();
-            ctx.arc(p1.x, p1.y, r, 0, Math.PI * 2);
-            ctx.fillStyle = accent;
-            ctx.shadowBlur = 14 * p1.z * glowFactor;
-            ctx.shadowColor = accent;
-            ctx.globalAlpha = Math.min(1.0, p1.opacity * 1.2);
-            ctx.fill();
-
-            // High-contrast bright core diamond
-            ctx.beginPath();
-            ctx.arc(p1.x, p1.y, Math.max(1.2, r * 0.45), 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.globalAlpha = 0.95;
-            ctx.fill();
-            ctx.globalAlpha = 1;
         }
-        ctx.shadowBlur = 0;
-        ctx.globalAlpha = 1;
+        ctx.strokeStyle = `rgba(${accentRgb}, ${0.35 * glowFactor})`;
+        ctx.lineWidth = 1.1;
+        ctx.stroke();
 
-        // Render traveling action potential pulses
-        for (let idx = secondaryParticles.length - 1; idx >= 0; idx--) {
-            const pulse = secondaryParticles[idx];
-            pulse.progress += pulse.speed * speedMult;
-            if (pulse.progress >= 1) {
-                secondaryParticles.splice(idx, 1);
-                continue;
+        // 3. Batched Cursor Synapse Stimulus
+        if (mouse.x !== null) {
+            ctx.beginPath();
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const dx = mouse.x - p.x;
+                const dy = mouse.y - p.y;
+                if (Math.abs(dx) < 180 && Math.abs(dy) < 180 && dx * dx + dy * dy < 180 ** 2) {
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                }
             }
-            const px = pulse.fromX + (pulse.toX - pulse.fromX) * pulse.progress;
-            const py = pulse.fromY + (pulse.toY - pulse.fromY) * pulse.progress;
+            ctx.strokeStyle = `rgba(${accentRgb}, ${0.65 * glowFactor})`;
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+        }
 
-            // Electric traveling particle with bright white/cyan glow
+        // 4. Draw Radial Aura Glows using Cached Offscreen Texture
+        if (glowSpriteCanvas) {
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.pulsePhase += 0.035 * speedMult;
+                const r = p.radius * (1 + 0.18 * Math.sin(p.pulsePhase));
+                const auraSize = r * 5.2;
+                ctx.globalAlpha = Math.min(1.0, p.opacity * 0.9 * glowFactor);
+                ctx.drawImage(glowSpriteCanvas, p.x - auraSize * 0.5, p.y - auraSize * 0.5, auraSize, auraSize);
+            }
+        }
+
+        // 5. Batched Node Bodies
+        ctx.beginPath();
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            const r = p.radius;
+            ctx.moveTo(p.x + r, p.y);
+            ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        }
+        ctx.fillStyle = accent;
+        ctx.globalAlpha = 0.95;
+        ctx.fill();
+
+        // 6. Batched Crisp White Center Embers
+        ctx.beginPath();
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            const cr = Math.max(1.1, p.radius * 0.45);
+            ctx.moveTo(p.x + cr, p.y);
+            ctx.arc(p.x, p.y, cr, 0, Math.PI * 2);
+        }
+        ctx.fillStyle = '#ffffff';
+        ctx.globalAlpha = 1.0;
+        ctx.fill();
+
+        // 7. Batched Action Potential Pulses
+        if (secondaryParticles.length > 0) {
             ctx.beginPath();
-            ctx.arc(px, py, 3.2, 0, Math.PI * 2);
+            for (let idx = secondaryParticles.length - 1; idx >= 0; idx--) {
+                const pulse = secondaryParticles[idx];
+                pulse.progress += pulse.speed * speedMult;
+                if (pulse.progress >= 1) {
+                    secondaryParticles.splice(idx, 1);
+                    continue;
+                }
+                const px = pulse.fromX + (pulse.toX - pulse.fromX) * pulse.progress;
+                const py = pulse.fromY + (pulse.toY - pulse.fromY) * pulse.progress;
+                ctx.moveTo(px + 2.5, py);
+                ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+            }
             ctx.fillStyle = '#ffffff';
-            ctx.shadowBlur = 14 * glowFactor;
-            ctx.shadowColor = accent;
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.arc(px, py, 1.6, 0, Math.PI * 2);
-            ctx.fillStyle = accent;
             ctx.fill();
         }
-        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1.0;
     };
 
     // ─────────────────────────────────────────────────────────────
@@ -459,102 +569,66 @@ export const CanvasEngine = (() => {
                 p.x = Math.random() * width;
             }
 
-            // Mouse repulsion with fluid bounce
             if (mouse.x !== null) {
                 const dx = mouse.x - p.x;
                 const dy = mouse.y - p.y;
-                const distSq = dx * dx + dy * dy;
-                const repelDist = p.radius + 120;
-                if (distSq < repelDist * repelDist) {
-                    const dist = Math.sqrt(distSq) || 1;
-                    const force = (repelDist - dist) / repelDist;
-                    p.x -= (dx / dist) * force * 4.5;
-                    p.y -= (dy / dist) * force * 4.5;
+                if (Math.abs(dx) < 140 && Math.abs(dy) < 140) {
+                    const distSq = dx * dx + dy * dy;
+                    const repelDist = p.radius + 100;
+                    if (distSq < repelDist * repelDist) {
+                        const dist = Math.sqrt(distSq) || 1;
+                        const force = (repelDist - dist) / repelDist;
+                        p.x -= (dx / dist) * force * 4.5;
+                        p.y -= (dy / dist) * force * 4.5;
+                    }
                 }
             }
 
             const r = p.radius;
-            // 1. Soft translucent inner sphere
-            const sphereGrad = ctx.createRadialGradient(p.x - r * 0.3, p.y - r * 0.3, r * 0.1, p.x, p.y, r);
-            sphereGrad.addColorStop(0, `rgba(${accentRgb}, ${p.opacity * 0.25})`);
-            sphereGrad.addColorStop(0.8, `rgba(${accentRgb}, ${p.opacity * 0.08})`);
-            sphereGrad.addColorStop(1, `rgba(255, 255, 255, ${p.opacity * 0.4})`);
-
+            // Bubble body
             ctx.beginPath();
             ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-            ctx.fillStyle = sphereGrad;
+            ctx.fillStyle = `rgba(${accentRgb}, ${p.opacity * 0.12})`;
             ctx.fill();
-
-            // 2. Outer glowing glass rim
-            ctx.lineWidth = 1.4 * p.z;
-            ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.55})`;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.5})`;
+            ctx.lineWidth = 1.2 * p.z;
             ctx.stroke();
 
-            // 3. Specular reflection crescent (top-left 3D highlight)
+            // Specular crescent
             ctx.beginPath();
             ctx.arc(p.x - r * 0.35, p.y - r * 0.35, r * 0.35, Math.PI * 0.9, Math.PI * 1.8);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.85})`;
-            ctx.lineWidth = 1.6 * p.z;
-            ctx.stroke();
-
-            // 4. Secondary ambient rim reflection (bottom-right iridescent tint)
-            ctx.beginPath();
-            ctx.arc(p.x + r * 0.25, p.y + r * 0.25, r * 0.45, 0, Math.PI * 0.6);
-            ctx.strokeStyle = `rgba(${accentRgb}, ${p.opacity * 0.6})`;
-            ctx.lineWidth = 1.2 * p.z;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.8})`;
+            ctx.lineWidth = 1.5 * p.z;
             ctx.stroke();
         }
     };
 
     // ─────────────────────────────────────────────────────────────
-    // 3. FROSTED GLASS RAIN: Steamy Window, Condensation & Droplets
+    // 3. FROSTED GLASS RAIN: Cached Mist & Batched Rain Streaks
     // ─────────────────────────────────────────────────────────────
     const renderRain = () => {
         const glowFactor = glowMult;
 
-        // 1. Ambient Frosted Glass Back-Sheen (Soft atmospheric diffused window mist)
-        const mistGrad = ctx.createLinearGradient(0, 0, 0, height);
-        mistGrad.addColorStop(0, 'rgba(12, 18, 32, 0.35)');
-        mistGrad.addColorStop(0.5, 'rgba(15, 23, 42, 0.42)');
-        mistGrad.addColorStop(1, 'rgba(8, 12, 22, 0.55)');
-        ctx.fillStyle = mistGrad;
-        ctx.fillRect(0, 0, width, height);
-
-        // 2. Static condensation water droplets clinging to the cold glass
-        for (const drop of secondaryParticles) {
-            // Glass refraction crescent
-            ctx.beginPath();
-            ctx.ellipse(drop.x, drop.y, drop.r, drop.r * drop.aspect, 0, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${drop.opacity * 0.7 * glowFactor})`;
-            ctx.fill();
-
-            // Specular micro-highlight dot on top of droplet
-            ctx.beginPath();
-            ctx.arc(drop.x - drop.r * 0.35, drop.y - drop.r * 0.35 * drop.aspect, Math.max(0.6, drop.r * 0.3), 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.fill();
-
-            // Subtle dark shadow beneath droplet on glass
-            ctx.beginPath();
-            ctx.arc(drop.x + drop.r * 0.2, drop.y + drop.r * 0.4 * drop.aspect, drop.r * 0.5, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-            ctx.fill();
+        // 1. Draw pre-rendered static condensation & mist in 1 GPU texture blit (0.01ms)
+        if (offscreenBgCanvas) {
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.drawImage(offscreenBgCanvas, 0, 0);
+            ctx.restore();
         }
 
-        // 3. Animated Rain Streaks running vertically down the frosted glass
+        // 2. Update rain streaks with mouse wiper interaction
         for (const p of particles) {
             p.x += p.vx * speedMult;
             p.y += p.vy * speedMult;
 
-            // Bottom collision -> splash
             if (p.y > height) {
-                if (extraState?.splashes && Math.random() < 0.4) {
+                if (extraState?.splashes && Math.random() < 0.35 && extraState.splashes.length < 12) {
                     extraState.splashes.push({
                         x: p.x,
-                        y: height - Math.random() * 6,
+                        y: height - Math.random() * 5,
                         r: 2,
-                        maxR: Math.random() * 16 + 8,
-                        alpha: 0.8,
+                        alpha: 0.75,
                         speed: Math.random() * 0.9 + 0.6
                     });
                 }
@@ -562,62 +636,62 @@ export const CanvasEngine = (() => {
                 p.x = Math.random() * width;
             }
 
-            // Interactive mouse glass wipe: cursor deflects & clears rain streaks
+            // Mouse wiper physics
             if (mouse.x !== null) {
                 const dx = mouse.x - p.x;
                 const dy = mouse.y - p.y;
-                const distSq = dx * dx + dy * dy;
-                const wipeRadius = 140;
-                if (distSq < wipeRadius * wipeRadius) {
-                    const dist = Math.sqrt(distSq) || 1;
-                    const force = (wipeRadius - dist) / wipeRadius;
-                    p.x -= (dx / dist) * force * 5.0;
-                    p.vx += (dx > 0 ? -1 : 1) * 0.4;
+                if (Math.abs(dx) < 130 && Math.abs(dy) < 130) {
+                    const distSq = dx * dx + dy * dy;
+                    const wipeRadius = 130;
+                    if (distSq < wipeRadius * wipeRadius) {
+                        const dist = Math.sqrt(distSq) || 1;
+                        const force = (wipeRadius - dist) / wipeRadius;
+                        p.x -= (dx / dist) * force * 5.0;
+                        p.vx += (dx > 0 ? -1 : 1) * 0.4;
+                    }
                 }
             }
-
-            // Frosted water streak with bright refractive head & translucent tail
-            const streakGrad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.length);
-            streakGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-            streakGrad.addColorStop(0.3, `rgba(${accentRgb}, ${p.opacity * 0.25 * glowFactor})`);
-            streakGrad.addColorStop(0.85, `rgba(255, 255, 255, ${p.opacity * 0.75 * glowFactor})`);
-            streakGrad.addColorStop(1, '#ffffff');
-
-            ctx.beginPath();
-            ctx.lineWidth = p.thickness;
-            ctx.strokeStyle = streakGrad;
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x + p.vx * 2, p.y + p.length);
-            ctx.stroke();
-
-            // Head water bead running down
-            ctx.beginPath();
-            ctx.arc(p.x + p.vx * 2, p.y + p.length, p.thickness * 0.9, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.shadowBlur = 8 * glowFactor;
-            ctx.shadowColor = `rgba(${accentRgb}, 0.8)`;
-            ctx.fill();
-            ctx.shadowBlur = 0;
         }
 
-        // 4. Ground splash ripples on glass windowsill
-        if (extraState?.splashes) {
+        // 3. Batched Rain Streaks
+        ctx.beginPath();
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x + p.vx * 2, p.y + p.length);
+        }
+        ctx.strokeStyle = `rgba(186, 230, 253, ${0.42 * glowFactor})`;
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+
+        // 4. Batched Droplet Head Beads
+        ctx.beginPath();
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            const hy = p.y + p.length;
+            ctx.moveTo(p.x + 1.6, hy);
+            ctx.arc(p.x, hy, 1.6, 0, Math.PI * 2);
+        }
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+
+        // 5. Batched Ground Splashes
+        if (extraState?.splashes && extraState.splashes.length > 0) {
+            ctx.beginPath();
             for (let i = extraState.splashes.length - 1; i >= 0; i--) {
                 const splash = extraState.splashes[i];
                 splash.r += splash.speed * speedMult;
-                splash.alpha -= 0.035;
-
+                splash.alpha -= 0.038;
                 if (splash.alpha <= 0) {
                     extraState.splashes.splice(i, 1);
                     continue;
                 }
-
-                ctx.beginPath();
-                ctx.ellipse(splash.x, splash.y, splash.r * 2.0, splash.r * 0.55, 0, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(${accentRgb}, ${splash.alpha * glowFactor})`;
-                ctx.lineWidth = 1.2;
-                ctx.stroke();
+                ctx.moveTo(splash.x + splash.r * 1.8, splash.y);
+                ctx.ellipse(splash.x, splash.y, splash.r * 1.8, splash.r * 0.5, 0, 0, Math.PI * 2);
             }
+            ctx.strokeStyle = `rgba(${accentRgb}, ${0.45 * glowFactor})`;
+            ctx.lineWidth = 1.1;
+            ctx.stroke();
         }
     };
 
@@ -679,12 +753,11 @@ export const CanvasEngine = (() => {
     };
 
     // ─────────────────────────────────────────────────────────────
-    // 5. HYPERSPACE WARP: 3D Flight Steering & Chromatic Trails
+    // 5. HYPERSPACE WARP: Batched Perspective Starfield
     // ─────────────────────────────────────────────────────────────
     const renderWarp = () => {
         if (!extraState) return;
 
-        // Smooth cockpit steering towards cursor
         if (mouse.x !== null && mouse.y !== null) {
             extraState.targetCenterX = width / 2 + (mouse.x - width / 2) * 0.4;
             extraState.targetCenterY = height / 2 + (mouse.y - height / 2) * 0.4;
@@ -695,21 +768,12 @@ export const CanvasEngine = (() => {
         extraState.centerX += (extraState.targetCenterX - extraState.centerX) * 0.08;
         extraState.centerY += (extraState.targetCenterY - extraState.centerY) * 0.08;
 
-        const hyperBoost = mouse.isDown ? 24 : 0;
-        const speed = 6 + hyperBoost + Math.min(mouse.speed * 0.3, 16);
+        const hyperBoost = mouse.isDown ? 20 : 0;
+        const speed = 6 + hyperBoost + Math.min(mouse.speed * 0.3, 14);
         const fov = width * 0.7;
 
-        // Central radiant warp nebula glow
-        const coreGrad = ctx.createRadialGradient(
-            extraState.centerX, extraState.centerY, 0,
-            extraState.centerX, extraState.centerY, width * 0.35
-        );
-        coreGrad.addColorStop(0, `rgba(${accentRgb}, 0.12)`);
-        coreGrad.addColorStop(0.5, `rgba(${accentRgb}, 0.03)`);
-        coreGrad.addColorStop(1, 'transparent');
-        ctx.fillStyle = coreGrad;
-        ctx.fillRect(0, 0, width, height);
-
+        // Batched star streak lines
+        ctx.beginPath();
         for (const star of particles) {
             star.pz = star.z;
             star.z -= speed;
@@ -731,135 +795,105 @@ export const CanvasEngine = (() => {
 
             if (sx < -20 || sx > width + 20 || sy < -20 || sy > height + 20) continue;
 
-            const depth = 1 - star.z / width;
-            const alpha = Math.min(1, Math.max(0.12, depth * 1.2));
-
-            // Chromatic velocity streaks
-            const streakGrad = ctx.createLinearGradient(px, py, sx, sy);
-            streakGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-            streakGrad.addColorStop(0.7, star.colorType > 0.4 ? `rgba(${accentRgb}, ${alpha * 0.7})` : `rgba(168, 85, 247, ${alpha * 0.7})`);
-            streakGrad.addColorStop(1, `rgba(255, 255, 255, ${alpha})`);
-
-            ctx.beginPath();
-            ctx.strokeStyle = streakGrad;
-            ctx.lineWidth = Math.max(0.9, depth * (mouse.isDown ? 4.5 : 3.2));
             ctx.moveTo(px, py);
             ctx.lineTo(sx, sy);
-            ctx.stroke();
         }
+        ctx.strokeStyle = `rgba(224, 242, 254, 0.7)`;
+        ctx.lineWidth = mouse.isDown ? 2.8 : 1.6;
+        ctx.stroke();
     };
 
     // ─────────────────────────────────────────────────────────────
-    // 6. AURORA WAVE: Luminous Liquid Ribbons & Screen Blending
+    // 6. AURORA WAVE: Liquid Ribbons
     // ─────────────────────────────────────────────────────────────
     const renderWave = () => {
         if (!extraState) return;
-        globalTime += 0.018;
+        globalTime += 0.016;
 
         const baseY = height * 0.62;
         const waves = extraState.waves;
 
         ctx.save();
-        ctx.globalCompositeOperation = 'screen'; // Luminous optical blending
+        ctx.globalCompositeOperation = 'screen';
 
         for (let w = 0; w < waves.length; w++) {
             const wave = waves[w];
             ctx.beginPath();
             ctx.moveTo(0, height);
 
-            for (let x = 0; x <= width; x += 10) {
+            for (let x = 0; x <= width; x += 16) {
                 let yOffset = Math.sin(x * wave.freq + globalTime * (1 + w * 0.35)) * wave.amp +
                               Math.cos(x * (wave.freq * 0.65) - globalTime * 0.75) * (wave.amp * 0.55);
 
-                // Mouse fluid displacement
                 if (mouse.x !== null) {
                     const dx = Math.abs(x - mouse.x);
-                    if (dx < 240) {
+                    if (dx < 220) {
                         const falloff = Math.exp(-Math.pow(dx / 95, 2));
-                        const pull = (mouse.y - baseY) * 0.42;
+                        const pull = (mouse.y - baseY) * 0.38;
                         yOffset += pull * falloff;
                     }
                 }
 
-                const y = baseY + yOffset + (w * 26);
-                if (x === 0) ctx.lineTo(x, y);
-                else ctx.lineTo(x, y);
+                const y = baseY + yOffset + (w * 24);
+                ctx.lineTo(x, y);
             }
 
             ctx.lineTo(width, height);
             ctx.closePath();
 
-            // Volumetric radiant gradient
-            const grad = ctx.createLinearGradient(0, baseY - wave.amp - 20, 0, height);
-            grad.addColorStop(0, wave.color);
-            grad.addColorStop(0.6, 'rgba(10, 16, 30, 0.4)');
-            grad.addColorStop(1, 'rgba(5, 8, 16, 0.9)');
-            ctx.fillStyle = grad;
+            ctx.fillStyle = wave.color;
             ctx.fill();
 
-            // Crisp neon top stroke with halo
             ctx.strokeStyle = wave.stroke;
-            ctx.lineWidth = 1.8;
+            ctx.lineWidth = 1.6;
             ctx.stroke();
         }
         ctx.restore();
     };
 
     // ─────────────────────────────────────────────────────────────
-    // 7. GRAVITATIONAL GALAXY: Accretion Disk & Vortex Singularity
+    // 7. GRAVITATIONAL GALAXY: Batched Accretion Disk
     // ─────────────────────────────────────────────────────────────
     const renderGalaxy = () => {
         const cx = width / 2;
         const cy = height * 0.52;
 
-        // Galactic core radiant halo
-        const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, width * 0.25);
-        coreGrad.addColorStop(0, `rgba(${accentRgb}, 0.16)`);
-        coreGrad.addColorStop(0.4, 'rgba(168, 85, 247, 0.05)');
-        coreGrad.addColorStop(1, 'transparent');
-        ctx.fillStyle = coreGrad;
-        ctx.fillRect(0, 0, width, height);
-
+        ctx.beginPath();
         for (const p of particles) {
             p.angle += p.speed;
-
-            // Base 3D-tilted elliptical orbit
             let px = cx + Math.cos(p.angle) * p.dist;
             let py = cy + Math.sin(p.angle) * (p.dist * 0.52);
 
-            // Relativistic mouse black-hole vortex
             if (mouse.x !== null) {
                 const dx = mouse.x - px;
                 const dy = mouse.y - py;
-                const distSq = dx * dx + dy * dy;
-                const captureRadius = 280;
-                if (distSq < captureRadius * captureRadius && distSq > 400) {
-                    const dist = Math.sqrt(distSq);
-                    const force = (captureRadius - dist) / captureRadius;
-                    px += dx * force * 0.16;
-                    py += dy * force * 0.16;
-                    p.angle += (mouse.isDown ? 0.05 : 0.015) * force;
+                if (Math.abs(dx) < 240 && Math.abs(dy) < 240) {
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq < 240 ** 2 && distSq > 400) {
+                        const dist = Math.sqrt(distSq);
+                        const force = (240 - dist) / 240;
+                        px += dx * force * 0.16;
+                        py += dy * force * 0.16;
+                        p.angle += (mouse.isDown ? 0.05 : 0.015) * force;
+                    }
                 }
             }
 
-            ctx.beginPath();
+            ctx.moveTo(px + p.radius, py);
             ctx.arc(px, py, p.radius, 0, Math.PI * 2);
-            ctx.fillStyle = p.color;
-            ctx.globalAlpha = p.alpha;
-            ctx.shadowBlur = p.radius > 1.8 ? 8 : 0;
-            ctx.shadowColor = p.color;
-            ctx.fill();
         }
-        ctx.shadowBlur = 0;
-        ctx.globalAlpha = 1;
+        ctx.fillStyle = accent;
+        ctx.globalAlpha = 0.75;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
     };
 
     // ─────────────────────────────────────────────────────────────
-    // 8. BIOLUMINESCENT FIREFLIES: Bokeh Depth & Stardust Trails
+    // 8. BIOLUMINESCENT FIREFLIES: Cached Glow Sprites
     // ─────────────────────────────────────────────────────────────
     const renderFireflies = () => {
-        // Spawn stardust crumbs
-        if (Math.random() < 0.28 && particles.length > 0) {
+        // Stardust crumbs pool
+        if (Math.random() < 0.22 && particles.length > 0 && secondaryParticles.length < 15) {
             const parent = particles[Math.floor(Math.random() * particles.length)];
             if (!parent.isBokeh) {
                 secondaryParticles.push({
@@ -868,96 +902,74 @@ export const CanvasEngine = (() => {
                     vx: (Math.random() - 0.5) * 0.3,
                     vy: (Math.random() - 0.5) * 0.3,
                     alpha: 0.6,
-                    radius: Math.random() * 1.2 + 0.6,
-                    color: parent.color
+                    radius: Math.random() * 1.2 + 0.6
                 });
             }
         }
 
-        // Draw stardust trail crumbs
-        for (let i = secondaryParticles.length - 1; i >= 0; i--) {
-            const crumb = secondaryParticles[i];
-            crumb.x += crumb.vx;
-            crumb.y += crumb.vy;
-            crumb.alpha -= 0.02;
-            if (crumb.alpha <= 0) {
-                secondaryParticles.splice(i, 1);
-                continue;
-            }
+        if (secondaryParticles.length > 0) {
             ctx.beginPath();
-            ctx.arc(crumb.x, crumb.y, crumb.radius, 0, Math.PI * 2);
-            ctx.fillStyle = crumb.color;
-            ctx.globalAlpha = crumb.alpha;
+            for (let i = secondaryParticles.length - 1; i >= 0; i--) {
+                const crumb = secondaryParticles[i];
+                crumb.x += crumb.vx;
+                crumb.y += crumb.vy;
+                crumb.alpha -= 0.025;
+                if (crumb.alpha <= 0) {
+                    secondaryParticles.splice(i, 1);
+                    continue;
+                }
+                ctx.moveTo(crumb.x + crumb.radius, crumb.y);
+                ctx.arc(crumb.x, crumb.y, crumb.radius, 0, Math.PI * 2);
+            }
+            ctx.fillStyle = '#ffffff';
+            ctx.globalAlpha = 0.6;
             ctx.fill();
         }
-        ctx.globalAlpha = 1;
 
         for (const p of particles) {
-            // Brownian organic wander
-            p.vx += (Math.random() - 0.5) * 0.12;
-            p.vy += (Math.random() - 0.5) * 0.12;
+            p.vx += (Math.random() - 0.5) * 0.1;
+            p.vy += (Math.random() - 0.5) * 0.1;
             p.vx *= 0.96;
             p.vy *= 0.96;
             p.x += p.vx;
             p.y += p.vy;
 
-            if (p.x < -40) p.x = width + 40;
-            if (p.x > width + 40) p.x = -40;
-            if (p.y < -40) p.y = height + 40;
-            if (p.y > height + 40) p.y = -40;
+            if (p.x < -30) p.x = width + 30;
+            if (p.x > width + 30) p.x = -30;
+            if (p.y < -30) p.y = height + 30;
+            if (p.y > height + 30) p.y = -30;
 
-            // Mouse magnetic swarm / wind scatter
             if (mouse.x !== null) {
                 const dx = mouse.x - p.x;
                 const dy = mouse.y - p.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 240 && dist > 1) {
-                    if (mouse.speed > 6 || mouse.isDown) {
-                        p.vx -= (dx / dist) * 2.2;
-                        p.vy -= (dy / dist) * 2.2;
-                    } else {
-                        p.vx += (dx / dist) * 0.42;
-                        p.vy += (dy / dist) * 0.42;
+                if (Math.abs(dx) < 200 && Math.abs(dy) < 200) {
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq < 200 ** 2 && distSq > 1) {
+                        const dist = Math.sqrt(distSq);
+                        p.vx += (dx / dist) * 0.35;
+                        p.vy += (dy / dist) * 0.35;
                     }
                 }
             }
 
             p.pulse += p.pulseSpeed;
-            const currentAlpha = 0.25 + 0.7 * (0.5 + 0.5 * Math.sin(p.pulse));
+            const currentAlpha = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(p.pulse));
 
-            if (p.isBokeh) {
-                // Large soft background bokeh sphere
-                const bokehGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
-                bokehGrad.addColorStop(0, `rgba(${accentRgb}, ${currentAlpha * 0.18})`);
-                bokehGrad.addColorStop(0.7, `rgba(${accentRgb}, ${currentAlpha * 0.05})`);
-                bokehGrad.addColorStop(1, 'transparent');
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = bokehGrad;
-                ctx.fill();
-            } else {
-                // Crisp foreground firefly with multi-stop radial aura
-                const glowR = p.radius * 4;
-                const fireflyGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR);
-                const rgb = p.color === accent ? accentRgb : '250, 204, 21';
-                fireflyGrad.addColorStop(0, `rgba(${rgb}, ${currentAlpha * 0.9})`);
-                fireflyGrad.addColorStop(0.35, `rgba(${rgb}, ${currentAlpha * 0.35})`);
-                fireflyGrad.addColorStop(1, 'transparent');
+            if (glowSpriteCanvas) {
+                const glowR = p.radius * (p.isBokeh ? 3.0 : 4.5);
+                ctx.globalAlpha = Math.min(1.0, currentAlpha * (p.isBokeh ? 0.35 : 0.85));
+                ctx.drawImage(glowSpriteCanvas, p.x - glowR * 0.5, p.y - glowR * 0.5, glowR, glowR);
+            }
 
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
-                ctx.fillStyle = fireflyGrad;
-                ctx.fill();
-
-                // High-intensity white ember core
+            if (!p.isBokeh) {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.radius * 0.5, 0, Math.PI * 2);
                 ctx.fillStyle = '#ffffff';
                 ctx.globalAlpha = currentAlpha;
                 ctx.fill();
-                ctx.globalAlpha = 1;
             }
         }
+        ctx.globalAlpha = 1.0;
     };
 
     // ─────────────────────────────────────────────────────────────
@@ -1010,36 +1022,37 @@ export const CanvasEngine = (() => {
         const floorGrad = ctx.createLinearGradient(0, horizonY, 0, height);
         floorGrad.addColorStop(0, '#0d061f');
         floorGrad.addColorStop(1, '#05020c');
-        ctx.fillStyle = floorGrad;
-        ctx.fillRect(0, horizonY, width, height - horizonY);
+        // 1. Draw pre-rendered sky & sun in 1 GPU texture blit
+        if (offscreenBgCanvas) {
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.drawImage(offscreenBgCanvas, 0, 0);
+            ctx.restore();
+        }
 
-        // Horizon radiant glow line
+        // 2. Horizon neon glow line
         ctx.beginPath();
         ctx.moveTo(0, horizonY);
         ctx.lineTo(width, horizonY);
         ctx.strokeStyle = '#f43f5e';
         ctx.lineWidth = 2.0;
-        ctx.shadowBlur = 16 * glowMult;
-        ctx.shadowColor = '#f43f5e';
         ctx.stroke();
-        ctx.shadowBlur = 0;
 
-        // Perspective longitudinal lines converging to center horizon
-        const linesCount = 28;
+        // 3. Batched longitudinal perspective lines
+        const linesCount = 24;
         const centerX = width / 2;
-        ctx.strokeStyle = `rgba(${accentRgb}, ${0.45 * glowMult})`;
-        ctx.lineWidth = 1.2;
-
+        ctx.beginPath();
         for (let l = -linesCount / 2; l <= linesCount / 2; l++) {
             const bottomX = centerX + l * (width / (linesCount * 0.45));
-            ctx.beginPath();
             ctx.moveTo(centerX + l * 2, horizonY);
             ctx.lineTo(bottomX, height);
-            ctx.stroke();
         }
+        ctx.strokeStyle = `rgba(${accentRgb}, ${0.35 * glowMult})`;
+        ctx.lineWidth = 1.1;
+        ctx.stroke();
 
-        // Perspective latitudinal moving gridlines
-        const zSlices = 24;
+        // 4. Latitudinal moving gridlines
+        const zSlices = 18;
         for (let z = 1; z <= zSlices; z++) {
             const rawZ = z * 40 - extraState.gridOffset;
             if (rawZ <= 0) continue;
@@ -1049,45 +1062,45 @@ export const CanvasEngine = (() => {
             let elevWarp = 0;
             if (mouse.x !== null && mouse.y > horizonY) {
                 const distY = Math.abs(y - mouse.y);
-                if (distY < 80) {
-                    elevWarp = (1 - distY / 80) * (mouse.isDown ? -30 : -14);
+                if (distY < 75) {
+                    elevWarp = (1 - distY / 75) * (mouse.isDown ? -26 : -12);
                 }
             }
 
-            const alpha = norm * 0.85 * glowMult;
+            const alpha = norm * 0.8 * glowMult;
             ctx.beginPath();
             ctx.moveTo(0, y + elevWarp);
             ctx.lineTo(width, y + elevWarp);
             ctx.strokeStyle = z % 4 === 0 ? '#f43f5e' : `rgba(${accentRgb}, ${alpha})`;
-            ctx.lineWidth = Math.max(0.8, norm * 2.2);
+            ctx.lineWidth = Math.max(0.8, norm * 2.0);
             ctx.stroke();
         }
     };
 
     // ─────────────────────────────────────────────────────────────
-    // 10. QUANTUM FLOW: Multi-Curl Vector Field & Chromatic Stream
+    // 10. QUANTUM FLOW: Batched Vector Streamers
     // ─────────────────────────────────────────────────────────────
     const renderQuantum = () => {
         globalTime += 0.008 * speedMult;
         const effectiveGlow = glowMult;
 
         for (const p of particles) {
-            // Multi-curl Perlin mathematical approximation
             const scale = 0.0035;
             const angle1 = Math.sin(p.x * scale + globalTime) * Math.cos(p.y * scale + globalTime) * Math.PI * 4;
             const angle2 = Math.cos(p.x * (scale * 1.5) - globalTime * 0.5) * Math.PI * 2;
             let targetAngle = angle1 + angle2;
 
-            // Interactive mouse vortex deflection
             if (mouse.x !== null) {
                 const dx = mouse.x - p.x;
                 const dy = mouse.y - p.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 220 && dist > 2) {
-                    const mouseAngle = Math.atan2(dy, dx) + (mouse.isDown ? Math.PI : Math.PI / 2);
-                    const blend = (220 - dist) / 220;
-                    targetAngle = targetAngle * (1 - blend) + mouseAngle * blend;
-                    p.energy = Math.min(1.0, p.energy + 0.05);
+                if (Math.abs(dx) < 200 && Math.abs(dy) < 200) {
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 200 && dist > 2) {
+                        const mouseAngle = Math.atan2(dy, dx) + (mouse.isDown ? Math.PI : Math.PI / 2);
+                        const blend = (200 - dist) / 200;
+                        targetAngle = targetAngle * (1 - blend) + mouseAngle * blend;
+                        p.energy = Math.min(1.0, p.energy + 0.05);
+                    }
                 }
             }
 
@@ -1096,13 +1109,11 @@ export const CanvasEngine = (() => {
             p.x += p.vx;
             p.y += p.vy;
 
-            // Wrap edges
             if (p.x < 0) p.x = width;
             if (p.x > width) p.x = 0;
             if (p.y < 0) p.y = height;
             if (p.y > height) p.y = 0;
 
-            // Record trajectory history for smooth fluid streamers
             p.history.push({ x: p.x, y: p.y });
             if (p.history.length > p.maxHistory) {
                 p.history.shift();
@@ -1114,7 +1125,6 @@ export const CanvasEngine = (() => {
                 for (let h = 1; h < p.history.length; h++) {
                     const prev = p.history[h - 1];
                     const curr = p.history[h];
-                    // Skip wrapping breaks
                     if (Math.abs(curr.x - prev.x) > 60 || Math.abs(curr.y - prev.y) > 60) {
                         ctx.moveTo(curr.x, curr.y);
                         continue;
@@ -1123,32 +1133,32 @@ export const CanvasEngine = (() => {
                 }
 
                 const streamAlpha = p.energy * 0.45 * effectiveGlow;
-                ctx.strokeStyle = p.colorOffset > 10 ? `rgba(168, 85, 247, ${streamAlpha})` : (p.colorOffset < -10 ? `rgba(56, 189, 248, ${streamAlpha})` : `rgba(${accentRgb}, ${streamAlpha})`);
-                ctx.lineWidth = Math.max(0.8, p.energy * 2.0);
+                ctx.strokeStyle = p.colorOffset > 10 ? `rgba(168, 85, 247, ${streamAlpha})` : `rgba(${accentRgb}, ${streamAlpha})`;
+                ctx.lineWidth = Math.max(0.8, p.energy * 1.8);
                 ctx.stroke();
             }
-
-            // Head particle
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.energy * 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.globalAlpha = p.energy * effectiveGlow;
-            ctx.fill();
-            ctx.globalAlpha = 1;
 
             p.energy = Math.max(0.35, p.energy - 0.005);
         }
     };
 
-    // ─── Main Animation Loop ───
+    // ─── Main Animation Loop (60 FPS Locked) ───
     const scheduleAnimation = () => {
         if (!isRunning || document.hidden || animationId !== null) return;
         animationId = requestAnimationFrame(animate);
     };
 
-    const animate = () => {
+    const animate = (timestamp = performance.now()) => {
         animationId = null;
         if (!isRunning || !canvas || !ctx || document.hidden) return;
+
+        // Frame limiter: locks to 60 FPS preventing monitor overload at 120Hz-240Hz
+        const delta = timestamp - lastFrameTimestamp;
+        if (delta < FRAME_MIN_MS) {
+            scheduleAnimation();
+            return;
+        }
+        lastFrameTimestamp = timestamp;
 
         ctx.clearRect(0, 0, width, height);
 
@@ -1184,6 +1194,7 @@ export const CanvasEngine = (() => {
             return;
         }
 
+        lastFrameTimestamp = performance.now();
         scheduleAnimation();
     };
 
@@ -1237,7 +1248,7 @@ export const CanvasEngine = (() => {
         canvas = element;
         if (!canvas) return;
 
-        ctx = canvas.getContext('2d');
+        ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
         if (!ctx) return;
 
         theme = style || 'neural';
@@ -1246,6 +1257,7 @@ export const CanvasEngine = (() => {
         if (opts.glow) glowMult = Number(opts.glow) || 1.0;
 
         isRunning = true;
+        lastFrameTimestamp = performance.now();
         updateAccent();
         resize();
 
