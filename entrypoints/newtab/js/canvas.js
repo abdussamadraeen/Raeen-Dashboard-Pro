@@ -3,10 +3,10 @@
  * Features:
  * - Retina / High-DPI DPR auto-scaling (Crystal crisp on 4K & Retina displays)
  * - Multi-layer 3D perspective depth, volumetric illumination, and particle physics
- * - 11 High-end interactive themes:
- *   1. Neural Network (3D synaptic depth with traveling action potential pulses)
+ * - 10 High-end interactive themes:
+ *   1. Neural Network (High-visibility electric cyan/azure synaptic depth with traveling action potential pulses)
  *   2. Water Bubbles (3D iridescent glass orbs with specular crescent reflections)
- *   3. Glass Rain (Cinematic cyberpunk rain with motion blur & ground splash ripples)
+ *   3. Frosted Glass Rain (Atmospheric condensation droplets, mist haze, frosted glass blur, and ground splash ripples)
  *   4. Matrix Code Stream (Multi-depth phosphor Katakana/hex rain with EMP shockwaves)
  *   5. Hyperspace Warp (3D starfield with dynamic cockpit steering & hyper-boost trails)
  *   6. Aurora Wave Flow (Luminous liquid ribbons with fluid mouse ripples & screen blending)
@@ -14,7 +14,6 @@
  *   8. Bioluminescent Fireflies (Bokeh forest depth, stardust trails, and magnetic swarm physics)
  *   9. Retro Synthwave Wireframe (3D undulating neon terrain, horizon sun, wireframe peaks & mouse elevation warp)
  *   10. Quantum Flow Field (Multi-curl vector stream fibers, chromatic dispersion & cursor vortex steering)
- *   11. Sacred Geometry Mandala (Kaleidoscopic breathing polyhedra, harmonic flower of life & radiant bloom)
  */
 
 const MATRIX_GLYPHS = '0123456789ABCDEFｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜXYZ@#$&*§ΔΩΨ';
@@ -77,19 +76,19 @@ export const CanvasEngine = (() => {
         extraState = null;
 
         if (theme === 'neural') {
-            // 3D Synaptic Brain Network
-            const count = 110;
+            // 3D Synaptic Brain Network with High-Visibility Optics
+            const count = Math.max(50, Math.floor(140 * densityMult));
             particles = Array.from({ length: count }, () => {
-                const z = Math.random() * 0.8 + 0.2; // 3D depth
+                const z = Math.random() * 0.75 + 0.25; // 3D depth
                 return {
                     x: Math.random() * width,
                     y: Math.random() * height,
                     z,
-                    vx: (Math.random() - 0.5) * 1.2 * z,
-                    vy: (Math.random() - 0.5) * 1.2 * z,
-                    baseRadius: Math.random() * 2.2 + 1.2,
-                    radius: (Math.random() * 2.2 + 1.2) * z,
-                    opacity: (Math.random() * 0.4 + 0.4) * z,
+                    vx: (Math.random() - 0.5) * 1.3 * z,
+                    vy: (Math.random() - 0.5) * 1.3 * z,
+                    baseRadius: Math.random() * 2.8 + 2.0,
+                    radius: (Math.random() * 2.8 + 2.0) * z,
+                    opacity: (Math.random() * 0.35 + 0.65) * z,
                     pulsePhase: Math.random() * Math.PI * 2
                 };
             });
@@ -97,7 +96,7 @@ export const CanvasEngine = (() => {
             secondaryParticles = [];
         } else if (theme === 'bubbles') {
             // 3D Iridescent Soap / Glass Orbs
-            const count = 55;
+            const count = Math.max(20, Math.floor(55 * densityMult));
             particles = Array.from({ length: count }, () => {
                 const z = Math.random() * 0.7 + 0.3;
                 return {
@@ -115,23 +114,35 @@ export const CanvasEngine = (() => {
                 };
             });
         } else if (theme === 'rain') {
-            // Cinematic Cyberpunk Rain with 3D Depth
-            const count = 180;
+            // Frosted Glass Window Rain with Condensation Droplets & Mist
+            const count = Math.max(60, Math.floor(160 * densityMult));
+            // Streaking raindrops running down the pane
             particles = Array.from({ length: count }, () => {
                 const z = Math.random() * 0.8 + 0.2;
                 return {
                     x: Math.random() * width,
                     y: Math.random() * height,
                     z,
-                    vx: -1.2 * z,
-                    vy: (Math.random() * 12 + 14) * z,
-                    length: (Math.random() * 25 + 15) * z,
-                    thickness: (Math.random() * 1.5 + 0.8) * z,
-                    opacity: (Math.random() * 0.4 + 0.35) * z
+                    vx: (Math.random() * 0.4 - 0.2) * z,
+                    vy: (Math.random() * 10 + 12) * z,
+                    length: (Math.random() * 28 + 18) * z,
+                    thickness: (Math.random() * 2.0 + 1.2) * z,
+                    opacity: (Math.random() * 0.4 + 0.5) * z
                 };
             });
-            // Ground splash ripples
-            secondaryParticles = [];
+            // Static condensation orbs on the frosted window glass
+            const mistDropsCount = Math.max(30, Math.floor(90 * densityMult));
+            secondaryParticles = Array.from({ length: mistDropsCount }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 3.5 + 1.2,
+                opacity: Math.random() * 0.3 + 0.15,
+                aspect: Math.random() * 0.4 + 0.8
+            }));
+            // Splashes and trails pool
+            extraState = {
+                splashes: []
+            };
         } else if (theme === 'matrix') {
             // 3D Dual-Depth Matrix Code Rain
             const cols = Math.floor(width / 18);
@@ -151,7 +162,7 @@ export const CanvasEngine = (() => {
             });
         } else if (theme === 'warp') {
             // 3D Deep Space Hyperspace Warp
-            const count = 380;
+            const count = Math.max(100, Math.floor(380 * densityMult));
             particles = Array.from({ length: count }, () => ({
                 x: (Math.random() - 0.5) * width * 2.2,
                 y: (Math.random() - 0.5) * height * 2.2,
@@ -177,7 +188,7 @@ export const CanvasEngine = (() => {
             };
         } else if (theme === 'galaxy') {
             // Relativistic 3D Spiral Galaxy with Galactic Core
-            const count = 320;
+            const count = Math.max(80, Math.floor(320 * densityMult));
             const maxR = Math.min(width, height) * 0.48;
             particles = Array.from({ length: count }, () => {
                 const dist = Math.pow(Math.random(), 1.5) * maxR + 8;
@@ -233,21 +244,6 @@ export const CanvasEngine = (() => {
                 maxHistory: Math.floor(Math.random() * 14 + 10),
                 colorOffset: Math.random() * 60 - 30,
                 energy: Math.random() * 0.5 + 0.5
-            }));
-        } else if (theme === 'mandala') {
-            // Sacred Geometry Mandala & Kaleidoscope
-            extraState = {
-                angle: 0,
-                expansion: 1.0,
-                targetExpansion: 1.0
-            };
-            const starCount = Math.max(30, Math.floor(70 * densityMult));
-            particles = Array.from({ length: starCount }, () => ({
-                dist: Math.random() * Math.min(width, height) * 0.45 + 20,
-                angle: Math.random() * Math.PI * 2,
-                rotSpeed: (Math.random() - 0.5) * 0.008,
-                radius: Math.random() * 2.2 + 0.8,
-                alpha: Math.random() * 0.6 + 0.3
             }));
         }
     };
@@ -334,14 +330,14 @@ export const CanvasEngine = (() => {
         }
 
         // Draw connections with spatial grid
-        const connDist = 165;
+        const connDist = 185;
         const connDistSq = connDist * connDist;
+        const glowFactor = glowMult;
 
-        ctx.lineWidth = 0.9;
         for (let i = 0; i < particles.length; i++) {
             const p1 = particles[i];
-            p1.x += p1.vx;
-            p1.y += p1.vy;
+            p1.x += p1.vx * speedMult;
+            p1.y += p1.vy * speedMult;
             if (p1.x < 0 || p1.x > width) p1.vx *= -1;
             if (p1.y < 0 || p1.y > height) p1.vy *= -1;
 
@@ -350,18 +346,22 @@ export const CanvasEngine = (() => {
                 const dx = mouse.x - p1.x;
                 const dy = mouse.y - p1.y;
                 const distSq = dx * dx + dy * dy;
-                if (distSq < 220 ** 2) {
+                if (distSq < 260 ** 2) {
                     const dist = Math.sqrt(distSq);
-                    const force = (220 - dist) / 220;
-                    p1.vx += (dx / dist) * force * 0.25;
-                    p1.vy += (dy / dist) * force * 0.25;
+                    const force = (260 - dist) / 260;
+                    p1.vx += (dx / dist) * force * 0.35;
+                    p1.vy += (dy / dist) * force * 0.35;
 
                     // Radiant cursor stimulation synapse
                     ctx.beginPath();
-                    ctx.strokeStyle = `rgba(${accentRgb}, ${force * 0.45})`;
+                    ctx.strokeStyle = `rgba(${accentRgb}, ${force * 0.75 * glowFactor})`;
+                    ctx.lineWidth = 1.6;
+                    ctx.shadowBlur = 12 * glowFactor;
+                    ctx.shadowColor = accent;
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(mouse.x, mouse.y);
                     ctx.stroke();
+                    ctx.shadowBlur = 0;
                 }
             }
 
@@ -372,8 +372,10 @@ export const CanvasEngine = (() => {
                 const dy = p1.y - p2.y;
                 const dSq = dx * dx + dy * dy;
                 if (dSq < connDistSq) {
-                    const alpha = (1 - Math.sqrt(dSq) / connDist) * 0.35 * Math.min(p1.z, p2.z);
+                    const distNorm = 1 - Math.sqrt(dSq) / connDist;
+                    const alpha = distNorm * (0.45 + 0.4 * Math.min(p1.z, p2.z)) * glowFactor;
                     ctx.beginPath();
+                    ctx.lineWidth = Math.max(0.9, distNorm * 1.8 * Math.min(p1.z, p2.z));
                     ctx.strokeStyle = `rgba(${accentRgb}, ${alpha})`;
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(p2.x, p2.y);
@@ -381,17 +383,37 @@ export const CanvasEngine = (() => {
                 }
             }
 
-            // Draw glowing 3D node
-            p1.pulsePhase += 0.03;
-            const r = p1.radius * (1 + 0.15 * Math.sin(p1.pulsePhase));
+            // Draw glowing 3D node with dual-pass inner spark
+            p1.pulsePhase += 0.035 * speedMult;
+            const r = p1.radius * (1 + 0.2 * Math.sin(p1.pulsePhase));
 
+            // Outer radiant aura
+            const aura = ctx.createRadialGradient(p1.x, p1.y, 0, p1.x, p1.y, r * 3.5);
+            aura.addColorStop(0, `rgba(${accentRgb}, ${p1.opacity * 0.85 * glowFactor})`);
+            aura.addColorStop(0.5, `rgba(${accentRgb}, ${p1.opacity * 0.3 * glowFactor})`);
+            aura.addColorStop(1, 'transparent');
+
+            ctx.beginPath();
+            ctx.arc(p1.x, p1.y, r * 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = aura;
+            ctx.fill();
+
+            // Saturated node body
             ctx.beginPath();
             ctx.arc(p1.x, p1.y, r, 0, Math.PI * 2);
             ctx.fillStyle = accent;
-            ctx.shadowBlur = 8 * p1.z;
+            ctx.shadowBlur = 14 * p1.z * glowFactor;
             ctx.shadowColor = accent;
-            ctx.globalAlpha = p1.opacity;
+            ctx.globalAlpha = Math.min(1.0, p1.opacity * 1.2);
             ctx.fill();
+
+            // High-contrast bright core diamond
+            ctx.beginPath();
+            ctx.arc(p1.x, p1.y, Math.max(1.2, r * 0.45), 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.globalAlpha = 0.95;
+            ctx.fill();
+            ctx.globalAlpha = 1;
         }
         ctx.shadowBlur = 0;
         ctx.globalAlpha = 1;
@@ -399,7 +421,7 @@ export const CanvasEngine = (() => {
         // Render traveling action potential pulses
         for (let idx = secondaryParticles.length - 1; idx >= 0; idx--) {
             const pulse = secondaryParticles[idx];
-            pulse.progress += pulse.speed;
+            pulse.progress += pulse.speed * speedMult;
             if (pulse.progress >= 1) {
                 secondaryParticles.splice(idx, 1);
                 continue;
@@ -407,11 +429,17 @@ export const CanvasEngine = (() => {
             const px = pulse.fromX + (pulse.toX - pulse.fromX) * pulse.progress;
             const py = pulse.fromY + (pulse.toY - pulse.fromY) * pulse.progress;
 
+            // Electric traveling particle with bright white/cyan glow
             ctx.beginPath();
-            ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+            ctx.arc(px, py, 3.2, 0, Math.PI * 2);
             ctx.fillStyle = '#ffffff';
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 14 * glowFactor;
             ctx.shadowColor = accent;
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(px, py, 1.6, 0, Math.PI * 2);
+            ctx.fillStyle = accent;
             ctx.fill();
         }
         ctx.shadowBlur = 0;
@@ -479,70 +507,117 @@ export const CanvasEngine = (() => {
     };
 
     // ─────────────────────────────────────────────────────────────
-    // 3. GLASS RAIN: Cyberpunk Rain & Ground Splash Ripples
+    // 3. FROSTED GLASS RAIN: Steamy Window, Condensation & Droplets
     // ─────────────────────────────────────────────────────────────
     const renderRain = () => {
-        for (const p of particles) {
-            p.x += p.vx;
-            p.y += p.vy;
+        const glowFactor = glowMult;
 
-            // Screen bottom collision -> spawn splash ripple
+        // 1. Ambient Frosted Glass Back-Sheen (Soft atmospheric diffused window mist)
+        const mistGrad = ctx.createLinearGradient(0, 0, 0, height);
+        mistGrad.addColorStop(0, 'rgba(12, 18, 32, 0.35)');
+        mistGrad.addColorStop(0.5, 'rgba(15, 23, 42, 0.42)');
+        mistGrad.addColorStop(1, 'rgba(8, 12, 22, 0.55)');
+        ctx.fillStyle = mistGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // 2. Static condensation water droplets clinging to the cold glass
+        for (const drop of secondaryParticles) {
+            // Glass refraction crescent
+            ctx.beginPath();
+            ctx.ellipse(drop.x, drop.y, drop.r, drop.r * drop.aspect, 0, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${drop.opacity * 0.7 * glowFactor})`;
+            ctx.fill();
+
+            // Specular micro-highlight dot on top of droplet
+            ctx.beginPath();
+            ctx.arc(drop.x - drop.r * 0.35, drop.y - drop.r * 0.35 * drop.aspect, Math.max(0.6, drop.r * 0.3), 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fill();
+
+            // Subtle dark shadow beneath droplet on glass
+            ctx.beginPath();
+            ctx.arc(drop.x + drop.r * 0.2, drop.y + drop.r * 0.4 * drop.aspect, drop.r * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+            ctx.fill();
+        }
+
+        // 3. Animated Rain Streaks running vertically down the frosted glass
+        for (const p of particles) {
+            p.x += p.vx * speedMult;
+            p.y += p.vy * speedMult;
+
+            // Bottom collision -> splash
             if (p.y > height) {
-                if (Math.random() < 0.35) {
-                    secondaryParticles.push({
+                if (extraState?.splashes && Math.random() < 0.4) {
+                    extraState.splashes.push({
                         x: p.x,
-                        y: height - Math.random() * 4,
+                        y: height - Math.random() * 6,
                         r: 2,
-                        maxR: Math.random() * 14 + 6,
-                        alpha: 0.7,
-                        speed: Math.random() * 0.8 + 0.5
+                        maxR: Math.random() * 16 + 8,
+                        alpha: 0.8,
+                        speed: Math.random() * 0.9 + 0.6
                     });
                 }
-                p.y = -20;
+                p.y = -p.length - 20;
                 p.x = Math.random() * width;
             }
 
-            // Mouse aerodynamic umbrella deflection
+            // Interactive mouse glass wipe: cursor deflects & clears rain streaks
             if (mouse.x !== null) {
                 const dx = mouse.x - p.x;
                 const dy = mouse.y - p.y;
                 const distSq = dx * dx + dy * dy;
-                if (distSq < 110 ** 2) {
-                    p.vx -= (dx / 110) * 3;
-                    p.y -= 4;
+                const wipeRadius = 140;
+                if (distSq < wipeRadius * wipeRadius) {
+                    const dist = Math.sqrt(distSq) || 1;
+                    const force = (wipeRadius - dist) / wipeRadius;
+                    p.x -= (dx / dist) * force * 5.0;
+                    p.vx += (dx > 0 ? -1 : 1) * 0.4;
                 }
             }
 
-            // Motion-blur gradient raindrop streak
-            const grad = ctx.createLinearGradient(p.x, p.y, p.x + p.vx, p.y + p.length);
-            grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-            grad.addColorStop(0.6, `rgba(${accentRgb}, ${p.opacity * 0.4})`);
-            grad.addColorStop(1, `rgba(255, 255, 255, ${p.opacity})`);
+            // Frosted water streak with bright refractive head & translucent tail
+            const streakGrad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.length);
+            streakGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            streakGrad.addColorStop(0.3, `rgba(${accentRgb}, ${p.opacity * 0.25 * glowFactor})`);
+            streakGrad.addColorStop(0.85, `rgba(255, 255, 255, ${p.opacity * 0.75 * glowFactor})`);
+            streakGrad.addColorStop(1, '#ffffff');
 
             ctx.beginPath();
             ctx.lineWidth = p.thickness;
-            ctx.strokeStyle = grad;
+            ctx.strokeStyle = streakGrad;
             ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x + p.vx, p.y + p.length);
+            ctx.lineTo(p.x + p.vx * 2, p.y + p.length);
             ctx.stroke();
+
+            // Head water bead running down
+            ctx.beginPath();
+            ctx.arc(p.x + p.vx * 2, p.y + p.length, p.thickness * 0.9, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 8 * glowFactor;
+            ctx.shadowColor = `rgba(${accentRgb}, 0.8)`;
+            ctx.fill();
+            ctx.shadowBlur = 0;
         }
 
-        // Render expanding neon splash ripples
-        for (let i = secondaryParticles.length - 1; i >= 0; i--) {
-            const ripple = secondaryParticles[i];
-            ripple.r += ripple.speed;
-            ripple.alpha -= 0.03;
+        // 4. Ground splash ripples on glass windowsill
+        if (extraState?.splashes) {
+            for (let i = extraState.splashes.length - 1; i >= 0; i--) {
+                const splash = extraState.splashes[i];
+                splash.r += splash.speed * speedMult;
+                splash.alpha -= 0.035;
 
-            if (ripple.alpha <= 0) {
-                secondaryParticles.splice(i, 1);
-                continue;
+                if (splash.alpha <= 0) {
+                    extraState.splashes.splice(i, 1);
+                    continue;
+                }
+
+                ctx.beginPath();
+                ctx.ellipse(splash.x, splash.y, splash.r * 2.0, splash.r * 0.55, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(${accentRgb}, ${splash.alpha * glowFactor})`;
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
             }
-
-            ctx.beginPath();
-            ctx.ellipse(ripple.x, ripple.y, ripple.r * 1.8, ripple.r * 0.6, 0, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(${accentRgb}, ${ripple.alpha})`;
-            ctx.lineWidth = 1.0;
-            ctx.stroke();
         }
     };
 
@@ -1065,108 +1140,6 @@ export const CanvasEngine = (() => {
         }
     };
 
-    // ─────────────────────────────────────────────────────────────
-    // 11. SACRED MANDALA: Kaleidoscopic Polyhedra & Harmonic Bloom
-    // ─────────────────────────────────────────────────────────────
-    const renderMandala = () => {
-        if (!extraState) return;
-        const cx = width / 2;
-        const cy = height / 2;
-        const maxR = Math.min(width, height) * 0.44;
-
-        extraState.angle += 0.005 * speedMult;
-        if (mouse.x !== null) {
-            const dx = mouse.x - cx;
-            const dy = mouse.y - cy;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            extraState.targetExpansion = 0.8 + (dist / maxR) * 0.6;
-        } else {
-            extraState.targetExpansion = 1.0;
-        }
-        extraState.expansion += (extraState.targetExpansion - extraState.expansion) * 0.05;
-
-        // Ambient background sacred glow
-        const glowGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 1.2);
-        glowGrad.addColorStop(0, `rgba(${accentRgb}, ${0.12 * glowMult})`);
-        glowGrad.addColorStop(0.5, `rgba(168, 85, 247, ${0.04 * glowMult})`);
-        glowGrad.addColorStop(1, 'transparent');
-        ctx.fillStyle = glowGrad;
-        ctx.fillRect(0, 0, width, height);
-
-        // Draw ambient orbiting stars
-        for (const s of particles) {
-            s.angle += s.rotSpeed * speedMult;
-            const sx = cx + Math.cos(s.angle) * s.dist * extraState.expansion;
-            const sy = cy + Math.sin(s.angle) * s.dist * extraState.expansion;
-            ctx.beginPath();
-            ctx.arc(sx, sy, s.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${accentRgb}, ${s.alpha * glowMult})`;
-            ctx.fill();
-        }
-
-        // Draw 12-fold geometric sacred petal rings
-        const petals = 12;
-        ctx.save();
-        ctx.translate(cx, cy);
-
-        // Ring 1: Inner breathing dodecagon
-        ctx.rotate(extraState.angle);
-        ctx.beginPath();
-        for (let i = 0; i <= petals; i++) {
-            const theta = (i / petals) * Math.PI * 2;
-            const r = (maxR * 0.35 + Math.sin(extraState.angle * 3 + i) * 15) * extraState.expansion;
-            const x = Math.cos(theta) * r;
-            const y = Math.sin(theta) * r;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-        ctx.strokeStyle = `rgba(${accentRgb}, ${0.7 * glowMult})`;
-        ctx.lineWidth = 1.6;
-        ctx.shadowBlur = 10 * glowMult;
-        ctx.shadowColor = accent;
-        ctx.stroke();
-
-        // Ring 2: Counter-rotating flower of life arcs
-        ctx.rotate(-extraState.angle * 2);
-        for (let i = 0; i < petals; i++) {
-            const theta = (i / petals) * Math.PI * 2;
-            const arcR = (maxR * 0.28) * extraState.expansion;
-            const px = Math.cos(theta) * arcR;
-            const py = Math.sin(theta) * arcR;
-            ctx.beginPath();
-            ctx.arc(px, py, arcR * 0.65, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(168, 85, 247, ${0.45 * glowMult})`;
-            ctx.lineWidth = 1.0;
-            ctx.stroke();
-        }
-
-        // Ring 3: Outer radiant sacred star rays
-        ctx.rotate(extraState.angle * 1.5);
-        ctx.beginPath();
-        for (let i = 0; i < petals * 2; i++) {
-            const theta = (i / (petals * 2)) * Math.PI * 2;
-            const r = (i % 2 === 0 ? maxR * 0.82 : maxR * 0.52) * extraState.expansion;
-            const x = Math.cos(theta) * r;
-            const y = Math.sin(theta) * r;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.strokeStyle = `rgba(255, 255, 255, ${0.5 * glowMult})`;
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-
-        // Core jewel
-        ctx.beginPath();
-        ctx.arc(0, 0, 8 * extraState.expansion, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowBlur = 16 * glowMult;
-        ctx.shadowColor = '#ffffff';
-        ctx.fill();
-
-        ctx.restore();
-    };
-
     // ─── Main Animation Loop ───
     const scheduleAnimation = () => {
         if (!isRunning || document.hidden || animationId !== null) return;
@@ -1199,8 +1172,6 @@ export const CanvasEngine = (() => {
             renderSynthwave();
         } else if (theme === 'quantum') {
             renderQuantum();
-        } else if (theme === 'mandala') {
-            renderMandala();
         }
 
         scheduleAnimation();

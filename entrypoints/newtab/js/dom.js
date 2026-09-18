@@ -68,6 +68,7 @@ export const dom = {
     canvasGlowSlider: document.getElementById('canvas-glow-slider'),
     canvasGlowVal: document.getElementById('canvas-glow-val'),
     bgColorPicker: document.getElementById('bg-color-picker'),
+    bgColorText: document.getElementById('bg-color-text'),
     bgLocalFile: document.getElementById('bg-local-file'),
     toggleSearch: document.getElementById('toggle-search'),
     customSearchUrlInput: document.getElementById('custom-search-url'),

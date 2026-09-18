@@ -712,6 +712,19 @@ export function syncSettingsUI() {
     if (dom.braveRandomToggle) {
         dom.braveRandomToggle.checked = !state.settings.backgroundValue || state.settings.backgroundValue === 'brave_random';
     }
+    if (state.settings.backgroundType === 'solid') {
+        const currentBg = (state.settings.backgroundValue || '').trim().toLowerCase();
+        if (dom.bgColorText) dom.bgColorText.value = state.settings.backgroundValue || '';
+        if (dom.bgColorPicker && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(state.settings.backgroundValue || '')) {
+            dom.bgColorPicker.value = state.settings.backgroundValue;
+        }
+        document.querySelectorAll('.color-swatch').forEach(swatch => {
+            const swatchColor = (swatch.dataset.color || '').trim().toLowerCase();
+            swatch.classList.toggle('active', swatchColor === currentBg);
+        });
+    } else {
+        document.querySelectorAll('.color-swatch').forEach(swatch => swatch.classList.remove('active'));
+    }
 
     if (dom.toggleSearch) dom.toggleSearch.checked = state.settings.showSearch;
     const currentEngineRadio = document.querySelector(`input[name="search_engine"][value="${state.settings.searchEngine}"]`);

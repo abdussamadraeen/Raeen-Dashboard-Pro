@@ -546,15 +546,59 @@ function optimizeImage(file) {
         };
     }
 
-    bindVal(dom.bgColorPicker, 'backgroundValue', 'oninput', () => {
-        state.settings.backgroundType = 'solid';
+    // Palette category tabs filter
+    document.querySelectorAll('.palette-tab').forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.palette-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const filter = tab.dataset.filter;
+            document.querySelectorAll('.color-swatch').forEach(swatch => {
+                const type = swatch.dataset.type;
+                if (filter === 'all') {
+                    swatch.classList.remove('swatch-hidden');
+                } else if (filter === 'gradients') {
+                    swatch.classList.toggle('swatch-hidden', type !== 'gradient');
+                } else if (filter === 'solids') {
+                    swatch.classList.toggle('swatch-hidden', type !== 'solid');
+                }
+            });
+        };
     });
+
+    if (dom.bgColorPicker) {
+        dom.bgColorPicker.oninput = () => {
+            state.settings.backgroundType = 'solid';
+            state.settings.backgroundValue = dom.bgColorPicker.value;
+            if (dom.bgColorText) dom.bgColorText.value = dom.bgColorPicker.value;
+            commitSettings();
+            syncSettingsUI();
+        };
+    }
+
+    if (dom.bgColorText) {
+        dom.bgColorText.oninput = () => {
+            const val = dom.bgColorText.value.trim();
+            if (!val) return;
+            state.settings.backgroundType = 'solid';
+            state.settings.backgroundValue = val;
+            if (dom.bgColorPicker && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val)) {
+                dom.bgColorPicker.value = val;
+            }
+            commitSettings();
+            syncSettingsUI();
+        };
+    }
 
     document.querySelectorAll('.color-swatch').forEach(swatch => {
         swatch.onclick = () => {
             state.settings.backgroundType = 'solid';
             state.settings.backgroundValue = swatch.dataset.color;
+            if (dom.bgColorText) dom.bgColorText.value = swatch.dataset.color;
+            if (dom.bgColorPicker && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(swatch.dataset.color)) {
+                dom.bgColorPicker.value = swatch.dataset.color;
+            }
             commitSettings();
+            syncSettingsUI();
         };
     });
 

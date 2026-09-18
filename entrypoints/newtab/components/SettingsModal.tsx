@@ -36,16 +36,14 @@ const themeLibrary = {
     { name: 'Forza Horizon', url: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1920&q=80' },
     { name: 'Neural (Interactive)', url: 'canvas:neural' },
     { name: 'Bubbles (Interactive)', url: 'canvas:bubbles' },
-    { name: 'Rain (Interactive)', url: 'canvas:rain' },
+    { name: 'Frosted Glass Rain (Interactive)', url: 'canvas:rain' },
     { name: 'Matrix Code (Interactive)', url: 'canvas:matrix' },
     { name: 'Hyperspace Warp (Interactive)', url: 'canvas:warp' },
     { name: 'Aurora Wave (Interactive)', url: 'canvas:wave' },
     { name: 'Galaxy Vortex (Interactive)', url: 'canvas:galaxy' },
     { name: 'Fireflies (Interactive)', url: 'canvas:fireflies' },
     { name: 'Retro Synthwave (Interactive)', url: 'canvas:synthwave' },
-    { name: 'Quantum Flow (Interactive)', url: 'canvas:quantum' },
-    { name: 'Sacred Mandala (Interactive)', url: 'canvas:mandala' },
-    { name: 'Animated GIF', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2I4Y2M1N2YyYzhjYjYyYjYyYjYyYjYyYjYyJmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxu5L9Yx7u8/giphy.gif' }
+    { name: 'Quantum Flow (Interactive)', url: 'canvas:quantum' }
   ]
 };
 
@@ -65,12 +63,16 @@ const braveWallpapersList = [
 ];
 
 const gradientPresets = [
-  'linear-gradient(135deg, #0f0f17 0%, #1a1a28 100%)',
-  'linear-gradient(135deg, #7b61ff 0%, #1a1a28 100%)',
-  'linear-gradient(135deg, #6366f1 0%, #000000 100%)',
-  'linear-gradient(135deg, #0d9488 0%, #111827 100%)',
-  'linear-gradient(135deg, #db2777 0%, #030712 100%)',
-  'linear-gradient(135deg, #d97706 0%, #1f2937 100%)',
+  'linear-gradient(135deg, #0f172a 0%, #020617 100%)',
+  'linear-gradient(120deg, #3a82ff 0%, #22d3ee 100%)',
+  'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #0284c7 100%)',
+  'linear-gradient(135deg, #4c1d95 0%, #8b5cf6 50%, #ec4899 100%)',
+  'linear-gradient(135deg, #f43f5e 0%, #a855f7 50%, #06b6d4 100%)',
+  'linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%)',
+  'linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)',
+  'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
+  'linear-gradient(135deg, #022c22 0%, #065f46 45%, #14b8a6 100%)',
+  'linear-gradient(135deg, #2e0854 0%, #7c3aed 50%, #f43f5e 100%)',
 ];
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
@@ -739,7 +741,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     >
                       <option value="neural">Neural Network (Interactive 3D)</option>
                       <option value="bubbles">Water Bubbles (Interactive 3D)</option>
-                      <option value="rain">Glass Rain (Interactive 3D)</option>
+                      <option value="rain">Frosted Glass Rain (Interactive 3D)</option>
                       <option value="matrix">Matrix Code Stream (Interactive 3D)</option>
                       <option value="warp">Hyperspace Warp Speed (Interactive 3D)</option>
                       <option value="wave">Aurora Wave Flow (Interactive 3D)</option>
@@ -747,7 +749,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <option value="fireflies">Bioluminescent Fireflies (Interactive 3D)</option>
                       <option value="synthwave">Retro Synthwave Wireframe (Interactive 3D)</option>
                       <option value="quantum">Quantum Flow Field (Interactive 3D)</option>
-                      <option value="mandala">Sacred Geometry Mandala (Interactive 3D)</option>
                     </select>
                   </div>
                 )}
