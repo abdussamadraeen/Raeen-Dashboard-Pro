@@ -10,6 +10,8 @@ export async function drawQRCode(canvas, text, options = {}) {
     if (!canvas || !text) return;
     try {
         const renderSize = options.size || 180;
+        // [LOW] Security: If text contains a URL, ensure it is sanitized before rendering 
+        // to prevent encoding malicious payloads if the input is ever user-controlled.
         await QRCode.toCanvas(canvas, String(text), {
             width: renderSize,
             margin: 2, // Standard ISO compliant quiet zone

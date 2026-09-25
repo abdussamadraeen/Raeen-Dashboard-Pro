@@ -52,18 +52,22 @@ export const FocusTimer: React.FC = () => {
   }
 
   return (
-    <div id="card-focus" className="info-card glass-premium rounded-2xl border border-white/10 p-5 shadow-[0_8px_32px_rgba(0,0,0,0.15)] flex flex-col gap-3 transition-all duration-300">
+    <section 
+      id="card-focus" 
+      aria-label="Pomodoro Focus Timer"
+      className="info-card glass-premium rounded-2xl border border-white/10 p-5 shadow-[0_8px_32px_rgba(0,0,0,0.15)] flex flex-col gap-3 transition-all duration-300"
+    >
       <div className="info-card-header flex items-center gap-3">
-        <div className="info-card-icon w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-[#5643cc] flex items-center justify-center shadow-[0_4px_12px_var(--accent-glow)] shrink-0">
+        <div className="info-card-icon w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-[#5643cc] flex items-center justify-center shadow-[0_4px_12px_var(--accent-glow)] shrink-0" aria-hidden="true">
           <Timer className="w-4 h-4 text-white" />
         </div>
-        <span className="info-card-title text-xs font-semibold uppercase tracking-wider text-white/60">
+        <h2 className="info-card-title text-xs font-semibold uppercase tracking-wider text-white/60 m-0">
           Focus Session
-        </span>
+        </h2>
       </div>
 
       <div className="info-card-content flex items-baseline gap-2">
-        <span id="card-focus-time" className="info-card-value text-3xl font-bold tracking-tight text-white">
+        <span id="card-focus-time" className="info-card-value text-3xl font-bold tracking-tight text-white" aria-live="off" aria-label={`Time left: ${m} minutes and ${s} seconds`}>
           {m}:{s}
         </span>
         <span className="info-card-sub text-xs text-white/50">
@@ -75,6 +79,8 @@ export const FocusTimer: React.FC = () => {
         <button
           id="focus-toggle-btn"
           onClick={focusTimer.isRunning ? pauseFocusTimer : startFocusTimer}
+          aria-label={focusTimer.isRunning ? 'Pause timer' : 'Start timer'}
+          aria-pressed={focusTimer.isRunning}
           className="focus-btn focus-btn-primary flex-1 py-2 rounded-lg font-semibold text-xs transition-all duration-200 bg-accent text-white shadow-[0_2px_8px_var(--accent-glow)] hover:shadow-[0_4px_14px_var(--accent-glow)] active:scale-95"
         >
           {focusTimer.isRunning ? '⏸ Pause' : '▶ Start'}
@@ -82,11 +88,12 @@ export const FocusTimer: React.FC = () => {
         <button
           id="focus-reset-btn"
           onClick={resetFocusTimer}
+          aria-label="Reset timer"
           className="focus-btn focus-btn-secondary flex-1 py-2 rounded-lg font-semibold text-xs border border-white/20 bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all duration-200"
         >
           🔄 Reset
         </button>
       </div>
-    </div>
+    </section>
   );
 };

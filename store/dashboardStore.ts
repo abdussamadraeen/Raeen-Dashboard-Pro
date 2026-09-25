@@ -437,27 +437,43 @@ const defaultFocusData: FocusTimerData = {
 };
 
 export const useDashboardStore = create<DashboardState>((set, get) => {
-  // Synchronize helper for saving settings across storage systems
-  const saveAllSettings = async (toSave: Settings) => {
-    // 1. Save to IndexedDB
-    try {
-      if (StorageManager.isReady()) {
-        await StorageManager.set('settings', 'main', toSave);
+  // Debounce helper for settings saves
+  let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+  let pendingSave: Settings | null = null;
+
+  const saveAllSettings = (toSave: Settings) => {
+    pendingSave = toSave;
+    
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+    }
+    
+    saveTimeout = setTimeout(async () => {
+      if (!pendingSave) return;
+      const settingsToSave = pendingSave;
+      pendingSave = null;
+      saveTimeout = null;
+
+      // 1. Save to IndexedDB
+      try {
+        if (StorageManager.isReady()) {
+          await StorageManager.set('settings', 'main', settingsToSave);
+        }
+      } catch (e) {
+        console.error('Failed to save settings to IndexedDB:', e);
       }
-    } catch (e) {
-      console.error('Failed to save settings to IndexedDB:', e);
-    }
 
-    // 2. Save to chrome storage (for MV3 extension architecture sync)
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-      chrome.storage.local.set({ 'raeen_settings': toSave });
-    }
+      // 2. Save to chrome storage (for MV3 extension architecture sync)
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ 'raeen_settings': settingsToSave });
+      }
 
-    // 3. Save to localStorage for synchronous, flash-free preloading
-    if (toSave.backgroundType) {
-      localStorage.setItem('raeen_bg_type', toSave.backgroundType);
-      localStorage.setItem('raeen_bg_value', toSave.backgroundValue || '');
-    }
+      // 3. Save to localStorage for synchronous, flash-free preloading
+      if (settingsToSave.backgroundType) {
+        localStorage.setItem('raeen_bg_type', settingsToSave.backgroundType);
+        localStorage.setItem('raeen_bg_value', settingsToSave.backgroundValue || '');
+      }
+    }, 500); // Debounce for 500ms
   };
 
   return {
@@ -470,14 +486,35 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
     initStore: async () => {
       // Initialize StorageManager
       await StorageManager.init();
+      
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        try {
+          const { runStorageMigrations } = await import('../lib/storageVersion');
+          await runStorageMigrations([
+            {
+              version: 1,
+              description: 'Ensure required fields have defaults',
+              migrate: (data) => {
+                const settings = data.raeen_settings || {};
+                // Force defaults for missing keys
+                data.raeen_settings = { ...defaultSettings, ...settings };
+                return data;
+              }
+            }
+          ], 1);
+        } catch (e) {
+          console.error('Migration failed:', e);
+        }
+      }
+
       set({ storageReady: true });
 
       // 1. Load Settings
-      let loadedSettings: any = null;
+      let loadedSettings: Partial<Settings> | null = null;
 
       // Try IndexedDB first
       try {
-        loadedSettings = await StorageManager.get<any>('settings', 'main');
+        loadedSettings = await StorageManager.get<Partial<Settings>>('settings', 'main');
       } catch (e) {
         console.error('Failed to read settings from IndexedDB:', e);
       }
@@ -494,17 +531,20 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
       let finalSettings = { ...defaultSettings };
       if (loadedSettings) {
         try {
-          // Parse loaded settings with Zod, falling back safely to defaults for missing keys
+          // Parse loaded settings with Zod. Missing fields will use defaults. Unknown fields will be stripped.
           const parsed = SettingsSchema.safeParse(loadedSettings);
           if (parsed.success) {
-            finalSettings = { ...defaultSettings, ...parsed.data };
+            finalSettings = parsed.data;
           } else {
-            // If validation fails slightly (due to schema drift), merge legacy fields carefully
-            finalSettings = { ...defaultSettings, ...loadedSettings };
-            console.warn('Zod settings validation warning, fallback merged: ', parsed.error);
+            console.warn('Zod settings validation failed, attempting partial recovery: ', parsed.error);
+            // If validation fails, we shouldn't blindly merge corrupted data.
+            // We can try to salvage by filtering out bad keys, or just use defaults for simplicity and safety.
+            // A simple recovery is to just use defaultSettings to prevent app crash.
+            finalSettings = defaultSettings;
           }
         } catch (e) {
           console.error('Settings validation failed:', e);
+          finalSettings = defaultSettings;
         }
       }
 
@@ -571,16 +611,16 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
     updateSettings: async (newSettings: Partial<Settings>) => {
       const merged = { ...get().settings, ...newSettings };
       set({ settings: merged });
-      await saveAllSettings(merged);
+      saveAllSettings(merged);
     },
 
     resetSettings: async () => {
       set({ settings: defaultSettings });
-      await saveAllSettings(defaultSettings);
+      saveAllSettings(defaultSettings);
     },
 
     addNote: async (title = '', body = '') => {
-      const id = 'note_' + Date.now();
+      const id = 'note_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       const newNote: Note = {
         id,
         title: title || 'Untitled Note',
@@ -715,8 +755,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
       const list = [...appsData[provider]];
 
       // Move the item in the array
-      const [movedItem] = list.splice(draggedIndex, 1);
-      list.splice(dropIndex, 0, movedItem);
+      const movedItem = list[draggedIndex]; if (movedItem) { list.splice(draggedIndex, 1); list.splice(dropIndex, 0, movedItem); }
 
       const updatedAppsData = {
         ...appsData,

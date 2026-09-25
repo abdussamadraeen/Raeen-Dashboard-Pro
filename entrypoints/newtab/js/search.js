@@ -3,17 +3,24 @@ import { dom } from './dom.js';
 import { escapeHTML } from './security.js';
 
 export const GOOGLE_COLOR_G_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%234285F4%22%20d%3D%22M23.745%2012.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29%201.52-1.14%202.82-2.4%203.68v3.05h3.88c2.27-2.09%203.66-5.17%203.66-9.17z%22%2F%3E%3Cpath%20fill%3D%22%2334A853%22%20d%3D%22M12%2024c3.24%200%205.95-1.08%207.93-2.91l-3.88-3.05c-1.08.72-2.45%201.16-4.05%201.16-3.12%200-5.77-2.1-6.72-4.93H1.25v3.15C3.26%2021.36%207.33%2024%2012%2024z%22%2F%3E%3Cpath%20fill%3D%22%23FBBC05%22%20d%3D%22M5.28%2014.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45%208.18%200%2010.03%200%2012s.45%203.82%201.25%205.42l4.03-3.15z%22%2F%3E%3Cpath%20fill%3D%22%23EA4335%22%20d%3D%22M12%204.75c1.77%200%203.35.61%204.6%201.8l3.42-3.42C17.95%201.19%2015.24%200%2012%200%207.33%200%203.26%202.64%201.25%206.58l4.03%203.15c.95-2.83%203.6-4.98%206.72-4.98z%22%2F%3E%3C%2Fsvg%3E";
+export const BRAVE_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23FB542B%22%20d%3D%22M12%202L3%206v6c0%205.55%203.84%2010.74%209%2012%205.16-1.26%209-6.45%209-12V6l-9-4zm5.5%2012.8c-.8%201.8-2.6%203.1-4.7%203.5-.3.1-.7.1-1%200-2.1-.4-3.9-1.7-4.7-3.5-.3-.7-.4-1.5-.4-2.3%200-1.8.8-3.4%202.1-4.5.3-.3.7-.5%201.1-.7.3-.1.6-.2%201-.2s.7.1%201%20.2c.4.2.8.4%201.1.7%201.3%201.1%202.1%202.7%202.1%204.5.1.8%200%201.6-.3%202.3z%22%2F%3E%3C%2Fsvg%3E";
+export const DUCKDUCKGO_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%20fill%3D%22%23DE5833%22%2F%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M16.5%2013.5c-.3-1.6-1.5-2.8-3-3.2.1-.5.3-1.2.7-1.8.2-.3.1-.6-.2-.7-.3-.1-.6.1-.7.4-.4.7-.6%201.4-.7%202-.7.2-1.3.6-1.8%201.1-.4-.3-.9-.4-1.4-.3-.9.1-1.6.8-1.7%201.7-.1.8.4%201.5%201.1%201.8.2%201.3%201.1%202.3%202.3%202.6.4.1.8.1%201.2%200%201.9-.3%203.3-1.8%203.5-3.6z%22%2F%3E%3Ccircle%20cx%3D%229%22%20cy%3D%2213.5%22%20r%3D%22.8%22%20fill%3D%22%23222%22%2F%3E%3C%2Fsvg%3E";
+export const BING_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23008080%22%20d%3D%22M5%203v18l5-2.8V6.8l5.8%203.2-2.8%204.2%204.4%202.5L20%2014V8.5L9.6%203H5z%22%2F%3E%3C%2Fsvg%3E";
+export const CHATGPT_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2310A37F%22%2F%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M18.8%2010.2a3.8%203.8%200%200%200-.3-3.1%203.9%203.9%200%200%200-4.3-1.8A3.8%203.8%200%200%200%2011.5%204a3.9%203.9%200%200%200-3.7%202.7%203.8%203.8%200%200%200-2.3%201.6%203.9%203.9%200%200%200%20.4%204.7%203.8%203.8%200%200%200%20.3%203.1%203.9%203.9%200%200%200%204.3%201.8%203.8%203.8%200%200%200%202.7%201.3%203.9%203.9%200%200%200%203.7-2.7%203.8%203.8%200%200%200%202.3-1.6%203.9%203.9%200%200%200-.4-4.7z%22%2F%3E%3C%2Fsvg%3E";
+export const PERPLEXITY_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2320B2AA%22%2F%3E%3Cpath%20stroke%3D%22%23FFF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20d%3D%22M12%204v16m-8-8h16m-13.6-5.6l11.2%2011.2m0-11.2L6.4%2017.6%22%2F%3E%3C%2Fsvg%3E";
+export const CLAUDE_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23D97706%22%2F%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M12%205.5l1.6%204.9%204.9%201.6-4.9%201.6-1.6%204.9-1.6-4.9-4.9-1.6%204.9-1.6z%22%2F%3E%3C%2Fsvg%3E";
+export const ROBOT_AI_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%232563EB%22%2F%3E%3Crect%20width%3D%2214%22%20height%3D%2210%22%20x%3D%225%22%20y%3D%228%22%20rx%3D%222.5%22%20fill%3D%22none%22%20stroke%3D%22%23FFF%22%20stroke-width%3D%221.8%22%2F%3E%3Cpath%20d%3D%22M12%204v4%22%20stroke%3D%22%23FFF%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Ccircle%20cx%3D%229%22%20cy%3D%2213%22%20r%3D%221.2%22%20fill%3D%22%23FFF%22%2F%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2213%22%20r%3D%221.2%22%20fill%3D%22%23FFF%22%2F%3E%3C%2Fsvg%3E";
 
 export const SEARCH_ENGINE_METADATA = {
     google: { name: 'Google', icon: GOOGLE_COLOR_G_SVG, placeholder: 'Search the web' },
-    brave: { name: 'Brave', icon: 'https://brave.com/favicon.ico', placeholder: 'Search the web with Brave' },
-    duckduckgo: { name: 'DuckDuckGo', icon: 'https://duckduckgo.com/favicon.ico', placeholder: 'Search privately with DuckDuckGo' },
-    bing: { name: 'Bing', icon: 'https://www.bing.com/favicon.ico', placeholder: 'Search the web with Bing' },
-    chatgpt: { name: 'ChatGPT', icon: 'https://chatgpt.com/favicon.ico', placeholder: 'Ask ChatGPT anything...' },
-    perplexity: { name: 'Perplexity', icon: 'https://www.google.com/s2/favicons?sz=64&domain=perplexity.ai', placeholder: 'Ask Perplexity anything...' },
-    claude: { name: 'Claude', icon: 'https://www.google.com/s2/favicons?sz=64&domain=claude.ai', placeholder: 'Talk to Claude...' },
-    robot_ai: { name: 'Robot AI', icon: '', isRobot: true, placeholder: 'Ask AI or search (Auto-routed)...' },
-    custom_engine: { name: 'Custom', icon: 'https://www.google.com/favicon.ico', placeholder: 'Search custom engine...' }
+    brave: { name: 'Brave', icon: BRAVE_SVG, placeholder: 'Search the web with Brave' },
+    duckduckgo: { name: 'DuckDuckGo', icon: DUCKDUCKGO_SVG, placeholder: 'Search privately with DuckDuckGo' },
+    bing: { name: 'Bing', icon: BING_SVG, placeholder: 'Search the web with Bing' },
+    chatgpt: { name: 'ChatGPT', icon: CHATGPT_SVG, placeholder: 'Ask ChatGPT anything...' },
+    perplexity: { name: 'Perplexity', icon: PERPLEXITY_SVG, placeholder: 'Ask Perplexity anything...' },
+    claude: { name: 'Claude', icon: CLAUDE_SVG, placeholder: 'Talk to Claude...' },
+    robot_ai: { name: 'Robot AI', icon: ROBOT_AI_SVG, isRobot: true, placeholder: 'Ask AI or search (Auto-routed)...' },
+    custom_engine: { name: 'Custom', icon: GOOGLE_COLOR_G_SVG, placeholder: 'Search custom engine...' }
 };
 
 export function updateSearchEngineUI() {
@@ -21,23 +28,11 @@ export function updateSearchEngineUI() {
     const meta = SEARCH_ENGINE_METADATA[engine] || SEARCH_ENGINE_METADATA.google;
 
     if (dom.searchEngineCurrentIcon) {
-        if (meta.isRobot) {
-            dom.searchEngineCurrentIcon.style.display = 'none';
-            let robotSpan = dom.searchEngineBtn?.querySelector('.engine-icon-robot');
-            if (!robotSpan) {
-                robotSpan = document.createElement('span');
-                robotSpan.className = 'engine-icon-robot';
-                robotSpan.textContent = '🤖';
-                dom.searchEngineBtn?.insertBefore(robotSpan, dom.searchEngineBtn.firstChild);
-            }
-            robotSpan.style.display = 'inline-flex';
-        } else {
-            const robotSpan = dom.searchEngineBtn?.querySelector('.engine-icon-robot');
-            if (robotSpan) robotSpan.style.display = 'none';
-            dom.searchEngineCurrentIcon.style.display = 'block';
-            dom.searchEngineCurrentIcon.src = meta.icon;
-            dom.searchEngineCurrentIcon.alt = meta.name;
-        }
+        dom.searchEngineCurrentIcon.style.display = 'block';
+        dom.searchEngineCurrentIcon.src = meta.icon;
+        dom.searchEngineCurrentIcon.alt = meta.name;
+        const robotSpan = dom.searchEngineBtn?.querySelector('.engine-icon-robot');
+        if (robotSpan) robotSpan.style.display = 'none';
     }
 
     if (dom.searchInput) {
@@ -167,6 +162,7 @@ export function setupSearch() {
 
         let debounceTimer = null;
         let latestQuerySeq = 0;
+        let activeSearchController = null;
 
         dom.searchInput.oninput = (e) => {
             const queryRaw = e.target.value;
@@ -196,8 +192,16 @@ export function setupSearch() {
                     }
                 }
 
+                if (activeSearchController) {
+                    activeSearchController.abort();
+                }
+                activeSearchController = new AbortController();
+
                 try {
-                    const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`);
+                    const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`, {
+                        signal: activeSearchController.signal
+                    });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     if (currentSeq !== latestQuerySeq) return; // Discard stale responses
                     const data = await res.json();
                     const suggestions = (data[1] || []).slice(0, 6);
@@ -211,7 +215,9 @@ export function setupSearch() {
                             </li>`).join('');
                         dom.searchSuggestions.classList.toggle('hidden', suggestions.length === 0);
                     }
-                } catch (err) { }
+                } catch (err) { 
+                    if (err.name !== 'AbortError') console.warn('Suggest error', err);
+                }
             }, 180);
         };
 

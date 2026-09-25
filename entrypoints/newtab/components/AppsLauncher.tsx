@@ -5,7 +5,10 @@ import { AppItem } from '../../../validation/settingsSchema';
 type AppProvider = 'google' | 'microsoft' | 'ai' | 'custom';
 
 export const AppsLauncher: React.FC = () => {
-  const { settings, appsData, updateSettings, reorderPresetApps } = useDashboardStore();
+  const settings = useDashboardStore(s => s.settings);
+  const appsData = useDashboardStore(s => s.appsData);
+  const updateSettings = useDashboardStore(s => s.updateSettings);
+  const reorderPresetApps = useDashboardStore(s => s.reorderPresetApps);
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AppProvider>('google');
   
@@ -110,35 +113,50 @@ export const AppsLauncher: React.FC = () => {
         className="icon-btn"
         onClick={toggleDropdown}
         title="App Launcher"
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-label="Open App Launcher"
       >
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
           <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z" />
         </svg>
       </button>
 
       {/* Launcher Dropdown Container */}
-      <div id="apps-dropdown" className={`apps-dropdown ${isOpen ? '' : 'hidden'}`}>
+      <div id="apps-dropdown" role="menu" className={`apps-dropdown ${isOpen ? '' : 'hidden'}`}>
         {/* Navigation Tabs */}
-        <div className="apps-tabs">
+        <div className="apps-tabs" role="tablist" aria-label="App categories">
           <button
+            role="tab"
+            aria-selected={activeTab === 'google'}
+            aria-controls="apps-panel"
             className={`app-tab ${activeTab === 'google' ? 'active' : ''}`}
             onClick={() => { setActiveTab('google'); setShowAddForm(false); }}
           >
             Google
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'microsoft'}
+            aria-controls="apps-panel"
             className={`app-tab ${activeTab === 'microsoft' ? 'active' : ''}`}
             onClick={() => { setActiveTab('microsoft'); setShowAddForm(false); }}
           >
             Microsoft
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'ai'}
+            aria-controls="apps-panel"
             className={`app-tab ${activeTab === 'ai' ? 'active' : ''}`}
             onClick={() => { setActiveTab('ai'); setShowAddForm(false); }}
           >
             AI Apps
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'custom'}
+            aria-controls="apps-panel"
             className={`app-tab ${activeTab === 'custom' ? 'active' : ''}`}
             onClick={() => { setActiveTab('custom'); }}
           >
@@ -152,6 +170,7 @@ export const AppsLauncher: React.FC = () => {
             <input
               type="text"
               placeholder="App Name"
+              aria-label="App Name"
               className="text-input"
               value={appName}
               onChange={(e) => setAppName(e.target.value)}
@@ -160,6 +179,7 @@ export const AppsLauncher: React.FC = () => {
             <input
               type="text"
               placeholder="App URL (e.g. google.com)"
+              aria-label="App URL"
               className="text-input"
               value={appUrl}
               onChange={(e) => setAppUrl(e.target.value)}
@@ -168,6 +188,7 @@ export const AppsLauncher: React.FC = () => {
             <input
               type="text"
               placeholder="Icon URL (optional)"
+              aria-label="Icon URL"
               className="text-input"
               value={appIcon}
               onChange={(e) => setAppIcon(e.target.value)}
@@ -191,7 +212,7 @@ export const AppsLauncher: React.FC = () => {
         )}
 
         {/* Dynamic App Grid Pane */}
-        <div className="apps-grid app-pane active">
+        <div id="apps-panel" role="tabpanel" className="apps-grid app-pane active">
           {appsList.length === 0 ? (
             <div className="col-span-3 flex flex-col items-center justify-center p-6 text-center text-[var(--text-secondary)] opacity-60">
               <span className="text-xs">No apps configured.</span>
@@ -219,6 +240,7 @@ export const AppsLauncher: React.FC = () => {
                   href={app.url}
                   target="_blank"
                   rel="noreferrer"
+                  role="menuitem"
                   className={`app-item ${draggedIndex === index ? 'dragging' : ''}`}
                   draggable={isDragSupported}
                   onDragStart={() => isDragSupported && handleDragStart(index)}
@@ -227,7 +249,7 @@ export const AppsLauncher: React.FC = () => {
                 >
                   <img
                     src={app.icon || fallbackIcon}
-                    alt={app.name}
+                    alt=""
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = fallbackIcon;
                     }}
@@ -239,7 +261,8 @@ export const AppsLauncher: React.FC = () => {
                     <button
                       className="remove-app-btn"
                       onClick={(e) => handleRemoveCustomApp(index, e)}
-                      title="Remove App"
+                      title={`Remove ${app.name}`}
+                      aria-label={`Remove ${app.name}`}
                     >
                       &times;
                     </button>

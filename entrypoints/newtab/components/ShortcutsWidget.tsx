@@ -3,7 +3,7 @@ import { useDashboardStore } from '../../../store/dashboardStore';
 import { AppItem } from '../../../validation/settingsSchema';
 
 export const ShortcutsWidget: React.FC = () => {
-  const { settings } = useDashboardStore();
+  const settings = useDashboardStore(state => state.settings);
   const [browserTopSites, setBrowserTopSites] = useState<AppItem[]>([]);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export const ShortcutsWidget: React.FC = () => {
       : browserTopSites;
 
   return (
-    <div id="top-sites-widget" className="quick-links">
+    <div id="top-sites-widget" className="quick-links" aria-label="Top Sites">
       {listToRender.map((sc, i) => {
         const iconUrl = sc.icon || `https://www.google.com/s2/favicons?sz=64&domain_url=${sc.url}`;
         const firstLetter = sc.name ? sc.name.charAt(0).toUpperCase() : '?';
@@ -39,14 +39,15 @@ export const ShortcutsWidget: React.FC = () => {
             key={`${sc.url}-${i}`}
             href={sc.url}
             className="shortcut"
+            aria-label={`Open ${sc.name}`}
             style={{ '--item-index': i } as React.CSSProperties}
           >
             {sc.icon === 'letter' ? (
-              <div className="icon-placeholder">{firstLetter}</div>
+              <div className="icon-placeholder" aria-hidden="true">{firstLetter}</div>
             ) : (
               <img
                 src={iconUrl}
-                alt={sc.name}
+                alt=""
                 onError={(e) => {
                   // Fallback to letter icon on error
                   (e.target as HTMLElement).style.display = 'none';
@@ -54,6 +55,7 @@ export const ShortcutsWidget: React.FC = () => {
                   if (parent) {
                     const placeholder = document.createElement('div');
                     placeholder.className = 'icon-placeholder';
+                    placeholder.setAttribute('aria-hidden', 'true');
                     placeholder.innerText = firstLetter;
                     parent.insertBefore(placeholder, parent.firstChild);
                   }

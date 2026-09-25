@@ -34,5 +34,7 @@
                 document.documentElement.appendChild(s);
             }
         }
-    } catch(e) {}
+    } catch(e) {
+        console.warn('Theme loader encountered an error:', e);
+    }
 })();

@@ -63,9 +63,13 @@ export const ClockWidget: React.FC = () => {
 
   return (
     <div id="clock-widget" className="clock-widget select-none my-8 flex items-center justify-center">
-      <h1 id="time" className="time text-8xl font-black tracking-tighter text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)] inline-flex items-start">
-        <span className="time-digits">{timeStr}</span>
-        {ampmStr && showClockAmPm !== false && <span className="time-ampm">{ampmStr}</span>}
+      <h1 
+        id="time" 
+        className="time text-8xl font-black tracking-tighter text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)] inline-flex items-start"
+        aria-label={`Current time: ${timeStr} ${ampmStr && showClockAmPm !== false ? ampmStr : ''}`}
+      >
+        <span className="time-digits" aria-hidden="true">{timeStr}</span>
+        {ampmStr && showClockAmPm !== false && <span className="time-ampm" aria-hidden="true">{ampmStr}</span>}
       </h1>
     </div>
   );

@@ -45,7 +45,9 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
         if (cachedBgVal) state.settings.backgroundValue = cachedBgVal;
         const cachedTheme = localStorage.getItem('raeen_theme');
         if (cachedTheme) state.settings.theme = cachedTheme;
-    } catch(e) {}
+    } catch(e) {
+        console.warn('Failed to restore initial cache state', e);
+    }
 
     // 1. Immediate UI Load
     applySettings();
@@ -225,11 +227,12 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
             }
 
             if (dom.hudNodeHint) {
+                const DEFAULT_TOR_PORT = 9050;
                 if (currentNode.isTor) {
                     if (securityManager.torOffline) {
-                        dom.hudNodeHint.innerHTML = `⚠️ <strong>Tor Offline (${currentNode.port || 9050}):</strong> Port ${currentNode.port || 9050} is not responding. Ensure Tor daemon is active, or choose US VPN above for instant cloud protection.`;
+                        dom.hudNodeHint.innerHTML = `⚠️ <strong>Tor Offline (${currentNode.port || DEFAULT_TOR_PORT}):</strong> Port ${currentNode.port || DEFAULT_TOR_PORT} is not responding. Ensure Tor daemon is active, or choose US VPN above for instant cloud protection.`;
                     } else {
-                        dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Active on 127.0.0.1:${currentNode.port || 9050} • Multi-Hop Onion Relay`;
+                        dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Active on 127.0.0.1:${currentNode.port || DEFAULT_TOR_PORT} • Multi-Hop Onion Relay`;
                     }
                 } else if (currentNode.id === 'custom') {
                     dom.hudNodeHint.innerHTML = '⚙️ <strong>Custom:</strong> Enter your own SOCKS5 or HTTPS proxy host and port.';
@@ -857,7 +860,7 @@ function optimizeImage(file) {
             {
                 id: "preset-ai",
                 name: "AI Hub",
-                icon: "🤖",
+                icon: "bot",
                 visible: true,
                 sites: [
                     { name: "ChatGPT", url: "https://chatgpt.com" },
@@ -869,7 +872,7 @@ function optimizeImage(file) {
             {
                 id: "preset-work",
                 name: "Work & Docs",
-                icon: "💼",
+                icon: "folder",
                 visible: true,
                 sites: [
                     { name: "Google", url: "https://google.com" },
@@ -882,7 +885,7 @@ function optimizeImage(file) {
             {
                 id: "preset-social",
                 name: "Socials",
-                icon: "💬",
+                icon: "chat",
                 visible: true,
                 sites: [
                     { name: "WhatsApp", url: "https://web.whatsapp.com" },
@@ -894,7 +897,7 @@ function optimizeImage(file) {
             {
                 id: "preset-dev",
                 name: "Dev & Design",
-                icon: "🛠️",
+                icon: "tools",
                 visible: true,
                 sites: [
                     { name: "GitHub", url: "https://github.com" },
@@ -906,7 +909,7 @@ function optimizeImage(file) {
             {
                 id: "preset-entertainment",
                 name: "Entertainment",
-                icon: "🎮",
+                icon: "game",
                 visible: true,
                 sites: [
                     { name: "YouTube", url: "https://youtube.com" },
@@ -962,6 +965,91 @@ function optimizeImage(file) {
                 activeCategoryId = visibleList[0].id;
             }
             return visibleList.find(c => c.id === activeCategoryId) || visibleList[0];
+        };
+
+        const VECTOR_GLYPHS = {
+            bot: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="12" x="3" y="8" rx="3"/><path d="M12 2v6"/><circle cx="9" cy="14" r="1.3" fill="#ffffff"/><circle cx="15" cy="14" r="1.3" fill="#ffffff"/><path d="M2 14h1"/><path d="M21 14h1"/><path d="M10 18h4"/></svg>`,
+            folder: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>`,
+            chat: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+            tools: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 10.7 5.6-5.6a1 1 0 0 0 0-1.4l-3-3a1 1 0 0 0-1.4 0l-5.6 5.6M8.3 15.3l-5.6 5.6a1 1 0 0 0 0 1.4l3 3a1 1 0 0 0 1.4 0l5.6-5.6"/><path d="m9 9 6 6"/></svg>`,
+            game: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="6"/><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/></svg>`,
+            finance: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="3"/><line x1="2" x2="22" y1="10" y2="10"/></svg>`,
+            git: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 9v6"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>`,
+            star: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+            music: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+            shopping: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>`,
+            video: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect width="15" height="14" x="1" y="5" rx="2" ry="2"/></svg>`,
+            news: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>`,
+            book: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 2v20"/></svg>`
+        };
+
+        const getCategoryBadge = (c, size = 'sm') => {
+            if (!c) return '';
+            const id = (c.id || '').toLowerCase();
+            const name = (c.name || '').toLowerCase();
+            const icon = (c.icon || '').toLowerCase();
+
+            // High-contrast, vibrant Apple system gradients
+            let gradient = 'linear-gradient(145deg, #6366f1 0%, #4338ca 100%)';
+            let glow = 'rgba(99, 102, 241, 0.4)';
+            let svg = VECTOR_GLYPHS.folder;
+
+            if (id.includes('ai') || name.includes('ai') || icon.includes('🤖') || icon.includes('bot')) {
+                gradient = 'linear-gradient(145deg, #0ea5e9 0%, #2563eb 55%, #4f46e5 100%)';
+                glow = 'rgba(37, 99, 235, 0.45)';
+                svg = VECTOR_GLYPHS.bot;
+            } else if (id.includes('work') || name.includes('work') || name.includes('doc') || icon.includes('💼') || icon.includes('📁') || icon.includes('folder')) {
+                gradient = 'linear-gradient(145deg, #fb923c 0%, #ea580c 55%, #c2410c 100%)';
+                glow = 'rgba(234, 88, 12, 0.45)';
+                svg = VECTOR_GLYPHS.folder;
+            } else if (id.includes('social') || name.includes('social') || icon.includes('💬') || icon.includes('chat') || icon.includes('message')) {
+                gradient = 'linear-gradient(145deg, #34d399 0%, #059669 60%, #047857 100%)';
+                glow = 'rgba(5, 150, 105, 0.45)';
+                svg = VECTOR_GLYPHS.chat;
+            } else if (id.includes('dev') || name.includes('dev') || name.includes('code') || icon.includes('🛠') || icon.includes('tool')) {
+                gradient = 'linear-gradient(145deg, #c084fc 0%, #9333ea 55%, #7e22ce 100%)';
+                glow = 'rgba(147, 51, 234, 0.45)';
+                svg = VECTOR_GLYPHS.tools;
+            } else if (id.includes('entertain') || name.includes('game') || icon.includes('🎮') || icon.includes('game') || name.includes('play')) {
+                gradient = 'linear-gradient(145deg, #38bdf8 0%, #0284c7 60%, #0369a1 100%)';
+                glow = 'rgba(2, 132, 199, 0.45)';
+                svg = VECTOR_GLYPHS.game;
+            } else if (id.includes('git') || name.includes('git') || icon.includes('🐙') || icon.includes('git')) {
+                gradient = 'linear-gradient(145deg, #fb7185 0%, #e11d48 60%, #be123c 100%)';
+                glow = 'rgba(225, 29, 72, 0.45)';
+                svg = VECTOR_GLYPHS.git;
+            } else if (name.includes('finance') || name.includes('money') || icon.includes('💰') || icon.includes('finance') || name.includes('bank')) {
+                gradient = 'linear-gradient(145deg, #facc15 0%, #d97706 60%, #b45309 100%)';
+                glow = 'rgba(217, 119, 6, 0.45)';
+                svg = VECTOR_GLYPHS.finance;
+            } else if (name.includes('star') || name.includes('fav') || icon.includes('⭐') || icon.includes('star')) {
+                gradient = 'linear-gradient(145deg, #fbbf24 0%, #f59e0b 100%)';
+                glow = 'rgba(245, 158, 11, 0.45)';
+                svg = VECTOR_GLYPHS.star;
+            } else if (name.includes('music') || name.includes('song') || name.includes('audio') || icon.includes('🎵') || icon.includes('music') || icon.includes('audio')) {
+                gradient = 'linear-gradient(145deg, #f43f5e 0%, #e11d48 55%, #9f1239 100%)';
+                glow = 'rgba(244, 63, 94, 0.45)';
+                svg = VECTOR_GLYPHS.music;
+            } else if (name.includes('shop') || name.includes('store') || name.includes('buy') || icon.includes('🛒') || icon.includes('shop')) {
+                gradient = 'linear-gradient(145deg, #2dd4bf 0%, #0d9488 60%, #115e59 100%)';
+                glow = 'rgba(13, 148, 136, 0.45)';
+                svg = VECTOR_GLYPHS.shopping;
+            } else if (name.includes('video') || name.includes('movie') || name.includes('stream') || icon.includes('🎬') || icon.includes('video')) {
+                gradient = 'linear-gradient(145deg, #ec4899 0%, #db2777 60%, #9d174d 100%)';
+                glow = 'rgba(219, 39, 119, 0.45)';
+                svg = VECTOR_GLYPHS.video;
+            } else if (name.includes('news') || icon.includes('📰') || icon.includes('news')) {
+                gradient = 'linear-gradient(145deg, #64748b 0%, #475569 60%, #334155 100%)';
+                glow = 'rgba(71, 85, 105, 0.45)';
+                svg = VECTOR_GLYPHS.news;
+            } else if (name.includes('book') || name.includes('read') || icon.includes('📚') || icon.includes('book')) {
+                gradient = 'linear-gradient(145deg, #818cf8 0%, #6366f1 60%, #4338ca 100%)';
+                glow = 'rgba(99, 102, 241, 0.45)';
+                svg = VECTOR_GLYPHS.book;
+            }
+
+            const sizeClass = size === 'lg' ? 'cat-badge-lg' : (size === 'md' ? 'cat-badge-md' : 'cat-badge-sm');
+            return `<span class="cat-apple-squircle ${sizeClass}" style="background:${gradient}; --badge-glow:${glow};">${svg}</span>`;
         };
 
         // Inject Directories CSS styles
@@ -1199,7 +1287,81 @@ function optimizeImage(file) {
                     border-bottom-color: var(--accent);
                 }
             }
+            
+            .cat-apple-squircle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                position: relative;
+                border: 0.5px solid rgba(255, 255, 255, 0.25);
+                box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.5), 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 12px var(--badge-glow);
+                transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+                vertical-align: middle;
+            }
+            .cat-apple-squircle:hover {
+                transform: scale(1.08);
+            }
+            .cat-apple-squircle svg {
+                filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+            }
+            .cat-badge-sm {
+                width: 20px;
+                height: 20px;
+                border-radius: 6px;
+            }
+            .cat-badge-sm svg {
+                width: 12px;
+                height: 12px;
+            }
+            .cat-badge-md {
+                width: 24px;
+                height: 24px;
+                border-radius: 7px;
+            }
+            .cat-badge-md svg {
+                width: 14px;
+                height: 14px;
+            }
+            .cat-badge-lg {
+                width: 30px;
+                height: 30px;
+                border-radius: 9px;
+            }
+            .cat-badge-lg svg {
+                width: 17px;
+                height: 17px;
+            }
+            .cat-links-pill {
+                display: inline-block;
+                padding: 2px 7px;
+                border-radius: 6px;
+                font-size: 0.72rem;
+                font-weight: 500;
+                background: rgba(255, 255, 255, 0.08);
+                color: var(--text-secondary);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                margin-left: 6px;
+            }
             .directory-editor-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 14px;
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 14px;
+                margin-bottom: 8px;
+                backdrop-filter: blur(12px);
+                transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .directory-editor-item:hover {
+                background: rgba(255, 255, 255, 0.07);
+                border-color: rgba(255, 255, 255, 0.16);
+                transform: translateY(-1px);
+            }
+
+            .directory-editor-item-original {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -1238,6 +1400,11 @@ function optimizeImage(file) {
                 color: #fff;
             }
         `;
+        if (document.head && !document.getElementById("directory-injected-styles")) {
+            styleEl.id = "directory-injected-styles";
+            document.head.appendChild(styleEl);
+        }
+
         // Reference existing or create widget container in DOM
         let dirWidget = document.getElementById("directory-widget");
         if (!dirWidget) {
@@ -1292,7 +1459,7 @@ function optimizeImage(file) {
                 <div class="directory-editor-box mt-4">
                     <div style="display: flex; gap: 8px;" class="mb-4">
                         <input type="text" id="new-cat-name-input" class="text-input" placeholder="New Category Name (e.g. Finance)">
-                        <input type="text" id="new-cat-icon-input" class="text-input" placeholder="Emoji (e.g. 💰)" style="max-width: 80px; text-align: center;">
+                        <input type="text" id="new-cat-icon-input" class="text-input" placeholder="Icon / Tag" style="max-width: 100px; text-align: center;">
                         <button id="add-cat-btn-action" class="primary-btn" style="padding: 10px 16px; border-radius: 10px; font-size: 0.88rem;">+ Add</button>
                     </div>
                     
@@ -1377,7 +1544,7 @@ function optimizeImage(file) {
                 const escapedId = escapeAttribute(c.id);
                 sidebarHTML += `
                     <button class="directory-sidebar-btn ${isActive ? 'active' : ''}" data-cat-id="${escapedId}">
-                        <span class="directory-sidebar-icon">${escapedIcon}</span>
+                        <span class="directory-sidebar-icon">${getCategoryBadge(c, 'sm')}</span>
                         <span>${escapedName}</span>
                     </button>
                 `;
@@ -1385,8 +1552,10 @@ function optimizeImage(file) {
             
             // Add Category button
             sidebarHTML += `
-                <button class="directory-sidebar-btn" id="shortcut-add-cat-btn" style="margin-top:auto; opacity:0.5; border-top:1px solid var(--border);">
-                    <span class="directory-sidebar-icon">➕</span>
+                <button class="directory-sidebar-btn" id="shortcut-add-cat-btn" style="margin-top:auto; opacity:0.6; border-top:1px solid var(--border);">
+                    <span class="directory-sidebar-icon" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5.5px;background:rgba(255,255,255,0.08);color:#ffffff;">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </span>
                     <span>Add Folder</span>
                 </button>
             `;
@@ -1394,12 +1563,12 @@ function optimizeImage(file) {
 
             let contentHTML = `<div class="directory-content">`;
             if (activeCat) {
-                const escapedCatIcon = escapeHTML(activeCat.icon || '📁');
                 const escapedCatName = escapeHTML(activeCat.name);
+                const headerBadge = getCategoryBadge(activeCat, 'lg');
                 contentHTML += `
                     <div class="directory-header">
-                        <div class="directory-title-wrapper">
-                            <span style="font-size:1.3rem;">${escapedCatIcon}</span>
+                        <div class="directory-title-wrapper" style="display:flex;align-items:center;gap:10px;">
+                            ${headerBadge}
                             <span class="directory-title">${escapedCatName}</span>
                         </div>
                     </div>
@@ -1484,15 +1653,15 @@ function optimizeImage(file) {
             if (!listContainer) return;
             
             listContainer.innerHTML = (directoriesData.list || []).map((c, index) => {
-                const escapedIcon = escapeHTML(c.icon || '📁');
+                const badge = getCategoryBadge(c, 'md');
                 const escapedName = escapeHTML(c.name);
                 const escapedCount = c.sites ? c.sites.length : 0;
                 return `
                     <div class="directory-editor-item">
-                        <div class="directory-editor-item-left">
-                            <span style="font-size:1.1rem;">${escapedIcon}</span>
-                            <strong>${escapedName}</strong>
-                            <span style="font-size:0.75rem;opacity:0.6;">(${escapedCount} links)</span>
+                        <div class="directory-editor-item-left" style="display:flex;align-items:center;">
+                            ${badge}
+                            <strong style="margin-left: 10px; font-weight: 600; font-size: 0.88rem; color: #ffffff;">${escapedName}</strong>
+                            <span class="cat-links-pill">${escapedCount} links</span>
                         </div>
                         <div class="directory-editor-actions">
                             <label class="switch" style="width: 36px; height: 20px; margin-right: 10px;">

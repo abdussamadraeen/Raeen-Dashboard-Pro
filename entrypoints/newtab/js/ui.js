@@ -4,218 +4,8 @@ import { StorageManager } from './storage.js';
 import { themeLibrary } from './themes.js';
 import { CanvasEngine } from './canvas.js';
 
-export const BRAVE_WALLPAPERS = [
-    {
-        id: 'brave_1',
-        title: 'Dolomites Sunrise',
-        photographer: 'Dylan Malval',
-        url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_2',
-        title: 'Misty Emerald Forest',
-        photographer: 'Sebastian Unrau',
-        url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_3',
-        title: 'Arctic Aurora Borealis',
-        photographer: 'Vincent Guth',
-        url: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_4',
-        title: 'Lofoten Fjords & Sea',
-        photographer: 'Luca Bravo',
-        url: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_5',
-        title: 'Desert Dunes Sunset',
-        photographer: 'Jeremy Bishop',
-        url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_6',
-        title: 'Pacific Ocean Waves',
-        photographer: 'Sean Oulashin',
-        url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_7',
-        title: 'Mount Fuji Reflection',
-        photographer: 'Manuel Cosentino',
-        url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_8',
-        title: 'Deep Cosmic Nebula',
-        photographer: 'Alexander Andrews',
-        url: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_9',
-        title: 'Yosemite Valley Mist',
-        photographer: 'Bailey Zindel',
-        url: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_10',
-        title: 'Alpine Mountain Peaks',
-        photographer: 'Kalen Emsley',
-        url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_11',
-        title: 'Iceland Cascades',
-        photographer: 'Derek Thomson',
-        url: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_12',
-        title: 'Golden Autumn Pines',
-        photographer: 'Luca Bravo',
-        url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_13',
-        title: 'Highland Serenity',
-        photographer: 'Kal Visuals',
-        url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_14',
-        title: 'Lone Tree Savannah',
-        photographer: 'Sander Weeteling',
-        url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_15',
-        title: 'Sunlit Forest Path',
-        photographer: 'Federico Respini',
-        url: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_16',
-        title: 'Spring Lake Calm',
-        photographer: 'Aaron Burden',
-        url: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_17',
-        title: 'Nordic Forest Mist',
-        photographer: 'David Kovalenko',
-        url: 'https://images.unsplash.com/photo-1434725039720-aaad6dd32dfe?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1434725039720-aaad6dd32dfe?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_18',
-        title: 'Alpine Wildflowers',
-        photographer: 'Kari Shea',
-        url: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_19',
-        title: 'Canyon River Journey',
-        photographer: 'Kal Visuals',
-        url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_20',
-        title: 'Emerald Lake Valley',
-        photographer: 'Lucas Davies',
-        url: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_21',
-        title: 'Mountain Ridge Horizon',
-        photographer: 'Pietro De Grandi',
-        url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_22',
-        title: 'Starry Mountain Peak',
-        photographer: 'Benjamin Davies',
-        url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_23',
-        title: 'Enchanted Forest Creek',
-        photographer: 'Krzysztof Niewolny',
-        url: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_24',
-        title: 'Misty Wilderness Lake',
-        photographer: 'David Marcu',
-        url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_25',
-        title: 'Valley of the Mist',
-        photographer: 'Bailey Zindel',
-        url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_26',
-        title: 'Reflective Mountain Stream',
-        photographer: 'Jerry Zhang',
-        url: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_27',
-        title: 'Deep Autumn Forest',
-        photographer: 'Sebastian Unrau',
-        url: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_28',
-        title: 'Winter Mountain Pine',
-        photographer: 'Dan Meyers',
-        url: 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_29',
-        title: 'Alpine Summit Dawn',
-        photographer: 'Dino Reichmuth',
-        url: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=600&q=75'
-    },
-    {
-        id: 'brave_30',
-        title: 'Misty Pine Ridges',
-        photographer: 'Kalen Emsley',
-        url: 'https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&w=3840&q=85',
-        thumb: 'https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&w=600&q=75'
-    }
-];
+import { BRAVE_WALLPAPERS, OFFICIAL_BRAVE_WALLPAPERS, BraveWallpaperService } from './brave-wallpapers.js';
+export { BRAVE_WALLPAPERS, OFFICIAL_BRAVE_WALLPAPERS, BraveWallpaperService };
 
 let currentBraveWallpaper = null;
 
@@ -234,7 +24,9 @@ export function cleanupBackground() {
             video.src = '';
             try {
                 video.load();
-            } catch (e) {}
+            } catch (e) {
+                console.warn('Failed to load video element', e);
+            }
         }
         const iframe = dom.bgLayer.querySelector('iframe');
         if (iframe) {
@@ -354,7 +146,7 @@ export async function applySettings() {
                         if (BRAVE_WALLPAPERS.length > 1 && randIndex === lastIdx) {
                             randIndex = (randIndex + 1) % BRAVE_WALLPAPERS.length;
                         }
-                        try { localStorage.setItem('last_brave_index', randIndex.toString()); } catch (e) {}
+                        try { localStorage.setItem('last_brave_index', randIndex.toString()); } catch (e) { console.warn('Failed to save brave index', e); }
                         currentBraveWallpaper = BRAVE_WALLPAPERS[randIndex];
                     }
                     braveItem = currentBraveWallpaper;
@@ -374,11 +166,15 @@ export async function applySettings() {
                         const preloader = new Image();
                         preloader.decoding = 'async';
                         preloader.src = bgUrl;
-                    } catch (e) {}
+                    } catch (e) {
+                        console.warn('Image preloader failed', e);
+                    }
                     dom.bgLayer.style.backgroundImage = `url('${bgUrl}')`;
                     try {
                         localStorage.setItem('raeen_bg_value', isRandomBrave ? 'brave_random' : bgUrl);
-                    } catch (e) {}
+                    } catch (e) {
+                        console.warn('Failed to save background to localStorage', e);
+                    }
                 }
                 break;
             case 'preset':
@@ -526,14 +322,19 @@ export async function applySettings() {
         }
     }
 
-    // Brave Photographer Credit
+    // Brave Photographer Credit with verified original author attribution
     if (bgType === 'brave' && currentBraveWallpaper && !hideUI && !isImmersive) {
         if (dom.photographerCredit) {
             dom.photographerCredit.classList.remove('hidden');
+            dom.photographerCredit.title = `${currentBraveWallpaper.title || 'Wallpaper'} by ${currentBraveWallpaper.photographer || 'Brave Curated'} (Verified Unsplash Contributor)`;
             initPhotographerCredit();
         }
         if (dom.photographerName) {
             dom.photographerName.textContent = currentBraveWallpaper.photographer || 'Brave Curated';
+            if (dom.photographerName.tagName === 'A') {
+                dom.photographerName.href = currentBraveWallpaper.link || 'https://unsplash.com';
+                dom.photographerName.title = `View ${currentBraveWallpaper.photographer}'s work on Unsplash`;
+            }
         }
     } else {
         if (dom.photographerCredit) {
@@ -698,7 +499,23 @@ export function loadBraveGallery() {
 }
 
 export function initPhotographerCredit() {
-    // Informational attribution badge for curated Brave wallpapers
+    const cycleBtn = document.getElementById('next-wallpaper-btn');
+    if (cycleBtn && !cycleBtn._hasListener) {
+        cycleBtn._hasListener = true;
+        cycleBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            const next = await BraveWallpaperService.getNext(currentBraveWallpaper?.id || currentBraveWallpaper?.url);
+            if (next) {
+                currentBraveWallpaper = next;
+                state.settings.backgroundType = 'brave';
+                state.settings.backgroundValue = next.url;
+                saveSettings(state.settings);
+                applySettings();
+                loadBraveGallery();
+            }
+        });
+    }
 }
 
 export function syncSettingsUI() {
@@ -913,28 +730,76 @@ export function renderThemeLibrary() {
 }
 
 // ─── DASHBOARD CHOOSER & PRESET LAYOUTS ───
+export function getPresetSquircle(presetId) {
+    const glyphs = {
+        pro: `<svg viewBox="0 0 24 24" fill="#ffffff"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+        creator: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".6" fill="#ffffff"/><circle cx="17.5" cy="10.5" r=".6" fill="#ffffff"/><circle cx="8.5" cy="7.5" r=".6" fill="#ffffff"/><circle cx="6.5" cy="12.5" r=".6" fill="#ffffff"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.7-.8 1.7-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.2 0-.9.8-1.7 1.7-1.7h2c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"/></svg>`,
+        minimal: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+        focus: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M10 2h4"/><path d="m18 6 1.5-1.5"/></svg>`,
+        security: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>`,
+        google_live: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+        bing_live: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>`,
+        custom: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1.5"/><rect width="7" height="5" x="14" y="3" rx="1.5"/><rect width="7" height="9" x="14" y="12" rx="1.5"/><rect width="7" height="5" x="3" y="16" rx="1.5"/></svg>`
+    };
+
+    const gradients = {
+        pro: 'linear-gradient(145deg, #0ea5e9 0%, #2563eb 55%, #1d4ed8 100%)',
+        creator: 'linear-gradient(145deg, #f43f5e 0%, #ec4899 55%, #a855f7 100%)',
+        minimal: 'linear-gradient(145deg, #34d399 0%, #10b981 60%, #047857 100%)',
+        focus: 'linear-gradient(145deg, #fbbf24 0%, #f59e0b 55%, #d97706 100%)',
+        security: 'linear-gradient(145deg, #38bdf8 0%, #06b6d4 55%, #0891b2 100%)',
+        google_live: 'linear-gradient(145deg, #4285f4 0%, #2563eb 55%, #1d4ed8 100%)',
+        bing_live: 'linear-gradient(145deg, #06b6d4 0%, #0d9488 55%, #0f766e 100%)',
+        custom: 'linear-gradient(145deg, #c084fc 0%, #9333ea 55%, #7e22ce 100%)'
+    };
+
+    const glows = {
+        pro: 'rgba(37, 99, 235, 0.45)',
+        creator: 'rgba(236, 72, 153, 0.45)',
+        minimal: 'rgba(16, 185, 129, 0.45)',
+        focus: 'rgba(245, 158, 11, 0.45)',
+        security: 'rgba(6, 182, 212, 0.45)',
+        google_live: 'rgba(66, 133, 244, 0.45)',
+        bing_live: 'rgba(13, 148, 136, 0.45)',
+        custom: 'rgba(147, 51, 234, 0.45)'
+    };
+
+    const svg = glyphs[presetId] || glyphs.pro;
+    const gradient = gradients[presetId] || gradients.pro;
+    const glow = glows[presetId] || glows.pro;
+
+    return `<span class="preset-apple-squircle" style="background:${gradient}; --badge-glow:${glow};">${svg}</span>`;
+}
+
 export const DASHBOARD_PRESETS = [
     {
         id: 'pro',
         name: 'Pro Workspace',
         badge: 'Recommended • Balanced 3-Column',
-        icon: '⚡',
         accentColor: '#38bdf8',
         tagline: 'Complete all-in-one productivity dashboard with Clock, Date, Notes, Focus Pomodoro, VPN Shield, File Share, AI Hub & Search.',
         widgets: ['Clock & Date', 'Pomodoro Timer', 'Quick Notes', 'VPN Shield', 'P2P File Share', 'AI Hub', 'Multi-Search'],
         mockupHtml: `
             <div class="mockup-screen mockup-pro">
-                <div class="mockup-col col-left">
-                    <div class="m-card m-clock"><span class="m-time">10:42</span><span class="m-date">Sep 17</span></div>
-                    <div class="m-card m-vpn"><span class="m-dot dot-green"></span><span>VPN Shield</span></div>
+                <div class="m-window-bar">
+                    <span class="m-traffic-dot m-dot-red"></span>
+                    <span class="m-traffic-dot m-dot-yellow"></span>
+                    <span class="m-traffic-dot m-dot-green"></span>
+                    <span class="m-window-title">Pro 3-Column Studio</span>
                 </div>
-                <div class="mockup-col col-center">
-                    <div class="m-search-bar"><span class="m-search-dot"></span><span>Search Web &amp; AI...</span></div>
-                    <div class="m-apps-row"><span class="m-app"></span><span class="m-app"></span><span class="m-app"></span><span class="m-app"></span></div>
-                </div>
-                <div class="mockup-col col-right">
-                    <div class="m-card m-focus"><span class="m-ring"></span><span>25:00</span></div>
-                    <div class="m-card m-notes"><span class="m-line"></span><span class="m-line short"></span></div>
+                <div class="m-stage">
+                    <div class="mockup-col col-left">
+                        <div class="m-card m-clock"><span class="m-time">10:42</span><span class="m-date">Sep 17</span></div>
+                        <div class="m-card m-vpn"><span class="m-dot dot-green"></span><span>VPN Shield</span></div>
+                    </div>
+                    <div class="mockup-col col-center">
+                        <div class="m-search-bar"><span class="m-search-dot"></span><span>Search Web &amp; AI...</span></div>
+                        <div class="m-apps-row"><span class="m-app app-blue"></span><span class="m-app app-red"></span><span class="m-app app-amber"></span><span class="m-app app-emerald"></span></div>
+                    </div>
+                    <div class="mockup-col col-right">
+                        <div class="m-card m-focus"><span class="m-ring"></span><span>25:00</span></div>
+                        <div class="m-card m-notes"><span class="m-line"></span><span class="m-line short"></span></div>
+                    </div>
                 </div>
             </div>
         `,
@@ -959,29 +824,36 @@ export const DASHBOARD_PRESETS = [
         id: 'creator',
         name: 'Creator & Media Studio',
         badge: 'Design & Documents',
-        icon: '🎨',
         accentColor: '#ec4899',
         tagline: 'Built for designers and content creators: In-Browser Image Compressor, Offline PDF Tools, Quick Notes, and P2P File Share.',
         widgets: ['Image Compressor', 'PDF Tools', 'Quick Notes', 'P2P File Share', 'Web Search'],
         mockupHtml: `
             <div class="mockup-screen mockup-creator">
-                <div class="mockup-col col-left">
-                    <div class="m-card m-imgcomp">
-                        <div class="m-comp-split">
-                            <span class="m-photo-icon">🖼️</span>
-                            <span class="m-badge-save">-78% Saved</span>
+                <div class="m-window-bar">
+                    <span class="m-traffic-dot m-dot-red"></span>
+                    <span class="m-traffic-dot m-dot-yellow"></span>
+                    <span class="m-traffic-dot m-dot-green"></span>
+                    <span class="m-window-title">Creator Media Studio</span>
+                </div>
+                <div class="m-stage">
+                    <div class="mockup-col col-left">
+                        <div class="m-card m-imgcomp">
+                            <div class="m-comp-split">
+                                <span class="m-photo-icon">📷</span>
+                                <span class="m-badge-save">-78% Saved</span>
+                            </div>
+                            <div class="m-slider-line"></div>
                         </div>
-                        <div class="m-slider-line"></div>
                     </div>
-                </div>
-                <div class="mockup-col col-center">
-                    <div class="m-search-bar"><span class="m-search-dot dot-pink"></span><span>Creative Studio...</span></div>
-                    <div class="m-apps-row"><span class="m-app app-pink"></span><span class="m-app app-pink"></span><span class="m-app app-pink"></span></div>
-                </div>
-                <div class="mockup-col col-right">
-                    <div class="m-card m-pdf">
-                        <div class="m-pdf-header"><span class="m-pdf-tag">PDF</span><span>Doc.pdf</span></div>
-                        <div class="m-btn-pill">Images to PDF ↗</div>
+                    <div class="mockup-col col-center">
+                        <div class="m-search-bar"><span class="m-search-dot dot-pink"></span><span>Creative Studio...</span></div>
+                        <div class="m-apps-row"><span class="m-app app-pink"></span><span class="m-app app-pink"></span><span class="m-app app-pink"></span></div>
+                    </div>
+                    <div class="mockup-col col-right">
+                        <div class="m-card m-pdf">
+                            <div class="m-pdf-header"><span class="m-pdf-tag">PDF</span><span>Doc.pdf</span></div>
+                            <div class="m-btn-pill">Images to PDF ↗</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1007,16 +879,23 @@ export const DASHBOARD_PRESETS = [
         id: 'minimal',
         name: 'Minimalist Clean',
         badge: 'Distraction-Free Zen',
-        icon: '🧘',
         accentColor: '#10b981',
         tagline: 'Serene distraction-free view with large Clock, clean Search bar, and Top Sites. Hides heavy cards for total focus.',
         widgets: ['Large Clock', 'Clean Web Search', 'Top Sites Shortcuts', 'Serene Wallpaper'],
         mockupHtml: `
             <div class="mockup-screen mockup-minimal">
-                <div class="m-zen-wallpaper">
-                    <div class="m-zen-clock">10:42</div>
-                    <div class="m-search-bar search-zen"><span>Search with Zen...</span></div>
-                    <div class="m-apps-row apps-zen"><span class="m-app"></span><span class="m-app"></span><span class="m-app"></span><span class="m-app"></span></div>
+                <div class="m-window-bar">
+                    <span class="m-traffic-dot m-dot-red"></span>
+                    <span class="m-traffic-dot m-dot-yellow"></span>
+                    <span class="m-traffic-dot m-dot-green"></span>
+                    <span class="m-window-title">Minimalist Canvas</span>
+                </div>
+                <div class="m-stage" style="padding:0;">
+                    <div class="m-zen-wallpaper">
+                        <div class="m-zen-clock">10:42</div>
+                        <div class="m-search-bar search-zen"><span>Search with Zen...</span></div>
+                        <div class="m-apps-row apps-zen"><span class="m-app"></span><span class="m-app"></span><span class="m-app"></span><span class="m-app"></span></div>
+                    </div>
                 </div>
             </div>
         `,
@@ -1041,29 +920,36 @@ export const DASHBOARD_PRESETS = [
         id: 'focus',
         name: 'Productivity & Focus',
         badge: 'Deep Work & Study',
-        icon: '⏱️',
         accentColor: '#f59e0b',
         tagline: 'Tailored for deep work: Pomodoro Focus Timer, Quick Notes notepad, and Date & Year progress.',
         widgets: ['Pomodoro Focus Timer', 'Quick Notes', 'Date & Year Progress', 'Web Search'],
         mockupHtml: `
             <div class="mockup-screen mockup-focus">
-                <div class="mockup-col col-left">
-                    <div class="m-card m-date-progress">
-                        <div class="m-line-label"><span>Year</span> <span>71%</span></div>
-                        <div class="m-track"><div class="m-fill fill-amber" style="width: 71%"></div></div>
-                    </div>
+                <div class="m-window-bar">
+                    <span class="m-traffic-dot m-dot-red"></span>
+                    <span class="m-traffic-dot m-dot-yellow"></span>
+                    <span class="m-traffic-dot m-dot-green"></span>
+                    <span class="m-window-title">Deep Work Flow</span>
                 </div>
-                <div class="mockup-col col-center">
-                    <div class="m-focus-circle">
-                        <div class="m-focus-time">25:00</div>
-                        <div class="m-focus-label">Deep Work</div>
+                <div class="m-stage">
+                    <div class="mockup-col col-left">
+                        <div class="m-card m-date-progress">
+                            <div class="m-line-label"><span>Year</span> <span>71%</span></div>
+                            <div class="m-track"><div class="m-fill fill-amber" style="width: 71%"></div></div>
+                        </div>
                     </div>
-                    <div class="m-search-bar search-amber"><span>Focus Search...</span></div>
-                </div>
-                <div class="mockup-col col-right">
-                    <div class="m-card m-notepad">
-                        <div class="m-notepad-header">Tasks</div>
-                        <div class="m-line"></div><div class="m-line"></div><div class="m-line short"></div>
+                    <div class="mockup-col col-center">
+                        <div class="m-focus-circle">
+                            <div class="m-focus-time">25:00</div>
+                            <div class="m-focus-label">Deep Work</div>
+                        </div>
+                        <div class="m-search-bar search-amber"><span>Focus Search...</span></div>
+                    </div>
+                    <div class="mockup-col col-right">
+                        <div class="m-card m-notepad">
+                            <div class="m-notepad-header">Tasks</div>
+                            <div class="m-line"></div><div class="m-line"></div><div class="m-line short"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1089,21 +975,28 @@ export const DASHBOARD_PRESETS = [
         id: 'security',
         name: 'Cyber & Privacy Shield',
         badge: 'Stealth Defense HUD',
-        icon: '🛡️',
         accentColor: '#06b6d4',
         tagline: 'Dedicated to privacy: Real-time VPN Shield HUD, WebRTC Leak Guard, Tor Onion telemetry, and Quick Notes.',
         widgets: ['VPN & Tor Shield HUD', 'WebRTC Leak Guard', 'Clear Traces SCRAM', 'Quick Notes', 'Search'],
         mockupHtml: `
             <div class="mockup-screen mockup-security">
-                <div class="m-sec-grid">
-                    <div class="m-radar-mini">
-                        <div class="m-sweep"></div>
-                        <div class="m-cross"></div>
-                    </div>
-                    <div class="m-sec-info">
-                        <div class="m-sec-badge">DEFCON 1 • PROTECTED</div>
-                        <div class="m-hop-row"><span>US</span> → <span>TOR 9050</span> → <span>SECURE</span></div>
-                        <div class="m-tele-pill">IP: 185.220.*** • 0ms Leak</div>
+                <div class="m-window-bar">
+                    <span class="m-traffic-dot m-dot-red"></span>
+                    <span class="m-traffic-dot m-dot-yellow"></span>
+                    <span class="m-traffic-dot m-dot-green"></span>
+                    <span class="m-window-title">Cyber Shield HUD</span>
+                </div>
+                <div class="m-stage">
+                    <div class="m-sec-grid">
+                        <div class="m-radar-mini">
+                            <div class="m-sweep"></div>
+                            <div class="m-cross"></div>
+                        </div>
+                        <div class="m-sec-info">
+                            <div class="m-sec-badge">DEFCON 1 • PROTECTED</div>
+                            <div class="m-hop-row"><span>US</span> → <span>TOR 9050</span> → <span>SECURE</span></div>
+                            <div class="m-tele-pill">IP: 185.220.*** • 0ms Leak</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1129,23 +1022,25 @@ export const DASHBOARD_PRESETS = [
         id: 'google_live',
         name: 'Live Google Search',
         badge: 'Interactive Google Engine',
-        icon: '🌐',
         accentColor: '#4285f4',
         tagline: 'Full-screen Google search interface with floating frosted glass dock to switch back anytime.',
         widgets: ['Native Google.com Search', 'Iframe Sandboxed', 'Floating Dock Controls'],
         mockupHtml: `
             <div class="mockup-screen mockup-google">
-                <div class="m-google-brand">
-                    <span style="color:#4285f4">G</span><span style="color:#ea4335">o</span><span style="color:#fbbc05">o</span><span style="color:#4285f4">g</span><span style="color:#34a853">l</span><span style="color:#ea4335">e</span>
+                <div class="m-window-bar">
+                    <span class="m-traffic-dot m-dot-red"></span>
+                    <span class="m-traffic-dot m-dot-yellow"></span>
+                    <span class="m-traffic-dot m-dot-green"></span>
+                    <span class="m-window-title">Google Live View</span>
                 </div>
-                <div class="m-google-search-pill">
-                    <span class="m-search-lens">🔍</span>
-                    <span class="m-search-ghost">Search Google or type URL</span>
-                    <span class="m-mic-icon">🎙️</span>
-                </div>
-                <div class="m-google-btns">
-                    <span>Google Search</span>
-                    <span>I'm Feeling Lucky</span>
+                <div class="m-stage" style="flex-direction:column; justify-content:center; gap:8px;">
+                    <div class="m-google-brand">
+                        <span style="color:#4285f4">G</span><span style="color:#ea4335">o</span><span style="color:#fbbc05">o</span><span style="color:#4285f4">g</span><span style="color:#34a853">l</span><span style="color:#ea4335">e</span>
+                    </div>
+                    <div class="m-google-search-pill">
+                        <span class="m-search-lens">🔍</span>
+                        <span class="m-search-ghost">Search Google or type URL</span>
+                    </div>
                 </div>
             </div>
         `,
@@ -1160,18 +1055,24 @@ export const DASHBOARD_PRESETS = [
         id: 'bing_live',
         name: 'Live Bing Search',
         badge: 'Interactive Bing Engine',
-        icon: '🔍',
         accentColor: '#008373',
         tagline: 'Full-screen Bing search interface with floating frosted glass dock to switch back anytime.',
         widgets: ['Native Bing.com Search', 'Iframe Sandboxed', 'Floating Dock Controls'],
         mockupHtml: `
             <div class="mockup-screen mockup-bing">
-                <div class="m-bing-brand">
-                    <span class="m-bing-icon">🔍</span> Bing
+                <div class="m-window-bar">
+                    <span class="m-traffic-dot m-dot-red"></span>
+                    <span class="m-traffic-dot m-dot-yellow"></span>
+                    <span class="m-traffic-dot m-dot-green"></span>
+                    <span class="m-window-title">Bing Copilot Live</span>
                 </div>
-                <div class="m-bing-search-pill">
-                    <span>Ask anything or chat with Copilot</span>
-                    <span class="m-copilot-sparkle">✨</span>
+                <div class="m-stage" style="flex-direction:column; justify-content:center; gap:8px;">
+                    <div class="m-bing-brand">
+                        <span class="m-bing-icon">🔍</span> Bing
+                    </div>
+                    <div class="m-bing-search-pill">
+                        <span>Ask anything or chat with Copilot</span>
+                    </div>
                 </div>
             </div>
         `,
@@ -1186,16 +1087,23 @@ export const DASHBOARD_PRESETS = [
         id: 'custom',
         name: 'Custom Layout',
         badge: 'Fit For You',
-        icon: '🎨',
         accentColor: '#a855f7',
         tagline: 'Your bespoke setup. Freely position and resize any widget on the free-space canvas.',
         widgets: ['Free-Space Drag & Drop', 'Custom Resizing', 'Selective Widget Toggles'],
         mockupHtml: `
             <div class="mockup-screen mockup-custom">
-                <div class="m-canvas-grid">
-                    <div class="m-box box-a"><span>Widget A</span><div class="m-resize"></div></div>
-                    <div class="m-box box-b"><span>Widget B</span><div class="m-resize"></div></div>
-                    <div class="m-box box-c"><span>Widget C</span><div class="m-resize"></div></div>
+                <div class="m-window-bar">
+                    <span class="m-traffic-dot m-dot-red"></span>
+                    <span class="m-traffic-dot m-dot-yellow"></span>
+                    <span class="m-traffic-dot m-dot-green"></span>
+                    <span class="m-window-title">Free-Position Canvas</span>
+                </div>
+                <div class="m-stage">
+                    <div class="m-canvas-grid">
+                        <div class="m-box box-a"><span>Widget A</span><div class="m-resize"></div></div>
+                        <div class="m-box box-b"><span>Widget B</span><div class="m-resize"></div></div>
+                        <div class="m-box box-c"><span>Widget C</span><div class="m-resize"></div></div>
+                    </div>
                 </div>
             </div>
         `,
@@ -1214,6 +1122,7 @@ export function renderDashboardChooser() {
     container.innerHTML = DASHBOARD_PRESETS.map(preset => {
         const isActive = currentMode === preset.id;
         const widgetPills = preset.widgets.map(w => `<span class="preset-pill">${w}</span>`).join('');
+        const squircle = getPresetSquircle(preset.id);
 
         return `
             <div class="dashboard-preset-card ${isActive ? 'active' : ''}" data-preset-id="${preset.id}" style="--accent-mode: ${preset.accentColor}">
@@ -1222,11 +1131,16 @@ export function renderDashboardChooser() {
                 </div>
                 <div class="preset-card-body">
                     <div class="preset-header">
-                        <span class="preset-icon">${preset.icon}</span>
+                        ${squircle}
                         <div class="preset-title-group">
                             <div class="preset-title-row">
                                 <h4 class="preset-title">${preset.name}</h4>
-                                ${isActive ? '<span class="preset-active-tag">✓ Active &amp; Kept</span>' : ''}
+                                ${isActive ? `
+                                    <span class="preset-active-tag">
+                                        <span class="active-pulse-dot"></span>
+                                        Active Workspace
+                                    </span>
+                                ` : ''}
                             </div>
                             <span class="preset-badge">${preset.badge}</span>
                         </div>
@@ -1235,7 +1149,10 @@ export function renderDashboardChooser() {
                     <div class="preset-pills">${widgetPills}</div>
                     <div class="preset-footer">
                         <button type="button" class="preset-select-btn ${isActive ? 'btn-active' : ''}" data-preset-id="${preset.id}">
-                            ${isActive ? '✓ Kept as Default' : 'Keep This Dashboard'}
+                            ${isActive ? `
+                                <span class="btn-check-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                Current Active Workspace
+                            ` : 'Switch to This Workspace →'}
                         </button>
                     </div>
                 </div>

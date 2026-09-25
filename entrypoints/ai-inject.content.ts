@@ -135,31 +135,7 @@ export default defineContentScript({
       try {
         setValue(inputEl, query);
         inputEl.focus();
-        console.log('✓ AI Inject: Query inserted successfully');
-
-        // Auto-submit after typing simulation
-        setTimeout(() => {
-          try {
-            const sendBtn = findElement(selectors.defaultSend) as HTMLButtonElement | null;
-            if (sendBtn && !sendBtn.disabled) {
-              sendBtn.click();
-              console.log('✓ AI Inject: Message sent automatically via click');
-            } else {
-              if (inputEl) {
-                inputEl.dispatchEvent(new KeyboardEvent('keydown', {
-                  key: 'Enter',
-                  code: 'Enter',
-                  keyCode: 13,
-                  which: 13,
-                  bubbles: true,
-                }));
-                console.log('✓ AI Inject: Enter key dispatched');
-              }
-            }
-          } catch (submitError) {
-            console.error('AI Inject: Error during submit:', submitError);
-          }
-        }, 800);
+        console.log('✓ AI Inject: Query inserted successfully. Ready for user to send.');
       } catch (insertError) {
         console.error('AI Inject: Error inserting query:', insertError);
       }

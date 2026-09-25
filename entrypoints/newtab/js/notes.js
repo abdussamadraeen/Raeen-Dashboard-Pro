@@ -42,7 +42,7 @@ export async function renderNotesList() {
 }
 
 export async function openNoteEditor(id = null) {
-    currentNoteId = id || 'note_' + Date.now();
+    currentNoteId = id || 'note_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
     let note = (id ? await StorageManager.get('notes', id) : null) || { id: currentNoteId, title: '', body: '', updated: Date.now() };
 
     if (dom.noteEditorTitle) dom.noteEditorTitle.value = note.title || '';
@@ -67,8 +67,14 @@ export function updateCharCount() {
 export async function saveCurrentNote() {
     if (!currentNoteId || !dom.noteEditorTitle || !dom.noteEditorBody) return;
     
-    const title = dom.noteEditorTitle.value.trim();
-    const body = dom.noteEditorBody.value;
+    let title = dom.noteEditorTitle.value.trim();
+    let body = dom.noteEditorBody.value;
+    
+    // Size limit
+    if (body.length > 50000) {
+        body = body.substring(0, 50000);
+        if (dom.noteSaveStatus) dom.noteSaveStatus.textContent = 'Note truncated to 50k chars';
+    }
 
     // Show saving status
     if (dom.noteSaveStatus) {

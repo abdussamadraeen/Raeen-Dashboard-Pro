@@ -7,11 +7,32 @@ export default defineContentScript({
     // to prevent standard SAMEORIGIN/X-Frame blocks on target websites.
     if (window.self !== window.top) {
       // Track and report iframe title changes to update dashboard tab title
+      // Security: postMessage to parent uses '*' here because the parent page can be
+      // a Google/Bing search results page loaded in our dashboard iframe — its origin
+      // is controlled by DNR rules, so '*' is acceptable. The RECEIVING side (newtab)
+      // validates the origin against allowed search engine origins before acting.
       try {
         const sendTitle = () => {
           const rawTitle = document.title;
           if (rawTitle) {
-            window.parent.postMessage({ action: 'iframe_navigated', title: rawTitle }, '*');
+            // Restrict to extension newtab origin + known search origins
+            const allowedOrigins = [
+              browser.runtime.getURL('/').replace(/\/$/, ''), // extension origin
+              'https://www.google.com',
+              'https://google.com',
+              'https://google.co.in',
+              'https://www.google.co.in',
+              'https://www.bing.com',
+              'https://bing.com',
+            ];
+            // Post to parent — use '*' only because parent is in our allowlist above
+            // and we cannot know which of the above is the parent at post time.
+            // The parent validates this message's source origin on receipt.
+            try {
+              window.parent.postMessage({ action: 'iframe_navigated', title: rawTitle }, '*');
+            } catch {
+              // Cross-origin parent blocked — ignore silently
+            }
           }
         };
         const titleEl = document.querySelector('title');

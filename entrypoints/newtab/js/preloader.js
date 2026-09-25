@@ -33,5 +33,7 @@
                 document.documentElement.appendChild(style);
             }
         }
-    } catch(e) {}
+    } catch(e) {
+        console.warn('Preloader encountered an error:', e);
+    }
 })();

@@ -42,6 +42,8 @@ export default defineConfig({
       'https://*.microsoftonline.com/*',
       'https://bing.biturl.top/*',
       'https://images.unsplash.com/*',
+      'https://*.unsplash.com/*',
+      'https://api.unsplash.com/*',
       'https://api.ipify.org/*',
       'https://freeipapi.com/*',
       'https://ipapi.co/*',
@@ -56,9 +58,7 @@ export default defineConfig({
       'https://*.tmpfiles.org/*',
       'https://tmpfiles.org/*',
       'https://*.peerjs.com/*',
-      'https://0.peerjs.com/*',
-      'wss://*.emqx.io/*',
-      'wss://broker.emqx.io/*'
+      'https://0.peerjs.com/*'
     ],
     declarative_net_request: {
       rule_resources: [{

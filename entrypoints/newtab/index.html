@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" /></noscript>
     <script type="module" src="./js/theme-loader.js"></script>
 </head>
 <body data-theme="dark">
@@ -508,29 +510,29 @@
                                     <span>Google</span>
                                 </button>
                                 <button type="button" class="engine-menu-item" data-engine="brave">
-                                    <img src="https://brave.com/favicon.ico" alt="Brave">
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23FB542B%22%20d%3D%22M12%202L3%206v6c0%205.55%203.84%2010.74%209%2012%205.16-1.26%209-6.45%209-12V6l-9-4zm5.5%2012.8c-.8%201.8-2.6%203.1-4.7%203.5-.3.1-.7.1-1%200-2.1-.4-3.9-1.7-4.7-3.5-.3-.7-.4-1.5-.4-2.3%200-1.8.8-3.4%202.1-4.5.3-.3.7-.5%201.1-.7.3-.1.6-.2%201-.2s.7.1%201%20.2c.4.2.8.4%201.1.7%201.3%201.1%202.1%202.7%202.1%204.5.1.8%200%201.6-.3%202.3z%22%2F%3E%3C%2Fsvg%3E" alt="Brave">
                                     <span>Brave</span>
                                 </button>
                                 <button type="button" class="engine-menu-item" data-engine="duckduckgo">
-                                    <img src="https://duckduckgo.com/favicon.ico" alt="DuckDuckGo">
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%20fill%3D%22%23DE5833%22%2F%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M16.5%2013.5c-.3-1.6-1.5-2.8-3-3.2.1-.5.3-1.2.7-1.8.2-.3.1-.6-.2-.7-.3-.1-.6.1-.7.4-.4.7-.6%201.4-.7%202-.7.2-1.3.6-1.8%201.1-.4-.3-.9-.4-1.4-.3-.9.1-1.6.8-1.7%201.7-.1.8.4%201.5%201.1%201.8.2%201.3%201.1%202.3%202.3%202.6.4.1.8.1%201.2%200%201.9-.3%203.3-1.8%203.5-3.6z%22%2F%3E%3Ccircle%20cx%3D%229%22%20cy%3D%2213.5%22%20r%3D%22.8%22%20fill%3D%22%23222%22%2F%3E%3C%2Fsvg%3E" alt="DuckDuckGo">
                                     <span>DuckDuckGo</span>
                                 </button>
                                 <button type="button" class="engine-menu-item" data-engine="bing">
-                                    <img src="https://www.bing.com/favicon.ico" alt="Bing">
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23008080%22%20d%3D%22M5%203v18l5-2.8V6.8l5.8%203.2-2.8%204.2%204.4%202.5L20%2014V8.5L9.6%203H5z%22%2F%3E%3C%2Fsvg%3E" alt="Bing">
                                     <span>Bing</span>
                                 </button>
                                 <div class="engine-menu-divider"></div>
                                 <div class="engine-menu-subheader">AI Engines</div>
                                 <button type="button" class="engine-menu-item" data-engine="chatgpt">
-                                    <img src="https://chatgpt.com/favicon.ico" alt="ChatGPT">
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2310A37F%22%2F%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M18.8%2010.2a3.8%203.8%200%200%200-.3-3.1%203.9%203.9%200%200%200-4.3-1.8A3.8%203.8%200%200%200%2011.5%204a3.9%203.9%200%200%200-3.7%202.7%203.8%203.8%200%200%200-2.3%201.6%203.9%203.9%200%200%200%20.4%204.7%203.8%203.8%200%200%200%20.3%203.1%203.9%203.9%200%200%200%204.3%201.8%203.8%203.8%200%200%200%202.7%201.3%203.9%203.9%200%200%200%203.7-2.7%203.8%203.8%200%200%200%202.3-1.6%203.9%203.9%200%200%200-.4-4.7z%22%2F%3E%3C%2Fsvg%3E" alt="ChatGPT">
                                     <span>ChatGPT</span>
                                 </button>
                                 <button type="button" class="engine-menu-item" data-engine="perplexity">
-                                    <img src="https://www.google.com/s2/favicons?sz=64&domain=perplexity.ai" alt="Perplexity">
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2320B2AA%22%2F%3E%3Cpath%20stroke%3D%22%23FFF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20d%3D%22M12%204v16m-8-8h16m-13.6-5.6l11.2%2011.2m0-11.2L6.4%2017.6%22%2F%3E%3C%2Fsvg%3E" alt="Perplexity">
                                     <span>Perplexity</span>
                                 </button>
                                 <button type="button" class="engine-menu-item" data-engine="claude">
-                                    <img src="https://www.google.com/s2/favicons?sz=64&domain=claude.ai" alt="Claude">
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23D97706%22%2F%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M12%205.5l1.6%204.9%204.9%201.6-4.9%201.6-1.6%204.9-1.6-4.9-4.9-1.6%204.9-1.6z%22%2F%3E%3C%2Fsvg%3E" alt="Claude">
                                     <span>Claude</span>
                                 </button>
                                 <button type="button" class="engine-menu-item" data-engine="robot_ai">
@@ -924,22 +926,22 @@
                                 <label class="radio-item">
                                     <input type="radio" name="search_engine" value="google" checked title="Google Search" aria-label="Google Search">
                                     <span class="custom-radio"></span>
-                                    <img src="https://www.google.com/favicon.ico" class="engine-icon" alt=""> Google
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%234285F4%22%20d%3D%22M23.745%2012.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29%201.52-1.14%202.82-2.4%203.68v3.05h3.88c2.27-2.09%203.66-5.17%203.66-9.17z%22%2F%3E%3Cpath%20fill%3D%22%2334A853%22%20d%3D%22M12%2024c3.24%200%205.95-1.08%207.93-2.91l-3.88-3.05c-1.08.72-2.45%201.16-4.05%201.16-3.12%200-5.77-2.1-6.72-4.93H1.25v3.15C3.26%2021.36%207.33%2024%2012%2024z%22%2F%3E%3Cpath%20fill%3D%22%23FBBC05%22%20d%3D%22M5.28%2014.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45%208.18%200%2010.03%200%2012s.45%203.82%201.25%205.42l4.03-3.15z%22%2F%3E%3Cpath%20fill%3D%22%23EA4335%22%20d%3D%22M12%204.75c1.77%200%203.35.61%204.6%201.8l3.42-3.42C17.95%201.19%2015.24%200%2012%200%207.33%200%203.26%202.64%201.25%206.58l4.03%203.15c.95-2.83%203.6-4.98%206.72-4.98z%22%2F%3E%3C%2Fsvg%3E" class="engine-icon" alt=""> Google
                                 </label>
                                 <label class="radio-item mt-2">
                                     <input type="radio" name="search_engine" value="duckduckgo" title="DuckDuckGo Search" aria-label="DuckDuckGo Search">
                                     <span class="custom-radio"></span>
-                                    <img src="https://duckduckgo.com/favicon.ico" class="engine-icon" alt=""> DuckDuckGo
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%20fill%3D%22%23DE5833%22%2F%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M16.5%2013.5c-.3-1.6-1.5-2.8-3-3.2.1-.5.3-1.2.7-1.8.2-.3.1-.6-.2-.7-.3-.1-.6.1-.7.4-.4.7-.6%201.4-.7%202-.7.2-1.3.6-1.8%201.1-.4-.3-.9-.4-1.4-.3-.9.1-1.6.8-1.7%201.7-.1.8.4%201.5%201.1%201.8.2%201.3%201.1%202.3%202.3%202.6.4.1.8.1%201.2%200%201.9-.3%203.3-1.8%203.5-3.6z%22%2F%3E%3Ccircle%20cx%3D%229%22%20cy%3D%2213.5%22%20r%3D%22.8%22%20fill%3D%22%23222%22%2F%3E%3C%2Fsvg%3E" class="engine-icon" alt=""> DuckDuckGo
                                 </label>
                                 <label class="radio-item mt-2">
                                     <input type="radio" name="search_engine" value="brave" title="Brave Search" aria-label="Brave Search">
                                     <span class="custom-radio"></span>
-                                    <img src="https://brave.com/favicon.ico" class="engine-icon" alt=""> Brave
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23FB542B%22%20d%3D%22M12%202L3%206v6c0%205.55%203.84%2010.74%209%2012%205.16-1.26%209-6.45%209-12V6l-9-4zm5.5%2012.8c-.8%201.8-2.6%203.1-4.7%203.5-.3.1-.7.1-1%200-2.1-.4-3.9-1.7-4.7-3.5-.3-.7-.4-1.5-.4-2.3%200-1.8.8-3.4%202.1-4.5.3-.3.7-.5%201.1-.7.3-.1.6-.2%201-.2s.7.1%201%20.2c.4.2.8.4%201.1.7%201.3%201.1%202.1%202.7%202.1%204.5.1.8%200%201.6-.3%202.3z%22%2F%3E%3C%2Fsvg%3E" class="engine-icon" alt=""> Brave
                                 </label>
                                 <label class="radio-item mt-2">
                                     <input type="radio" name="search_engine" value="bing" title="Bing Search" aria-label="Bing Search">
                                     <span class="custom-radio"></span>
-                                    <img src="https://www.bing.com/favicon.ico" class="engine-icon" alt=""> Bing
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23008080%22%20d%3D%22M5%203v18l5-2.8V6.8l5.8%203.2-2.8%204.2%204.4%202.5L20%2014V8.5L9.6%203H5z%22%2F%3E%3C%2Fsvg%3E" class="engine-icon" alt=""> Bing
                                 </label>
                             </div>
                         </div>
@@ -950,17 +952,17 @@
                                 <label class="radio-item">
                                     <input type="radio" name="search_engine" value="chatgpt" title="ChatGPT" aria-label="ChatGPT">
                                     <span class="custom-radio"></span>
-                                    <img src="https://chatgpt.com/favicon.ico" class="engine-icon" alt=""> ChatGPT
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2310A37F%22%2F%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M18.8%2010.2a3.8%203.8%200%200%200-.3-3.1%203.9%203.9%200%200%200-4.3-1.8A3.8%203.8%200%200%200%2011.5%204a3.9%203.9%200%200%200-3.7%202.7%203.8%203.8%200%200%200-2.3%201.6%203.9%203.9%200%200%200%20.4%204.7%203.8%203.8%200%200%200%20.3%203.1%203.9%203.9%200%200%200%204.3%201.8%203.8%203.8%200%200%200%202.7%201.3%203.9%203.9%200%200%200%203.7-2.7%203.8%203.8%200%200%200%202.3-1.6%203.9%203.9%200%200%200-.4-4.7z%22%2F%3E%3C%2Fsvg%3E" class="engine-icon" alt=""> ChatGPT
                                 </label>
                                 <label class="radio-item mt-2">
                                     <input type="radio" name="search_engine" value="perplexity" title="Perplexity" aria-label="Perplexity">
                                     <span class="custom-radio"></span>
-                                    <img src="https://www.google.com/s2/favicons?sz=64&domain=perplexity.ai" class="engine-icon" alt=""> Perplexity
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2320B2AA%22%2F%3E%3Cpath%20stroke%3D%22%23FFF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20d%3D%22M12%204v16m-8-8h16m-13.6-5.6l11.2%2011.2m0-11.2L6.4%2017.6%22%2F%3E%3C%2Fsvg%3E" class="engine-icon" alt=""> Perplexity
                                 </label>
                                 <label class="radio-item mt-2">
                                     <input type="radio" name="search_engine" value="claude" title="Claude" aria-label="Claude">
                                     <span class="custom-radio"></span>
-                                    <img src="https://www.google.com/s2/favicons?sz=64&domain=claude.ai" class="engine-icon" alt=""> Claude
+                                    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23D97706%22%2F%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M12%205.5l1.6%204.9%204.9%201.6-4.9%201.6-1.6%204.9-1.6-4.9-4.9-1.6%204.9-1.6z%22%2F%3E%3C%2Fsvg%3E" class="engine-icon" alt=""> Claude
                                 </label>
                             </div>
                         </div>
@@ -1235,9 +1237,12 @@
         </svg>
     </button>
 
-    <div id="photographer-credit" class="photographer-credit hidden" title="Curated Wallpaper">
+    <div id="photographer-credit" class="photographer-credit hidden" title="Curated Brave Wallpaper">
         <svg class="photo-cam-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-        <span>Photo by <strong id="photographer-name">Brave Curated</strong></span>
+        <span>Photo by <a id="photographer-name" href="https://unsplash.com" target="_blank" rel="noopener noreferrer">Brave Curated</a></span>
+        <button id="next-wallpaper-btn" class="wallpaper-cycle-btn" title="Cycle to Next Wallpaper" aria-label="Cycle to Next Wallpaper">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        </button>
     </div>
 
     <!-- Dashboard Studio Modal (Profile Manager) -->

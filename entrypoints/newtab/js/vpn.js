@@ -5,6 +5,9 @@
  * and live verified multi-geo telemetry.
  */
 
+// [LIMITATION] DNS-over-HTTPS (DoH) providers listed here are informational. 
+// A Chrome extension cannot force DoH via the chrome.proxy API; it relies on 
+// the browser's own DoH settings or SOCKS5 remote DNS routing.
 export const SECURE_DNS_PROVIDERS = [
     {
         id: 'cloudflare',
@@ -57,6 +60,7 @@ export const VPN_NODES = [
         scheme: 'socks5',
         host: '127.0.0.1',
         port: 9050,
+        // [LIMITATION] Cipher claims are informational. Tor negotiates its own algorithms across hops.
         cipher: 'Multi-Hop Encrypted • Global Anycast',
         simpleDesc: 'Dynamically routes through the fastest available worldwide privacy relay.'
     },
@@ -274,7 +278,22 @@ class SecurityManager {
         }
 
         this.webrtcSealed = localStorage.getItem('raeen_vpn_webrtc') !== 'false';
-        this.customProxy = JSON.parse(localStorage.getItem('raeen_vpn_custom') || '{"scheme":"socks5","host":"127.0.0.1","port":"9050"}');
+        // [SECURITY] Use Object.create(null) to prevent prototype pollution from stored JSON.
+        // Validate port is in valid TCP range before use.
+        try {
+            const rawCustom = localStorage.getItem('raeen_vpn_custom');
+            const parsed = rawCustom ? JSON.parse(rawCustom) : null;
+            const validPort = parsed?.port && Number.isInteger(+parsed.port) && +parsed.port >= 1 && +parsed.port <= 65535
+                ? +parsed.port
+                : 9050;
+            this.customProxy = Object.assign(Object.create(null), {
+                scheme: typeof parsed?.scheme === 'string' ? parsed.scheme : 'socks5',
+                host: typeof parsed?.host === 'string' && parsed.host.length < 256 ? parsed.host : '127.0.0.1',
+                port: String(validPort),
+            });
+        } catch {
+            this.customProxy = Object.assign(Object.create(null), { scheme: 'socks5', host: '127.0.0.1', port: '9050' });
+        }
         
         // Active Telemetry
         this.telemetry = {
@@ -290,10 +309,10 @@ class SecurityManager {
         };
 
         // Real baseline IP (detected when VPN is off, used to detect leaks & proxy failures)
-        this.baselineIp = localStorage.getItem('raeen_baseline_ip') || '';
-        this.baselineCity = localStorage.getItem('raeen_baseline_city') || '';
-        this.baselineCountry = localStorage.getItem('raeen_baseline_country') || '';
-        this.baselineFlag = localStorage.getItem('raeen_baseline_flag') || '🌐';
+        this.baselineIp = sessionStorage.getItem('raeen_baseline_ip') || '';
+        this.baselineCity = sessionStorage.getItem('raeen_baseline_city') || '';
+        this.baselineCountry = sessionStorage.getItem('raeen_baseline_country') || '';
+        this.baselineFlag = sessionStorage.getItem('raeen_baseline_flag') || '🌐';
         this.proxyFailed = false;
         this.routeStatus = 'idle';
 
@@ -504,6 +523,8 @@ class SecurityManager {
                     if (isPlainHostName(host) || 
                         shExpMatch(host, "*.local") || 
                         shExpMatch(host, "127.0.0.1") || 
+                        shExpMatch(host, "::1") || 
+                        shExpMatch(host, "[::1]") || 
                         shExpMatch(host, "localhost") ||
                         shExpMatch(host, "*.internal")) {
                         return "DIRECT";
@@ -522,6 +543,8 @@ class SecurityManager {
                     if (isPlainHostName(host) || 
                         shExpMatch(host, "*.local") || 
                         shExpMatch(host, "127.0.0.1") || 
+                        shExpMatch(host, "::1") || 
+                        shExpMatch(host, "[::1]") || 
                         shExpMatch(host, "localhost") ||
                         shExpMatch(host, "*.internal")) {
                         return "DIRECT";
@@ -551,6 +574,8 @@ class SecurityManager {
                 if (isPlainHostName(host) || 
                     shExpMatch(host, "*.local") || 
                     shExpMatch(host, "127.0.0.1") || 
+                    shExpMatch(host, "::1") || 
+                    shExpMatch(host, "[::1]") || 
                     shExpMatch(host, "localhost") ||
                     shExpMatch(host, "*.internal")) {
                     return "DIRECT";
@@ -642,12 +667,14 @@ class SecurityManager {
 
         let nodeConfig;
         if (this.currentNodeId === 'custom') {
+            let parsedPort = parseInt(this.customProxy.port, 10);
+            if (isNaN(parsedPort) || parsedPort < 1 || parsedPort > 65535) parsedPort = 9050;
             nodeConfig = {
                 scheme: this.customProxy.scheme || 'socks5',
                 host: this.customProxy.host || '127.0.0.1',
-                port: parseInt(this.customProxy.port, 10) || 9050,
+                port: parsedPort,
                 nodeName: 'Custom Proxy',
-                isTor: (this.customProxy.port == 9050 || this.customProxy.port == 9150),
+                isTor: (parsedPort == 9050 || parsedPort == 9150),
                 fallbacks: []
             };
         } else {
@@ -860,6 +887,8 @@ class SecurityManager {
     }
 
     async probeRealIp(force = false) {
+        // [CRITICAL] IP leak risk: if called before proxy connects, the user's real IP 
+        // is sent to these third-party telemetry services.
         const now = Date.now();
         if (!force && this._lastProbeTime && (now - this._lastProbeTime < 60000) && this.telemetry.ip) {
             return;
@@ -900,10 +929,11 @@ class SecurityManager {
                     this.baselineCity = geoData?.city || '';
                     this.baselineCountry = geoData?.country || '';
                     this.baselineFlag = geoData?.flag?.emoji || this._getFlagEmoji(geoData?.country_code) || '🌐';
-                    localStorage.setItem('raeen_baseline_ip', this.baselineIp);
-                    localStorage.setItem('raeen_baseline_city', this.baselineCity);
-                    localStorage.setItem('raeen_baseline_country', this.baselineCountry);
-                    localStorage.setItem('raeen_baseline_flag', this.baselineFlag);
+                    // [HIGH] Privacy Risk: Storing real IP in localStorage persists it across sessions. Changed to sessionStorage.
+                    sessionStorage.setItem('raeen_baseline_ip', this.baselineIp);
+                    sessionStorage.setItem('raeen_baseline_city', this.baselineCity);
+                    sessionStorage.setItem('raeen_baseline_country', this.baselineCountry);
+                    sessionStorage.setItem('raeen_baseline_flag', this.baselineFlag);
                     this.proxyFailed = false;
                     this.routeStatus = 'idle';
                 } else {
@@ -938,7 +968,9 @@ class SecurityManager {
 
                 // If geoData was missing but IP was obtained, enrich asynchronously
                 if (!geoData && detectedIp) {
-                    fetch(`https://ipwho.is/${detectedIp}`).then(r => r.json()).then(bgData => {
+                    const enrichController = new AbortController();
+                    setTimeout(() => enrichController.abort(), 5000);
+                    fetch(`https://ipwho.is/${detectedIp}`, { signal: enrichController.signal }).then(r => r.json()).then(bgData => {
                         if (bgData && bgData.ip === this.telemetry.ip) {
                             this.telemetry.city = bgData.city || this.telemetry.city;
                             this.telemetry.country = bgData.country || this.telemetry.country;
@@ -974,8 +1006,11 @@ class SecurityManager {
 
     async rotateExitNode() {
         try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 2000);
             // Signal local Tor bridge to rotate circuit
-            await fetch('http://127.0.0.1:9052/rotate', { cache: 'no-store' });
+            await fetch('http://127.0.0.1:9052/rotate', { signal: controller.signal, cache: 'no-store' });
+            clearTimeout(timeout);
         } catch (e) {}
         sessionStorage.removeItem('raeen_vpn_ip');
         await this.probeRealIp();

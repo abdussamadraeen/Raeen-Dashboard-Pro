@@ -122,38 +122,45 @@ export const NotesWidget: React.FC = () => {
   const charCount = editorBody.length;
 
   return (
-    <div id="notes-widget" className="notes-panel glass-premium rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden min-h-[240px] max-h-[280px] w-full transition-all duration-300">
+    <section 
+      id="notes-widget" 
+      aria-label="Notes Widget"
+      className="notes-panel glass-premium rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden min-h-[240px] max-h-[280px] w-full transition-all duration-300"
+    >
       {!activeNoteId ? (
         <>
           <div className="notes-header flex justify-between items-center p-3 border-b border-white/10 shrink-0 bg-white/5">
             <div className="notes-header-left flex items-center gap-2">
-              <FileText className="w-4 h-4 text-accent" />
-              <span className="notes-title text-sm font-semibold text-white">Notes</span>
-              <span id="notes-count" className="notes-count bg-accent text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+              <FileText className="w-4 h-4 text-accent" aria-hidden="true" />
+              <h2 className="notes-title text-sm font-semibold text-white m-0">Notes</h2>
+              <span id="notes-count" aria-label={`${notes.length} notes`} className="notes-count bg-accent text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
                 {notes.length}
               </span>
             </div>
             <button
               id="add-note-btn"
               onClick={handleCreateNote}
+              aria-label="Create new note"
               className="notes-add-btn bg-gradient-to-r from-accent to-[#5643cc] text-white flex items-center gap-1 text-[11px] font-bold px-3 py-1.5 rounded-lg cursor-pointer hover:scale-105 active:scale-95 shadow-[0_2px_8px_var(--accent-glow)] transition-all duration-200"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3.5 h-3.5" aria-hidden="true" />
               New Note
             </button>
           </div>
 
-          <div id="notes-list" className="notes-list flex-1 overflow-y-auto p-2 flex flex-col gap-1">
+          <div id="notes-list" role="list" className="notes-list flex-1 overflow-y-auto p-2 flex flex-col gap-1">
             {notes.length === 0 ? (
-              <div className="notes-empty flex flex-col items-center justify-center flex-1 p-5 text-white/50 text-xs text-center opacity-60">
+              <div className="notes-empty flex flex-col items-center justify-center flex-1 p-5 text-white/50 text-xs text-center opacity-60" role="status">
                 No notes yet. Click + New Note to start.
               </div>
             ) : (
               notes.map((note) => (
-                <div
+                <button
                   key={note.id}
+                  role="listitem"
                   onClick={() => setActiveNoteId(note.id)}
-                  className="note-card p-3 rounded-xl cursor-pointer hover:bg-white/10 hover:border-white/15 border border-transparent transition-all duration-200"
+                  aria-label={`Open note: ${note.title || 'Untitled Note'}`}
+                  className="note-card w-full text-left p-3 rounded-xl cursor-pointer hover:bg-white/10 hover:border-white/15 border border-transparent transition-all duration-200 bg-transparent"
                 >
                   <div className="note-card-title text-xs font-semibold text-white truncate">
                     {note.title || 'Untitled Note'}
@@ -164,7 +171,7 @@ export const NotesWidget: React.FC = () => {
                   <div className="note-card-meta text-[9px] text-white/40 mt-1">
                     {new Date(note.updated).toLocaleDateString()}
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>
@@ -175,12 +182,13 @@ export const NotesWidget: React.FC = () => {
             <button
               id="note-back-btn"
               onClick={handleBackToList}
+              aria-label="Back to notes list"
               className="note-back-btn text-accent hover:underline flex items-center text-xs font-bold bg-transparent border-none outline-none cursor-pointer"
             >
-              <ChevronLeft className="w-4 h-4 mr-0.5 shrink-0" />
+              <ChevronLeft className="w-4 h-4 mr-0.5 shrink-0" aria-hidden="true" />
               Back
             </button>
-            <span id="note-save-status" className="note-save-status text-[10px] text-white/50 italic select-none">
+            <span id="note-save-status" aria-live="polite" className="note-save-status text-[10px] text-white/50 italic select-none">
               {saveStatus}
             </span>
           </div>
@@ -188,6 +196,7 @@ export const NotesWidget: React.FC = () => {
           <input
             type="text"
             id="note-editor-title"
+            aria-label="Note title"
             value={editorTitle}
             onChange={handleTitleChange}
             placeholder="Title"
@@ -196,6 +205,7 @@ export const NotesWidget: React.FC = () => {
 
           <textarea
             id="note-editor-body"
+            aria-label="Note content"
             value={editorBody}
             onChange={handleBodyChange}
             placeholder="Type your notes here..."
@@ -203,19 +213,20 @@ export const NotesWidget: React.FC = () => {
           />
 
           <div className="note-editor-footer flex justify-between items-center px-3 py-1.5 border-t border-white/10 shrink-0">
-            <span id="note-char-count" className="note-char-count text-[9px] text-white/40 font-semibold select-none">
+            <span id="note-char-count" aria-live="polite" className="note-char-count text-[9px] text-white/40 font-semibold select-none">
               {charCount} character{charCount === 1 ? '' : 's'}
             </span>
             <button
               id="note-delete-btn"
               onClick={handleDeleteNote}
+              aria-label="Delete note"
               className="note-delete-btn bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border-none rounded-lg p-1.5 transition-all duration-200 cursor-pointer"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };

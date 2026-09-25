@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useDashboardStore } from '../../../store/dashboardStore';
+import { getHardwareCapabilities } from '../../../lib/hardwareMonitor';
 
 interface Particle {
   x: number;
@@ -10,7 +11,7 @@ interface Particle {
   opacity: number;
 }
 
-export const CanvasBackground: React.FC = () => {
+export const CanvasBackground: React.FC = React.memo(() => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasStyle = useDashboardStore((state) => state.settings.canvasStyle);
   const backgroundType = useDashboardStore((state) => state.settings.backgroundType);
@@ -23,7 +24,7 @@ export const CanvasBackground: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
     let animationId: number;
@@ -51,7 +52,10 @@ export const CanvasBackground: React.FC = () => {
 
     const createParticles = () => {
       particles = [];
-      const count = canvasStyle === 'rain' ? 150 : 100;
+      const caps = getHardwareCapabilities();
+      let count = canvasStyle === 'rain' ? 150 : 100;
+      if (caps.throttleAnimations) count = Math.floor(count / 3);
+
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * width,
@@ -64,8 +68,18 @@ export const CanvasBackground: React.FC = () => {
       }
     };
 
-    const animate = () => {
-      ctx.clearRect(0, 0, width, height);
+    let lastTime = performance.now();
+    const animate = (time: number) => {
+      animationId = requestAnimationFrame(animate);
+      const caps = getHardwareCapabilities();
+      
+      if (caps.throttleAnimations) {
+        if (time - lastTime < 33) return; // limit to ~30 FPS
+      }
+      lastTime = time;
+
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, width, height);
 
       // Get accent color from CSS variables, fallback to purple
       const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7b61ff';
@@ -126,6 +140,7 @@ export const CanvasBackground: React.FC = () => {
           // Neural connections
           for (let j = i + 1; j < particles.length; j++) {
             const p2 = particles[j];
+            if (!p2) continue;
             const dx = p.x - p2.x;
             const dy = p.y - p2.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
@@ -184,22 +199,31 @@ export const CanvasBackground: React.FC = () => {
           ctx.stroke();
         }
       });
-
-      animationId = requestAnimationFrame(animate);
     };
 
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationId);
+      } else {
+        lastTime = performance.now();
+        animate(lastTime);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('resize', resize);
     window.addEventListener('mousemove', handleMouseMove);
     document.body.addEventListener('mouseleave', handleMouseLeave);
 
     resize();
-    animate();
+    animate(performance.now());
 
     return () => {
       cancelAnimationFrame(animationId);
+      
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
       document.body.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [canvasStyle, backgroundType]);
 
@@ -211,7 +235,8 @@ export const CanvasBackground: React.FC = () => {
     <canvas
       ref={canvasRef}
       id="canvas-layer"
+      aria-hidden="true"
       className="background-layer fixed inset-0 w-full h-full -z-50 pointer-events-none block"
     />
   );
-};
+});

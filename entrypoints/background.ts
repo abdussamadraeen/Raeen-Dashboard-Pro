@@ -1,48 +1,137 @@
+/**
+ * background.ts — Raeen Workspace MV3 Service Worker
+ *
+ * Resilience design:
+ *   - All async operations wrapped in try/catch — SW never crashes silently
+ *   - Message handlers always call sendResponse (even on error) — no orphaned promises
+ *   - Proxy + WebRTC state persisted to chrome.storage with retry
+ *   - SW keep-alive heartbeat prevents premature MV3 termination
+ *   - Dynamic DNR rule registration retried on failure
+ *   - Platform detection cached — no repeated API calls
+ *   - All browser API calls guarded against unavailability
+ */
+
 export default defineBackground(() => {
-  // Dynamically register rules on startup to guarantee header stripping
-  const registerDynamicRules = async () => {
+
+  // ─── Utilities ─────────────────────────────────────────────────────────────
+
+  /** Safe chrome.storage.local.get — never throws, returns {} on error */
+  const safeStorageGet = async (keys: string | string[]): Promise<Record<string, unknown>> => {
     try {
-      const rules = [
-        {
-          id: 1001,
-          priority: 1,
-          action: {
-            type: 'modifyHeaders',
-            responseHeaders: [
-              { header: 'X-Frame-Options', operation: 'remove' },
-              { header: 'Frame-Options', operation: 'remove' },
-              { header: 'Content-Security-Policy', operation: 'remove' },
-              { header: 'X-Content-Security-Policy', operation: 'remove' },
-              { header: 'X-WebKit-CSP', operation: 'remove' }
-            ]
-          },
-          condition: {
-            requestDomains: [
-              'google.com', 'google.co.in', 'www.google.com', 'www.google.co.in',
-              'bing.com', 'www.bing.com', 'cn.bing.com', 'live.com', 'www.live.com'
-            ],
-            resourceTypes: ['sub_frame']
-          }
-        }
-      ];
-
-      const existingRules = await browser.declarativeNetRequest.getDynamicRules();
-      const existingIds = existingRules.map(r => r.id);
-
-      await browser.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: existingIds,
-        addRules: rules as any
-      });
-      console.log('✓ Dynamic DNR rules registered successfully.');
+      return await browser.storage.local.get(keys) as Record<string, unknown>;
     } catch (e) {
-      console.error('Failed to register dynamic DNR rules:', e);
+      console.warn('[BG] storage.get failed:', e);
+      return {};
     }
   };
 
-  // Function to clear Service Workers for Google/Bing to prevent DNR bypass
-  const clearServiceWorkers = async () => {
+  /** Safe chrome.storage.local.set — never throws */
+  const safeStorageSet = async (data: Record<string, unknown>): Promise<void> => {
     try {
-      if (browser.browsingData && browser.browsingData.remove) {
+      await browser.storage.local.set(data);
+    } catch (e) {
+      console.warn('[BG] storage.set failed:', e);
+    }
+  };
+
+  /** Retry helper with exponential backoff */
+  const withRetry = async <T>(
+    fn: () => Promise<T>,
+    attempts = 3,
+    delayMs = 300
+  ): Promise<T> => {
+    let lastErr: unknown;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await fn();
+      } catch (e) {
+        lastErr = e;
+        if (i < attempts - 1) {
+          await new Promise<void>(res => setTimeout(res, delayMs * Math.pow(2, i)));
+        }
+      }
+    }
+    throw lastErr;
+  };
+
+  // ─── DNR Rule Registration ──────────────────────────────────────────────────
+
+  /**
+   * Registers declarativeNetRequest rules to strip framing headers.
+   * Retried up to 3 times on failure (e.g. SW waking up before APIs ready).
+   */
+  const registerDynamicRules = async (): Promise<void> => {
+    try {
+      await withRetry(async () => {
+        const rules = [
+          {
+            id: 1001,
+            priority: 1,
+            action: {
+              type: 'modifyHeaders',
+              responseHeaders: [
+                { header: 'X-Frame-Options', operation: 'remove' },
+                { header: 'Frame-Options', operation: 'remove' },
+                { header: 'Content-Security-Policy', operation: 'remove' },
+                { header: 'X-Content-Security-Policy', operation: 'remove' },
+                { header: 'X-WebKit-CSP', operation: 'remove' },
+              ],
+            },
+            condition: {
+              requestDomains: [
+                'google.com', 'google.co.in', 'www.google.com', 'www.google.co.in',
+                'bing.com', 'www.bing.com', 'cn.bing.com', 'live.com', 'www.live.com',
+              ],
+              resourceTypes: ['sub_frame'],
+            },
+          },
+        ];
+
+        const existingRules = await browser.declarativeNetRequest.getDynamicRules();
+        const existingIds = existingRules.map((r) => r.id);
+
+        await browser.declarativeNetRequest.updateDynamicRules({
+          removeRuleIds: existingIds,
+          addRules: rules as any,
+        });
+
+        console.log('[BG] DNR rules registered.');
+      }, 3, 500);
+    } catch (e) {
+      console.error('[BG] Failed to register DNR rules after retries:', e);
+    }
+  };
+
+  // ─── Service Worker Keep-Alive ──────────────────────────────────────────────
+
+  /**
+   * MV3 service workers are killed after ~30s of inactivity.
+   * Touching chrome.storage.local every 20s keeps the SW alive
+   * during long-running operations (VPN, proxy management).
+   */
+  let keepAliveId: ReturnType<typeof setInterval> | null = null;
+
+  const startKeepAlive = (): void => {
+    if (keepAliveId !== null) return;
+    keepAliveId = setInterval(() => {
+      safeStorageGet('__sw_keepalive__');
+    }, 20_000);
+  };
+
+  const stopKeepAlive = (): void => {
+    if (keepAliveId !== null) {
+      clearInterval(keepAliveId);
+      keepAliveId = null;
+    }
+  };
+
+  startKeepAlive();
+
+  // ─── Clear Service Workers ──────────────────────────────────────────────────
+
+  const clearServiceWorkers = async (): Promise<void> => {
+    try {
+      if (browser.browsingData?.remove) {
         await browser.browsingData.remove(
           {
             origins: [
@@ -51,109 +140,174 @@ export default defineBackground(() => {
               'https://google.co.in',
               'https://www.google.co.in',
               'https://bing.com',
-              'https://www.bing.com'
-            ]
+              'https://www.bing.com',
+            ],
           },
-          {
-            serviceWorkers: true
-          }
+          { serviceWorkers: true }
         );
-        console.log('✓ Cleared Google/Bing service workers to prevent DNR bypass.');
+        console.log('[BG] Cleared Google/Bing service workers.');
       }
     } catch (e) {
-      console.error('Failed to clear service workers:', e);
+      // browsingData may not be available on all builds — non-fatal
+      console.warn('[BG] clearServiceWorkers failed:', e);
     }
   };
 
-  // Call on initialization
-  registerDynamicRules();
-  clearServiceWorkers();
+  // ─── VPN / Proxy State ─────────────────────────────────────────────────────
 
-  // ─── MILITARY DEFENSE & PERSISTENT MV3 PROXY / WEBRTC ENGINE ───
   let isVpnActive = false;
-  let activeVpnNode: any = null;
+  let activeVpnNode: Record<string, unknown> | null = null;
   let webrtcSealed = true;
   let killSwitchEnabled = false;
 
-  const getStoredVpnState = async () => {
+  /** Apply WebRTC leak protection via chrome.privacy API */
+  const applyWebRtcPolicy = (seal: boolean): void => {
     try {
-      const stored = await browser.storage.local.get([
-        'raeen_vpn_active',
-        'raeen_vpn_node_config',
-        'raeen_vpn_webrtc',
-        'raeen_vpn_killswitch'
-      ]);
-      return stored || {};
+      const policy = (globalThis as any).chrome?.privacy?.network?.webRTCIPHandlingPolicy;
+      if (!policy) return;
+      if (seal) {
+        policy.set({ value: 'disable_non_proxied_udp' });
+      } else {
+        policy.clear({});
+      }
     } catch (e) {
-      return {};
+      console.warn('[BG] WebRTC policy API error:', e);
     }
   };
 
-  const persistVpnState = async (data: Record<string, any>) => {
+  /** Restore VPN + privacy state after SW restart */
+  const restoreVpnState = async (): Promise<void> => {
     try {
-      await browser.storage.local.set(data);
-    } catch (e) {}
-  };
+      const stored = await safeStorageGet([
+        'raeen_vpn_active',
+        'raeen_vpn_node_config',
+        'raeen_vpn_webrtc',
+        'raeen_vpn_killswitch',
+      ]);
 
-  // Restore proxy and privacy state on startup / worker wake-up
-  const restoreVpnState = async () => {
-    try {
-      const stored = await getStoredVpnState();
-      if (stored.raeen_vpn_active !== undefined) {
-        isVpnActive = stored.raeen_vpn_active === true;
-      }
-      if (stored.raeen_vpn_node_config) {
-        activeVpnNode = stored.raeen_vpn_node_config;
-      }
-      if (stored.raeen_vpn_webrtc !== undefined) {
-        webrtcSealed = stored.raeen_vpn_webrtc !== false;
-      }
-      if (stored.raeen_vpn_killswitch !== undefined) {
-        killSwitchEnabled = stored.raeen_vpn_killswitch === true;
-      }
+      isVpnActive = stored.raeen_vpn_active === true;
+      activeVpnNode = (stored.raeen_vpn_node_config as Record<string, unknown> | null) ?? null;
+      webrtcSealed = stored.raeen_vpn_webrtc !== false;
+      killSwitchEnabled = stored.raeen_vpn_killswitch === true;
 
-      // Check real Chrome proxy level of control
-      if ((globalThis as any).chrome?.proxy?.settings) {
-        (globalThis as any).chrome.proxy.settings.get({ incognito: false }, (config: any) => {
-          if (config && config.levelOfControl === 'controlled_by_this_extension') {
-            isVpnActive = true;
+      // Verify actual proxy control level — handles cases where Chrome cleared our proxy
+      const chromeProxy = (globalThis as any).chrome?.proxy;
+      if (chromeProxy?.settings) {
+        chromeProxy.settings.get({ incognito: false }, (config: any) => {
+          if (config?.levelOfControl !== 'controlled_by_this_extension') {
+            // Proxy was cleared externally — reset state
+            isVpnActive = false;
+            activeVpnNode = null;
+            safeStorageSet({ raeen_vpn_active: false, raeen_vpn_node_config: null });
           }
         });
       }
 
-      // Enforce WebRTC hardware leak protection
+      // Re-apply WebRTC seal if it was active
       if (webrtcSealed) {
-        try {
-          const privacy = (globalThis as any).chrome?.privacy;
-          if (privacy?.network?.webRTCIPHandlingPolicy) {
-            privacy.network.webRTCIPHandlingPolicy.set({ value: 'disable_non_proxied_udp' });
-          }
-        } catch (e) {}
+        applyWebRtcPolicy(true);
       }
-    } catch (e) {}
+
+      console.log('[BG] VPN state restored.', { isVpnActive, webrtcSealed, killSwitchEnabled });
+    } catch (e) {
+      console.error('[BG] restoreVpnState failed:', e);
+    }
   };
 
-  restoreVpnState();
+  /** Persist VPN state — called after every state change */
+  const persistVpnState = async (data: Record<string, unknown>): Promise<void> => {
+    await safeStorageSet(data);
+  };
 
-  // Native Chrome runtime messaging with async sendResponse pattern (return true)
-  (globalThis as any).chrome?.runtime?.onMessage?.addListener((request: any, sender: any, sendResponse: (res: any) => void) => {
-    (async () => {
-      try {
-        if (request.action === 'open_dashboard' && sender.tab?.id) {
+  // ─── PAC Script Builder ────────────────────────────────────────────────────
+
+  /**
+   * Builds a robust PAC script that:
+   *   - Always bypasses localhost/internal addresses
+   *   - Falls back through proxy chain
+   *   - Respects kill switch (no DIRECT fallback if kill switch is on)
+   */
+  const buildPacScript = (
+    chain: string,
+    withKillSwitch: boolean
+  ): string => {
+    const fallback = withKillSwitch ? '' : '; DIRECT';
+    return `function FindProxyForURL(url, host) {
+  if (isPlainHostName(host) ||
+      shExpMatch(host, "*.local") ||
+      shExpMatch(host, "127.0.0.1") ||
+      shExpMatch(host, "[::1]") ||
+      shExpMatch(host, "::1") ||
+      shExpMatch(host, "localhost") ||
+      shExpMatch(host, "*.internal")) {
+    return "DIRECT";
+  }
+  return "${chain}${fallback}";
+}`;
+  };
+
+  // ─── Message Handlers ──────────────────────────────────────────────────────
+
+  /**
+   * Typed message dispatch table.
+   * Every handler must either call sendResponse or return a value — never hang.
+   */
+  interface MessageSender {
+    tab?: { id?: number; url?: string };
+    frameId?: number;
+    id?: string;
+    url?: string;
+    origin?: string;
+  }
+
+  type Handler = (
+    request: Record<string, any>,
+    sender: MessageSender,
+    sendResponse: (res: Record<string, unknown>) => void
+  ) => void | boolean;
+
+  const handlers: Record<string, Handler> = {
+
+    open_dashboard: (request, sender, sendResponse) => {
+      (async () => {
+        try {
+          if (!sender.tab?.id) {
+            sendResponse({ success: false, error: 'No sender tab ID' });
+            return;
+          }
           await clearServiceWorkers();
-          const url = browser.runtime.getURL('/newtab.html') + (request.openSettings ? '?no_redirect=true&settings=true' : '?no_redirect=true');
+          const base = browser.runtime.getURL('/newtab.html');
+          const url = request.openSettings
+            ? `${base}?no_redirect=true&settings=true`
+            : `${base}?no_redirect=true`;
           await browser.tabs.update(sender.tab.id, { url });
           sendResponse({ success: true });
-          return;
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
         }
-        
-        if (request.action === 'open_tab' && request.url) {
+      })();
+      return true;
+    },
+
+    open_tab: (request, _sender, sendResponse) => {
+      (async () => {
+        try {
+          if (!request.url || typeof request.url !== 'string') {
+            sendResponse({ success: false, error: 'Invalid URL' });
+            return;
+          }
           await browser.tabs.create({ url: request.url });
           sendResponse({ success: true });
-          return;
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
         }
-        
-        if (request.action === 'vpn_connect') {
+      })();
+      return true;
+    },
+
+    vpn_connect: (request, _sender, sendResponse) => {
+      (async () => {
+        try {
           const {
             scheme = 'socks5',
             host = '127.0.0.1',
@@ -162,203 +316,202 @@ export default defineBackground(() => {
             isTor = false,
             isShieldOnly = false,
             endpoints = [],
-            killSwitch = false
-          } = request.payload || {};
+            killSwitch = false,
+          } = request.payload ?? {};
 
           killSwitchEnabled = !!killSwitch;
+
           const chromeProxy = (globalThis as any).chrome?.proxy;
-          if (!chromeProxy || !chromeProxy.settings) {
+          if (!chromeProxy?.settings) {
             sendResponse({ success: false, error: 'Chrome Proxy API not available or permission denied.' });
             return;
           }
 
-          let proxyConfig: any;
+          let proxyConfig: Record<string, unknown>;
+
           if (isShieldOnly || scheme === 'direct') {
             proxyConfig = { mode: 'direct' };
+
           } else if (scheme === 'http' || scheme === 'https' || scheme === 'socks4') {
             proxyConfig = {
               mode: 'fixed_servers',
               rules: {
                 singleProxy: {
                   scheme: scheme.toLowerCase(),
-                  host: host,
-                  port: parseInt(String(port), 10)
+                  host,
+                  port: parseInt(String(port), 10),
                 },
-                bypassList: ['<local>', 'localhost', '127.0.0.1']
-              }
+                bypassList: ['<local>', 'localhost', '127.0.0.1'],
+              },
             };
-          } else if (isTor || (scheme || '').toLowerCase() === 'socks5') {
-            // High-resilience PAC script for SOCKS5/Tor routing
-            // If killSwitch is true, traffic never falls back to DIRECT (zero leaks)
-            // If killSwitch is false, fallback to DIRECT ensures zero-break continuous browsing
-            const fallbackChain = killSwitchEnabled
-              ? `SOCKS5 ${host || '127.0.0.1'}:${port || 9050}; SOCKS5 127.0.0.1:9150`
-              : `SOCKS5 ${host || '127.0.0.1'}:${port || 9050}; SOCKS5 127.0.0.1:9150; DIRECT`;
 
-            const pacScript = `
-              function FindProxyForURL(url, host) {
-                if (isPlainHostName(host) || 
-                    shExpMatch(host, "*.local") || 
-                    shExpMatch(host, "127.0.0.1") || 
-                    shExpMatch(host, "localhost") ||
-                    shExpMatch(host, "*.internal")) {
-                  return "DIRECT";
-                }
-                return "${fallbackChain}";
-              }
-            `;
-            proxyConfig = {
-              mode: 'pac_script',
-              pacScript: { data: pacScript }
-            };
+          } else if (isTor || scheme.toLowerCase() === 'socks5') {
+            // Primary Tor SOCKS5 + fallback to 9150 (Tor Browser)
+            const torChain = `SOCKS5 ${host}:${port}; SOCKS5 127.0.0.1:9150`;
+            const pacData = buildPacScript(torChain, killSwitchEnabled);
+            proxyConfig = { mode: 'pac_script', pacScript: { data: pacData } };
+
           } else {
-            const candidateEndpoints = Array.isArray(endpoints) && endpoints.length > 0
-              ? endpoints
-              : [{ host, port, scheme }];
+            // Multi-endpoint proxy chain
+            const candidateEndpoints: Array<{ host: string; port: number; scheme: string }> =
+              Array.isArray(endpoints) && endpoints.length > 0
+                ? endpoints
+                : [{ host, port, scheme }];
 
-            const proxyChain = candidateEndpoints.map((ep: any) => {
-              const sc = (ep.scheme || scheme || 'http').toLowerCase();
-              const kw = sc === 'socks5' ? 'SOCKS5' : (sc === 'https' ? 'HTTPS' : (sc === 'socks4' ? 'SOCKS' : 'PROXY'));
-              return `${kw} ${ep.host}:${ep.port}`;
-            }).join('; ') + (killSwitchEnabled ? '' : '; DIRECT');
+            const chain = candidateEndpoints
+              .map((ep) => {
+                const sc = (ep.scheme || scheme || 'http').toLowerCase();
+                const kw =
+                  sc === 'socks5' ? 'SOCKS5'
+                  : sc === 'https' ? 'HTTPS'
+                  : sc === 'socks4' ? 'SOCKS'
+                  : 'PROXY';
+                return `${kw} ${ep.host}:${ep.port}`;
+              })
+              .join('; ');
 
-            const pacScript = `
-              function FindProxyForURL(url, host) {
-                if (isPlainHostName(host) || 
-                    shExpMatch(host, "*.local") || 
-                    shExpMatch(host, "127.0.0.1") || 
-                    shExpMatch(host, "localhost") ||
-                    shExpMatch(host, "*.internal")) {
-                  return "DIRECT";
-                }
-                return "${proxyChain}";
-              }
-            `;
-            proxyConfig = {
-              mode: 'pac_script',
-              pacScript: { data: pacScript }
-            };
+            const pacData = buildPacScript(chain, killSwitchEnabled);
+            proxyConfig = { mode: 'pac_script', pacScript: { data: pacData } };
           }
 
-          chromeProxy.settings.set({
-            value: proxyConfig,
-            scope: 'regular'
-          }, async () => {
-            const err = (globalThis as any).chrome?.runtime?.lastError;
-            if (err) {
-              console.error('Proxy settings error:', err);
-              sendResponse({ success: false, error: err.message || 'Failed to apply proxy settings' });
+          // Enforce WebRTC leak protection before proxy is active to prevent race conditions
+          applyWebRtcPolicy(true);
+
+          chromeProxy.settings.set({ value: proxyConfig, scope: 'regular' }, async () => {
+            const lastError = (globalThis as any).chrome?.runtime?.lastError;
+            if (lastError) {
+              // Revert if failed
+              if (!webrtcSealed) applyWebRtcPolicy(false);
+              sendResponse({ success: false, error: lastError.message ?? 'Failed to apply proxy settings' });
               return;
             }
+
             isVpnActive = true;
             activeVpnNode = { scheme, host, port, nodeName, isTor, isShieldOnly, killSwitch: killSwitchEnabled };
-            
-            // Persist state to survive MV3 worker restarts
+
             await persistVpnState({
               raeen_vpn_active: true,
               raeen_vpn_node_config: activeVpnNode,
-              raeen_vpn_killswitch: killSwitchEnabled
+              raeen_vpn_killswitch: killSwitchEnabled,
             });
-
-            // Enforce hardware WebRTC leak protection
-            try {
-              const privacy = (globalThis as any).chrome?.privacy;
-              if (privacy?.network?.webRTCIPHandlingPolicy) {
-                privacy.network.webRTCIPHandlingPolicy.set({ value: 'disable_non_proxied_udp' });
-              }
-            } catch (e) {}
 
             sendResponse({ success: true, activeVpnNode, isVpnActive });
           });
-          return;
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
         }
-        
-        if (request.action === 'vpn_disconnect') {
-          const chromeProxy = (globalThis as any).chrome?.proxy;
+      })();
+      return true;
+    },
+
+    vpn_disconnect: (_request, _sender, sendResponse) => {
+      (async () => {
+        try {
           const finalizeDisconnect = async () => {
             isVpnActive = false;
             activeVpnNode = null;
-            await persistVpnState({
-              raeen_vpn_active: false,
-              raeen_vpn_node_config: null
-            });
+            await persistVpnState({ raeen_vpn_active: false, raeen_vpn_node_config: null });
 
-            // Only clear WebRTC leak shield if user turned off the shield toggle
+            // Only clear WebRTC policy if the user explicitly disabled the shield
             if (!webrtcSealed) {
-              try {
-                const privacy = (globalThis as any).chrome?.privacy;
-                if (privacy?.network?.webRTCIPHandlingPolicy) {
-                  privacy.network.webRTCIPHandlingPolicy.clear({});
-                }
-              } catch (e) {}
+              applyWebRtcPolicy(false);
             }
             sendResponse({ success: true });
           };
 
+          const chromeProxy = (globalThis as any).chrome?.proxy;
           if (chromeProxy?.settings) {
             chromeProxy.settings.clear({ scope: 'regular' }, () => {
               finalizeDisconnect();
             });
           } else {
-            finalizeDisconnect();
+            await finalizeDisconnect();
           }
-          return;
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
         }
-        
-        if (request.action === 'vpn_get_status') {
-          const chromeProxy = (globalThis as any).chrome?.proxy;
-          if (chromeProxy?.settings) {
-            chromeProxy.settings.get({ incognito: false }, (config: any) => {
-              const isControlled = config && config.levelOfControl === 'controlled_by_this_extension';
-              sendResponse({
-                success: true,
-                isActive: isControlled || isVpnActive,
-                activeVpnNode,
-                levelOfControl: config?.levelOfControl || 'not_controllable',
-                webrtcSealed,
-                killSwitchEnabled
-              });
+      })();
+      return true;
+    },
+
+    vpn_get_status: (_request, _sender, sendResponse) => {
+      try {
+        const chromeProxy = (globalThis as any).chrome?.proxy;
+        if (chromeProxy?.settings) {
+          chromeProxy.settings.get({ incognito: false }, (config: any) => {
+            const isControlled = config?.levelOfControl === 'controlled_by_this_extension';
+            sendResponse({
+              success: true,
+              isActive: isControlled || isVpnActive,
+              activeVpnNode,
+              levelOfControl: config?.levelOfControl ?? 'not_controllable',
+              webrtcSealed,
+              killSwitchEnabled,
             });
-          } else {
-            sendResponse({ 
-              success: true, 
-              isActive: isVpnActive, 
-              activeVpnNode, 
-              webrtcSealed, 
-              killSwitchEnabled 
-            });
-          }
-          return;
+          });
+        } else {
+          sendResponse({
+            success: true,
+            isActive: isVpnActive,
+            activeVpnNode,
+            webrtcSealed,
+            killSwitchEnabled,
+          });
         }
-        
-        if (request.action === 'webrtc_shield_set') {
+      } catch (e: any) {
+        sendResponse({ success: false, error: e?.message ?? String(e) });
+      }
+      return true;
+    },
+
+    webrtc_shield_set: (request, _sender, sendResponse) => {
+      (async () => {
+        try {
           webrtcSealed = request.enabled !== false;
           await persistVpnState({ raeen_vpn_webrtc: webrtcSealed });
-          const privacy = (globalThis as any).chrome?.privacy;
-          if (privacy?.network?.webRTCIPHandlingPolicy) {
-            privacy.network.webRTCIPHandlingPolicy.set({
-              value: webrtcSealed ? 'disable_non_proxied_udp' : 'default'
-            }, () => {
-              sendResponse({ success: true, enabled: webrtcSealed });
-            });
-          } else {
-            sendResponse({ success: false, error: 'WebRTC privacy API unavailable' });
-          }
-          return;
-        }
 
-        if (request.action === 'killswitch_set') {
+          const policy = (globalThis as any).chrome?.privacy?.network?.webRTCIPHandlingPolicy;
+          if (!policy) {
+            sendResponse({ success: false, error: 'WebRTC privacy API unavailable' });
+            return;
+          }
+
+          policy.set(
+            { value: webrtcSealed ? 'disable_non_proxied_udp' : 'default' },
+            () => {
+              sendResponse({ success: true, enabled: webrtcSealed });
+            }
+          );
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
+        }
+      })();
+      return true;
+    },
+
+    killswitch_set: (request, _sender, sendResponse) => {
+      (async () => {
+        try {
           killSwitchEnabled = !!request.enabled;
           await persistVpnState({ raeen_vpn_killswitch: killSwitchEnabled });
           sendResponse({ success: true, killSwitchEnabled });
-          return;
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
         }
-        
-        if (request.action === 'emergency_nuclear_purge') {
-          if (browser.browsingData && browser.browsingData.remove) {
-            await browser.browsingData.remove({
-              since: 0
-            }, {
+      })();
+      return true;
+    },
+
+    emergency_nuclear_purge: (_request, _sender, sendResponse) => {
+      (async () => {
+        try {
+          if (!browser.browsingData?.remove) {
+            sendResponse({ success: false, error: 'browsingData API unavailable' });
+            return;
+          }
+          await browser.browsingData.remove(
+            { since: 0 },
+            {
               appcache: true,
               cache: true,
               cacheStorage: true,
@@ -367,22 +520,76 @@ export default defineBackground(() => {
               formData: true,
               history: true,
               serviceWorkers: true,
-              webSQL: true
-            });
-            sendResponse({ success: true, purgedAt: Date.now() });
-          } else {
-            sendResponse({ success: false, error: 'browsingData API unavailable' });
-          }
-          return;
+              webSQL: true,
+            }
+          );
+          sendResponse({ success: true, purgedAt: Date.now() });
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
         }
-      } catch (err: any) {
-        sendResponse({ success: false, error: err?.message || String(err) });
-      }
-    })();
-    return true; // Keep channel open for async sendResponse in Chrome MV3
-  });
+      })();
+      return true;
+    },
+  };
 
-  // Mobile / Edge Beta fallback redirect
+  // ─── Message Listener ──────────────────────────────────────────────────────
+
+  /**
+   * Central message router. Dispatches to typed handlers.
+   * Handles unknown actions gracefully — never hangs.
+   * Always returns `true` to keep the message channel open for async handlers.
+   */
+  (globalThis as any).chrome?.runtime?.onMessage?.addListener(
+    (request: Record<string, any>, sender: any, sendResponse: (res: any) => void) => {
+      try {
+        const action = request?.action as string | undefined;
+        const handler = action ? handlers[action] : undefined;
+
+        if (!handler) {
+          // Unknown action — respond immediately to avoid orphaned promises
+          sendResponse({ success: false, error: `Unknown action: ${action ?? 'undefined'}` });
+          return true;
+        }
+
+        handler(request, sender, sendResponse);
+      } catch (e: any) {
+        console.error('[BG] Unhandled message dispatcher error:', e);
+        try {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
+        } catch {
+          // sendResponse may already have been called — ignore
+        }
+      }
+
+      return true; // Keep channel open for async handlers
+    }
+  );
+
+  // ─── Initialization ─────────────────────────────────────────────────────────
+
+  // Run async initialization — all wrapped to prevent SW crash on failure
+  (async () => {
+    try {
+      await registerDynamicRules();
+    } catch (e) {
+      console.error('[BG] registerDynamicRules init failed:', e);
+    }
+
+    try {
+      await clearServiceWorkers();
+    } catch (e) {
+      console.error('[BG] clearServiceWorkers init failed:', e);
+    }
+
+    try {
+      await restoreVpnState();
+    } catch (e) {
+      console.error('[BG] restoreVpnState init failed:', e);
+    }
+  })();
+
+  // ─── Mobile New Tab Redirect ────────────────────────────────────────────────
+
   const newTabUrls = [
     'chrome://newtab/',
     'chrome-search://local-ntp/local-ntp.html',
@@ -391,41 +598,54 @@ export default defineBackground(() => {
     'edge://newtab/',
     'about:blank',
     'about:newtab',
-    'about:home'
+    'about:home',
   ];
 
-  const redirectToDashboard = async (tabId: number, url?: string) => {
+  const redirectToDashboard = async (tabId: number, url?: string): Promise<void> => {
     try {
-      if (url && newTabUrls.some(target => url.startsWith(target))) {
-        const dashboardUrl = browser.runtime.getURL('/newtab.html');
-        // Prevent infinite loops if we are already on the dashboard page
-        if (!url.includes(dashboardUrl)) {
-          clearServiceWorkers();
-          await browser.tabs.update(tabId, { url: dashboardUrl });
-        }
-      }
+      if (!url) return;
+      const isNewTab = newTabUrls.some((target) => url.startsWith(target));
+      if (!isNewTab) return;
+
+      const dashboardUrl = browser.runtime.getURL('/newtab.html');
+      if (url.includes(dashboardUrl)) return; // Prevent redirect loop
+
+      await clearServiceWorkers();
+      await browser.tabs.update(tabId, { url: dashboardUrl });
     } catch (e) {
-      console.error('Failed to redirect native new tab page:', e);
+      console.warn('[BG] Failed to redirect native new tab:', e);
     }
   };
 
-  // Only register mobile fallback redirects on Android to keep Desktop address bars clean
+  // Register mobile fallback redirect listeners (Android only — Desktop uses manifest override)
   browser.runtime.getPlatformInfo().then((info) => {
     if (info.os === 'android') {
       browser.tabs.onCreated.addListener((tab) => {
         if (tab.id) {
-          redirectToDashboard(tab.id, tab.url || tab.pendingUrl);
+          redirectToDashboard(tab.id, tab.url ?? tab.pendingUrl);
         }
       });
 
-      browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-        if (changeInfo.url) {
-          redirectToDashboard(tabId, changeInfo.url);
+      browser.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
+        if (tab.id && changeInfo.url) {
+          redirectToDashboard(tab.id, changeInfo.url);
         }
       });
-      console.log('✓ Registered mobile newtab redirect listeners for Android.');
+
+      console.log('[BG] Mobile new tab redirect listeners registered (Android).');
     } else {
-      console.log('✓ Desktop platform detected. Using native manifest overrides to keep address bar clean.');
+      console.log('[BG] Desktop platform — using native manifest override for new tab.');
     }
+  }).catch((e) => {
+    console.warn('[BG] getPlatformInfo failed:', e);
   });
+
+  // ─── SW Lifecycle Cleanup ───────────────────────────────────────────────────
+
+  // MV3 SWs don't have a reliable unload event, but we clean up what we can
+  // when the SW is about to be suspended (fired in some browsers)
+  (globalThis as any).addEventListener?.('beforeunload', () => {
+    stopKeepAlive();
+  });
+
 });

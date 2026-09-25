@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDashboardStore } from '../../../store/dashboardStore';
 import { StorageManager } from '../../../store/storage';
 import { AppItem } from '../../../validation/settingsSchema';
+import { OFFICIAL_BRAVE_WALLPAPERS as braveWallpapersList } from '../js/brave-wallpapers.js';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -47,21 +48,6 @@ const themeLibrary = {
   ]
 };
 
-const braveWallpapersList = [
-  { name: 'Dolomites Sunrise', photographer: 'Dylan Malval', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Misty Emerald Forest', photographer: 'Sebastian Unrau', url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Arctic Aurora Borealis', photographer: 'Vincent Guth', url: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Lofoten Fjords & Sea', photographer: 'Luca Bravo', url: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Desert Dunes Sunset', photographer: 'Jeremy Bishop', url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Pacific Ocean Waves', photographer: 'Sean Oulashin', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Mount Fuji Reflection', photographer: 'Manuel Cosentino', url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Deep Cosmic Nebula', photographer: 'Alexander Andrews', url: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Yosemite Valley Mist', photographer: 'Bailey Zindel', url: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Swiss Mirror Lake', photographer: 'Simon Berger', url: 'https://images.unsplash.com/photo-1439853949127-fa647821eea0?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1439853949127-fa647821eea0?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Iceland Cascades', photographer: 'Derek Thomson', url: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=600&q=75' },
-  { name: 'Golden Autumn Pines', photographer: 'Luca Bravo', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=3840&q=85', thumb: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=75' }
-];
-
 const gradientPresets = [
   'linear-gradient(135deg, #0f172a 0%, #020617 100%)',
   'linear-gradient(120deg, #3a82ff 0%, #22d3ee 100%)',
@@ -76,7 +62,9 @@ const gradientPresets = [
 ];
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-  const { settings, updateSettings, resetSettings } = useDashboardStore();
+  const settings = useDashboardStore(s => s.settings);
+  const updateSettings = useDashboardStore(s => s.updateSettings);
+  const resetSettings = useDashboardStore(s => s.resetSettings);
   const [activeTab, setActiveTab] = useState<'general' | 'background' | 'shortcuts' | 'advanced'>('general');
   const [bingWallpapers, setBingWallpapers] = useState<Array<{ url: string; thumb: string; name: string }>>([]);
   const [loadingBing, setLoadingBing] = useState(false);
@@ -607,7 +595,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                           checked={!settings.backgroundValue || settings.backgroundValue === 'brave_random'}
                           onChange={(e) => {
                             updateSettings({
-                              backgroundValue: e.target.checked ? 'brave_random' : braveWallpapersList[0].url
+                              backgroundValue: e.target.checked ? 'brave_random' : (braveWallpapersList[0]?.url ?? "")
                             });
                           }}
                         />
@@ -629,7 +617,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                           >
                             <img src={item.thumb} alt={item.name} className="brave-thumb-img" />
                             <div className="brave-thumb-info">
-                              <span className="brave-thumb-title">{item.name}</span>
+                              <span className="brave-thumb-title">{item.title || item.name}</span>
                               <span className="brave-thumb-author">by {item.photographer}</span>
                             </div>
                           </div>

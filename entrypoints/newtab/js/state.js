@@ -72,3 +72,13 @@ export function saveSettings(settingsObj, noApply = false) {
     // Collapse rapid updates while an IndexedDB write is already in progress.
     return queueSettingsWrite(cloneSettings(toSave));
 }
+
+// Sync settings across tabs
+if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === 'local' && changes.raeen_settings && changes.raeen_settings.newValue) {
+            updateSettings(changes.raeen_settings.newValue);
+            applySettings();
+        }
+    });
+}

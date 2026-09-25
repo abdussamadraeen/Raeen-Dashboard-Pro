@@ -1,3 +1,4 @@
+import { getHardwareCapabilities } from '../../../lib/hardwareMonitor';
 /**
  * Ultra-HD / 3D Artistic Interactive Canvas Engine
  * Features:
@@ -192,9 +193,12 @@ export const CanvasEngine = (() => {
         secondaryParticles = [];
         extraState = null;
 
+        const caps = getHardwareCapabilities();
+        const effectiveDensity = caps.throttleAnimations ? effectiveDensity * 0.33 : effectiveDensity;
+
         if (theme === 'neural') {
             // 55 particles provides rich synaptic depth with 85% fewer distance computations
-            const count = Math.max(25, Math.floor(55 * densityMult));
+            const count = Math.max(25, Math.floor(55 * effectiveDensity));
             particles = Array.from({ length: count }, () => {
                 const z = Math.random() * 0.75 + 0.25;
                 return {
@@ -210,7 +214,7 @@ export const CanvasEngine = (() => {
             });
             secondaryParticles = [];
         } else if (theme === 'bubbles') {
-            const count = Math.max(15, Math.floor(28 * densityMult));
+            const count = Math.max(15, Math.floor(28 * effectiveDensity));
             particles = Array.from({ length: count }, () => {
                 const z = Math.random() * 0.7 + 0.3;
                 return {
@@ -227,7 +231,7 @@ export const CanvasEngine = (() => {
                 };
             });
         } else if (theme === 'rain') {
-            const count = Math.max(25, Math.floor(65 * densityMult));
+            const count = Math.max(25, Math.floor(65 * effectiveDensity));
             particles = Array.from({ length: count }, () => {
                 const z = Math.random() * 0.8 + 0.2;
                 return {
@@ -243,7 +247,7 @@ export const CanvasEngine = (() => {
             });
 
             // Static condensation droplets pre-rendered onto offscreen canvas
-            const mistDropsCount = Math.max(25, Math.floor(65 * densityMult));
+            const mistDropsCount = Math.max(25, Math.floor(65 * effectiveDensity));
             secondaryParticles = Array.from({ length: mistDropsCount }, () => ({
                 x: Math.random() * width,
                 y: Math.random() * height,
@@ -274,7 +278,7 @@ export const CanvasEngine = (() => {
                 };
             });
         } else if (theme === 'warp') {
-            const count = Math.max(60, Math.floor(160 * densityMult));
+            const count = Math.max(60, Math.floor(160 * effectiveDensity));
             particles = Array.from({ length: count }, () => ({
                 x: (Math.random() - 0.5) * width * 2.2,
                 y: (Math.random() - 0.5) * height * 2.2,
@@ -297,7 +301,7 @@ export const CanvasEngine = (() => {
                 ]
             };
         } else if (theme === 'galaxy') {
-            const count = Math.max(50, Math.floor(130 * densityMult));
+            const count = Math.max(50, Math.floor(130 * effectiveDensity));
             const maxR = Math.min(width, height) * 0.48;
             particles = Array.from({ length: count }, () => {
                 const dist = Math.pow(Math.random(), 1.5) * maxR + 8;
@@ -314,7 +318,7 @@ export const CanvasEngine = (() => {
                 };
             });
         } else if (theme === 'fireflies') {
-            const count = Math.max(15, Math.floor(32 * densityMult));
+            const count = Math.max(15, Math.floor(32 * effectiveDensity));
             particles = Array.from({ length: count }, () => {
                 const isBokeh = Math.random() < 0.25;
                 return {
@@ -336,7 +340,7 @@ export const CanvasEngine = (() => {
             };
             renderStaticSynthwaveSky();
         } else if (theme === 'quantum') {
-            const count = Math.max(25, Math.floor(70 * densityMult));
+            const count = Math.max(25, Math.floor(70 * effectiveDensity));
             particles = Array.from({ length: count }, () => ({
                 x: Math.random() * width,
                 y: Math.random() * height,
@@ -372,9 +376,13 @@ export const CanvasEngine = (() => {
         createParticles();
     };
 
+    let resizeTimer = null;
     const scheduleResize = () => {
-        if (resizeId !== null) return;
-        resizeId = requestAnimationFrame(resize);
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (resizeId !== null) return;
+            resizeId = requestAnimationFrame(resize);
+        }, 150);
     };
 
     const handlePointerMove = (event) => {
@@ -412,6 +420,8 @@ export const CanvasEngine = (() => {
     // 1. NEURAL NETWORK: 3D Synaptic Action Potential Brain
     // ─────────────────────────────────────────────────────────────
     const renderNeural = () => {
+        const glowFactor = glowMult;
+
         // Periodic traveling pulse (max 4 concurrent)
         if (Math.random() < 0.08 && secondaryParticles.length < 4 && particles.length > 2) {
             const i1 = Math.floor(Math.random() * particles.length);
@@ -441,8 +451,22 @@ export const CanvasEngine = (() => {
             const p1 = particles[i];
             p1.x += p1.vx * speedMult;
             p1.y += p1.vy * speedMult;
-            if (p1.x < 0 || p1.x > width) p1.vx *= -1;
-            if (p1.y < 0 || p1.y > height) p1.vy *= -1;
+
+            // Soft damping & speed limiting for natural organic physics
+            p1.vx *= 0.99;
+            p1.vy *= 0.99;
+            const maxSpeed = 3.0 * (p1.z || 1);
+            const speedSq = p1.vx * p1.vx + p1.vy * p1.vy;
+            if (speedSq > maxSpeed * maxSpeed) {
+                const s = Math.sqrt(speedSq);
+                p1.vx = (p1.vx / s) * maxSpeed;
+                p1.vy = (p1.vy / s) * maxSpeed;
+            }
+
+            if (p1.x < 0) { p1.x = 0; p1.vx = Math.abs(p1.vx); }
+            else if (p1.x > width) { p1.x = width; p1.vx = -Math.abs(p1.vx); }
+            if (p1.y < 0) { p1.y = 0; p1.vy = Math.abs(p1.vy); }
+            else if (p1.y > height) { p1.y = height; p1.vy = -Math.abs(p1.vy); }
 
             if (mouse.x !== null) {
                 const dx = mouse.x - p1.x;
@@ -1154,13 +1178,16 @@ export const CanvasEngine = (() => {
 
         // Frame limiter: locks to 60 FPS preventing monitor overload at 120Hz-240Hz
         const delta = timestamp - lastFrameTimestamp;
-        if (delta < FRAME_MIN_MS) {
+        const caps = getHardwareCapabilities();
+        const effectiveMinMs = caps.throttleAnimations ? 1000 / 30 : FRAME_MIN_MS;
+        if (delta < effectiveMinMs) {
             scheduleAnimation();
             return;
         }
         lastFrameTimestamp = timestamp;
 
-        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, width, height);
 
         if (theme === 'neural') {
             renderNeural();
@@ -1224,6 +1251,7 @@ export const CanvasEngine = (() => {
 
         if (animationId !== null) cancelAnimationFrame(animationId);
         if (resizeId !== null) cancelAnimationFrame(resizeId);
+        if (resizeTimer) clearTimeout(resizeTimer);
         animationId = null;
         resizeId = null;
 
@@ -1248,7 +1276,7 @@ export const CanvasEngine = (() => {
         canvas = element;
         if (!canvas) return;
 
-        ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+        ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
         if (!ctx) return;
 
         theme = style || 'neural';

@@ -103,7 +103,10 @@ export function initFileShare() {
     }
 
     function generateSixDigitCode() {
-        return String(Math.floor(100000 + Math.random() * 900000));
+        // [MEDIUM] Fix: Used Crypto API instead of Math.random for secure code generation
+        const array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        return String(100000 + (array[0] % 900000));
     }
 
     function getFileIcon(filename) {
@@ -299,6 +302,8 @@ export function initFileShare() {
         }
 
         try {
+            // [HIGH] Metadata Leak: Using default PeerJS cloud signaling server.
+            // IPs and connection metadata are exposed to 0.peerjs.com.
             senderPeer = new Peer('shareme-' + code, {
                 config: { iceServers: ICE_SERVERS }
             });
@@ -528,6 +533,8 @@ export function initFileShare() {
         }
 
         try {
+            // [HIGH] Metadata Leak: Using default PeerJS cloud signaling server.
+            // IPs and connection metadata are exposed to 0.peerjs.com.
             receiverPeer = new Peer({
                 config: { iceServers: ICE_SERVERS }
             });
@@ -580,6 +587,10 @@ export function initFileShare() {
         if (msg.code && msg.code !== currentTargetCode) return;
 
         if (msg.type === 'stream_start') {
+            if (typeof msg.fileName !== 'string' || typeof msg.fileSize !== 'number' || msg.fileSize < 0) return;
+            // Basic sanitization
+            msg.fileName = msg.fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+            
             receivingMeta = msg;
             receivingChunks = [];
             receivingBytes = 0;
@@ -590,7 +601,7 @@ export function initFileShare() {
             return;
         }
 
-        if (msg.type === 'stream_chunk' && msg.data) {
+        if (msg.type === 'stream_chunk' && msg.data instanceof ArrayBuffer) {
             receivingChunks.push(msg.data);
             receivingBytes += msg.data.byteLength || 0;
 
