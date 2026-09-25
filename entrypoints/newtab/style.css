@@ -269,7 +269,7 @@ html.live-bg-pre-active .background-layer {
 /* ─── Search ─── */
 .search-container { 
     width: 100%; 
-    max-width: 640px; 
+    max-width: 680px; 
     position: relative; 
     z-index: 100 !important; 
     filter: drop-shadow(0 12px 36px rgba(0, 0, 0, 0.35));
@@ -544,6 +544,368 @@ html.live-bg-pre-active .background-layer {
     color: var(--accent);
     opacity: 1;
     transform: scale(1.15);
+}
+
+/* ─── Google Enhanced Search Bar Options ─── */
+.search-container.google-active #search-input {
+    padding-left: 96px;
+    padding-right: 184px;
+}
+
+.search-container:not(.google-active) #search-input {
+    padding-left: 64px;
+    padding-right: 52px;
+}
+
+/* Google Search Plus (+) Button */
+.search-plus-btn {
+    position: absolute;
+    left: 56px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    z-index: 105;
+    transition: all 0.2s var(--ease-spring);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+.search-plus-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.search-plus-btn:active {
+    transform: scale(0.95);
+}
+.search-plus-btn.open {
+    background: rgba(255, 255, 255, 0.25);
+    color: var(--accent, #38bdf8);
+    transform: rotate(45deg);
+}
+
+[data-theme="light"] .search-plus-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #3c4043;
+}
+[data-theme="light"] .search-plus-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #1a73e8;
+}
+
+/* Google Plus Popup Menu */
+.search-plus-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 48px;
+    width: 210px;
+    background: rgba(18, 24, 38, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-top: 1px solid rgba(255, 255, 255, 0.35);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    backdrop-filter: blur(28px) saturate(190%);
+    border-radius: 18px;
+    padding: 8px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+    z-index: 200;
+    transition: opacity 0.25s var(--ease-spring), transform 0.25s var(--ease-spring);
+    transform-origin: top left;
+}
+[data-theme="light"] .search-plus-menu {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-top: 1px solid #ffffff;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12), inset 0 1px 1px 0 #ffffff;
+}
+.search-plus-menu.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px) scale(0.96);
+}
+
+.plus-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 9px 12px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text-primary, #f1f5f9);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+}
+.plus-menu-item svg {
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+.plus-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent, #38bdf8);
+    transform: translateX(2px);
+}
+[data-theme="light"] .plus-menu-item:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #1a73e8;
+}
+.plus-menu-item.active {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent, #38bdf8);
+    font-weight: 600;
+}
+.plus-menu-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 6px 0;
+}
+[data-theme="light"] .plus-menu-divider {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* Right Search Tools Container */
+.search-right-tools {
+    position: absolute;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 105;
+}
+
+.search-tool-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+}
+.search-tool-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    transform: scale(1.1);
+}
+.search-tool-btn:active {
+    transform: scale(0.95);
+}
+[data-theme="light"] .search-tool-btn {
+    color: #5f6368;
+}
+[data-theme="light"] .search-tool-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #202124;
+}
+
+/* Voice Button Listening Pulse */
+#search-voice-btn.listening {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.2);
+    animation: voicePulse 1.2s ease-in-out infinite;
+}
+@keyframes voicePulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+    70% { transform: scale(1.15); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* AI Mode Pill Button */
+.search-ai-mode-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.82rem;
+    font-family: inherit;
+    font-weight: 550;
+    cursor: pointer;
+    transition: all 0.25s var(--ease-spring);
+}
+.search-ai-mode-btn svg {
+    color: #a855f7;
+    transition: transform 0.25s ease;
+}
+.search-ai-mode-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+.search-ai-mode-btn:hover svg {
+    transform: rotate(20deg) scale(1.15);
+}
+.search-ai-mode-btn.active {
+    background: linear-gradient(135deg, rgba(66, 133, 244, 0.3), rgba(168, 85, 247, 0.35));
+    border-color: rgba(168, 85, 247, 0.65);
+    color: #ffffff;
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.45);
+}
+.search-ai-mode-btn.active svg {
+    color: #f472b6;
+    animation: sparkleSpin 4s linear infinite;
+}
+@keyframes sparkleSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+[data-theme="light"] .search-ai-mode-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.12);
+    color: #3c4043;
+}
+[data-theme="light"] .search-ai-mode-btn:hover {
+    background: rgba(0, 0, 0, 0.09);
+    color: #1a73e8;
+}
+
+/* AI Mode Search Container Border Glow */
+.search-container form.ai-mode-active {
+    border-color: rgba(168, 85, 247, 0.7) !important;
+    box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.3),
+        0 0 0 3px rgba(168, 85, 247, 0.25),
+        0 14px 48px 0 rgba(168, 85, 247, 0.2) !important;
+}
+
+/* Search Submit Button inside Right Tools */
+.search-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+}
+.search-submit-btn:hover {
+    color: var(--accent, #38bdf8);
+    background: rgba(255, 255, 255, 0.12);
+    transform: scale(1.1);
+}
+.search-submit-btn:active {
+    transform: scale(0.95);
+}
+[data-theme="light"] .search-submit-btn {
+    color: #5f6368;
+}
+[data-theme="light"] .search-submit-btn:hover {
+    color: #1a73e8;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Google Search Actions (Under Search Bar) ─── */
+.google-search-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 18px;
+    width: 100%;
+    animation: fadeIn 0.3s ease-out;
+}
+.google-action-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+.google-btn {
+    padding: 9px 20px;
+    border-radius: 8px;
+    background: rgba(30, 38, 56, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.88rem;
+    font-family: inherit;
+    font-weight: 450;
+    cursor: pointer;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: all 0.2s var(--ease-spring);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.google-btn:hover {
+    background: rgba(45, 56, 82, 0.85);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+.google-btn:active {
+    transform: translateY(0);
+}
+[data-theme="light"] .google-btn {
+    background: rgba(240, 244, 249, 0.88);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #3c4043;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .google-btn:hover {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.14);
+    color: #202124;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.google-languages-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.65);
+}
+.google-languages-row .languages-label {
+    opacity: 0.8;
+}
+.google-languages-row .languages-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.google-languages-row a {
+    color: #8ab4f8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+.google-languages-row a:hover {
+    color: #aecbfa;
+    text-decoration: underline;
+}
+[data-theme="light"] .google-languages-row {
+    color: #4d5156;
+}
+[data-theme="light"] .google-languages-row a {
+    color: #1a0dab;
+}
+[data-theme="light"] .google-languages-row a:hover {
+    color: #1a0dab;
 }
 
 /* ─── Shortcuts Grid ─── */
@@ -6413,6 +6775,9 @@ body[data-dashboard-mode="minimal"] #notes-widget,
 body[data-dashboard-mode="minimal"] .noosphere-status,
 body[data-dashboard-mode="minimal"] .noosphere-status-horizontal,
 body[data-dashboard-mode="minimal"] .drag-handle,
+body[data-dashboard-mode="minimal"] .google-search-actions,
+body[data-dashboard-mode="minimal"] .search-plus-btn,
+body[data-dashboard-mode="minimal"] .search-plus-menu,
 body[data-dashboard-mode="minimal"] .resize-handle {
     display: none !important;
 }
