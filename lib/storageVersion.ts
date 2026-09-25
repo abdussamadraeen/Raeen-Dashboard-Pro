@@ -9,7 +9,8 @@ export interface StorageMigration {
   description?: string;
 }
 
-const SCHEMA_VERSION_KEY = '__raeen_schema_version__';
+const SCHEMA_VERSION_KEY = '__app_schema_version__';
+const LEGACY_VERSION_KEY = '__raeen_schema_version__';
 
 export async function runStorageMigrations(
   migrations: StorageMigration[],
@@ -19,8 +20,8 @@ export async function runStorageMigrations(
     const chrome = (globalThis as any).chrome;
     if (!chrome?.storage?.local) return;
 
-    const stored = await chrome.storage.local.get(SCHEMA_VERSION_KEY);
-    const currentVersion: number = stored[SCHEMA_VERSION_KEY] ?? 0;
+    const stored = await chrome.storage.local.get([SCHEMA_VERSION_KEY, LEGACY_VERSION_KEY]);
+    const currentVersion: number = stored[SCHEMA_VERSION_KEY] ?? stored[LEGACY_VERSION_KEY] ?? 0;
 
     if (currentVersion >= targetVersion) {
       Logger.debug(`Storage schema is up to date (v${currentVersion})`);

@@ -266,22 +266,22 @@ export const TACTICAL_NODES = VPN_NODES;
  */
 class SecurityManager {
     constructor() {
-        this.isActive = localStorage.getItem('raeen_vpn_active') === 'true';
+        this.isActive = (localStorage.getItem('vpn_active') ?? localStorage.getItem('raeen_vpn_active')) === 'true';
         this.isConnecting = false;
-        this.currentNodeId = localStorage.getItem('raeen_vpn_node') || 'auto';
-        this.activeDnsId = localStorage.getItem('raeen_vpn_dns') || 'cloudflare';
-        this.killSwitch = localStorage.getItem('raeen_vpn_killswitch') === 'true';
+        this.currentNodeId = localStorage.getItem('vpn_node') || localStorage.getItem('raeen_vpn_node') || 'auto';
+        this.activeDnsId = localStorage.getItem('vpn_dns') || localStorage.getItem('raeen_vpn_dns') || 'cloudflare';
+        this.killSwitch = (localStorage.getItem('vpn_killswitch') ?? localStorage.getItem('raeen_vpn_killswitch')) === 'true';
         
         // Normalize any old or legacy node IDs
         if (!VPN_NODES.some(n => n.id === this.currentNodeId)) {
             this.currentNodeId = 'auto';
         }
 
-        this.webrtcSealed = localStorage.getItem('raeen_vpn_webrtc') !== 'false';
+        this.webrtcSealed = (localStorage.getItem('vpn_webrtc') ?? localStorage.getItem('raeen_vpn_webrtc')) !== 'false';
         // [SECURITY] Use Object.create(null) to prevent prototype pollution from stored JSON.
         // Validate port is in valid TCP range before use.
         try {
-            const rawCustom = localStorage.getItem('raeen_vpn_custom');
+            const rawCustom = localStorage.getItem('vpn_custom') || localStorage.getItem('raeen_vpn_custom');
             const parsed = rawCustom ? JSON.parse(rawCustom) : null;
             const validPort = parsed?.port && Number.isInteger(+parsed.port) && +parsed.port >= 1 && +parsed.port <= 65535
                 ? +parsed.port
@@ -297,22 +297,22 @@ class SecurityManager {
         
         // Active Telemetry
         this.telemetry = {
-            ip: sessionStorage.getItem('raeen_vpn_ip') || '',
-            city: sessionStorage.getItem('raeen_vpn_city') || '',
-            country: sessionStorage.getItem('raeen_vpn_country') || '',
-            countryCode: sessionStorage.getItem('raeen_vpn_cc') || '',
-            isp: sessionStorage.getItem('raeen_vpn_isp') || '',
-            flag: sessionStorage.getItem('raeen_vpn_flag') || '🌐',
-            pingMs: sessionStorage.getItem('raeen_vpn_ping') || '18ms',
+            ip: sessionStorage.getItem('vpn_ip') || sessionStorage.getItem('raeen_vpn_ip') || '',
+            city: sessionStorage.getItem('vpn_city') || sessionStorage.getItem('raeen_vpn_city') || '',
+            country: sessionStorage.getItem('vpn_country') || sessionStorage.getItem('raeen_vpn_country') || '',
+            countryCode: sessionStorage.getItem('vpn_cc') || sessionStorage.getItem('raeen_vpn_cc') || '',
+            isp: sessionStorage.getItem('vpn_isp') || sessionStorage.getItem('raeen_vpn_isp') || '',
+            flag: sessionStorage.getItem('vpn_flag') || sessionStorage.getItem('raeen_vpn_flag') || '🌐',
+            pingMs: sessionStorage.getItem('vpn_ping') || sessionStorage.getItem('raeen_vpn_ping') || '18ms',
             pingQuality: 'good',
             isTor: false
         };
 
         // Real baseline IP (detected when VPN is off, used to detect leaks & proxy failures)
-        this.baselineIp = sessionStorage.getItem('raeen_baseline_ip') || '';
-        this.baselineCity = sessionStorage.getItem('raeen_baseline_city') || '';
-        this.baselineCountry = sessionStorage.getItem('raeen_baseline_country') || '';
-        this.baselineFlag = sessionStorage.getItem('raeen_baseline_flag') || '🌐';
+        this.baselineIp = sessionStorage.getItem('vpn_baseline_ip') || sessionStorage.getItem('raeen_baseline_ip') || '';
+        this.baselineCity = sessionStorage.getItem('vpn_baseline_city') || sessionStorage.getItem('raeen_baseline_city') || '';
+        this.baselineCountry = sessionStorage.getItem('vpn_baseline_country') || sessionStorage.getItem('raeen_baseline_country') || '';
+        this.baselineFlag = sessionStorage.getItem('vpn_baseline_flag') || sessionStorage.getItem('raeen_baseline_flag') || '🌐';
         this.proxyFailed = false;
         this.routeStatus = 'idle';
 
@@ -363,7 +363,7 @@ class SecurityManager {
 
     setSecureDns(dnsId) {
         this.activeDnsId = dnsId;
-        localStorage.setItem('raeen_vpn_dns', dnsId);
+        localStorage.setItem('vpn_dns', dnsId); localStorage.setItem('raeen_vpn_dns', dnsId);
         this.notify();
     }
 
@@ -659,7 +659,7 @@ class SecurityManager {
 
     async connect(nodeId = null) {
         if (nodeId) this.currentNodeId = nodeId;
-        localStorage.setItem('raeen_vpn_node', this.currentNodeId);
+        localStorage.setItem('vpn_node', this.currentNodeId); localStorage.setItem('raeen_vpn_node', this.currentNodeId);
         this.isConnecting = true;
         this.proxyFailed = false;
         this.routeStatus = 'testing';
@@ -702,7 +702,7 @@ class SecurityManager {
             if (res && res.success) {
                 this.isActive = true;
                 this.isConnecting = false;
-                localStorage.setItem('raeen_vpn_active', 'true');
+                localStorage.setItem('vpn_active', 'true'); localStorage.setItem('raeen_vpn_active', 'true');
                 this._startTimer();
                 this.notify();
                 this.probeRealIp();
@@ -732,7 +732,7 @@ class SecurityManager {
         this.proxyFailed = false;
         this.routeStatus = 'idle';
         this.torOffline = false;
-        localStorage.setItem('raeen_vpn_active', 'false');
+        localStorage.setItem('vpn_active', 'false'); localStorage.setItem('raeen_vpn_active', 'false');
 
         const chromeProxy = (typeof chrome !== 'undefined' && chrome.proxy) ? chrome.proxy : null;
         if (chromeProxy?.settings) {
@@ -759,7 +759,7 @@ class SecurityManager {
 
     async setWebRTCShield(enabled) {
         this.webrtcSealed = enabled;
-        localStorage.setItem('raeen_vpn_webrtc', enabled ? 'true' : 'false');
+        localStorage.setItem('vpn_webrtc', enabled ? 'true' : 'false'); localStorage.setItem('raeen_vpn_webrtc', enabled ? 'true' : 'false');
         if (typeof chrome !== 'undefined' && chrome.privacy?.network?.webRTCIPHandlingPolicy) {
             return new Promise((resolve) => {
                 chrome.privacy.network.webRTCIPHandlingPolicy.set({
@@ -777,7 +777,7 @@ class SecurityManager {
 
     async toggleKillSwitch(enabled) {
         this.killSwitch = !!enabled;
-        localStorage.setItem('raeen_vpn_killswitch', this.killSwitch ? 'true' : 'false');
+        localStorage.setItem('vpn_killswitch', this.killSwitch ? 'true' : 'false'); localStorage.setItem('raeen_vpn_killswitch', this.killSwitch ? 'true' : 'false');
         await this.sendMsg({ action: 'killswitch_set', enabled: this.killSwitch });
         if (this.isActive) {
             await this.connect(this.currentNodeId);
@@ -930,10 +930,10 @@ class SecurityManager {
                     this.baselineCountry = geoData?.country || '';
                     this.baselineFlag = geoData?.flag?.emoji || this._getFlagEmoji(geoData?.country_code) || '🌐';
                     // [HIGH] Privacy Risk: Storing real IP in localStorage persists it across sessions. Changed to sessionStorage.
-                    sessionStorage.setItem('raeen_baseline_ip', this.baselineIp);
-                    sessionStorage.setItem('raeen_baseline_city', this.baselineCity);
-                    sessionStorage.setItem('raeen_baseline_country', this.baselineCountry);
-                    sessionStorage.setItem('raeen_baseline_flag', this.baselineFlag);
+                    sessionStorage.setItem('vpn_baseline_ip', this.baselineIp); sessionStorage.setItem('raeen_baseline_ip', this.baselineIp);
+                    sessionStorage.setItem('vpn_baseline_city', this.baselineCity); sessionStorage.setItem('raeen_baseline_city', this.baselineCity);
+                    sessionStorage.setItem('vpn_baseline_country', this.baselineCountry); sessionStorage.setItem('raeen_baseline_country', this.baselineCountry);
+                    sessionStorage.setItem('vpn_baseline_flag', this.baselineFlag); sessionStorage.setItem('raeen_baseline_flag', this.baselineFlag);
                     this.proxyFailed = false;
                     this.routeStatus = 'idle';
                 } else {
@@ -958,13 +958,13 @@ class SecurityManager {
                 this.telemetry.isp = geoData?.connection?.isp || geoData?.connection?.org || (this.telemetry.isTor ? 'Tor Relay Network' : '');
                 this.telemetry.flag = geoData?.flag?.emoji || this._getFlagEmoji(this.telemetry.countryCode) || currentNode.flag || '🌐';
 
-                sessionStorage.setItem('raeen_vpn_ip', this.telemetry.ip);
-                sessionStorage.setItem('raeen_vpn_city', this.telemetry.city);
-                sessionStorage.setItem('raeen_vpn_country', this.telemetry.country);
-                sessionStorage.setItem('raeen_vpn_cc', this.telemetry.countryCode);
-                sessionStorage.setItem('raeen_vpn_isp', this.telemetry.isp);
-                sessionStorage.setItem('raeen_vpn_flag', this.telemetry.flag);
-                sessionStorage.setItem('raeen_vpn_ping', this.telemetry.pingMs);
+                sessionStorage.setItem('vpn_ip', this.telemetry.ip); sessionStorage.setItem('raeen_vpn_ip', this.telemetry.ip);
+                sessionStorage.setItem('vpn_city', this.telemetry.city); sessionStorage.setItem('raeen_vpn_city', this.telemetry.city);
+                sessionStorage.setItem('vpn_country', this.telemetry.country); sessionStorage.setItem('raeen_vpn_country', this.telemetry.country);
+                sessionStorage.setItem('vpn_cc', this.telemetry.countryCode); sessionStorage.setItem('raeen_vpn_cc', this.telemetry.countryCode);
+                sessionStorage.setItem('vpn_isp', this.telemetry.isp); sessionStorage.setItem('raeen_vpn_isp', this.telemetry.isp);
+                sessionStorage.setItem('vpn_flag', this.telemetry.flag); sessionStorage.setItem('raeen_vpn_flag', this.telemetry.flag);
+                sessionStorage.setItem('vpn_ping', this.telemetry.pingMs); sessionStorage.setItem('raeen_vpn_ping', this.telemetry.pingMs);
 
                 // If geoData was missing but IP was obtained, enrich asynchronously
                 if (!geoData && detectedIp) {
@@ -1012,7 +1012,7 @@ class SecurityManager {
             await fetch('http://127.0.0.1:9052/rotate', { signal: controller.signal, cache: 'no-store' });
             clearTimeout(timeout);
         } catch (e) {}
-        sessionStorage.removeItem('raeen_vpn_ip');
+        sessionStorage.removeItem('vpn_ip'); sessionStorage.removeItem('raeen_vpn_ip');
         await this.probeRealIp();
     }
 

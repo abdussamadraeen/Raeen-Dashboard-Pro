@@ -4,7 +4,7 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
   publicDir: 'extension-public',
   manifest: {
-    name: 'Raeen Workspace – Smart New Tab',
+    name: 'Workspace – Smart New Tab',
     description: 'A premium, minimalist new tab dashboard with integrated AI workflows and focus features.',
     version: '2.1.0',
     action: {

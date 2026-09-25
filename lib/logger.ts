@@ -1,4 +1,4 @@
-import type { RaeenError } from './errors';
+import type { AppError } from './errors';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -21,22 +21,22 @@ const push = (entry: LogEntry) => {
 export const Logger = {
   debug(message: string, context?: unknown): void {
     push({ level: 'debug', message, timestamp: Date.now(), context });
-    console.debug(`[Raeen:debug] ${message}`, context ?? '');
+    console.debug(`[App:debug] ${message}`, context ?? '');
   },
 
   info(message: string, context?: unknown): void {
     push({ level: 'info', message, timestamp: Date.now(), context });
-    console.info(`[Raeen:info] ${message}`, context ?? '');
+    console.info(`[App:info] ${message}`, context ?? '');
   },
 
   warn(message: string, context?: unknown): void {
     push({ level: 'warn', message, timestamp: Date.now(), context });
-    console.warn(`[Raeen:warn] ${message}`, context ?? '');
+    console.warn(`[App:warn] ${message}`, context ?? '');
   },
 
-  error(message: string, errorOrContext?: RaeenError | Error | unknown): void {
+  error(message: string, errorOrContext?: AppError | Error | unknown): void {
     push({ level: 'error', message, timestamp: Date.now(), context: errorOrContext });
-    console.error(`[Raeen:error] ${message}`, errorOrContext ?? '');
+    console.error(`[App:error] ${message}`, errorOrContext ?? '');
   },
 
   dump(count = 50): LogEntry[] {

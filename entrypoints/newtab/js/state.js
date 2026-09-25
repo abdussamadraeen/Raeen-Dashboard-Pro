@@ -54,18 +54,21 @@ export function saveSettings(settingsObj, noApply = false) {
     if (!noApply) applySettings();
 
     if (toSave.dashboardMode) {
-        localStorage.setItem('raeen_dashboard_mode', toSave.dashboardMode);
+        localStorage.setItem('app_dashboard_mode', toSave.dashboardMode);
     }
 
     if (toSave.backgroundType) {
+        localStorage.setItem('app_bg_type', toSave.backgroundType);
         localStorage.setItem('raeen_bg_type', toSave.backgroundType);
-        if (toSave.backgroundType !== 'brave' || toSave.backgroundValue !== 'brave_random') {
+        const isRandom = toSave.backgroundValue === 'curated_random' || toSave.backgroundValue === 'brave_random';
+        if (toSave.backgroundType !== 'curated' && toSave.backgroundType !== 'brave' || !isRandom) {
+            localStorage.setItem('app_bg_value', toSave.backgroundValue || '');
             localStorage.setItem('raeen_bg_value', toSave.backgroundValue || '');
         }
     }
 
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-        Promise.resolve(chrome.storage.local.set({ 'raeen_settings': toSave }))
+        Promise.resolve(chrome.storage.local.set({ 'dashboard_settings': toSave, 'raeen_settings': toSave }))
             .catch((error) => console.error('Failed to sync settings:', error));
     }
 
@@ -76,8 +79,9 @@ export function saveSettings(settingsObj, noApply = false) {
 // Sync settings across tabs
 if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
-        if (areaName === 'local' && changes.raeen_settings && changes.raeen_settings.newValue) {
-            updateSettings(changes.raeen_settings.newValue);
+        const settingsChange = changes.dashboard_settings || changes.raeen_settings;
+        if (areaName === 'local' && settingsChange && settingsChange.newValue) {
+            updateSettings(settingsChange.newValue);
             applySettings();
         }
     });

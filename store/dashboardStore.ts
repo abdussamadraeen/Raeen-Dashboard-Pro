@@ -392,7 +392,7 @@ export const defaultSettings: Settings = {
   dashboardTitle: 'New Tab',
   themePreference: 'dark',
   backgroundType: 'google_dashboard',
-  backgroundValue: 'https://www.google.com/?raeen_dashboard=true',
+  backgroundValue: 'https://www.google.com/?app_dashboard=true',
   showSearch: true,
   searchEngine: 'google',
   showTopSites: true,
@@ -465,12 +465,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
 
       // 2. Save to chrome storage (for MV3 extension architecture sync)
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        chrome.storage.local.set({ 'raeen_settings': settingsToSave });
+        chrome.storage.local.set({ 'dashboard_settings': settingsToSave, 'raeen_settings': settingsToSave });
       }
 
       // 3. Save to localStorage for synchronous, flash-free preloading
       if (settingsToSave.backgroundType) {
+        localStorage.setItem('app_bg_type', settingsToSave.backgroundType);
         localStorage.setItem('raeen_bg_type', settingsToSave.backgroundType);
+        localStorage.setItem('app_bg_value', settingsToSave.backgroundValue || '');
         localStorage.setItem('raeen_bg_value', settingsToSave.backgroundValue || '');
       }
     }, 500); // Debounce for 500ms
@@ -495,8 +497,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
               version: 1,
               description: 'Ensure required fields have defaults',
               migrate: (data) => {
-                const settings = data.raeen_settings || {};
+                const settings = data.dashboard_settings || data.raeen_settings || {};
                 // Force defaults for missing keys
+                data.dashboard_settings = { ...defaultSettings, ...settings };
                 data.raeen_settings = { ...defaultSettings, ...settings };
                 return data;
               }
@@ -521,9 +524,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
 
       // Fallback to chrome.storage.local
       if (!loadedSettings && typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        const result = await chrome.storage.local.get('raeen_settings');
-        if (result.raeen_settings) {
-          loadedSettings = result.raeen_settings;
+        const result = await chrome.storage.local.get(['dashboard_settings', 'raeen_settings']);
+        if (result.dashboard_settings || result.raeen_settings) {
+          loadedSettings = result.dashboard_settings || result.raeen_settings;
         }
       }
 
@@ -549,7 +552,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
       }
 
       // Ensure FOUC settings are hydrated immediately in localStorage
+      localStorage.setItem('app_bg_type', finalSettings.backgroundType);
       localStorage.setItem('raeen_bg_type', finalSettings.backgroundType);
+      localStorage.setItem('app_bg_value', finalSettings.backgroundValue || '');
       localStorage.setItem('raeen_bg_value', finalSettings.backgroundValue || '');
 
       // 2. Load Notes from IndexedDB
@@ -564,7 +569,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
       // 3. Load dynamic Apps Data
       let loadedAppsData = defaultAppData;
       try {
-        const stored = localStorage.getItem('raeen_apps_data');
+        const stored = localStorage.getItem('app_apps_data') || localStorage.getItem('raeen_apps_data');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed.google && parsed.microsoft) {
@@ -578,9 +583,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
       // 4. Load Focus Timer
       let loadedFocus = defaultFocusData;
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        const result = await chrome.storage.local.get('raeen_dashboard_focus');
-        if (result.raeen_dashboard_focus) {
-          loadedFocus = result.raeen_dashboard_focus;
+        const result = await chrome.storage.local.get(['app_dashboard_focus', 'raeen_dashboard_focus']);
+        if (result.app_dashboard_focus || result.raeen_dashboard_focus) {
+          loadedFocus = result.app_dashboard_focus || result.raeen_dashboard_focus;
         }
       }
 
@@ -594,12 +599,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
       // Listen for focus timer changes from other tabs to ensure perfect synchronization
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
         chrome.storage.onChanged.addListener((changes: any, areaName: string) => {
-          if (areaName === 'local' && changes.raeen_dashboard_focus) {
-            set({ focusTimer: changes.raeen_dashboard_focus.newValue });
+          const focusChange = changes.app_dashboard_focus || changes.raeen_dashboard_focus;
+          if (areaName === 'local' && focusChange) {
+            set({ focusTimer: focusChange.newValue });
           }
-          if (areaName === 'local' && changes.raeen_settings) {
+          const settingsChange = changes.dashboard_settings || changes.raeen_settings;
+          if (areaName === 'local' && settingsChange) {
             // Also sync settings updates across open tabs
-            const parsed = SettingsSchema.safeParse(changes.raeen_settings.newValue);
+            const parsed = SettingsSchema.safeParse(settingsChange.newValue);
             if (parsed.success) {
               set({ settings: { ...defaultSettings, ...parsed.data } });
             }
@@ -694,7 +701,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
 
       set({ focusTimer: newFocus });
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        chrome.storage.local.set({ 'raeen_dashboard_focus': newFocus });
+        chrome.storage.local.set({ 'app_dashboard_focus': newFocus, 'raeen_dashboard_focus': newFocus });
       }
     },
 
@@ -711,7 +718,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
 
       set({ focusTimer: newFocus });
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        chrome.storage.local.set({ 'raeen_dashboard_focus': newFocus });
+        chrome.storage.local.set({ 'app_dashboard_focus': newFocus, 'raeen_dashboard_focus': newFocus });
       }
     },
 
@@ -724,7 +731,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
 
       set({ focusTimer: newFocus });
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        chrome.storage.local.set({ 'raeen_dashboard_focus': newFocus });
+        chrome.storage.local.set({ 'app_dashboard_focus': newFocus, 'raeen_dashboard_focus': newFocus });
       }
     },
 
@@ -741,7 +748,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
         };
         set({ focusTimer: completedFocus });
         if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-          chrome.storage.local.set({ 'raeen_dashboard_focus': completedFocus });
+          chrome.storage.local.set({ 'app_dashboard_focus': completedFocus, 'raeen_dashboard_focus': completedFocus });
         }
       }
     },
@@ -764,6 +771,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => {
 
       set({ appsData: updatedAppsData });
       try {
+        localStorage.setItem('app_apps_data', JSON.stringify(updatedAppsData));
         localStorage.setItem('raeen_apps_data', JSON.stringify(updatedAppsData));
       } catch (e) {
         console.error('Failed to save dynamic apps data to localStorage:', e);

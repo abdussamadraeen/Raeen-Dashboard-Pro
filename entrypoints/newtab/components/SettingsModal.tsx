@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDashboardStore } from '../../../store/dashboardStore';
 import { StorageManager } from '../../../store/storage';
 import { AppItem } from '../../../validation/settingsSchema';
-import { OFFICIAL_BRAVE_WALLPAPERS as braveWallpapersList } from '../js/brave-wallpapers.js';
+import { CURATED_WALLPAPERS as curatedWallpapersList } from '../js/wallpapers.js';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -475,16 +475,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         let val = '';
                         if (type === 'solid') val = '#000000';
                         else if (type === 'bing') val = 'bing_latest_v2';
-                        else if (type === 'brave') val = 'brave_random';
+                        else if (type === 'curated' || type === 'brave') val = 'curated_random';
                         else if (type === 'canvas') val = settings.canvasStyle;
-                        else if (type === 'google_dashboard') val = 'https://www.google.com/?raeen_dashboard=true';
-                        else if (type === 'bing_dashboard') val = 'https://www.bing.com/?raeen_dashboard=true';
+                        else if (type === 'google_dashboard') val = 'https://www.google.com/?app_dashboard=true';
+                        else if (type === 'bing_dashboard') val = 'https://www.bing.com/?app_dashboard=true';
                         updateSettings({ backgroundType: type, backgroundValue: val });
                       }}
                     >
                       <option value="solid">Solid / Gradients</option>
                       <option value="bing">Bing Daily Wallpaper</option>
-                      <option value="brave">Brave Wallpapers (Ad-Free)</option>
+                      <option value="curated">Curated 4K Wallpapers</option>
                       <option value="preset">Preset Wallpapers</option>
                       <option value="canvas">Interactive Canvas Particles</option>
                       <option value="custom">Custom Image/Video URL</option>
@@ -573,15 +573,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 )}
 
                 {/* BRAVE OPTIONS */}
-                {settings.backgroundType === 'brave' && (
+                {(settings.backgroundType === 'curated' || settings.backgroundType === 'brave') && (
                   <div className="card-container p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
-                          Brave Wallpapers
+                          Curated Wallpapers
                         </label>
                         <span className="text-[11px] text-[var(--text-secondary)]">
-                          100% Ad-Free • Curated high-resolution landscape &amp; nature photography
+                          Curated high-resolution landscape &amp; nature photography with artist attribution
                         </span>
                       </div>
                       <span className="badge-adfree">100% Ad-Free</span>
@@ -592,10 +592,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <label className="switch">
                         <input
                           type="checkbox"
-                          checked={!settings.backgroundValue || settings.backgroundValue === 'brave_random'}
+                          checked={!settings.backgroundValue || settings.backgroundValue === 'curated_random' || settings.backgroundValue === 'brave_random'}
                           onChange={(e) => {
                             updateSettings({
-                              backgroundValue: e.target.checked ? 'brave_random' : (braveWallpapersList[0]?.url ?? "")
+                              backgroundValue: e.target.checked ? 'curated_random' : (curatedWallpapersList[0]?.url ?? "")
                             });
                           }}
                         />
@@ -606,19 +606,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
                       Or Pick a Wallpaper
                     </label>
-                    <div className="brave-gallery-grid">
-                      {braveWallpapersList.map((item) => {
+                    <div className="wallpaper-gallery-grid brave-gallery-grid">
+                      {curatedWallpapersList.map((item) => {
                         const isCurrent = settings.backgroundValue === item.url;
                         return (
                           <div
                             key={item.url}
-                            className={`brave-thumb-wrapper ${isCurrent ? 'active' : ''}`}
+                            className={`wallpaper-thumb-wrapper brave-thumb-wrapper ${isCurrent ? 'active' : ''}`}
                             onClick={() => updateSettings({ backgroundValue: item.url })}
                           >
-                            <img src={item.thumb} alt={item.name} className="brave-thumb-img" />
-                            <div className="brave-thumb-info">
-                              <span className="brave-thumb-title">{item.title || item.name}</span>
-                              <span className="brave-thumb-author">by {item.photographer}</span>
+                            <img src={item.thumb} alt={item.name} className="wallpaper-thumb-img brave-thumb-img" />
+                            <div className="wallpaper-thumb-info brave-thumb-info">
+                              <span className="wallpaper-thumb-title brave-thumb-title">{item.title || item.name}</span>
+                              <span className="wallpaper-thumb-author brave-thumb-author">by {item.photographer}</span>
                             </div>
                           </div>
                         );

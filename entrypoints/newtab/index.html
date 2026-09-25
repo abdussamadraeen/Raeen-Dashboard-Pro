@@ -677,7 +677,7 @@
                             <label>Background Type</label>
                             <select id="bg-type-select" class="custom-select" title="Background Type" aria-label="Background Type">
                                 <optgroup label="🛡️ Privacy &amp; Stealth Modes">
-                                    <option value="brave">Brave Wallpapers (Ad-Free 4K)</option>
+                                    <option value="curated">Curated 4K Wallpapers</option>
                                     <option value="canvas">Interactive Canvas (Neural/Rain)</option>
                                     <option value="solid">Solid Colors &amp; Gradients</option>
                                 </optgroup>
@@ -740,10 +740,10 @@
 
                         <div id="bg-brave-options" class="settings-group hidden">
                             <div class="brave-header-row">
-                                <label class="brave-label">Brave Wallpapers</label>
+                                <label class="wallpaper-label">Curated Wallpapers</label>
                                 <span class="badge-adfree">100% Ad-Free</span>
                             </div>
-                            <p class="subtext">Curated high-resolution 4K nature &amp; landscape photography inspired by Brave NTP — completely free of sponsored takeovers or ads.</p>
+                            <p class="subtext">Curated high-resolution 4K nature &amp; landscape photography with verified artist attribution.</p>
                             <div class="card-container settings-card-compact mt-3">
                                 <div class="settings-row settings-row-compact">
                                     <div class="settings-row-info">
@@ -1237,9 +1237,9 @@
         </svg>
     </button>
 
-    <div id="photographer-credit" class="photographer-credit hidden" title="Curated Brave Wallpaper">
+    <div id="photographer-credit" class="photographer-credit hidden" title="Curated Wallpaper">
         <svg class="photo-cam-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-        <span>Photo by <a id="photographer-name" href="https://unsplash.com" target="_blank" rel="noopener noreferrer">Brave Curated</a></span>
+        <span>Photo by <a id="photographer-name" href="https://unsplash.com" target="_blank" rel="noopener noreferrer">Curated Artist</a></span>
         <button id="next-wallpaper-btn" class="wallpaper-cycle-btn" title="Cycle to Next Wallpaper" aria-label="Cycle to Next Wallpaper">
             <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
         </button>
@@ -1306,7 +1306,7 @@
                                 📋 Copy Code
                             </button>
                             <button type="button" id="share-export-file-btn" class="focus-btn focus-btn-secondary">
-                                💾 Export .raeen.json
+                                💾 Export Settings (.json)
                             </button>
                         </div>
                     </div>
@@ -1327,14 +1327,14 @@
             </header>
             <div class="modal-body">
                 <!-- Dropzone for File -->
-                <input type="file" id="import-file-input" accept=".json,.raeen" class="hidden" title="Select Dashboard File" aria-label="Select Dashboard File">
+                <input type="file" id="import-file-input" accept=".json" class="hidden" title="Select Dashboard File" aria-label="Select Dashboard File">
                 <div class="import-file-dropzone" id="import-file-dropzone">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropzone-icon">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
-                    <span class="dropzone-text">Drop .raeen or .json file here</span>
+                    <span class="dropzone-text">Drop .json backup file here</span>
                     <span class="dropzone-sub">or click to browse local files</span>
                 </div>
 

@@ -1,12 +1,11 @@
 /**
- * Official Brave NTP Wallpaper Collection & Dynamic Sync Engine
- * Direct from official Brave Browser New Tab Page component specifications.
- * Pristine 4K offline assets + verified original photographer attributions.
+ * Curated 4K Master Wallpaper Collection & Dynamic Sync Engine
+ * Pristine 4K local master assets + verified photographer attributions.
  */
 
-export const OFFICIAL_BRAVE_WALLPAPERS = [
+export const CURATED_WALLPAPERS = [
     {
-        "id": "brave_1",
+        "id": "wall_1",
         "name": "ntp-2026-Q4-1",
         "title": "Rugged Mountain Peaks at Dawn",
         "photographer": "Pascal Debrunner",
@@ -17,7 +16,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_2",
+        "id": "wall_2",
         "name": "ntp-2026-Q4-2",
         "title": "Sand Dunes with Long Shadows",
         "photographer": "Rafael Peier",
@@ -28,7 +27,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_3",
+        "id": "wall_3",
         "name": "ntp-2026-Q4-3",
         "title": "Vibrant Sunset Over Ocean Waves",
         "photographer": "David Becker",
@@ -39,7 +38,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_4",
+        "id": "wall_4",
         "name": "ntp-2026-Q4-4",
         "title": "Waterfall in Lush Dark Forest",
         "photographer": "Hunter Newton",
@@ -50,7 +49,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_5",
+        "id": "wall_5",
         "name": "ntp-2026-Q4-5",
         "title": "Mountain Range with Pink Sky",
         "photographer": "Andrew Svk",
@@ -61,7 +60,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_6",
+        "id": "wall_6",
         "name": "ntp-2026-Q4-6",
         "title": "Alpine Lake Surrounded by Mountains",
         "photographer": "Daniel Schwarz",
@@ -72,7 +71,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_7",
+        "id": "wall_7",
         "name": "ntp-2026-Q4-7",
         "title": "Rowboats on Turquoise Water",
         "photographer": "Gabriele Merlino",
@@ -83,7 +82,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_8",
+        "id": "wall_8",
         "name": "ntp-2026-Q4-8",
         "title": "Green Plains Under Cloudy Sky",
         "photographer": "Freestocks",
@@ -94,7 +93,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_9",
+        "id": "wall_9",
         "name": "ntp-2026-Q4-9",
         "title": "Ocean Sandbar in Turquoise Waters",
         "photographer": "Ken Cheung",
@@ -105,7 +104,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_10",
+        "id": "wall_10",
         "name": "ntp-2026-Q4-10",
         "title": "Dark Forest Lake Aerial View",
         "photographer": "Kristaps Ungurs",
@@ -116,7 +115,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_11",
+        "id": "wall_11",
         "name": "ntp-2026-Q4-11",
         "title": "Golden Sunset Over Sand Dunes",
         "photographer": "John Murphey",
@@ -127,7 +126,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_12",
+        "id": "wall_12",
         "name": "ntp-2026-Q4-12",
         "title": "Desert Rock Formation at Noon",
         "photographer": "Fudo Jahic",
@@ -138,7 +137,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_13",
+        "id": "wall_13",
         "name": "ntp-2026-Q4-13",
         "title": "Rugged Coastal Cliffs and Waves",
         "photographer": "Benjamin Hibbert",
@@ -149,7 +148,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_14",
+        "id": "wall_14",
         "name": "ntp-2026-Q4-14",
         "title": "Aurora Borealis Over Snowy Forest",
         "photographer": "Juho Luomala",
@@ -160,7 +159,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_15",
+        "id": "wall_15",
         "name": "ntp-2026-Q4-15",
         "title": "Wildflowers by Glacial Mountain Lake",
         "photographer": "Pascal Debrunner",
@@ -171,7 +170,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_16",
+        "id": "wall_16",
         "name": "ntp-2026-Q4-16",
         "title": "Modern Architectural Glass Walkway",
         "photographer": "Fer Troulik",
@@ -182,7 +181,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_17",
+        "id": "wall_17",
         "name": "ntp-2026-Q4-17",
         "title": "Minimalist Spiral Staircase",
         "photographer": "Mike Hindle",
@@ -193,7 +192,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_18",
+        "id": "wall_18",
         "name": "ntp-2026-Q4-18",
         "title": "Urban Metropolis Skyline",
         "photographer": "Tom Moser",
@@ -204,7 +203,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_19",
+        "id": "wall_19",
         "name": "ntp-2026-Q4-19",
         "title": "Golden Gate Bridge in Mist",
         "photographer": "Oliver Plattner",
@@ -215,7 +214,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_20",
+        "id": "wall_20",
         "name": "ntp-2026-Q4-20",
         "title": "Dramatic City Architecture",
         "photographer": "Massimiliano Morosinotto",
@@ -226,7 +225,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_21",
+        "id": "wall_21",
         "name": "ntp-2026-Q4-21",
         "title": "Geometric Architectural Shadows",
         "photographer": "Anton Volnuhin",
@@ -237,7 +236,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_22",
+        "id": "wall_22",
         "name": "ntp-2026-Q4-22",
         "title": "Dew Drops on Vibrant Orange Petals",
         "photographer": "Rafael Peier",
@@ -248,7 +247,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_23",
+        "id": "wall_23",
         "name": "ntp-2026-Q4-23",
         "title": "Coral Reef and Marine Life",
         "photographer": "Neom",
@@ -259,7 +258,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_24",
+        "id": "wall_24",
         "name": "ntp-2026-Q4-24",
         "title": "Chameleon Spiral Tail Pattern",
         "photographer": "David Clode",
@@ -270,7 +269,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_25",
+        "id": "wall_25",
         "name": "ntp-2026-Q4-25",
         "title": "Coastal Herons on the Shore",
         "photographer": "Elizabeth Gottwald",
@@ -281,7 +280,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_26",
+        "id": "wall_26",
         "name": "ntp-2026-Q4-26",
         "title": "Variegated Leaves in Rain Forest",
         "photographer": "Ngoc Nguyen Phuong",
@@ -292,7 +291,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_27",
+        "id": "wall_27",
         "name": "ntp-2026-Q4-27",
         "title": "Songbird on Meadow Grass",
         "photographer": "Daniil Komov",
@@ -303,7 +302,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_28",
+        "id": "wall_28",
         "name": "ntp-2026-Q4-28",
         "title": "Sunset Lake Through Forest Trees",
         "photographer": "Fabio Sasso",
@@ -314,7 +313,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_29",
+        "id": "wall_29",
         "name": "ntp-2026-Q4-29",
         "title": "Emerald Leaves with Crimson Veins",
         "photographer": "Lukasz Rawa",
@@ -325,7 +324,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_30",
+        "id": "wall_30",
         "name": "ntp-2026-Q4-30",
         "title": "Dynamic Ocean Waves and Seafoam",
         "photographer": "Damian Kamp",
@@ -336,7 +335,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_31",
+        "id": "wall_31",
         "name": "ntp-2026-Q4-31",
         "title": "Abstract Glacial Blue Ice Formations",
         "photographer": "Xiao Lou",
@@ -347,7 +346,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_32",
+        "id": "wall_32",
         "name": "ntp-2026-Q4-32",
         "title": "Iridescent Waves on Deep Obsidian",
         "photographer": "Veli Batuhan Aytaç",
@@ -358,7 +357,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_33",
+        "id": "wall_33",
         "name": "ntp-2026-Q4-33",
         "title": "Sunset Reflection on Lake Waters",
         "photographer": "Daniil Silantev",
@@ -369,7 +368,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_34",
+        "id": "wall_34",
         "name": "ntp-2026-Q4-34",
         "title": "Prismatic Gradient Waves",
         "photographer": "Milad Fakurian",
@@ -380,7 +379,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_35",
+        "id": "wall_35",
         "name": "ntp-2026-Q4-35",
         "title": "Starlit Night Sky Over Desert Dunes",
         "photographer": "Daniel Olah",
@@ -391,7 +390,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Free to use under the Unsplash License"
     },
     {
-        "id": "brave_36",
+        "id": "wall_36",
         "name": "ntp-2026-Q4-36",
         "title": "Alpine Sunrise Summit",
         "photographer": "Alex Oviedo",
@@ -402,7 +401,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Used with permission"
     },
     {
-        "id": "brave_37",
+        "id": "wall_37",
         "name": "ntp-2026-Q4-37",
         "title": "Misty River Canyon Valley",
         "photographer": "Mogli Maureal",
@@ -413,7 +412,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Used with permission"
     },
     {
-        "id": "brave_38",
+        "id": "wall_38",
         "name": "ntp-2026-Q4-38",
         "title": "Pacific Coastal Headlands",
         "photographer": "Nicholas Stankus",
@@ -424,7 +423,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Used with permission"
     },
     {
-        "id": "brave_39",
+        "id": "wall_39",
         "name": "ntp-2026-Q4-39",
         "title": "Dolomites Mountain Horizon",
         "photographer": "Matteo Menardi",
@@ -435,7 +434,7 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
         "license": "Used with permission"
     },
     {
-        "id": "brave_40",
+        "id": "wall_40",
         "name": "ntp-2026-Q4-40",
         "title": "Sunlit Forest Canopy",
         "photographer": "Pedro Gomes",
@@ -447,7 +446,9 @@ export const OFFICIAL_BRAVE_WALLPAPERS = [
     }
 ];
 
-export const BRAVE_WALLPAPERS = OFFICIAL_BRAVE_WALLPAPERS;
+export const OFFICIAL_BRAVE_WALLPAPERS = CURATED_WALLPAPERS;
+export const BRAVE_WALLPAPERS = CURATED_WALLPAPERS;
+export const ONLINE_WALLPAPERS = ONLINE_UNSPLASH_CATALOG;
 
 export const ONLINE_UNSPLASH_CATALOG = [
     {
@@ -672,26 +673,27 @@ export const ONLINE_UNSPLASH_CATALOG = [
     }
 ];
 
-const DYNAMIC_CACHE_KEY = 'brave_dynamic_wallpapers_v1';
+const DYNAMIC_CACHE_KEY = 'dynamic_wallpapers_v1';
+const LEGACY_CACHE_KEY = 'curated_dynamic_wallpapers_v1';
 
 /**
- * Service to manage, rotate, and dynamically fetch new Brave wallpapers
+ * Service to manage, rotate, and dynamically fetch new curated wallpapers
  */
-export const BraveWallpaperService = {
+export const WallpaperService = {
   /**
-   * Returns all available wallpapers (40 official Brave offline + 20 verified Unsplash online + any dynamically fetched ones)
+   * Returns all available wallpapers (40 local master 4K + 20 online curated + dynamic)
    */
   async getAll() {
     let dynamic = [];
     try {
-      const stored = localStorage.getItem(DYNAMIC_CACHE_KEY);
+      const stored = localStorage.getItem(DYNAMIC_CACHE_KEY) || localStorage.getItem(LEGACY_CACHE_KEY);
       if (stored) {
         dynamic = JSON.parse(stored);
       }
     } catch (e) {
-      console.warn('[BraveWallpapers] Failed to read dynamic cache', e);
+      console.warn('[Wallpapers] Failed to read dynamic cache', e);
     }
-    return [...OFFICIAL_BRAVE_WALLPAPERS, ...ONLINE_UNSPLASH_CATALOG, ...dynamic];
+    return [...CURATED_WALLPAPERS, ...ONLINE_WALLPAPERS, ...dynamic];
   },
 
   /**
@@ -705,7 +707,7 @@ export const BraveWallpaperService = {
 
   /**
    * Gets next wallpaper in rotation.
-   * Seamlessly cycles through all official 40 + Unsplash online pool.
+   * Seamlessly cycles through all local + online curated pool.
    * Automatically triggers background fetch if nearing the end.
    */
   async getNext(currentUrlOrId) {
@@ -713,9 +715,9 @@ export const BraveWallpaperService = {
     if (!all.length) return null;
     const currentIndex = all.findIndex(w => w.id === currentUrlOrId || w.url === currentUrlOrId);
     
-    // If nearing the end of current pool, pre-fetch more Unsplash wallpapers in the background
+    // If nearing the end of current pool, pre-fetch more wallpapers in the background
     if (currentIndex >= all.length - 3) {
-      this.fetchNewWallpapers().catch(e => console.warn('[BraveWallpapers] Auto-fetch error', e));
+      this.fetchNewWallpapers().catch(e => console.warn('[Wallpapers] Auto-fetch error', e));
     }
 
     const nextIndex = (currentIndex + 1) % all.length;
@@ -740,11 +742,11 @@ export const BraveWallpaperService = {
   },
 
   /**
-   * Fetches fresh new wallpapers from Unsplash with authentic author attribution.
+   * Fetches fresh new wallpapers with authentic author attribution.
    * Supports optional user-provided Unsplash Access Key or curated public endpoints.
    */
   async fetchNewWallpapers(customApiKey = null) {
-    const apiKey = customApiKey || localStorage.getItem('raeen_unsplash_api_key') || '';
+    const apiKey = customApiKey || localStorage.getItem('unsplash_api_key') || localStorage.getItem('raeen_unsplash_api_key') || '';
     
     if (apiKey) {
       try {
@@ -783,7 +785,7 @@ export const BraveWallpaperService = {
           }
         }
       } catch (err) {
-        console.warn('[BraveWallpapers] Live Unsplash API fetch failed', err);
+        console.warn('[Wallpapers] Live Unsplash API fetch failed', err);
       }
     }
 
@@ -792,3 +794,6 @@ export const BraveWallpaperService = {
     return { updated: false, count: 0, total: all.length };
   }
 };
+
+export const CuratedWallpaperService = WallpaperService;
+

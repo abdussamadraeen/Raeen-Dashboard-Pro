@@ -279,7 +279,7 @@ html.live-bg-pre-active .background-layer {
 }
 .input-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
 
-/* ─── Search Engine Switcher (Brave Style) ─── */
+/* ─── Search Engine Switcher ─── */
 .search-engine-btn {
     position: absolute;
     left: 14px;
@@ -3394,7 +3394,7 @@ body.boss-mode-active .noosphere-status-horizontal {
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* ─── Brave Curated Wallpapers & Photographer Credit ─── */
+/* ─── Curated Wallpapers & Photographer Credit ─── */
 .badge-adfree {
     font-size: 0.65rem;
     background: rgba(16, 185, 129, 0.15);
@@ -3408,7 +3408,7 @@ body.boss-mode-active .noosphere-status-horizontal {
     align-items: center;
 }
 
-.brave-gallery-grid {
+.wallpaper-gallery-grid, .brave-gallery-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
@@ -3416,13 +3416,13 @@ body.boss-mode-active .noosphere-status-horizontal {
 }
 
 @media (max-width: 640px) {
-    .brave-gallery-grid {
+    .wallpaper-gallery-grid, .brave-gallery-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 8px;
     }
 }
 
-.brave-thumb-wrapper {
+.wallpaper-thumb-wrapper, .brave-thumb-wrapper {
     position: relative;
     border-radius: 12px;
     overflow: hidden;
@@ -3435,18 +3435,18 @@ body.boss-mode-active .noosphere-status-horizontal {
     user-select: none;
 }
 
-.brave-thumb-wrapper:hover {
+.wallpaper-thumb-wrapper, .brave-thumb-wrapper:hover {
     transform: translateY(-3px) scale(1.02);
     border-color: var(--accent);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 14px var(--accent-glow);
 }
 
-.brave-thumb-wrapper.active {
+.wallpaper-thumb-wrapper, .brave-thumb-wrapper.active {
     border-color: var(--accent);
     box-shadow: 0 0 0 2px var(--accent), 0 8px 24px var(--accent-glow);
 }
 
-.brave-thumb-img {
+.wallpaper-thumb-img, .brave-thumb-img {
     width: 100%;
     aspect-ratio: 16/10;
     object-fit: cover;
@@ -3454,11 +3454,11 @@ body.boss-mode-active .noosphere-status-horizontal {
     transition: transform 0.4s ease;
 }
 
-.brave-thumb-wrapper:hover .brave-thumb-img {
+.wallpaper-thumb-wrapper, .brave-thumb-wrapper:hover .wallpaper-thumb-img, .brave-thumb-img {
     transform: scale(1.06);
 }
 
-.brave-thumb-info {
+.wallpaper-thumb-info, .brave-thumb-info {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -3471,7 +3471,7 @@ body.boss-mode-active .noosphere-status-horizontal {
     pointer-events: none;
 }
 
-.brave-thumb-title {
+.wallpaper-thumb-title, .brave-thumb-title {
     font-size: 0.72rem;
     font-weight: 600;
     color: #ffffff;
@@ -3481,7 +3481,7 @@ body.boss-mode-active .noosphere-status-horizontal {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
-.brave-thumb-author {
+.wallpaper-thumb-author, .brave-thumb-author {
     font-size: 0.62rem;
     color: rgba(255, 255, 255, 0.75);
     white-space: nowrap;
@@ -3674,14 +3674,14 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     width: 100%;
 }
 
-.brave-header-row {
+.wallpaper-header-row, .brave-header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 6px;
 }
 
-.brave-label {
+.wallpaper-label, .brave-label {
     margin-bottom: 0;
 }
 
@@ -4631,8 +4631,8 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     margin-top: 1rem;
 }
 
-/* ─── Apple System Squircle Badges (Zero Halo, 100% Crisp Vector) ─── */
-.cat-apple-squircle {
+/* ─── Vector Icon Badges ─── */
+.category-icon-badge, .cat-apple-squircle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -4644,7 +4644,7 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     vertical-align: middle;
     overflow: hidden;
 }
-.cat-apple-squircle::before {
+.category-icon-badge, .cat-apple-squircle::before {
     content: '';
     position: absolute;
     top: 0;
@@ -4656,10 +4656,10 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
 }
-.cat-apple-squircle:hover {
+.category-icon-badge, .cat-apple-squircle:hover {
     transform: scale(1.08);
 }
-.cat-apple-squircle svg {
+.category-icon-badge, .cat-apple-squircle svg {
     filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.4));
     stroke: #ffffff !important;
 }
@@ -5250,7 +5250,7 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     gap: 12px;
     margin-bottom: 10px;
 }
-.preset-apple-squircle {
+.category-icon-badge, .preset-apple-squircle {
     width: 34px;
     height: 34px;
     border-radius: 9px;
@@ -5265,7 +5265,7 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     vertical-align: middle;
     overflow: hidden;
 }
-.preset-apple-squircle::before {
+.category-icon-badge, .preset-apple-squircle::before {
     content: '';
     position: absolute;
     top: 0;
@@ -5277,7 +5277,7 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
 }
-.preset-apple-squircle svg {
+.category-icon-badge, .preset-apple-squircle svg {
     width: 17px;
     height: 17px;
     filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.45));
@@ -6855,10 +6855,10 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
 
 
 /* ==========================================================================
-   macOS Human Interface Guidelines (HIG) & Apple Design Language Engine
+   Modern Glass & Minimalist Component Engine
    ========================================================================== */
 
-/* -- 1. True macOS Liquid Frosted Glass (Materials System) -- */
+/* -- 1. Frosted Glass Surface System -- */
 .glass-premium,
 .macos-glass {
     background: rgba(22, 27, 40, 0.65) !important;
@@ -6888,7 +6888,7 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
         0 20px 40px -10px rgba(15, 23, 42, 0.1) !important;
 }
 
-/* -- 2. Apple Spotlight-Grade Search Bar -- */
+/* -- 2. Unified Minimalist Search Bar -- */
 .search-container form {
     background: rgba(24, 28, 42, 0.75) !important;
     backdrop-filter: blur(40px) saturate(200%) !important;
@@ -6926,7 +6926,7 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
         0 14px 40px 0 rgba(0, 0, 0, 0.12) !important;
 }
 
-/* -- 3. Apple Spring-Physics Micro-Interactions & Tactility -- */
+/* -- 3. Spring-Physics Micro-Interactions & Tactility -- */
 .app-item,
 .notes-panel button,
 .focus-btn,
@@ -6946,18 +6946,18 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
 .focus-btn:active,
 .settings-btn:active,
 .hud-btn:active {
-    transform: scale(0.96) !important; /* Authentic Apple micro-press haptic feel */
+    transform: scale(0.96) !important; /* Smooth micro-press haptic feel */
 }
 
-/* -- 4. macOS Traffic Lights (Window Controls) -- */
-.macos-traffic-lights {
+/* -- 4. Window Controls -- */
+.window-controls, .macos-traffic-lights {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 4px;
 }
 
-.macos-dot {
+.window-dot, .macos-dot {
     width: 12px;
     height: 12px;
     border-radius: 50%;
@@ -6967,19 +6967,19 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35);
 }
 
-.macos-dot-close {
+.window-dot, .window-dot-close, .macos-dot-close {
     background: #ff5f56;
 }
 
-.macos-dot-minimize {
+.window-dot, .window-dot-minimize, .macos-dot-minimize {
     background: #ffbd2e;
 }
 
-.macos-dot-zoom {
+.window-dot, .window-dot-zoom, .macos-dot-zoom {
     background: #27c93f;
 }
 
-/* -- 5. macOS Continuous Curvature Squircles -- */
+/* -- 5. Continuous Curvature Squircles -- */
 .squircle-icon,
 .app-item img {
     border-radius: 16px;
@@ -6999,7 +6999,7 @@ h1, h2, h3, .time, .hud-title, .modal-title {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* -- 7. Apple Segmented Control (Pill Tabs) -- */
+/* -- 7. Segmented Control (Pill Tabs) -- */
 .apps-tab-nav,
 .segmented-control {
     background: rgba(0, 0, 0, 0.24) !important;

@@ -1,5 +1,5 @@
 /**
- * Raeen VPN & Tor Engine Controller
+ * Privacy VPN & Tor Engine Controller
  * Manages Tor daemon process and exposes a local HTTP bridge (127.0.0.1:9052)
  * for dynamic on-the-fly country routing in the Chrome extension.
  */
@@ -84,12 +84,12 @@ async function startTor() {
   const socksOk = await checkTorPort(SOCKS_PORT);
 
   if (controlOk && socksOk) {
-    console.log('[Raeen VPN Engine] ✓ Tor is already active on 127.0.0.1:9050/9051!');
+    console.log('[VPN Engine] ✓ Tor is already active on 127.0.0.1:9050/9051!');
     await queryBootstrapPhase();
     return;
   }
 
-  console.log('[Raeen VPN Engine] Starting Tor daemon...');
+  console.log('[VPN Engine] Starting Tor daemon...');
   torProcess = spawn(TOR_EXE, ['-f', TOR_RC], {
     detached: false,
     stdio: ['ignore', 'pipe', 'pipe']
@@ -100,7 +100,7 @@ async function startTor() {
     if (text.includes('Bootstrapped 100%')) {
       isBootstrapped = true;
       bootstrapProgress = 100;
-      console.log('[Raeen VPN Engine] ✓ Tor network 100% ready for routing!');
+      console.log('[VPN Engine] ✓ Tor network 100% ready for routing!');
     }
   });
 
@@ -110,7 +110,7 @@ async function startTor() {
   });
 
   torProcess.on('exit', (code) => {
-    console.log(`[Raeen VPN Engine] Tor process exited. Code: ${code}`);
+    console.log(`[VPN Engine] Tor process exited. Code: ${code}`);
     torProcess = null;
     isBootstrapped = false;
     bootstrapProgress = 0;
@@ -209,7 +209,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(HTTP_BRIDGE_PORT, '127.0.0.1', () => {
-  console.log(`[Raeen VPN Engine] Bridge active on http://127.0.0.1:${HTTP_BRIDGE_PORT}`);
+  console.log(`[VPN Engine] Bridge active on http://127.0.0.1:${HTTP_BRIDGE_PORT}`);
   startTor();
 });
 

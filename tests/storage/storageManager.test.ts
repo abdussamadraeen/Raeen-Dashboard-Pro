@@ -43,7 +43,7 @@ describe('StorageManager', () => {
     await StorageManager.set('testStore', 'key2', { data: 'test2' });
     const val = await StorageManager.get('testStore', 'key2');
     expect(val).toEqual({ data: 'test2' });
-    expect(localStorage.getItem('raeen_db_testStore_key2')).toBeTruthy();
+    expect(localStorage.getItem('app_db_testStore_key2')).toBeTruthy();
   });
 
   it('remove(): removes value from all tiers', async () => {
@@ -53,7 +53,7 @@ describe('StorageManager', () => {
     
     const val = await StorageManager.get('testStore', 'key3');
     expect(val).toBeNull();
-    expect(localStorage.getItem('raeen_db_testStore_key3')).toBeNull();
+    expect(localStorage.getItem('app_db_testStore_key3')).toBeNull();
   });
 
   it('getAll(): returns all values for store', async () => {

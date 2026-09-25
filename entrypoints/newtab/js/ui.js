@@ -4,8 +4,12 @@ import { StorageManager } from './storage.js';
 import { themeLibrary } from './themes.js';
 import { CanvasEngine } from './canvas.js';
 
-import { BRAVE_WALLPAPERS, OFFICIAL_BRAVE_WALLPAPERS, BraveWallpaperService } from './brave-wallpapers.js';
-export { BRAVE_WALLPAPERS, OFFICIAL_BRAVE_WALLPAPERS, BraveWallpaperService };
+import { CURATED_WALLPAPERS, WallpaperService } from './wallpapers.js';
+export { CURATED_WALLPAPERS, WallpaperService };
+export const OFFICIAL_CURATED_WALLPAPERS = CURATED_WALLPAPERS;
+export const BRAVE_WALLPAPERS = CURATED_WALLPAPERS;
+export const OFFICIAL_BRAVE_WALLPAPERS = CURATED_WALLPAPERS;
+export const BraveWallpaperService = WallpaperService;
 
 let currentBraveWallpaper = null;
 
@@ -136,24 +140,25 @@ export async function applySettings() {
                     }
                 }
                 break;
+            case 'curated':
             case 'brave':
                 let braveItem = null;
-                const isRandomBrave = !bgValue || bgValue === 'brave_random';
+                const isRandomBrave = !bgValue || bgValue === 'curated_random' || bgValue === 'brave_random';
                 if (isRandomBrave) {
                     if (!currentBraveWallpaper) {
-                        const lastIdx = parseInt(localStorage.getItem('last_brave_index') ?? '-1', 10);
-                        let randIndex = Math.floor(Math.random() * BRAVE_WALLPAPERS.length);
-                        if (BRAVE_WALLPAPERS.length > 1 && randIndex === lastIdx) {
-                            randIndex = (randIndex + 1) % BRAVE_WALLPAPERS.length;
+                        const lastIdx = parseInt(localStorage.getItem('last_curated_index') ?? '-1', 10);
+                        let randIndex = Math.floor(Math.random() * CURATED_WALLPAPERS.length);
+                        if (CURATED_WALLPAPERS.length > 1 && randIndex === lastIdx) {
+                            randIndex = (randIndex + 1) % CURATED_WALLPAPERS.length;
                         }
-                        try { localStorage.setItem('last_brave_index', randIndex.toString()); } catch (e) { console.warn('Failed to save brave index', e); }
-                        currentBraveWallpaper = BRAVE_WALLPAPERS[randIndex];
+                        try { localStorage.setItem('last_curated_index', randIndex.toString()); } catch (e) { console.warn('Failed to save brave index', e); }
+                        currentBraveWallpaper = CURATED_WALLPAPERS[randIndex];
                     }
                     braveItem = currentBraveWallpaper;
                 } else {
-                    braveItem = BRAVE_WALLPAPERS.find(w => w.url === bgValue || w.id === bgValue) || {
-                        title: 'Brave Curated',
-                        photographer: 'Brave Curated',
+                    braveItem = CURATED_WALLPAPERS.find(w => w.url === bgValue || w.id === bgValue) || {
+                        title: 'Curated',
+                        photographer: 'Curated Artist',
                         url: bgValue
                     };
                     currentBraveWallpaper = braveItem;
@@ -171,7 +176,7 @@ export async function applySettings() {
                     }
                     dom.bgLayer.style.backgroundImage = `url('${bgUrl}')`;
                     try {
-                        localStorage.setItem('raeen_bg_value', isRandomBrave ? 'brave_random' : bgUrl);
+                        localStorage.setItem('app_bg_value', isRandomBrave ? 'curated_random' : bgUrl); localStorage.setItem('raeen_bg_value', isRandomBrave ? 'curated_random' : bgUrl);
                     } catch (e) {
                         console.warn('Failed to save background to localStorage', e);
                     }
@@ -212,14 +217,14 @@ export async function applySettings() {
                 break;
             
             case 'google_dashboard':
-                let googleSrc = "https://www.google.com/?raeen_dashboard=true";
+                let googleSrc = "https://www.google.com/?app_dashboard=true";
                 if (bgValue && (bgValue.includes("google.com") || bgValue.includes("google.co.in"))) {
                     try {
                         const urlObj = new URL(bgValue);
                         urlObj.searchParams.set("raeen_dashboard", "true");
                         googleSrc = urlObj.toString();
                     } catch {
-                        googleSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "raeen_dashboard=true";
+                        googleSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "app_dashboard=true";
                     }
                 }
                 dom.bgLayer.innerHTML = `<iframe src="${googleSrc}" allow="clipboard-write; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
@@ -227,14 +232,14 @@ export async function applySettings() {
                 break;
                 
             case 'bing_dashboard':
-                let bingSrc = "https://www.bing.com/?raeen_dashboard=true";
+                let bingSrc = "https://www.bing.com/?app_dashboard=true";
                 if (bgValue && (bgValue.includes("bing.com") || bgValue.includes("cn.bing.com"))) {
                     try {
                         const urlObj = new URL(bgValue);
                         urlObj.searchParams.set("raeen_dashboard", "true");
                         bingSrc = urlObj.toString();
                     } catch {
-                        bingSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "raeen_dashboard=true";
+                        bingSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "app_dashboard=true";
                     }
                 }
                 dom.bgLayer.innerHTML = `<iframe src="${bingSrc}" allow="clipboard-write; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
@@ -278,7 +283,7 @@ export async function applySettings() {
 
     if (!isLive) {
         document.documentElement.classList.remove('live-bg-pre-active');
-        document.querySelectorAll('#raeen-preloader-style, #raeen-theme-preloader-style, #raeen-live-preloader-style, style[data-preloader]').forEach(el => el.remove());
+        document.querySelectorAll('#app-preloader-style, #app-theme-preloader-style, #app-live-preloader-style, #raeen-preloader-style, #raeen-theme-preloader-style, #raeen-live-preloader-style, style[data-preloader]').forEach(el => el.remove());
         document.querySelectorAll('style').forEach(s => {
             if (s.textContent && s.textContent.includes('.container') && s.textContent.includes('display: none !important')) {
                 s.remove();
@@ -323,7 +328,7 @@ export async function applySettings() {
     }
 
     // Brave Photographer Credit with verified original author attribution
-    if (bgType === 'brave' && currentBraveWallpaper && !hideUI && !isImmersive) {
+    if ((bgType === 'curated' || bgType === 'brave') && currentBraveWallpaper && !hideUI && !isImmersive) {
         if (dom.photographerCredit) {
             dom.photographerCredit.classList.remove('hidden');
             dom.photographerCredit.title = `${currentBraveWallpaper.title || 'Wallpaper'} by ${currentBraveWallpaper.photographer || 'Brave Curated'} (Verified Unsplash Contributor)`;
@@ -452,7 +457,7 @@ export function loadBraveGallery() {
         dom.braveRandomToggle.checked = isRandom;
     }
 
-    dom.braveGallery.innerHTML = BRAVE_WALLPAPERS.map((item) => {
+    dom.braveGallery.innerHTML = CURATED_WALLPAPERS.map((item) => {
         const isActive = !isRandom && (state.settings.backgroundValue === item.url || state.settings.backgroundValue === item.id);
         return `
             <div class="brave-thumb-wrapper ${isActive ? 'active' : ''}" data-url="${item.url}" data-id="${item.id}" title="${item.title} by ${item.photographer}">
@@ -473,7 +478,7 @@ export function loadBraveGallery() {
                 const url = wrapper.dataset.url;
                 state.settings.backgroundType = 'brave';
                 state.settings.backgroundValue = url;
-                currentBraveWallpaper = BRAVE_WALLPAPERS.find(w => w.url === url);
+                currentBraveWallpaper = CURATED_WALLPAPERS.find(w => w.url === url);
                 saveSettings(state.settings);
                 applySettings();
                 loadBraveGallery();
@@ -489,7 +494,7 @@ export function loadBraveGallery() {
                 state.settings.backgroundValue = 'brave_random';
                 currentBraveWallpaper = null; // force fresh random rotation
             } else {
-                state.settings.backgroundValue = currentBraveWallpaper ? currentBraveWallpaper.url : BRAVE_WALLPAPERS[0].url;
+                state.settings.backgroundValue = currentBraveWallpaper ? currentBraveWallpaper.url : CURATED_WALLPAPERS[0].url;
             }
             saveSettings(state.settings);
             applySettings();
@@ -505,7 +510,7 @@ export function initPhotographerCredit() {
         cycleBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
             e.preventDefault();
-            const next = await BraveWallpaperService.getNext(currentBraveWallpaper?.id || currentBraveWallpaper?.url);
+            const next = await WallpaperService.getNext(currentBraveWallpaper?.id || currentBraveWallpaper?.url);
             if (next) {
                 currentBraveWallpaper = next;
                 state.settings.backgroundType = 'brave';
@@ -768,7 +773,7 @@ export function getPresetSquircle(presetId) {
     const gradient = gradients[presetId] || gradients.pro;
     const glow = glows[presetId] || glows.pro;
 
-    return `<span class="preset-apple-squircle" style="background:${gradient}; --badge-glow:${glow};">${svg}</span>`;
+    return `<span class="category-icon-badge" style="background:${gradient}; --badge-glow:${glow};">${svg}</span>`;
 }
 
 export const DASHBOARD_PRESETS = [
@@ -1047,7 +1052,7 @@ export const DASHBOARD_PRESETS = [
         config: {
             dashboardMode: 'google_live',
             backgroundType: 'google_dashboard',
-            backgroundValue: 'https://www.google.com/?raeen_dashboard=true',
+            backgroundValue: 'https://www.google.com/?app_dashboard=true',
             showMainUI: true
         }
     },
@@ -1079,7 +1084,7 @@ export const DASHBOARD_PRESETS = [
         config: {
             dashboardMode: 'bing_live',
             backgroundType: 'bing_dashboard',
-            backgroundValue: 'https://www.bing.com/?raeen_dashboard=true',
+            backgroundValue: 'https://www.bing.com/?app_dashboard=true',
             showMainUI: true
         }
     },

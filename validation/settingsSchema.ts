@@ -12,6 +12,7 @@ export const SettingsSchema = z.object({
   backgroundType: z.enum([
     'solid',
     'bing',
+    'curated',
     'brave',
     'preset',
     'local',
@@ -20,7 +21,7 @@ export const SettingsSchema = z.object({
     'google_dashboard',
     'bing_dashboard'
   ]).default('google_dashboard'),
-  backgroundValue: z.string().default('https://www.google.com/?raeen_dashboard=true'),
+  backgroundValue: z.string().default('https://www.google.com/?app_dashboard=true'),
   showSearch: z.boolean().default(true),
   searchEngine: z.string().default('google'),
   showTopSites: z.boolean().default(true),

@@ -1,5 +1,5 @@
 /**
- * storage.ts — Raeen Workspace Premium Storage Layer
+ * storage.ts — Resilient Multi-Tier Storage Layer
  *
  * Architecture: 3-tier resilient storage with circuit breakers
  *   Tier 1: IndexedDB (primary — fast, large capacity, structured)
@@ -14,7 +14,7 @@
  *   - Concurrent init calls are safely de-duplicated
  */
 
-const DB_NAME = 'RaeenPremiumDB';
+const DB_NAME = 'DashboardDB';
 const DB_VERSION = 6;
 
 // ─── State ──────────────────────────────────────────────────────────────────
@@ -48,13 +48,16 @@ function safeParse<T>(raw: string | null): T | null {
 }
 
 /** Build localStorage key for a store+key pair */
-const lsKey = (storeName: string, key: string) => `raeen_db_${storeName}_${key}`;
+const lsKey = (storeName: string, key: string) => `app_db_${storeName}_${key}`;
+const lsLegacyKey = (storeName: string, key: string) => `raeen_db_${storeName}_${key}`;
 
 // ─── Tier 2: localStorage helpers ───────────────────────────────────────────
 
 function lsGet<T>(storeName: string, key: string): T | null {
   try {
-    return safeParse<T>(localStorage.getItem(lsKey(storeName, key)));
+    const val = safeParse<T>(localStorage.getItem(lsKey(storeName, key)));
+    if (val !== null) return val;
+    return safeParse<T>(localStorage.getItem(lsLegacyKey(storeName, key)));
   } catch {
     return null;
   }
@@ -74,6 +77,7 @@ function lsSet(storeName: string, key: string, value: unknown): void {
 function lsRemove(storeName: string, key: string): void {
   try {
     localStorage.removeItem(lsKey(storeName, key));
+    localStorage.removeItem(lsLegacyKey(storeName, key));
   } catch {
     // ignore
   }
@@ -81,15 +85,33 @@ function lsRemove(storeName: string, key: string): void {
 
 function lsGetAll<T>(storeName: string): T[] {
   try {
-    const prefix = `raeen_db_${storeName}_`;
+    const prefix = `app_db_${storeName}_`;
+    const legacyPrefix = `raeen_db_${storeName}_`;
     const results: T[] = [];
+    const seen = new Set<string>();
+
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (k && k.startsWith(prefix)) {
+        const subKey = k.slice(prefix.length);
+        seen.add(subKey);
         const val = safeParse<T>(localStorage.getItem(k));
         if (val !== null) results.push(val);
       }
     }
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(legacyPrefix)) {
+        const subKey = k.slice(legacyPrefix.length);
+        if (!seen.has(subKey)) {
+          seen.add(subKey);
+          const val = safeParse<T>(localStorage.getItem(k));
+          if (val !== null) results.push(val);
+        }
+      }
+    }
+
     return results;
   } catch {
     return [];
@@ -347,11 +369,12 @@ export const StorageManager = {
 
       // Clear localStorage tier
       try {
-        const prefix = `raeen_db_${storeName}_`;
+        const prefix = `app_db_${storeName}_`;
+        const legacyPrefix = `raeen_db_${storeName}_`;
         const keysToDelete: string[] = [];
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
-          if (k && k.startsWith(prefix)) keysToDelete.push(k);
+          if (k && (k.startsWith(prefix) || k.startsWith(legacyPrefix))) keysToDelete.push(k);
         }
         keysToDelete.forEach(k => localStorage.removeItem(k));
       } catch {
@@ -391,8 +414,8 @@ export const StorageManager = {
     if (db !== null) return 'indexeddb';
     if (useFallback) {
       try {
-        localStorage.setItem('__raeen_tier_test__', '1');
-        localStorage.removeItem('__raeen_tier_test__');
+        localStorage.setItem('__app_tier_test__', '1');
+        localStorage.removeItem('__app_tier_test__');
         return 'localstorage';
       } catch {
         return 'memory';

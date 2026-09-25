@@ -37,7 +37,7 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
 (async function init() {
     // 0. Synchronously hydrate critical state from localStorage cache to prevent reload flash
     try {
-        const cachedMode = localStorage.getItem('raeen_dashboard_mode');
+        const cachedMode = localStorage.getItem('app_dashboard_mode');
         if (cachedMode) state.settings.dashboardMode = cachedMode;
         const cachedBgType = localStorage.getItem('raeen_bg_type');
         if (cachedBgType) state.settings.backgroundType = cachedBgType;
@@ -728,7 +728,7 @@ function optimizeImage(file) {
                 // 1. Immediately scrub all live-bg preloader classes and style overrides
                 document.documentElement.classList.remove('live-bg-pre-active');
                 document.body.classList.remove('live-bg-active');
-                document.querySelectorAll('#raeen-preloader-style, #raeen-theme-preloader-style, #raeen-live-preloader-style, style[data-preloader]').forEach(el => el.remove());
+                document.querySelectorAll('#app-preloader-style, #app-theme-preloader-style, #app-live-preloader-style, #raeen-preloader-style, #raeen-theme-preloader-style, #raeen-live-preloader-style, style[data-preloader]').forEach(el => el.remove());
                 document.querySelectorAll('style').forEach(s => {
                     if (s.textContent && s.textContent.includes('.container') && s.textContent.includes('display: none !important')) {
                         s.remove();
