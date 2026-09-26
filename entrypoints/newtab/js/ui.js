@@ -166,17 +166,11 @@ export async function applySettings() {
 
                 if (braveItem?.url) {
                     const bgUrl = braveItem.url;
-                    // Async pre-decode to prevent main thread frame drops
-                    try {
-                        const preloader = new Image();
-                        preloader.decoding = 'async';
-                        preloader.src = bgUrl;
-                    } catch (e) {
-                        console.warn('Image preloader failed', e);
-                    }
                     dom.bgLayer.style.backgroundImage = `url('${bgUrl}')`;
                     try {
-                        localStorage.setItem('app_bg_value', isRandomBrave ? 'curated_random' : bgUrl); localStorage.setItem('raeen_bg_value', isRandomBrave ? 'curated_random' : bgUrl);
+                        localStorage.setItem('app_bg_value', isRandomBrave ? 'curated_random' : bgUrl);
+                        localStorage.setItem('raeen_bg_value', isRandomBrave ? 'curated_random' : bgUrl);
+                        localStorage.setItem('last_curated_url', bgUrl);
                     } catch (e) {
                         console.warn('Failed to save background to localStorage', e);
                     }

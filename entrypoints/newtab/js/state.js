@@ -57,6 +57,11 @@ export function saveSettings(settingsObj, noApply = false) {
         localStorage.setItem('app_dashboard_mode', toSave.dashboardMode);
     }
 
+    if (toSave.themePreference) {
+        localStorage.setItem('app_theme', toSave.themePreference);
+        localStorage.setItem('raeen_theme', toSave.themePreference);
+    }
+
     if (toSave.backgroundType) {
         localStorage.setItem('app_bg_type', toSave.backgroundType);
         localStorage.setItem('raeen_bg_type', toSave.backgroundType);

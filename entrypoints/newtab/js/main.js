@@ -37,14 +37,14 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
 (async function init() {
     // 0. Synchronously hydrate critical state from localStorage cache to prevent reload flash
     try {
-        const cachedMode = localStorage.getItem('app_dashboard_mode');
+        const cachedMode = localStorage.getItem('app_dashboard_mode') || localStorage.getItem('raeen_dashboard_mode');
         if (cachedMode) state.settings.dashboardMode = cachedMode;
-        const cachedBgType = localStorage.getItem('raeen_bg_type');
+        const cachedBgType = localStorage.getItem('app_bg_type') || localStorage.getItem('raeen_bg_type');
         if (cachedBgType) state.settings.backgroundType = cachedBgType;
-        const cachedBgVal = localStorage.getItem('raeen_bg_value');
+        const cachedBgVal = localStorage.getItem('app_bg_value') || localStorage.getItem('raeen_bg_value');
         if (cachedBgVal) state.settings.backgroundValue = cachedBgVal;
-        const cachedTheme = localStorage.getItem('raeen_theme');
-        if (cachedTheme) state.settings.theme = cachedTheme;
+        const cachedTheme = localStorage.getItem('app_theme') || localStorage.getItem('raeen_theme');
+        if (cachedTheme) state.settings.themePreference = cachedTheme;
     } catch(e) {
         console.warn('Failed to restore initial cache state', e);
     }

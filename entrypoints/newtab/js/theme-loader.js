@@ -17,21 +17,20 @@
             s.textContent = 'body { background: #000000 !important; } .container, .top-left-widget, .noosphere-status, .noosphere-status-horizontal { display: none !important; }';
             document.documentElement.appendChild(s);
         } else if (bgType === 'curated' || bgType === 'brave' || bgType === 'preset' || bgType === 'custom') {
-            if (bgValue && !bgValue.match(/\.(mp4|webm|ogg)$/i) && bgValue !== 'curated_random' && bgValue !== 'brave_random') {
+            var cachedUrl = (bgValue && !bgValue.match(/\.(mp4|webm|ogg)$/i) && bgValue !== 'curated_random' && bgValue !== 'brave_random')
+                ? bgValue
+                : (localStorage.getItem('last_curated_url') || '');
+            if (cachedUrl) {
                 var s = document.createElement('style');
                 s.id = 'app-theme-preloader-style';
                 s.setAttribute('data-preloader', 'true');
-                s.textContent = "body { background-image: url('" + bgValue + "') !important; background-size: cover !important; background-position: center !important; }";
+                s.textContent = "#background-layer { background-image: url('" + cachedUrl + "'); }";
                 document.documentElement.appendChild(s);
             }
         } else if (bgType === 'solid') {
             if (bgValue) {
                 var effectiveBg = (theme === 'light' && (bgValue === '#0f0f17' || bgValue === '#000000')) ? '#f8fafc' : bgValue;
-                var s = document.createElement('style');
-                s.id = 'app-theme-preloader-style';
-                s.setAttribute('data-preloader', 'true');
-                s.textContent = "body { background: " + effectiveBg + " !important; }";
-                document.documentElement.appendChild(s);
+                document.documentElement.style.setProperty('--bg-body', effectiveBg);
             }
         }
     } catch(e) {
