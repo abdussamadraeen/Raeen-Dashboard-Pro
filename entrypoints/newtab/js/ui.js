@@ -41,12 +41,69 @@ export function cleanupBackground() {
         dom.bgLayer.style.backgroundImage = '';
         dom.bgLayer.style.backgroundColor = 'transparent';
     }
+    const layer2 = document.getElementById('background-layer-next');
+    if (layer2) {
+        layer2.style.backgroundImage = 'none';
+        layer2.style.opacity = '0';
+    }
+    currentActiveBgUrl = '';
     if (currentBgObjectURL) {
         URL.revokeObjectURL(currentBgObjectURL);
         currentBgObjectURL = null;
     }
     if (dom.photographerCredit) {
         dom.photographerCredit.classList.add('hidden');
+    }
+}
+
+let currentActiveBgUrl = '';
+
+export function transitionToBackground(newBgUrl) {
+    if (!dom.bgLayer || !newBgUrl) return;
+
+    const layer1 = dom.bgLayer;
+    const layer2 = document.getElementById('background-layer-next');
+
+    const clean = (u) => (u || '').replace(/^url\(['"]?|['"]?\)$/g, '').trim();
+    const cleanNew = clean(newBgUrl);
+    const cleanCurrent = clean(currentActiveBgUrl || layer1.style.backgroundImage);
+
+    // Initial mount or identical image: apply directly without animation
+    if (!cleanCurrent || cleanCurrent === cleanNew || !layer2) {
+        layer1.style.backgroundImage = `url('${cleanNew}')`;
+        layer1.style.opacity = '1';
+        if (layer2) {
+            layer2.style.opacity = '0';
+            layer2.style.backgroundImage = 'none';
+        }
+        currentActiveBgUrl = cleanNew;
+        return;
+    }
+
+    // Pre-decode offscreen to ensure butter-smooth crossfade without frame drops
+    const img = new Image();
+    img.src = cleanNew;
+    const doCrossfade = () => {
+        layer2.style.backgroundImage = `url('${cleanNew}')`;
+        layer2.style.opacity = '1';
+
+        const finish = () => {
+            layer2.removeEventListener('transitionend', finish);
+            layer1.style.backgroundImage = `url('${cleanNew}')`;
+            layer2.style.opacity = '0';
+            layer2.style.backgroundImage = 'none';
+            currentActiveBgUrl = cleanNew;
+        };
+
+        layer2.addEventListener('transitionend', finish, { once: true });
+        setTimeout(finish, 550);
+    };
+
+    if (typeof img.decode === 'function') {
+        img.decode().then(doCrossfade).catch(doCrossfade);
+    } else {
+        img.onload = doCrossfade;
+        img.onerror = doCrossfade;
     }
 }
 
@@ -66,6 +123,11 @@ export async function applySettings() {
     document.body.setAttribute('data-dashboard-mode', currentDashboardMode);
     document.body.classList.toggle('dashboard-mode-minimal', currentDashboardMode === 'minimal');
     document.body.classList.toggle('drag-drop-disabled', state.settings.enableDragAndDrop === false || currentDashboardMode === 'minimal');
+
+    const preBootStyle = document.getElementById('pre-boot-critical-css');
+    if (preBootStyle && currentDashboardMode !== 'minimal') {
+        preBootStyle.remove();
+    }
 
     let bgType = state.settings.backgroundType;
     const bgValue = state.settings.backgroundValue;
@@ -122,20 +184,20 @@ export async function applySettings() {
                 }
 
                 if (bingUrl) {
-                    dom.bgLayer.style.backgroundImage = `url('${bingUrl}')`;
+                    transitionToBackground(bingUrl);
                 } else {
                     try {
                         const res = await fetch('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1');
                         const data = await res.json();
                         const url = `https://www.bing.com${data.images[0].urlbase}_UHD.jpg`;
                         await StorageManager.set('mediaStore', 'bing_latest_v2', { url: url, timestamp: Date.now() });
-                        dom.bgLayer.style.backgroundImage = `url('${url}')`;
+                        transitionToBackground(url);
                     } catch (e) {
                         console.error("Failed to fetch Bing image", e);
                         // Fallback to old cached image if fetch failed
                         const cached = await StorageManager.get('mediaStore', 'bing_latest_v2');
                         if (cached?.url) {
-                            dom.bgLayer.style.backgroundImage = `url('${cached.url}')`;
+                            transitionToBackground(cached.url);
                         }
                     }
                 }
@@ -166,7 +228,7 @@ export async function applySettings() {
 
                 if (braveItem?.url) {
                     const bgUrl = braveItem.url;
-                    dom.bgLayer.style.backgroundImage = `url('${bgUrl}')`;
+                    transitionToBackground(bgUrl);
                     try {
                         localStorage.setItem('app_bg_value', isRandomBrave ? 'curated_random' : bgUrl);
                         localStorage.setItem('raeen_bg_value', isRandomBrave ? 'curated_random' : bgUrl);
@@ -188,7 +250,7 @@ export async function applySettings() {
                             video.play().catch(e => console.warn("Video play failed", e));
                         }
                     } else {
-                        dom.bgLayer.style.backgroundImage = `url('${bgValue}')`;
+                        transitionToBackground(bgValue);
                     }
                 }
                 break;

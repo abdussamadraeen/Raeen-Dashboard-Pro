@@ -55,6 +55,7 @@ export function saveSettings(settingsObj, noApply = false) {
 
     if (toSave.dashboardMode) {
         localStorage.setItem('app_dashboard_mode', toSave.dashboardMode);
+        localStorage.setItem('raeen_dashboard_mode', toSave.dashboardMode);
     }
 
     if (toSave.themePreference) {
