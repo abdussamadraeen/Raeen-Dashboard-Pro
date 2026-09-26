@@ -9,7 +9,7 @@ export const BING_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww
 export const CHATGPT_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20viewBox%3D%220%200%202406%202406%22%3E%0A%09%3Cpath%20d%3D%22M1%20578.4C1%20259.5%20259.5%201%20578.4%201h1249.1c319%200%20577.5%20258.5%20577.5%20577.4V2406H578.4C259.5%202406%201%202147.5%201%201828.6V578.4z%22%20fill%3D%22%2374aa9c%22%2F%3E%0A%09%3Cpath%20id%3D%22a%22%20d%3D%22M1107.3%20299.1c-197.999%200-373.9%20127.3-435.2%20315.3L650%20743.5v427.9c0%2021.4%2011%2040.4%2029.4%2051.4l344.5%20198.515V833.3h.1v-27.9L1372.7%20604c33.715-19.52%2070.44-32.857%20108.47-39.828L1447.6%20450.3C1361%20353.5%201237.1%20298.5%201107.3%20299.1zm0%20117.5-.6.6c79.699%200%20156.3%2027.5%20217.6%2078.4-2.5%201.2-7.4%204.3-11%206.1L952.8%20709.3c-18.4%2010.4-29.4%2030-29.4%2051.4V1248l-155.1-89.4V755.8c-.1-187.099%20151.601-338.9%20339-339.2z%22%20fill%3D%22%23fff%22%2F%3E%0A%09%3Cuse%20xlink%3Ahref%3D%22%23a%22%20transform%3D%22rotate(60%201203%201203)%22%2F%3E%0A%20%20%09%3Cuse%20xlink%3Ahref%3D%22%23a%22%20transform%3D%22rotate(120%201203%201203)%22%2F%3E%0A%09%3Cuse%20xlink%3Ahref%3D%22%23a%22%20transform%3D%22rotate(180%201203%201203)%22%2F%3E%0A%09%3Cuse%20xlink%3Ahref%3D%22%23a%22%20transform%3D%22rotate(240%201203%201203)%22%2F%3E%0A%09%3Cuse%20xlink%3Ahref%3D%22%23a%22%20transform%3D%22rotate(300%201203%201203)%22%2F%3E%0A%0A%3C%2Fsvg%3E";
 export const PERPLEXITY_SVG = "data:image/svg+xml,%3Csvg%20height%3D%221em%22%20style%3D%22flex%3Anone%3Bline-height%3A1%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%221em%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Ctitle%3EPerplexity%3C%2Ftitle%3E%3Cpath%20d%3D%22M19.785%200v7.272H22.5V17.62h-2.935V24l-7.037-6.194v6.145h-1.091v-6.152L4.392%2024v-6.465H1.5V7.188h2.884V0l7.053%206.494V.19h1.09v6.49L19.786%200zm-7.257%209.044v7.319l5.946%205.234V14.44l-5.946-5.397zm-1.099-.08l-5.946%205.398v7.235l5.946-5.234V8.965zm8.136%207.58h1.844V8.349H13.46l6.105%205.54v2.655zm-8.982-8.28H2.59v8.195h1.8v-2.576l6.192-5.62zM5.475%202.476v4.71h5.115l-5.115-4.71zm13.219%200l-5.115%204.71h5.115v-4.71z%22%20fill%3D%22%2322B8CD%22%20fill-rule%3D%22nonzero%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E";
 export const CLAUDE_SVG = "data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3C!--%20Generated%20by%20Pixelmator%20Pro%203.6.17%20--%3E%0A%3Csvg%20width%3D%221200%22%20height%3D%221200%22%20viewBox%3D%220%200%201200%201200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cg%20id%3D%22g314%22%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20id%3D%22path147%22%20fill%3D%22%23d97757%22%20stroke%3D%22none%22%20d%3D%22M%20233.959793%20800.214905%20L%20468.644287%20668.536987%20L%20472.590637%20657.100647%20L%20468.644287%20650.738403%20L%20457.208069%20650.738403%20L%20417.986633%20648.322144%20L%20283.892639%20644.69812%20L%20167.597321%20639.865845%20L%2054.926208%20633.825623%20L%2026.577238%20627.785339%20L%203.3e-05%20592.751709%20L%202.73832%20575.27533%20L%2026.577238%20559.248352%20L%2060.724873%20562.228149%20L%20136.187973%20567.382629%20L%20249.422867%20575.194763%20L%20331.570496%20580.026978%20L%20453.261841%20592.671082%20L%20472.590637%20592.671082%20L%20475.328857%20584.859009%20L%20468.724915%20580.026978%20L%20463.570557%20575.194763%20L%20346.389313%20495.785217%20L%20219.543671%20411.865906%20L%20153.100723%20363.543762%20L%20117.181267%20339.060425%20L%2099.060455%20316.107361%20L%2091.248367%20266.01355%20L%20123.865784%20230.093994%20L%20167.677887%20233.073853%20L%20178.872513%20236.053772%20L%20223.248367%20270.201477%20L%20318.040283%20343.570496%20L%20441.825592%20434.738342%20L%20459.946411%20449.798706%20L%20467.194672%20444.64447%20L%20468.080597%20441.020203%20L%20459.946411%20427.409485%20L%20392.617493%20305.718323%20L%20320.778564%20181.932983%20L%20288.80542%20130.630859%20L%20280.348999%2099.865845%20C%20277.369171%2087.221436%20275.194641%2076.590698%20275.194641%2063.624268%20L%20312.322174%2013.20813%20L%20332.8591%206.604126%20L%20382.389313%2013.20813%20L%20403.248352%2031.328979%20L%20434.013519%20101.71814%20L%20483.865753%20212.537048%20L%20561.181274%20363.221497%20L%20583.812134%20407.919434%20L%20595.892639%20449.315491%20L%20600.40271%20461.959839%20L%20608.214783%20461.959839%20L%20608.214783%20454.711609%20L%20614.577271%20369.825623%20L%20626.335632%20265.61084%20L%20637.771851%20131.516846%20L%20641.718201%2093.745117%20L%20660.402832%2048.483276%20L%20697.530334%2024.000122%20L%20726.52356%2037.852417%20L%20750.362549%2072%20L%20747.060486%2094.067139%20L%20732.886047%20186.201416%20L%20705.100708%20330.52356%20L%20686.979919%20427.167847%20L%20697.530334%20427.167847%20L%20709.61084%20415.087341%20L%20758.496704%20350.174561%20L%20840.644348%20247.490051%20L%20876.885925%20206.738342%20L%20919.167847%20161.71814%20L%20946.308838%20140.29541%20L%20997.61084%20140.29541%20L%201035.38269%20196.429626%20L%201018.469849%20254.416199%20L%20965.637634%20321.422852%20L%20921.825562%20378.201538%20L%20859.006714%20462.765259%20L%20819.785278%20530.41626%20L%20823.409424%20535.812073%20L%20832.75177%20534.92627%20L%20974.657776%20504.724915%20L%201051.328979%20490.872559%20L%201142.818848%20475.167786%20L%201184.214844%20494.496582%20L%201188.724854%20514.147644%20L%201172.456421%20554.335693%20L%201074.604126%20578.496765%20L%20959.838989%20601.449829%20L%20788.939636%20641.879272%20L%20786.845764%20643.409485%20L%20789.261841%20646.389343%20L%20866.255127%20653.637634%20L%20899.194702%20655.409424%20L%20979.812134%20655.409424%20L%201129.932861%20666.604187%20L%201169.154419%20692.537109%20L%201192.671265%20724.268677%20L%201188.724854%20748.429688%20L%201128.322144%20779.194641%20L%201046.818848%20759.865845%20L%20856.590759%20714.604126%20L%20791.355774%20698.335754%20L%20782.335693%20698.335754%20L%20782.335693%20703.731567%20L%20836.69812%20756.885986%20L%20936.322205%20846.845581%20L%201061.073975%20962.81897%20L%201067.436279%20991.490112%20L%201051.409424%201014.120911%20L%201034.496704%201011.704712%20L%20924.885986%20929.234924%20L%20882.604126%20892.107544%20L%20786.845764%20811.48999%20L%20780.483276%20811.48999%20L%20780.483276%20819.946289%20L%20802.550415%20852.241699%20L%20919.087341%201027.409424%20L%20925.127625%201081.127686%20L%20916.671204%201098.604126%20L%20886.469849%201109.154419%20L%20853.288696%201103.114136%20L%20785.073914%201007.355835%20L%20714.684631%20899.516785%20L%20657.906067%20802.872498%20L%20650.979858%20806.81897%20L%20617.476624%201167.704834%20L%20601.771851%201186.147705%20L%20565.530212%201200%20L%20535.328857%201177.046997%20L%20519.302124%201139.919556%20L%20535.328857%201066.550537%20L%20554.657776%20970.792053%20L%20570.362488%20894.68457%20L%20584.536926%20800.134277%20L%20592.993347%20768.724976%20L%20592.429626%20766.630859%20L%20585.503479%20767.516968%20L%20514.22821%20865.369263%20L%20405.825531%201011.865906%20L%20320.053711%201103.677979%20L%20299.516815%201111.812256%20L%20263.919525%201093.369263%20L%20267.221497%201060.429688%20L%20287.114136%201031.114136%20L%20405.825531%20880.107361%20L%20477.422913%20786.52356%20L%20523.651062%20732.483276%20L%20523.328918%20724.671265%20L%20520.590698%20724.671265%20L%20205.288605%20929.395935%20L%20149.154434%20936.644409%20L%20124.993355%20914.01355%20L%20127.973183%20876.885986%20L%20139.409409%20864.80542%20L%20234.201385%20799.570435%20L%20233.879227%20799.8927%20Z%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E";
-export const ROBOT_AI_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%236366F1%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%224%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Cpath%20d%3D%22M12%202v3m0%2014v3M2%2012h3m14%200h3M5%205l2.5%202.5m9%209L19%2019M5%2019l2.5-2.5m9-9L19%205%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E";
+export const ROBOT_AI_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20width%3D%2248%22%20height%3D%2248%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22robotAiBg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%234F46E5%22%20%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%237C3AED%22%20%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%239333EA%22%20%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22robotAiFace%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%220%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230F172A%22%20%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231E293B%22%20%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22robotAiGlow%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%220%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338BDF8%22%20%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2322D3EE%22%20%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3C!--%20Background%20Chassis%20--%3E%0A%20%20%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2244%22%20height%3D%2244%22%20rx%3D%2212%22%20fill%3D%22url(%23robotAiBg)%22%20%2F%3E%0A%20%20%3C!--%20Signal%20router%20waves%20on%20top%20--%3E%0A%20%20%3Cpath%20d%3D%22M19%2010%20A%208%208%200%200%201%2029%2010%22%20stroke%3D%22%2338BDF8%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M15%207%20A%2013%2013%200%200%201%2033%207%22%20stroke%3D%22%23E0E7FF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%3C!--%20Center%20Router%20Antenna%20--%3E%0A%20%20%3Cline%20x1%3D%2224%22%20y1%3D%2211%22%20x2%3D%2224%22%20y2%3D%2215%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%2224%22%20cy%3D%2211%22%20r%3D%222%22%20fill%3D%22%2338BDF8%22%2F%3E%0A%20%20%3C!--%20Bot%20Head%20Screen%20%2F%20Face%20--%3E%0A%20%20%3Crect%20x%3D%229%22%20y%3D%2216%22%20width%3D%2230%22%20height%3D%2224%22%20rx%3D%227%22%20fill%3D%22url(%23robotAiFace)%22%20stroke%3D%22rgba(255%2C255%2C255%2C0.2)%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%3C!--%20Visor%20%2F%20Eyes%20--%3E%0A%20%20%3Crect%20x%3D%2214%22%20y%3D%2222%22%20width%3D%227%22%20height%3D%224.5%22%20rx%3D%222.25%22%20fill%3D%22url(%23robotAiGlow)%22%2F%3E%0A%20%20%3Crect%20x%3D%2227%22%20y%3D%2222%22%20width%3D%227%22%20height%3D%224.5%22%20rx%3D%222.25%22%20fill%3D%22url(%23robotAiGlow)%22%2F%3E%0A%20%20%3C!--%20Router%20Node%20%2F%20Mouth%20Grid%20--%3E%0A%20%20%3Cpath%20d%3D%22M18%2032%20H30%22%20stroke%3D%22%2338BDF8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%2221%22%20cy%3D%2232%22%20r%3D%221%22%20fill%3D%22%23FFFFFF%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%2227%22%20cy%3D%2232%22%20r%3D%221%22%20fill%3D%22%23FFFFFF%22%2F%3E%0A%20%20%3C!--%20Ear%20Antenna%20Plugs%20--%3E%0A%20%20%3Crect%20x%3D%226%22%20y%3D%2223%22%20width%3D%223%22%20height%3D%228%22%20rx%3D%221.5%22%20fill%3D%22%23C7D2FE%22%2F%3E%0A%20%20%3Crect%20x%3D%2239%22%20y%3D%2223%22%20width%3D%223%22%20height%3D%228%22%20rx%3D%221.5%22%20fill%3D%22%23C7D2FE%22%2F%3E%0A%3C%2Fsvg%3E";
 
 export const SEARCH_ENGINE_METADATA = {
     google: { name: 'Google', icon: GOOGLE_COLOR_G_SVG, placeholder: 'Search the web' },
@@ -173,31 +173,74 @@ export function setupSearch() {
     if (dom.searchInput) {
         const executeSearchUrl = (url) => {
             if (!url) return;
-            if (state.settings.openSearchInNewTab) {
-                if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
-                    chrome.runtime.sendMessage({ action: 'open_tab', url });
-                } else {
+            try {
+                const inNewTab = Boolean(state.settings.openSearchInNewTab);
+                if (inNewTab) {
+                    if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
+                        chrome.tabs.create({ url });
+                        return;
+                    }
+                    if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+                        chrome.runtime.sendMessage({ action: 'open_tab', url });
+                        return;
+                    }
                     window.open(url, '_blank');
+                    return;
                 }
-            } else {
+
+                if (typeof chrome !== 'undefined' && chrome.tabs?.update) {
+                    if (chrome.tabs.getCurrent) {
+                        chrome.tabs.getCurrent((tab) => {
+                            if (tab && tab.id) {
+                                chrome.tabs.update(tab.id, { url });
+                            } else {
+                                chrome.tabs.update({ url });
+                            }
+                        });
+                    } else {
+                        chrome.tabs.update({ url });
+                    }
+                    return;
+                }
+                window.location.assign(url);
+            } catch (err) {
+                console.warn('[Search] Navigation fallback error:', err);
                 window.location.href = url;
             }
         };
 
         const handleSearch = (query) => {
-            if (!query) return;
+            const rawQuery = (query || '').trim();
             const engine = state.settings.searchEngine || 'google';
+
+            if (!rawQuery) {
+                const homepages = {
+                    google: 'https://www.google.com',
+                    brave: 'https://search.brave.com',
+                    duckduckgo: 'https://duckduckgo.com',
+                    bing: 'https://www.bing.com',
+                    chatgpt: 'https://chatgpt.com',
+                    perplexity: 'https://www.perplexity.ai',
+                    claude: 'https://claude.ai',
+                    robot_ai: 'https://www.google.com',
+                    custom_engine: 'https://www.google.com'
+                };
+                const homepage = homepages[engine] || 'https://www.google.com';
+                executeSearchUrl(homepage);
+                return;
+            }
+
             let targetUrl = '';
 
             if (isAiMode && engine === 'google') {
                 const model = state.settings.activeAiModel || 'auto';
                 if (model === 'pro') {
-                    targetUrl = `https://gemini.google.com/app?q=${encodeURIComponent(query)}`;
+                    targetUrl = `https://gemini.google.com/app?q=${encodeURIComponent(rawQuery)}`;
                 } else {
-                    targetUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}&udm=14`;
+                    targetUrl = `https://www.google.com/search?q=${encodeURIComponent(rawQuery)}&udm=14`;
                 }
             } else {
-                const res = resolveSearch(query);
+                const res = resolveSearch(rawQuery);
                 targetUrl = res.url;
             }
 
@@ -335,7 +378,10 @@ export function setupSearch() {
         };
 
         if (dom.searchContainer) {
-            dom.searchContainer.addEventListener('click', () => {
+            dom.searchContainer.addEventListener('click', (e) => {
+                if (e.target.closest('button, a, input, select, label, .search-plus-menu, .search-engine-menu, .suggestions-dropdown, #google-search-actions')) {
+                    return;
+                }
                 if (dom.searchInput && document.activeElement !== dom.searchInput) {
                     dom.searchInput.focus();
                 }
@@ -364,15 +410,30 @@ export function setupSearch() {
 
         dom.searchForm.onsubmit = (e) => {
             e.preventDefault();
-            const query = dom.searchInput.value.trim();
-            if (query) {
-                handleSearch(query);
+            const query = dom.searchInput?.value.trim() || '';
+            handleSearch(query);
+            if (query && dom.searchInput) {
                 dom.searchInput.value = '';
                 if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
                 dom.searchInput.blur();
                 deactivateSearch();
             }
         };
+
+        if (dom.searchSubmitBtn) {
+            dom.searchSubmitBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const query = dom.searchInput?.value.trim() || '';
+                handleSearch(query);
+                if (query && dom.searchInput) {
+                    dom.searchInput.value = '';
+                    if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                    dom.searchInput.blur();
+                    deactivateSearch();
+                }
+            };
+        }
 
         // Google Search Plus (+) Button & Floating Popup Menu
         if (dom.searchPlusBtn && dom.searchPlusMenu) {
@@ -478,42 +539,49 @@ export function setupSearch() {
         let recognition = null;
         let isListening = false;
         if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = true;
-            recognition.lang = 'en-US';
+            try {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
 
-            recognition.onstart = () => {
-                isListening = true;
-                dom.searchVoiceBtn?.classList.add('listening');
-                if (dom.searchInput) dom.searchInput.placeholder = 'Listening... Speak now';
-            };
+                recognition.onstart = () => {
+                    isListening = true;
+                    dom.searchVoiceBtn?.classList.add('listening');
+                    if (dom.searchInput) dom.searchInput.placeholder = 'Listening... Speak now';
+                };
 
-            recognition.onresult = (event) => {
-                const transcript = Array.from(event.results)
-                    .map(r => r[0].transcript)
-                    .join('');
-                if (dom.searchInput) {
-                    dom.searchInput.value = transcript;
-                }
-            };
+                recognition.onresult = (event) => {
+                    const transcript = Array.from(event.results)
+                        .map(r => r[0].transcript)
+                        .join('');
+                    if (dom.searchInput) {
+                        dom.searchInput.value = transcript;
+                    }
+                };
 
-            recognition.onerror = (e) => {
-                console.warn('Speech recognition notice:', e);
-                isListening = false;
-                dom.searchVoiceBtn?.classList.remove('listening');
-                updateSearchEngineUI();
-            };
+                recognition.onerror = (e) => {
+                    console.warn('Speech recognition notice:', e);
+                    isListening = false;
+                    dom.searchVoiceBtn?.classList.remove('listening');
+                    if (e.error === 'not-allowed') {
+                        if (dom.searchInput) dom.searchInput.placeholder = 'Microphone access denied';
+                    }
+                    setTimeout(() => updateSearchEngineUI(), 2000);
+                };
 
-            recognition.onend = () => {
-                isListening = false;
-                dom.searchVoiceBtn?.classList.remove('listening');
-                updateSearchEngineUI();
-                const query = dom.searchInput?.value.trim();
-                if (query) {
-                    handleSearch(query);
-                }
-            };
+                recognition.onend = () => {
+                    isListening = false;
+                    dom.searchVoiceBtn?.classList.remove('listening');
+                    updateSearchEngineUI();
+                    const query = dom.searchInput?.value.trim();
+                    if (query) {
+                        handleSearch(query);
+                    }
+                };
+            } catch (err) {
+                console.warn('Speech recognition init error:', err);
+            }
         }
 
         if (dom.searchVoiceBtn) {
@@ -521,16 +589,20 @@ export function setupSearch() {
                 e.preventDefault();
                 e.stopPropagation();
                 if (!recognition) {
-                    alert('Speech recognition is not supported in this browser version.');
+                    if (dom.searchInput) {
+                        dom.searchInput.placeholder = 'Speech recognition not supported in this browser';
+                        setTimeout(() => updateSearchEngineUI(), 2000);
+                    }
                     return;
                 }
                 if (isListening) {
-                    recognition.stop();
+                    try { recognition.stop(); } catch {}
                 } else {
                     try {
                         recognition.start();
                     } catch (err) {
-                        console.error('Speech recognition failed to start:', err);
+                        console.warn('Speech recognition failed to start:', err);
+                        try { recognition.stop(); } catch {}
                     }
                 }
             };
@@ -541,11 +613,7 @@ export function setupSearch() {
             dom.searchLensBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (dom.searchImageFileInput) {
-                    dom.searchImageFileInput.click();
-                } else {
-                    executeSearchUrl('https://lens.google.com/');
-                }
+                executeSearchUrl('https://lens.google.com/');
             };
         }
 
@@ -572,17 +640,31 @@ export function setupSearch() {
         if (dom.googleSearchSubmit) {
             dom.googleSearchSubmit.onclick = (e) => {
                 e.preventDefault();
-                const query = dom.searchInput?.value.trim();
-                handleSearch(query || 'Google');
+                e.stopPropagation();
+                const query = dom.searchInput?.value.trim() || '';
+                handleSearch(query);
+                if (query && dom.searchInput) {
+                    dom.searchInput.value = '';
+                    if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                    dom.searchInput.blur();
+                    deactivateSearch();
+                }
             };
         }
 
         if (dom.googleLuckyBtn) {
             dom.googleLuckyBtn.onclick = (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 const query = dom.searchInput?.value.trim();
                 if (query) {
                     executeSearchUrl(`https://www.google.com/search?q=${encodeURIComponent(query)}&btnI=1`);
+                    if (dom.searchInput) {
+                        dom.searchInput.value = '';
+                        if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                        dom.searchInput.blur();
+                        deactivateSearch();
+                    }
                 } else {
                     executeSearchUrl('https://www.google.com/doodles');
                 }

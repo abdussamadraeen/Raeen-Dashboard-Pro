@@ -542,7 +542,7 @@ export default defineBackground(() => {
   (globalThis as any).chrome?.runtime?.onMessage?.addListener(
     (request: Record<string, any>, sender: any, sendResponse: (res: any) => void) => {
       try {
-        const action = request?.action as string | undefined;
+        const action = (request?.action ?? request?.type) as string | undefined;
         const handler = action ? handlers[action] : undefined;
 
         if (!handler) {
