@@ -214,6 +214,10 @@ export function setupSearch() {
             const engine = state.settings.searchEngine || 'google';
 
             if (!rawQuery) {
+                if (isAiMode && engine === 'google') {
+                    executeSearchUrl('https://www.google.com/search?udm=50&aep=11');
+                    return;
+                }
                 const homepages = {
                     google: 'https://www.google.com',
                     brave: 'https://search.brave.com',
@@ -233,12 +237,7 @@ export function setupSearch() {
             let targetUrl = '';
 
             if (isAiMode && engine === 'google') {
-                const model = state.settings.activeAiModel || 'auto';
-                if (model === 'pro') {
-                    targetUrl = `https://gemini.google.com/app?q=${encodeURIComponent(rawQuery)}`;
-                } else {
-                    targetUrl = `https://www.google.com/search?q=${encodeURIComponent(rawQuery)}&udm=14`;
-                }
+                targetUrl = `https://www.google.com/search?q=${encodeURIComponent(rawQuery)}&udm=50&aep=11`;
             } else {
                 const res = resolveSearch(rawQuery);
                 targetUrl = res.url;
@@ -534,86 +533,116 @@ export function setupSearch() {
             };
         }
 
-        // Voice Search with Web Speech API
+        // Voice Search with Web Speech API & browser-resilient fallback
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
         let isListening = false;
-        if (SpeechRecognition) {
-            try {
-                recognition = new SpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = true;
-                recognition.lang = 'en-US';
 
-                recognition.onstart = () => {
-                    isListening = true;
-                    dom.searchVoiceBtn?.classList.add('listening');
-                    if (dom.searchInput) dom.searchInput.placeholder = 'Listening... Speak now';
-                };
-
-                recognition.onresult = (event) => {
-                    const transcript = Array.from(event.results)
-                        .map(r => r[0].transcript)
-                        .join('');
-                    if (dom.searchInput) {
-                        dom.searchInput.value = transcript;
-                    }
-                };
-
-                recognition.onerror = (e) => {
-                    console.warn('Speech recognition notice:', e);
-                    isListening = false;
-                    dom.searchVoiceBtn?.classList.remove('listening');
-                    if (e.error === 'not-allowed') {
-                        if (dom.searchInput) dom.searchInput.placeholder = 'Microphone access denied';
-                    }
-                    setTimeout(() => updateSearchEngineUI(), 2000);
-                };
-
-                recognition.onend = () => {
-                    isListening = false;
-                    dom.searchVoiceBtn?.classList.remove('listening');
-                    updateSearchEngineUI();
-                    const query = dom.searchInput?.value.trim();
-                    if (query) {
-                        handleSearch(query);
-                    }
-                };
-            } catch (err) {
-                console.warn('Speech recognition init error:', err);
+        const stopVoiceRecognition = () => {
+            if (recognition) {
+                try { recognition.abort(); } catch {}
+                try { recognition.stop(); } catch {}
             }
-        }
+            recognition = null;
+            isListening = false;
+            dom.searchVoiceBtn?.classList.remove('listening');
+            updateSearchEngineUI();
+        };
 
         if (dom.searchVoiceBtn) {
-            dom.searchVoiceBtn.onclick = (e) => {
+            dom.searchVoiceBtn.onclick = async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (!recognition) {
-                    if (dom.searchInput) {
-                        dom.searchInput.placeholder = 'Speech recognition not supported in this browser';
-                        setTimeout(() => updateSearchEngineUI(), 2000);
-                    }
+
+                if (isListening) {
+                    stopVoiceRecognition();
                     return;
                 }
-                if (isListening) {
-                    try { recognition.stop(); } catch {}
-                } else {
-                    try {
-                        recognition.start();
-                    } catch (err) {
-                        console.warn('Speech recognition failed to start:', err);
-                        try { recognition.stop(); } catch {}
+
+                if (!SpeechRecognition) {
+                    if (dom.searchInput) {
+                        dom.searchInput.placeholder = 'Speech recognition not supported in this browser. Opening Google...';
                     }
+                    setTimeout(() => executeSearchUrl('https://www.google.com'), 1000);
+                    return;
+                }
+
+                // Explicitly prompt for microphone access via getUserMedia
+                if (navigator.mediaDevices?.getUserMedia) {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        // Close tracks so SpeechRecognition has sole device access
+                        stream.getTracks().forEach(t => t.stop());
+                    } catch (err) {
+                        console.warn('[Search] Microphone permission denied:', err);
+                        if (dom.searchInput) {
+                            dom.searchInput.placeholder = 'Microphone permission denied';
+                            setTimeout(() => updateSearchEngineUI(), 2000);
+                        }
+                        return;
+                    }
+                }
+
+                try {
+                    recognition = new SpeechRecognition();
+                    recognition.continuous = false;
+                    recognition.interimResults = true;
+                    recognition.lang = navigator.language || 'en-US';
+
+                    recognition.onstart = () => {
+                        isListening = true;
+                        dom.searchVoiceBtn?.classList.add('listening');
+                        if (dom.searchInput) dom.searchInput.placeholder = 'Listening... Speak now';
+                    };
+
+                    recognition.onresult = (event) => {
+                        const transcript = Array.from(event.results)
+                            .map(r => r[0].transcript)
+                            .join('');
+                        if (dom.searchInput) {
+                            dom.searchInput.value = transcript;
+                        }
+                    };
+
+                    recognition.onerror = (event) => {
+                        console.warn('[Search] Voice recognition error:', event.error);
+                        stopVoiceRecognition();
+                        if (event.error === 'not-allowed') {
+                            if (dom.searchInput) dom.searchInput.placeholder = 'Microphone permission denied';
+                            setTimeout(() => updateSearchEngineUI(), 2000);
+                        } else if (event.error === 'network' || event.error === 'service-not-allowed') {
+                            // Brave browser strips Google speech cloud backend
+                            if (dom.searchInput) {
+                                dom.searchInput.placeholder = 'Speech API unavailable in Brave. Opening Google...';
+                            }
+                            setTimeout(() => executeSearchUrl('https://www.google.com'), 1000);
+                        }
+                    };
+
+                    recognition.onend = () => {
+                        const query = dom.searchInput?.value.trim();
+                        stopVoiceRecognition();
+                        if (query) {
+                            handleSearch(query);
+                            if (dom.searchInput) dom.searchInput.value = '';
+                        }
+                    };
+
+                    recognition.start();
+                } catch (err) {
+                    console.warn('[Search] Voice start error:', err);
+                    stopVoiceRecognition();
+                    executeSearchUrl('https://www.google.com');
                 }
             };
         }
 
-        // Google Lens search
+        // Google Lens search - opens Google Lens online upload dialog directly
         if (dom.searchLensBtn) {
             dom.searchLensBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                executeSearchUrl('https://lens.google.com/');
+                executeSearchUrl('https://www.google.com/?olud=');
             };
         }
 
@@ -622,12 +651,28 @@ export function setupSearch() {
             dom.searchAiModeBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                const query = dom.searchInput?.value.trim();
+
+                // If user entered a query and clicks AI Mode, immediately execute AI search!
+                if (query) {
+                    isAiMode = true;
+                    dom.searchAiModeBtn.classList.add('active');
+                    dom.searchForm?.classList.add('ai-mode-active');
+                    handleSearch(query);
+                    if (dom.searchInput) dom.searchInput.value = '';
+                    dom.searchSuggestions?.classList.add('hidden');
+                    dom.searchInput?.blur();
+                    deactivateSearch();
+                    return;
+                }
+
+                // If input is empty, toggle AI Mode state
                 isAiMode = !isAiMode;
                 dom.searchAiModeBtn.classList.toggle('active', isAiMode);
                 dom.searchForm?.classList.toggle('ai-mode-active', isAiMode);
                 if (isAiMode) {
                     if (dom.searchInput) {
-                        dom.searchInput.placeholder = 'Ask Gemini or search with AI...';
+                        dom.searchInput.placeholder = 'Search with Google AI Mode (udm=50)...';
                         dom.searchInput.focus();
                     }
                 } else {
