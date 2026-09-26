@@ -546,102 +546,18 @@
                                 <span>Customize list</span>
                             </button>
                         </div>
-                        <!-- Google Search Left (+) Button & Floating Popup Menu -->
-                        <button type="button" id="search-plus-btn" class="search-plus-btn" title="More search options" aria-label="Google Search Options">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </button>
-                        <div id="search-plus-menu" class="search-plus-menu hidden">
-                            <button type="button" class="plus-menu-item" id="plus-action-images">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                                <span>Add images</span>
-                            </button>
-                            <button type="button" class="plus-menu-item" id="plus-action-files">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                                <span>Add files</span>
-                            </button>
-                            <button type="button" class="plus-menu-item" id="plus-action-create">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2L14.2 8.2L20.4 10.4L14.2 12.6L12 18.8L9.8 12.6L3.6 10.4L9.8 8.2L12 2Z" fill="#F59E0B"/><path d="M19 16L20 18.5L22.5 19.5L20 20.5L19 23L18 20.5L15.5 19.5L18 18.5L19 16Z" fill="#EF4444"/><path d="M5 2L6 4.5L8.5 5.5L6 6.5L5 9L4 6.5L1.5 5.5L4 4.5L5 2Z" fill="#10B981"/></svg>
-                                <span>Create images</span>
-                            </button>
-                            <div class="plus-menu-divider"></div>
-                            <button type="button" class="plus-menu-item plus-model-item active" data-model="auto">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
-                                <span>Auto</span>
-                            </button>
-                            <button type="button" class="plus-menu-item plus-model-item" data-model="flash">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                                <span>3.8 Flash</span>
-                            </button>
-                            <button type="button" class="plus-menu-item plus-model-item" data-model="pro">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="8"></circle><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="14" x2="15" y2="11"></line></svg>
-                                <span>Pro</span>
-                            </button>
-                        </div>
-
-                        <!-- Hidden File Inputs -->
-                        <input type="file" id="search-image-file-input" accept="image/*" style="display:none;" />
-                        <input type="file" id="search-doc-file-input" accept=".pdf,.doc,.docx,.txt,.csv,.json" style="display:none;" />
 
                         <input type="text" id="search-input" name="q" placeholder="Search the web" autocomplete="off" title="Search query" aria-label="Search">
 
-                        <!-- Right Search Tools -->
-                        <div class="search-right-tools">
-                            <button type="button" id="search-voice-btn" class="search-tool-btn" title="Search by voice" aria-label="Search by voice">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                                    <line x1="12" y1="19" x2="12" y2="23"></line>
-                                    <line x1="8" y1="23" x2="16" y2="23"></line>
-                                </svg>
-                            </button>
-                            <button type="button" id="search-lens-btn" class="search-tool-btn" title="Search by image (Google Lens)" aria-label="Search by image">
-                                <svg viewBox="0 0 24 24" width="18" height="18">
-                                    <path fill="#4285F4" d="M6 3h3V1H6c-2.76 0-5 2.24-5 5v3h2V6c0-1.66 1.34-3 3-3z"/>
-                                    <path fill="#EA4335" d="M18 1h-3v2h3c1.66 0 3 1.34 3 3v3h2V6c0-2.76-2.24-5-5-5z"/>
-                                    <path fill="#FBBC05" d="M3 18v-3H1v3c0 2.76 2.24 5 5 5h3v-2H6c-1.66 0-3-1.34-3-3z"/>
-                                    <path fill="#34A853" d="M18 21h-3v2h3c2.76 0 5-2.24 5-5v-3h-2v3c0 1.66-1.34 3-3 3z"/>
-                                    <circle cx="12" cy="12" r="3.5" fill="currentColor"/>
-                                </svg>
-                            </button>
-                            <button type="button" id="search-ai-mode-btn" class="search-ai-mode-btn" title="Toggle AI Mode" aria-label="AI Mode">
-                                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 0l2.5 8.5L23 11l-8.5 2.5L12 22l-2.5-8.5L1 11l8.5-2.5z"/></svg>
-                                <span>AI Mode</span>
-                            </button>
-                            <button type="submit" id="search-submit-btn" class="search-submit-btn" aria-label="Search" title="Search">
-                                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="11" cy="11" r="7"></circle>
-                                    <line x1="21" y1="21" x2="16.2" y2="16.2"></line>
-                                </svg>
-                            </button>
-                        </div>
+                        <button type="submit" id="search-submit-btn" class="search-submit-btn" aria-label="Search" title="Search">
+                            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <line x1="21" y1="21" x2="16.2" y2="16.2"></line>
+                            </svg>
+                        </button>
                         <ul id="search-suggestions" class="suggestions-dropdown hidden"></ul>
                     </div>
                 </form>
-
-                <!-- Google Search Actions (Under Search Bar) -->
-                <div id="google-search-actions" class="google-search-actions">
-                    <div class="google-action-buttons">
-                        <button type="button" id="google-search-submit" class="google-btn">Google Search</button>
-                        <button type="button" id="google-lucky-btn" class="google-btn">I'm Feeling Lucky</button>
-                    </div>
-                    <div class="google-languages-row">
-                        <span class="languages-label">Google offered in:</span>
-                        <div class="languages-links">
-                            <a href="https://www.google.com/setprefs?sig=0_&hl=hi" target="_blank" rel="noopener">हिन्दी</a>
-                            <a href="https://www.google.com/setprefs?sig=0_&hl=bn" target="_blank" rel="noopener">বাংলা</a>
-                            <a href="https://www.google.com/setprefs?sig=0_&hl=te" target="_blank" rel="noopener">తెలుగు</a>
-                            <a href="https://www.google.com/setprefs?sig=0_&hl=mr" target="_blank" rel="noopener">मराठी</a>
-                            <a href="https://www.google.com/setprefs?sig=0_&hl=ta" target="_blank" rel="noopener">தமிழ்</a>
-                            <a href="https://www.google.com/setprefs?sig=0_&hl=gu" target="_blank" rel="noopener">ગુજરાતી</a>
-                            <a href="https://www.google.com/setprefs?sig=0_&hl=kn" target="_blank" rel="noopener">ಕನ್ನಡ</a>
-                            <a href="https://www.google.com/setprefs?sig=0_&hl=ml" target="_blank" rel="noopener">മലയാളം</a>
-                            <a href="https://www.google.com/setprefs?sig=0_&hl=pa" target="_blank" rel="noopener">ਪੰਜਾਬੀ</a>
-                        </div>
-                    </div>
-                </div>
                 <div class="resize-handle"></div>
             </main>
 

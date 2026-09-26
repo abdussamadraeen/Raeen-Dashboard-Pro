@@ -45,26 +45,8 @@ export function updateSearchEngineUI() {
         });
     }
 
-    // Toggle Google-specific UI options dynamically
-    const isGoogle = engine === 'google';
-    if (dom.searchContainer) {
-        dom.searchContainer.classList.toggle('google-active', isGoogle);
-    }
     if (dom.searchForm) {
         dom.searchForm.setAttribute('data-engine', engine);
-    }
-    if (dom.searchPlusBtn) {
-        dom.searchPlusBtn.style.display = isGoogle ? 'flex' : 'none';
-    }
-    if (dom.searchPlusMenu && !isGoogle) {
-        dom.searchPlusMenu.classList.add('hidden');
-        dom.searchPlusBtn?.classList.remove('open');
-    }
-    if (dom.googleSearchActions) {
-        dom.googleSearchActions.style.display = isGoogle ? 'flex' : 'none';
-    }
-    if (dom.searchLensBtn) {
-        dom.searchLensBtn.style.display = isGoogle ? 'flex' : 'none';
     }
 }
 
@@ -168,7 +150,6 @@ export function resolveSearch(rawQuery) {
 
 export function setupSearch() {
     let selectedIndex = -1;
-    let isAiMode = false;
 
     if (dom.searchInput) {
         const executeSearchUrl = (url) => {
@@ -214,10 +195,6 @@ export function setupSearch() {
             const engine = state.settings.searchEngine || 'google';
 
             if (!rawQuery) {
-                if (isAiMode && engine === 'google') {
-                    executeSearchUrl('https://www.google.com/search?udm=50&aep=11');
-                    return;
-                }
                 const homepages = {
                     google: 'https://www.google.com',
                     brave: 'https://search.brave.com',
@@ -234,16 +211,8 @@ export function setupSearch() {
                 return;
             }
 
-            let targetUrl = '';
-
-            if (isAiMode && engine === 'google') {
-                targetUrl = `https://www.google.com/search?q=${encodeURIComponent(rawQuery)}&udm=50&aep=11`;
-            } else {
-                const res = resolveSearch(rawQuery);
-                targetUrl = res.url;
-            }
-
-            executeSearchUrl(targetUrl);
+            const res = resolveSearch(rawQuery);
+            executeSearchUrl(res.url);
         };
 
         let debounceTimer = null;
@@ -378,7 +347,7 @@ export function setupSearch() {
 
         if (dom.searchContainer) {
             dom.searchContainer.addEventListener('click', (e) => {
-                if (e.target.closest('button, a, input, select, label, .search-plus-menu, .search-engine-menu, .suggestions-dropdown, #google-search-actions')) {
+                if (e.target.closest('button, a, input, select, label, .search-engine-menu, .suggestions-dropdown')) {
                     return;
                 }
                 if (dom.searchInput && document.activeElement !== dom.searchInput) {
@@ -434,295 +403,11 @@ export function setupSearch() {
             };
         }
 
-        // Google Search Plus (+) Button & Floating Popup Menu
-        if (dom.searchPlusBtn && dom.searchPlusMenu) {
-            dom.searchPlusBtn.onclick = (e) => {
-                e.stopPropagation();
-                const isHidden = dom.searchPlusMenu.classList.contains('hidden');
-                dom.searchPlusMenu.classList.toggle('hidden', !isHidden);
-                dom.searchPlusBtn.classList.toggle('open', isHidden);
-                dom.searchEngineMenu?.classList.add('hidden');
-                dom.searchEngineBtn?.classList.remove('open');
-                if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
-            };
-
-            const addImagesBtn = document.getElementById('plus-action-images');
-            if (addImagesBtn) {
-                addImagesBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    dom.searchPlusMenu.classList.add('hidden');
-                    dom.searchPlusBtn.classList.remove('open');
-                    dom.searchImageFileInput?.click();
-                };
-            }
-
-            const addFilesBtn = document.getElementById('plus-action-files');
-            if (addFilesBtn) {
-                addFilesBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    dom.searchPlusMenu.classList.add('hidden');
-                    dom.searchPlusBtn.classList.remove('open');
-                    dom.searchDocFileInput?.click();
-                };
-            }
-
-            const createImagesBtn = document.getElementById('plus-action-create');
-            if (createImagesBtn) {
-                createImagesBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    dom.searchPlusMenu.classList.add('hidden');
-                    dom.searchPlusBtn.classList.remove('open');
-                    if (dom.searchInput) {
-                        dom.searchInput.value = 'Create image of ';
-                        dom.searchInput.focus();
-                        dom.searchInput.setSelectionRange(dom.searchInput.value.length, dom.searchInput.value.length);
-                    }
-                };
-            }
-
-            dom.searchPlusMenu.querySelectorAll('.plus-model-item').forEach(btn => {
-                btn.onclick = (e) => {
-                    e.stopPropagation();
-                    dom.searchPlusMenu.querySelectorAll('.plus-model-item').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    const model = btn.dataset.model || 'auto';
-                    state.settings.activeAiModel = model;
-                    saveSettings(state.settings);
-                    dom.searchPlusMenu.classList.add('hidden');
-                    dom.searchPlusBtn.classList.remove('open');
-
-                    if (dom.searchInput) {
-                        if (model === 'flash') {
-                            dom.searchInput.placeholder = 'Search with 3.8 Flash...';
-                        } else if (model === 'pro') {
-                            dom.searchInput.placeholder = 'Search with Gemini Pro...';
-                        } else {
-                            dom.searchInput.placeholder = 'Search the web';
-                        }
-                        dom.searchInput.focus();
-                    }
-                };
-            });
-        }
-
-        // Hidden file inputs
-        if (dom.searchImageFileInput) {
-            dom.searchImageFileInput.onchange = (e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                    if (dom.searchInput) {
-                        dom.searchInput.value = `Image: ${file.name}`;
-                    }
-                    executeSearchUrl('https://lens.google.com/');
-                }
-            };
-        }
-
-        if (dom.searchDocFileInput) {
-            dom.searchDocFileInput.onchange = (e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                    if (dom.searchInput) {
-                        dom.searchInput.value = `Analyze file: ${file.name}`;
-                        dom.searchInput.focus();
-                    }
-                    isAiMode = true;
-                    dom.searchAiModeBtn?.classList.add('active');
-                    dom.searchForm?.classList.add('ai-mode-active');
-                }
-            };
-        }
-
-        // Voice Search with Web Speech API & browser-resilient fallback
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition = null;
-        let isListening = false;
-
-        const stopVoiceRecognition = () => {
-            if (recognition) {
-                try { recognition.abort(); } catch {}
-                try { recognition.stop(); } catch {}
-            }
-            recognition = null;
-            isListening = false;
-            dom.searchVoiceBtn?.classList.remove('listening');
-            updateSearchEngineUI();
-        };
-
-        if (dom.searchVoiceBtn) {
-            dom.searchVoiceBtn.onclick = async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (isListening) {
-                    stopVoiceRecognition();
-                    return;
-                }
-
-                if (!SpeechRecognition) {
-                    if (dom.searchInput) {
-                        dom.searchInput.placeholder = 'Speech recognition not supported in this browser. Opening Google...';
-                    }
-                    setTimeout(() => executeSearchUrl('https://www.google.com'), 1000);
-                    return;
-                }
-
-                // Explicitly prompt for microphone access via getUserMedia
-                if (navigator.mediaDevices?.getUserMedia) {
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        // Close tracks so SpeechRecognition has sole device access
-                        stream.getTracks().forEach(t => t.stop());
-                    } catch (err) {
-                        console.warn('[Search] Microphone permission denied:', err);
-                        if (dom.searchInput) {
-                            dom.searchInput.placeholder = 'Microphone permission denied';
-                            setTimeout(() => updateSearchEngineUI(), 2000);
-                        }
-                        return;
-                    }
-                }
-
-                try {
-                    recognition = new SpeechRecognition();
-                    recognition.continuous = false;
-                    recognition.interimResults = true;
-                    recognition.lang = navigator.language || 'en-US';
-
-                    recognition.onstart = () => {
-                        isListening = true;
-                        dom.searchVoiceBtn?.classList.add('listening');
-                        if (dom.searchInput) dom.searchInput.placeholder = 'Listening... Speak now';
-                    };
-
-                    recognition.onresult = (event) => {
-                        const transcript = Array.from(event.results)
-                            .map(r => r[0].transcript)
-                            .join('');
-                        if (dom.searchInput) {
-                            dom.searchInput.value = transcript;
-                        }
-                    };
-
-                    recognition.onerror = (event) => {
-                        console.warn('[Search] Voice recognition error:', event.error);
-                        stopVoiceRecognition();
-                        if (event.error === 'not-allowed') {
-                            if (dom.searchInput) dom.searchInput.placeholder = 'Microphone permission denied';
-                            setTimeout(() => updateSearchEngineUI(), 2000);
-                        } else if (event.error === 'network' || event.error === 'service-not-allowed') {
-                            // Brave browser strips Google speech cloud backend
-                            if (dom.searchInput) {
-                                dom.searchInput.placeholder = 'Speech API unavailable in Brave. Opening Google...';
-                            }
-                            setTimeout(() => executeSearchUrl('https://www.google.com'), 1000);
-                        }
-                    };
-
-                    recognition.onend = () => {
-                        const query = dom.searchInput?.value.trim();
-                        stopVoiceRecognition();
-                        if (query) {
-                            handleSearch(query);
-                            if (dom.searchInput) dom.searchInput.value = '';
-                        }
-                    };
-
-                    recognition.start();
-                } catch (err) {
-                    console.warn('[Search] Voice start error:', err);
-                    stopVoiceRecognition();
-                    executeSearchUrl('https://www.google.com');
-                }
-            };
-        }
-
-        // Google Lens search - opens Google Lens online upload dialog directly
-        if (dom.searchLensBtn) {
-            dom.searchLensBtn.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                executeSearchUrl('https://www.google.com/?olud=');
-            };
-        }
-
-        // AI Mode Toggle Pill
-        if (dom.searchAiModeBtn) {
-            dom.searchAiModeBtn.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const query = dom.searchInput?.value.trim();
-
-                // If user entered a query and clicks AI Mode, immediately execute AI search!
-                if (query) {
-                    isAiMode = true;
-                    dom.searchAiModeBtn.classList.add('active');
-                    dom.searchForm?.classList.add('ai-mode-active');
-                    handleSearch(query);
-                    if (dom.searchInput) dom.searchInput.value = '';
-                    dom.searchSuggestions?.classList.add('hidden');
-                    dom.searchInput?.blur();
-                    deactivateSearch();
-                    return;
-                }
-
-                // If input is empty, toggle AI Mode state
-                isAiMode = !isAiMode;
-                dom.searchAiModeBtn.classList.toggle('active', isAiMode);
-                dom.searchForm?.classList.toggle('ai-mode-active', isAiMode);
-                if (isAiMode) {
-                    if (dom.searchInput) {
-                        dom.searchInput.placeholder = 'Search with Google AI Mode (udm=50)...';
-                        dom.searchInput.focus();
-                    }
-                } else {
-                    updateSearchEngineUI();
-                }
-            };
-        }
-
-        // Google Search action buttons below search bar
-        if (dom.googleSearchSubmit) {
-            dom.googleSearchSubmit.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const query = dom.searchInput?.value.trim() || '';
-                handleSearch(query);
-                if (query && dom.searchInput) {
-                    dom.searchInput.value = '';
-                    if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
-                    dom.searchInput.blur();
-                    deactivateSearch();
-                }
-            };
-        }
-
-        if (dom.googleLuckyBtn) {
-            dom.googleLuckyBtn.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const query = dom.searchInput?.value.trim();
-                if (query) {
-                    executeSearchUrl(`https://www.google.com/search?q=${encodeURIComponent(query)}&btnI=1`);
-                    if (dom.searchInput) {
-                        dom.searchInput.value = '';
-                        if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
-                        dom.searchInput.blur();
-                        deactivateSearch();
-                    }
-                } else {
-                    executeSearchUrl('https://www.google.com/doodles');
-                }
-            };
-        }
-
         document.addEventListener('click', (e) => {
             if (!dom.searchContainer.contains(e.target)) {
                 dom.searchSuggestions?.classList.add('hidden');
                 dom.searchEngineMenu?.classList.add('hidden');
                 dom.searchEngineBtn?.classList.remove('open');
-                dom.searchPlusMenu?.classList.add('hidden');
-                dom.searchPlusBtn?.classList.remove('open');
                 deactivateSearch();
             }
         });
@@ -734,8 +419,6 @@ export function setupSearch() {
                 const isHidden = dom.searchEngineMenu.classList.contains('hidden');
                 dom.searchEngineMenu.classList.toggle('hidden', !isHidden);
                 dom.searchEngineBtn.classList.toggle('open', isHidden);
-                dom.searchPlusMenu?.classList.add('hidden');
-                dom.searchPlusBtn?.classList.remove('open');
                 if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
             };
 
