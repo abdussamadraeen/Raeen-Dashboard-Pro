@@ -132,7 +132,7 @@ html.live-bg-pre-active body {
     opacity: 0;
 }
 canvas.background-layer {
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
     transform: translate3d(0, 0, 0);
     will-change: transform;

@@ -168,6 +168,11 @@ export async function applySettings() {
                 dom.bgLayer.style.backgroundImage = 'none';
                 dom.bgLayer.style.backgroundColor = 'transparent';
             }
+            const nextLayer = document.getElementById('background-layer-next');
+            if (nextLayer) {
+                nextLayer.style.backgroundImage = 'none';
+                nextLayer.style.opacity = '0';
+            }
         } else {
             switch (bgType) {
             case 'bing':

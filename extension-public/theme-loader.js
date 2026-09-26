@@ -13,13 +13,17 @@
         // Apply cached wallpaper immediately to avoid black screen flash
         var bgType = localStorage.getItem('app_bg_type') || localStorage.getItem('raeen_bg_type') || 'curated';
         var bgValue = localStorage.getItem('app_bg_value') || localStorage.getItem('raeen_bg_value') || 'curated_random';
-        var cachedUrl = (bgValue && !bgValue.match(/\.(mp4|webm|ogg)$/i) && bgValue !== 'curated_random' && bgValue !== 'brave_random')
-            ? bgValue
-            : (localStorage.getItem('last_curated_url') || '');
+        var cachedUrl = (bgType !== 'canvas' && bgType !== 'solid')
+            ? ((bgValue && !bgValue.match(/\.(mp4|webm|ogg)$/i) && bgValue !== 'curated_random' && bgValue !== 'brave_random')
+                ? bgValue
+                : (localStorage.getItem('last_curated_url') || ''))
+            : '';
 
         var css = '';
         if (cachedUrl) {
             css += '#background-layer { background-image: url("' + cachedUrl + '"); } ';
+        } else if (bgType === 'canvas') {
+            css += '#canvas-layer { display: block !important; } #background-layer { display: none !important; } ';
         }
         if (mode === 'minimal') {
             css += '.info-card, #directory-widget, #notes-widget, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';

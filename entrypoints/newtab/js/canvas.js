@@ -194,7 +194,7 @@ export const CanvasEngine = (() => {
         extraState = null;
 
         const caps = getHardwareCapabilities();
-        const effectiveDensity = caps.throttleAnimations ? effectiveDensity * 0.33 : effectiveDensity;
+        const effectiveDensity = caps.throttleAnimations ? densityMult * 0.33 : densityMult;
 
         if (theme === 'neural') {
             // 55 particles provides rich synaptic depth with 85% fewer distance computations
