@@ -51,6 +51,11 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
 
     // 1. Immediate UI Load
     applySettings();
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            document.documentElement.classList.remove('no-transitions');
+        });
+    });
     // Battery-Saving Clock Scheduler: minute-boundary synchronization + Page Visibility pause
     let clockTimer = null;
     const scheduleClockUpdate = () => {

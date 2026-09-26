@@ -4,6 +4,7 @@
         document.documentElement.setAttribute('data-theme', theme);
         var mode = localStorage.getItem('app_dashboard_mode') || localStorage.getItem('raeen_dashboard_mode') || 'pro';
         document.documentElement.setAttribute('data-dashboard-mode', mode);
+        document.documentElement.classList.add('no-transitions');
         if (mode === 'minimal') {
             document.documentElement.classList.add('dashboard-mode-minimal');
         }

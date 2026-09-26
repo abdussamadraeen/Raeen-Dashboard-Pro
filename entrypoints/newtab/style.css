@@ -1,3 +1,16 @@
+/* ─── Zero-FOUC & Zero Transition on Initial Page Load / Reload ─── */
+.no-transitions,
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
+    -webkit-animation: none !important;
+    animation: none !important;
+}
+
 :root {
     /* Scientifically Optimized Human-Centric Theme (Dark Mode - Low Eye-Strain & Focus) */
     --bg-body: #090d16;        
@@ -598,9 +611,6 @@ html.live-bg-pre-active .background-layer {
     position: relative;
     -webkit-user-select: none;
     user-select: none;
-    animation: slideUpFade 0.5s ease-out forwards;
-    animation-delay: calc(var(--item-index, 0) * 30ms);
-    opacity: 0;
 }
 .shortcut:hover { 
     transform: translateY(-6px) scale(1.05); 
@@ -6414,6 +6424,7 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
    ══════════════════════════════════════════════════════════════════ */
 
 /* ── Container & Clutter Removal ── */
+[data-dashboard-mode="minimal"] .container,
 body[data-dashboard-mode="minimal"] .container {
     display: block !important;
     position: fixed !important;
@@ -6428,27 +6439,37 @@ body[data-dashboard-mode="minimal"] .container {
     z-index: 10 !important;
 }
 
+[data-dashboard-mode="minimal"] .layout-column,
 body[data-dashboard-mode="minimal"] .layout-column {
     display: contents !important;
     width: auto !important;
     height: auto !important;
 }
 
+[data-dashboard-mode="minimal"] #cards-widget,
 body[data-dashboard-mode="minimal"] #cards-widget {
     display: contents !important;
 }
 
+[data-dashboard-mode="minimal"] .info-card,
 body[data-dashboard-mode="minimal"] .info-card,
+[data-dashboard-mode="minimal"] #directory-widget,
 body[data-dashboard-mode="minimal"] #directory-widget,
+[data-dashboard-mode="minimal"] #notes-widget,
 body[data-dashboard-mode="minimal"] #notes-widget,
+[data-dashboard-mode="minimal"] .noosphere-status,
 body[data-dashboard-mode="minimal"] .noosphere-status,
+[data-dashboard-mode="minimal"] .noosphere-status-horizontal,
 body[data-dashboard-mode="minimal"] .noosphere-status-horizontal,
+[data-dashboard-mode="minimal"] .drag-handle,
 body[data-dashboard-mode="minimal"] .drag-handle,
+[data-dashboard-mode="minimal"] .resize-handle,
 body[data-dashboard-mode="minimal"] .resize-handle {
     display: none !important;
 }
 
 /* ── Minimalist Top-Left Clock: Restoring & Elevating the Majestic Specular Clock ── */
+[data-dashboard-mode="minimal"] #clock-widget,
 body[data-dashboard-mode="minimal"] #clock-widget {
     position: fixed !important;
     top: 32px !important;
@@ -6526,6 +6547,7 @@ body[data-dashboard-mode="minimal"] #clock-widget #clock-date {
 }
 
 /* ── Minimalist Search Bar: Dead-Center "Invisible" Frosted Glass Design ── */
+[data-dashboard-mode="minimal"] #search-widget,
 body[data-dashboard-mode="minimal"] #search-widget {
     position: fixed !important;
     left: 50% !important;
