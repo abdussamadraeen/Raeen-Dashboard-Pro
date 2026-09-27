@@ -161,7 +161,12 @@ export default defineContentScript({
       }
     }
 
-    // 2. Settings button injection for topmost or framed dashboard pages
+    // 2. Settings button injection for standalone top-level dashboard pages only
+    // When embedded in the newtab iframe, the parent extension page manages #live-dock natively.
+    if (window.self !== window.top) {
+      return;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const hasParam = urlParams.has('raeen_dashboard') || window.location.href.includes('raeen_dashboard=true');
 

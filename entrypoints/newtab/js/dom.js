@@ -139,7 +139,10 @@ const domConfig = {
     hudToggleBtnText: 'hud-toggle-btn-text',
     hudNuclearScramBtn: 'hud-nuclear-scram-btn',
     hudVerifyLink: 'hud-verify-link',
-    hudNodeHint: 'hud-node-hint'
+    hudNodeHint: 'hud-node-hint',
+    liveDock: 'live-dock',
+    liveHomeBtn: 'live-home-btn',
+    liveSettingsBtn: 'live-settings-btn'
 };
 
 const domCache = new Map();

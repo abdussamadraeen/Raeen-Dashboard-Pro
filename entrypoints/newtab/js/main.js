@@ -379,6 +379,22 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     }
     if (dom.closeBtn) dom.closeBtn.onclick = () => dom.modalOverlay.classList.add('hidden');
 
+    if (dom.liveHomeBtn) {
+        dom.liveHomeBtn.onclick = () => {
+            window.postMessage({ action: 'close_dashboard_iframe' }, '*');
+        };
+    }
+
+    if (dom.liveSettingsBtn) {
+        dom.liveSettingsBtn.onclick = () => {
+            renderThemeLibrary();
+            syncSettingsUI();
+            if (dom.modalOverlay) {
+                dom.modalOverlay.classList.remove('hidden');
+            }
+        };
+    }
+
     // Auto-open settings modal if requested via URL
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('settings') === 'true') {
@@ -728,7 +744,16 @@ function optimizeImage(file) {
             return;
         }
 
-        if (msg.action === 'close_dashboard_iframe' || msg.action === 'open_dashboard_settings') {
+        if (msg.action === 'open_dashboard_settings') {
+            renderThemeLibrary();
+            syncSettingsUI();
+            if (dom.modalOverlay) {
+                dom.modalOverlay.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (msg.action === 'close_dashboard_iframe') {
             try {
                 // 1. Immediately scrub all live-bg preloader classes and style overrides
                 document.documentElement.classList.remove('live-bg-pre-active');
@@ -740,9 +765,6 @@ function optimizeImage(file) {
                     }
                 });
 
-                const isLight = (state.settings.themePreference === 'light') || document.documentElement.getAttribute('data-theme') === 'light';
-                const defaultBg = isLight ? '#f8fafc' : '#090d16';
-
                 // 2. Immediately tear down background iframe
                 if (dom.bgLayer) {
                     const ifr = dom.bgLayer.querySelector('iframe');
@@ -752,14 +774,17 @@ function optimizeImage(file) {
                     }
                     dom.bgLayer.innerHTML = '';
                     dom.bgLayer.style.backgroundImage = 'none';
-                    dom.bgLayer.style.backgroundColor = defaultBg;
                 }
 
-                // 3. Synchronously switch active state to solid so applySettings() immediately shows widgets
-                state.settings.backgroundType = 'solid';
-                state.settings.backgroundValue = defaultBg;
-                localStorage.setItem('raeen_bg_type', 'solid');
-                localStorage.setItem('raeen_bg_value', defaultBg);
+                // 3. Restore last non-live background
+                const targetBgType = state.settings.lastNonLiveBgType || 'brave';
+                const targetBgVal = state.settings.lastNonLiveBgValue || 'brave_random';
+                state.settings.backgroundType = targetBgType;
+                state.settings.backgroundValue = targetBgVal;
+                state.settings.dashboardMode = 'pro';
+                localStorage.setItem('raeen_bg_type', targetBgType);
+                localStorage.setItem('raeen_bg_value', targetBgVal);
+                localStorage.setItem('raeen_dashboard_mode', 'pro');
 
                 applySettings();
                 syncSettingsUI();
@@ -770,19 +795,15 @@ function optimizeImage(file) {
                 if (!settings) {
                     settings = { ...state.settings };
                 }
-                settings.backgroundType = 'solid';
-                settings.backgroundValue = defaultBg;
+                settings.backgroundType = targetBgType;
+                settings.backgroundValue = targetBgVal;
+                settings.dashboardMode = 'pro';
                 updateSettings(settings);
                 await saveSettings(settings);
-
-                if (msg.action === 'open_dashboard_settings') {
-                    setTimeout(() => {
-                        if (dom.settingsBtn) dom.settingsBtn.click();
-                    }, 50);
-                }
             } catch (err) {
                 console.error("Failed to restore settings:", err);
             }
+            return;
         }
     });
 

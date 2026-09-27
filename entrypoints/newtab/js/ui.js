@@ -190,18 +190,21 @@ export async function applySettings() {
 
                 if (bingUrl) {
                     transitionToBackground(bingUrl);
+                    try { localStorage.setItem('last_bing_url', bingUrl); } catch (e) {}
                 } else {
                     try {
                         const res = await fetch('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1');
                         const data = await res.json();
                         const url = `https://www.bing.com${data.images[0].urlbase}_UHD.jpg`;
                         await StorageManager.set('mediaStore', 'bing_latest_v2', { url: url, timestamp: Date.now() });
+                        try { localStorage.setItem('last_bing_url', url); } catch (e) {}
                         transitionToBackground(url);
                     } catch (e) {
                         console.error("Failed to fetch Bing image", e);
                         // Fallback to old cached image if fetch failed
                         const cached = await StorageManager.get('mediaStore', 'bing_latest_v2');
                         if (cached?.url) {
+                            try { localStorage.setItem('last_bing_url', cached.url); } catch (e) {}
                             transitionToBackground(cached.url);
                         }
                     }
@@ -278,33 +281,47 @@ export async function applySettings() {
                 break;
             
             case 'google_dashboard':
-                let googleSrc = "https://www.google.com/?app_dashboard=true";
+                let googleSrc = "https://www.google.com/?raeen_dashboard=true&app_dashboard=true";
                 if (bgValue && (bgValue.includes("google.com") || bgValue.includes("google.co.in"))) {
                     try {
                         const urlObj = new URL(bgValue);
                         urlObj.searchParams.set("raeen_dashboard", "true");
+                        urlObj.searchParams.set("app_dashboard", "true");
                         googleSrc = urlObj.toString();
                     } catch {
-                        googleSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "app_dashboard=true";
+                        googleSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "raeen_dashboard=true&app_dashboard=true";
                     }
                 }
-                dom.bgLayer.innerHTML = `<iframe src="${googleSrc}" allow="clipboard-write; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                dom.bgLayer.innerHTML = `<iframe src="${googleSrc}" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; encrypted-media; compute-pressure; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
                 dom.bgLayer.style.backgroundImage = 'none';
+                const nextGoogleLayer = document.getElementById('background-layer-next');
+                if (nextGoogleLayer) {
+                    nextGoogleLayer.style.backgroundImage = 'none';
+                    nextGoogleLayer.style.opacity = '0';
+                    nextGoogleLayer.style.display = 'none';
+                }
                 break;
                 
             case 'bing_dashboard':
-                let bingSrc = "https://www.bing.com/?app_dashboard=true";
+                let bingSrc = "https://www.bing.com/?raeen_dashboard=true&app_dashboard=true";
                 if (bgValue && (bgValue.includes("bing.com") || bgValue.includes("cn.bing.com"))) {
                     try {
                         const urlObj = new URL(bgValue);
                         urlObj.searchParams.set("raeen_dashboard", "true");
+                        urlObj.searchParams.set("app_dashboard", "true");
                         bingSrc = urlObj.toString();
                     } catch {
-                        bingSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "app_dashboard=true";
+                        bingSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "raeen_dashboard=true&app_dashboard=true";
                     }
                 }
-                dom.bgLayer.innerHTML = `<iframe src="${bingSrc}" allow="clipboard-write; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                dom.bgLayer.innerHTML = `<iframe src="${bingSrc}" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; encrypted-media; compute-pressure; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
                 dom.bgLayer.style.backgroundImage = 'none';
+                const nextBingLayer = document.getElementById('background-layer-next');
+                if (nextBingLayer) {
+                    nextBingLayer.style.backgroundImage = 'none';
+                    nextBingLayer.style.opacity = '0';
+                    nextBingLayer.style.display = 'none';
+                }
                 break;
 
             case 'solid':
@@ -341,8 +358,12 @@ export async function applySettings() {
     // Handle Live Background interaction (Immersive Mode)
     const isLive = bgType === 'google_dashboard' || bgType === 'bing_dashboard';
     document.body.classList.toggle('live-bg-active', isLive);
+    const liveDock = document.getElementById('live-dock');
+    if (liveDock) liveDock.classList.toggle('hidden', !isLive);
 
-    if (!isLive) {
+    if (isLive) {
+        document.documentElement.classList.add('live-bg-pre-active');
+    } else {
         document.documentElement.classList.remove('live-bg-pre-active');
         document.querySelectorAll('#app-preloader-style, #app-theme-preloader-style, #app-live-preloader-style, #raeen-preloader-style, #raeen-theme-preloader-style, #raeen-live-preloader-style, style[data-preloader]').forEach(el => el.remove());
         document.querySelectorAll('style').forEach(s => {
