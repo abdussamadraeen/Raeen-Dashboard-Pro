@@ -16,7 +16,7 @@
         var css = '';
 
         // 1. Live Background Mode (Google / Bing Iframe)
-        if (bgType === 'google_dashboard' || bgType === 'bing_dashboard') {
+        if (bgType === 'google_dashboard' || bgType === 'bing_dashboard' || mode === 'google_live' || mode === 'bing_live') {
             document.documentElement.classList.add('live-bg-pre-active');
             css += '.overlay, .container, .top-left-widget, .noosphere-status, .noosphere-status-horizontal, #canvas-layer, #background-layer-next { display: none !important; } ';
             css += '#background-layer { z-index: 1000 !important; background: #000000 !important; width: 100vw !important; height: 100vh !important; pointer-events: auto !important; } ';
@@ -34,19 +34,22 @@
         } else {
             // 4. Photographic & Curated Wallpapers (Bing, Brave/Curated, Preset, Custom)
             var cachedUrl = '';
-            if (bgType === 'bing') {
-                cachedUrl = localStorage.getItem('last_bing_url') || localStorage.getItem('last_curated_url') || '';
-            } else if (bgValue && !bgValue.match(/\.(mp4|webm|ogg)$/i) && bgValue !== 'curated_random' && bgValue !== 'brave_random' && !bgValue.startsWith('canvas:') && !bgValue.includes('dashboard')) {
-                cachedUrl = bgValue;
-            } else {
-                cachedUrl = localStorage.getItem('last_curated_url') || '';
+            try { cachedUrl = sessionStorage.getItem('active_tab_wallpaper') || ''; } catch(e) {}
+            if (!cachedUrl) {
+                if (bgType === 'bing') {
+                    cachedUrl = localStorage.getItem('last_bing_url') || localStorage.getItem('last_curated_url') || '';
+                } else if (bgValue && !bgValue.match(/\.(mp4|webm|ogg)$/i) && bgValue !== 'curated_random' && bgValue !== 'brave_random' && !bgValue.startsWith('canvas:') && !bgValue.includes('dashboard')) {
+                    cachedUrl = bgValue;
+                } else {
+                    cachedUrl = localStorage.getItem('last_curated_url') || '';
+                }
             }
             if (cachedUrl) {
                 css += '#background-layer { background-image: url("' + cachedUrl + '"); } ';
             }
         }
 
-        // 5. Dashboard Mode Pre-Boot Positioning & Card Hiding
+        // 5. Dashboard Mode Pre-Boot Positioning & Card Hiding (Zero-flash across all workspaces)
         if (mode === 'minimal') {
             css += '.info-card, #directory-widget, #notes-widget, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
             css += '#clock-widget { position: fixed !important; top: 32px !important; left: 44px !important; z-index: 60 !important; } ';
@@ -54,7 +57,13 @@
             css += '.container { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; } ';
             css += '.layout-column, #cards-widget { display: contents !important; } ';
         } else if (mode === 'focus') {
-            css += '.info-card:not(#card-focus), #directory-widget, #notes-widget, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
+            css += '#card-security, #card-fileshare, #directory-widget, #card-image-compressor, #card-pdf-tools, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
+        } else if (mode === 'security') {
+            css += '#card-date, #card-focus, #card-fileshare, #directory-widget, #card-image-compressor, #card-pdf-tools, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
+        } else if (mode === 'creator') {
+            css += '#card-date, #card-focus, #card-security, #directory-widget, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
+        } else if (mode === 'pro') {
+            css += '#card-image-compressor, #card-pdf-tools, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
         }
 
         if (css) {

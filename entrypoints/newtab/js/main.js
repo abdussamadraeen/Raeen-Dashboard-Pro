@@ -105,13 +105,12 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
                     await saveSettings(saved);
                 }
 
-                // If user had old default google_dashboard without explicitly setting dashboardMode, switch to pro
-                if (!saved.dashboardMode || (saved.dashboardMode === 'pro' && saved.backgroundType === 'google_dashboard')) {
-                    saved.dashboardMode = 'pro';
-                    if (saved.backgroundType === 'google_dashboard') {
-                        saved.backgroundType = 'brave';
-                        saved.backgroundValue = 'brave_random';
-                    }
+                // Ensure live dashboard modes match their backgroundType without destructive overwrites
+                if (saved.backgroundType === 'google_dashboard' && saved.dashboardMode !== 'google_live') {
+                    saved.dashboardMode = 'google_live';
+                    await saveSettings(saved);
+                } else if (saved.backgroundType === 'bing_dashboard' && saved.dashboardMode !== 'bing_live') {
+                    saved.dashboardMode = 'bing_live';
                     await saveSettings(saved);
                 }
 
@@ -468,8 +467,19 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
             state.settings.backgroundType = e.target.value;
             if (e.target.value === 'bing') state.settings.backgroundValue = 'bing_latest_v2';
             if (e.target.value === 'brave') state.settings.backgroundValue = 'brave_random';
-            if (e.target.value === 'google_dashboard') state.settings.backgroundValue = 'https://www.google.com/?raeen_dashboard=true';
-            if (e.target.value === 'bing_dashboard') state.settings.backgroundValue = 'https://www.bing.com/?raeen_dashboard=true';
+            if (e.target.value === 'google_dashboard') {
+                state.settings.backgroundValue = 'https://www.google.com/?raeen_dashboard=true&app_dashboard=true';
+                state.settings.dashboardMode = 'google_live';
+            }
+            if (e.target.value === 'bing_dashboard') {
+                state.settings.backgroundValue = 'https://www.bing.com/?raeen_dashboard=true&app_dashboard=true';
+                state.settings.dashboardMode = 'bing_live';
+            }
+            if (e.target.value !== 'google_dashboard' && e.target.value !== 'bing_dashboard') {
+                if (state.settings.dashboardMode === 'google_live' || state.settings.dashboardMode === 'bing_live') {
+                    state.settings.dashboardMode = 'pro';
+                }
+            }
             commitSettings();
             syncBackgroundOptions();
             if (e.target.value === 'bing') loadBingGallery();

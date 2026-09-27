@@ -125,8 +125,8 @@ export async function applySettings() {
     document.body.classList.toggle('drag-drop-disabled', state.settings.enableDragAndDrop === false || currentDashboardMode === 'minimal');
 
     const preBootStyle = document.getElementById('pre-boot-critical-css');
-    if (preBootStyle && currentDashboardMode !== 'minimal') {
-        preBootStyle.remove();
+    if (preBootStyle && currentDashboardMode !== 'minimal' && !isLiveBg) {
+        requestAnimationFrame(() => preBootStyle.remove());
     }
 
     let bgType = state.settings.backgroundType;
@@ -215,7 +215,16 @@ export async function applySettings() {
                 let braveItem = null;
                 const isRandomBrave = !bgValue || bgValue === 'curated_random' || bgValue === 'brave_random';
                 if (isRandomBrave) {
-                    if (!currentBraveWallpaper) {
+                    let sessionUrl = '';
+                    try { sessionUrl = sessionStorage.getItem('active_tab_wallpaper') || ''; } catch(e) {}
+                    if (sessionUrl && (sessionUrl.startsWith('http') || sessionUrl.startsWith('/') || sessionUrl.startsWith('wallpapers/'))) {
+                        braveItem = CURATED_WALLPAPERS.find(w => w.url === sessionUrl) || {
+                            title: 'Curated',
+                            photographer: 'Curated Artist',
+                            url: sessionUrl
+                        };
+                        currentBraveWallpaper = braveItem;
+                    } else if (!currentBraveWallpaper) {
                         const lastIdx = parseInt(localStorage.getItem('last_curated_index') ?? '-1', 10);
                         let randIndex = Math.floor(Math.random() * CURATED_WALLPAPERS.length);
                         if (CURATED_WALLPAPERS.length > 1 && randIndex === lastIdx) {
@@ -223,8 +232,11 @@ export async function applySettings() {
                         }
                         try { localStorage.setItem('last_curated_index', randIndex.toString()); } catch (e) { console.warn('Failed to save brave index', e); }
                         currentBraveWallpaper = CURATED_WALLPAPERS[randIndex];
+                        braveItem = currentBraveWallpaper;
+                        try { if (braveItem?.url) sessionStorage.setItem('active_tab_wallpaper', braveItem.url); } catch (e) {}
+                    } else {
+                        braveItem = currentBraveWallpaper;
                     }
-                    braveItem = currentBraveWallpaper;
                 } else {
                     braveItem = CURATED_WALLPAPERS.find(w => w.url === bgValue || w.id === bgValue) || {
                         title: 'Curated',
@@ -232,6 +244,7 @@ export async function applySettings() {
                         url: bgValue
                     };
                     currentBraveWallpaper = braveItem;
+                    try { if (braveItem?.url) sessionStorage.setItem('active_tab_wallpaper', braveItem.url); } catch (e) {}
                 }
 
                 if (braveItem?.url) {
@@ -241,6 +254,7 @@ export async function applySettings() {
                         localStorage.setItem('app_bg_value', isRandomBrave ? 'curated_random' : bgUrl);
                         localStorage.setItem('raeen_bg_value', isRandomBrave ? 'curated_random' : bgUrl);
                         localStorage.setItem('last_curated_url', bgUrl);
+                        sessionStorage.setItem('active_tab_wallpaper', bgUrl);
                     } catch (e) {
                         console.warn('Failed to save background to localStorage', e);
                     }
@@ -561,6 +575,7 @@ export function loadBraveGallery() {
                 state.settings.backgroundType = 'brave';
                 state.settings.backgroundValue = url;
                 currentBraveWallpaper = CURATED_WALLPAPERS.find(w => w.url === url);
+                try { sessionStorage.setItem('active_tab_wallpaper', url); } catch(e) {}
                 saveSettings(state.settings);
                 applySettings();
                 loadBraveGallery();
@@ -575,8 +590,10 @@ export function loadBraveGallery() {
             if (e.target.checked) {
                 state.settings.backgroundValue = 'brave_random';
                 currentBraveWallpaper = null; // force fresh random rotation
+                try { sessionStorage.removeItem('active_tab_wallpaper'); } catch(e) {}
             } else {
                 state.settings.backgroundValue = currentBraveWallpaper ? currentBraveWallpaper.url : CURATED_WALLPAPERS[0].url;
+                try { sessionStorage.setItem('active_tab_wallpaper', state.settings.backgroundValue); } catch(e) {}
             }
             saveSettings(state.settings);
             applySettings();

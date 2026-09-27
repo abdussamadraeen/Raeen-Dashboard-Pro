@@ -78,7 +78,9 @@ export function validateAndRepairSettings(settingsObj) {
     // Safety checks for enum validations
     const validDashboardModes = ["pro", "minimal", "focus", "security", "creator", "google_live", "bing_live", "custom"];
     if (!validDashboardModes.includes(repaired.dashboardMode)) {
-        repaired.dashboardMode = "pro";
+        repaired.dashboardMode = (repaired.backgroundType === 'google_dashboard')
+            ? 'google_live'
+            : (repaired.backgroundType === 'bing_dashboard' ? 'bing_live' : 'pro');
     }
 
     const validEngines = ["google", "duckduckgo", "bing", "brave", "chatgpt", "perplexity", "claude", "robot_ai", "custom_engine"];
