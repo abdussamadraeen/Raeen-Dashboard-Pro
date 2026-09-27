@@ -1095,6 +1095,37 @@ body[data-dashboard-mode="bing_live"] .live-dock {
     font-variant-numeric: tabular-nums;
     color: var(--text-primary);
 }
+.focus-presets {
+    display: flex;
+    gap: 6px;
+    margin: 4px 0 6px 0;
+    width: 100%;
+}
+.focus-preset-pill {
+    padding: 3px 9px;
+    font-size: 0.68rem;
+    font-weight: 650;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+}
+[data-theme="light"] .focus-preset-pill {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+.focus-preset-pill:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+}
+.focus-preset-pill.active {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+}
 .focus-controls { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; width: 100%; }
 .focus-btn {
     padding: 7px 14px; border-radius: 10px; border: none; cursor: pointer;

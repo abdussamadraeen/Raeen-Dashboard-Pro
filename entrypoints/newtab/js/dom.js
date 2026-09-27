@@ -162,7 +162,7 @@ for (const [key, id] of Object.entries(domConfig)) {
         get() {
             let ref = domCache.get(key);
             let el = ref?.deref();
-            if (!el) {
+            if (!el || (el.nodeType === 1 && !el.isConnected)) {
                 if (typeof id === 'string') {
                     el = document.getElementById(id);
                 } else {
