@@ -162,14 +162,26 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
         }
     };
 
-    // 3. Feature setup (instant zero-latency execution)
+    // 3. Feature setup (instant zero-latency execution for core newtab widgets)
     setupSearch();
     initFocusTimer();
-    initFileShare();
     initSecurityHud();
-    initImageCompressor();
-    initPdfTools();
-    initDashboardStudio();
+
+    // Defer heavy auxiliary tool modules to idle frames for sub-16ms first-frame render
+    const runWhenIdle = (cb) => {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(cb, { timeout: 1000 });
+        } else {
+            setTimeout(cb, 50);
+        }
+    };
+
+    runWhenIdle(() => {
+        initFileShare();
+        initImageCompressor();
+        initPdfTools();
+        initDashboardStudio();
+    });
 
     function initSecurityHud() {
         if (!dom.cardSecurityEl) return;
