@@ -241,7 +241,13 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
             }
 
             if (dom.hudNodeSelect) {
-                dom.hudNodeSelect.value = securityManager.currentNodeId;
+                if (!dom.hudNodeSelect._populated) {
+                    dom.hudNodeSelect._populated = true;
+                    dom.hudNodeSelect.innerHTML = TACTICAL_NODES.map(node => `
+                        <option value="${node.id}">${node.flag || '🔒'} ${node.name}</option>
+                    `).join('');
+                }
+                dom.hudNodeSelect.value = securityManager.currentNodeId || 'shield_direct';
             }
 
             if (dom.hudCustomFields) {
@@ -250,16 +256,18 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
 
             if (dom.hudNodeHint) {
                 const DEFAULT_TOR_PORT = 9050;
-                if (currentNode.isTor) {
+                if (currentNode.scheme === 'direct') {
+                    dom.hudNodeHint.innerHTML = `🛡️ <strong>${currentNode.name}:</strong> Hardware WebRTC leak protection active with zero latency.`;
+                } else if (currentNode.isTor) {
                     if (securityManager.torOffline) {
-                        dom.hudNodeHint.innerHTML = `⚠️ <strong>Tor Offline (${currentNode.port || DEFAULT_TOR_PORT}):</strong> Port ${currentNode.port || DEFAULT_TOR_PORT} is not responding. Ensure Tor daemon is active, or choose US VPN above for instant cloud protection.`;
+                        dom.hudNodeHint.innerHTML = `⚠️ <strong>Tor Offline (${currentNode.port || DEFAULT_TOR_PORT}):</strong> Port ${currentNode.port || DEFAULT_TOR_PORT} is not responding. Ensure Tor daemon is active, or choose Stealth Shield for instant protection.`;
                     } else {
                         dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Active on 127.0.0.1:${currentNode.port || DEFAULT_TOR_PORT} • Multi-Hop Onion Relay`;
                     }
                 } else if (currentNode.id === 'custom') {
                     dom.hudNodeHint.innerHTML = '⚙️ <strong>Custom:</strong> Enter your own SOCKS5 or HTTPS proxy host and port.';
                 } else {
-                    dom.hudNodeHint.innerHTML = `🔒 <strong>${currentNode.name}:</strong> ${currentNode.location} • ${currentNode.cipher}`;
+                    dom.hudNodeHint.innerHTML = `🔒 <strong>${currentNode.name}:</strong> ${currentNode.country || currentNode.city || 'Secure Route'} • ${currentNode.cipher || 'Encrypted'}`;
                 }
             }
         };
@@ -1984,15 +1992,15 @@ function optimizeImage(file) {
     // ─── Free-Position Drag & Drop / Resize Widget System ───
     (function() {
         const defaultPositions = {
-            "clock-widget": { left: "1.5%", top: "2%" },
-            "search-widget": { left: "30%", top: "4.5%" },
-            "card-date": { left: "10%", top: "19%" },
-            "card-security": { left: "10%", top: "50%" },
-            "directory-widget": { left: "31%", top: "19%" },
-            "notes-widget": { left: "71%", top: "19%" },
-            "card-focus": { left: "71%", top: "56%" },
-            "card-fileshare": { left: "71%", top: "75%" },
-            "top-sites-widget": { left: "31%", top: "72%" }
+            "clock-widget": { left: "2.5%", top: "2.5%" },
+            "search-widget": { left: "30%", top: "3.5%" },
+            "card-date": { left: "3.5%", top: "16%" },
+            "card-focus": { left: "3.5%", top: "50%" },
+            "card-security": { left: "3.5%", top: "68%" },
+            "directory-widget": { left: "26%", top: "16%" },
+            "top-sites-widget": { left: "26%", top: "72%" },
+            "notes-widget": { left: "72%", top: "16%" },
+            "card-fileshare": { left: "72%", top: "65%" }
         };
 
         const defaultSizes = {
@@ -2112,7 +2120,12 @@ function optimizeImage(file) {
                 const keys = Object.keys(positions);
                 if (keys.length > 0) {
                     const zeroes = keys.filter(k => positions[k]?.left === "0%" || positions[k]?.top === "0%").length;
-                    if (zeroes >= 2 || positions["card-focus"]?.left === "4%" || positions["card-date"]?.left === "4%") {
+                    if (zeroes >= 2 || 
+                        positions["card-focus"]?.left === "4%" || 
+                        positions["card-date"]?.left === "4%" ||
+                        positions["card-focus"]?.left === "71%" ||
+                        positions["card-security"]?.left === "10%" ||
+                        positions["directory-widget"]?.left === "31%") {
                         isCorrupted = true;
                     }
                 }

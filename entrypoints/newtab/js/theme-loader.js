@@ -63,7 +63,7 @@
         } else if (mode === 'creator') {
             css += '#card-date, #card-focus, #card-security, #directory-widget, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
         } else if (mode === 'pro') {
-            css += '#card-image-compressor, #card-pdf-tools, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
+            css += '#card-image-compressor, #card-pdf-tools, #card-security, #card-fileshare, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
         }
 
         if (css) {

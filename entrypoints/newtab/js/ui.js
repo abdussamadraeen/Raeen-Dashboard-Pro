@@ -873,30 +873,29 @@ export function getPresetSquircle(presetId) {
 export const DASHBOARD_PRESETS = [
     {
         id: 'pro',
-        name: 'Pro Workspace',
-        badge: 'Recommended • Balanced 3-Column',
+        name: 'All-in-One Workspace',
+        badge: 'Recommended • Balanced Layout',
         accentColor: '#38bdf8',
-        tagline: 'Complete all-in-one productivity dashboard with Clock, Date, Notes, Focus Pomodoro, VPN Shield, File Share, AI Hub & Search.',
-        widgets: ['Clock & Date', 'Pomodoro Timer', 'Quick Notes', 'VPN Shield', 'P2P File Share', 'AI Hub', 'Multi-Search'],
+        tagline: 'Complete all-in-one productivity dashboard with Clock, Date, Notes, AI Hub, Focus Timer, and Search.',
+        widgets: ['Clock & Date', 'AI Hub & Apps', 'Quick Notes', 'Focus Timer', 'Web Search'],
         mockupHtml: `
             <div class="mockup-screen mockup-pro">
                 <div class="m-window-bar">
                     <span class="m-traffic-dot m-dot-red"></span>
                     <span class="m-traffic-dot m-dot-yellow"></span>
                     <span class="m-traffic-dot m-dot-green"></span>
-                    <span class="m-window-title">Pro 3-Column Studio</span>
+                    <span class="m-window-title">All-in-One Suite</span>
                 </div>
                 <div class="m-stage">
                     <div class="mockup-col col-left">
-                        <div class="m-card m-clock"><span class="m-time">10:42</span><span class="m-date">Sep 17</span></div>
-                        <div class="m-card m-vpn"><span class="m-dot dot-green"></span><span>VPN Shield</span></div>
+                        <div class="m-card m-clock"><span class="m-time">10:42</span><span class="m-date">Sep 27</span></div>
+                        <div class="m-card m-focus"><span class="m-ring"></span><span>25:00</span></div>
                     </div>
                     <div class="mockup-col col-center">
                         <div class="m-search-bar"><span class="m-search-dot"></span><span>Search Web &amp; AI...</span></div>
                         <div class="m-apps-row"><span class="m-app app-blue"></span><span class="m-app app-red"></span><span class="m-app app-amber"></span><span class="m-app app-emerald"></span></div>
                     </div>
                     <div class="mockup-col col-right">
-                        <div class="m-card m-focus"><span class="m-ring"></span><span>25:00</span></div>
                         <div class="m-card m-notes"><span class="m-line"></span><span class="m-line short"></span></div>
                     </div>
                 </div>
@@ -908,12 +907,12 @@ export const DASHBOARD_PRESETS = [
             showCardDate: true,
             showCardFocus: true,
             showCardNote: true,
-            showCardSecurity: true,
-            showCardFileShare: true,
+            showCardSecurity: false,
+            showCardFileShare: false,
             showCardDirectories: true,
             showCardImageCompressor: false,
             showCardPdfTools: false,
-            showTopSites: true,
+            showTopSites: false,
             showClock: true,
             showSearch: true,
             showMainUI: true
@@ -1289,6 +1288,21 @@ export async function applyDashboardPreset(presetId) {
 
     Object.assign(state.settings, preset.config);
     state.settings.dashboardMode = preset.id;
+
+    // Reset saved positions and sizes so this workspace snaps to its clean designed layout
+    try {
+        localStorage.removeItem("raeen_widget_positions");
+        localStorage.removeItem("raeen_widget_sizes");
+        document.querySelectorAll(".draggable-widget").forEach(widget => {
+            widget.style.left = "";
+            widget.style.top = "";
+            widget.style.width = "";
+            widget.style.height = "";
+        });
+        if (typeof window.applyWidgetLayout === 'function') {
+            window.applyWidgetLayout();
+        }
+    } catch(e) {}
 
     await saveSettings(state.settings);
     await applySettings();

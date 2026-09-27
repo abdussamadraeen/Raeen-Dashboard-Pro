@@ -268,13 +268,13 @@ class SecurityManager {
     constructor() {
         this.isActive = (localStorage.getItem('vpn_active') ?? localStorage.getItem('raeen_vpn_active')) === 'true';
         this.isConnecting = false;
-        this.currentNodeId = localStorage.getItem('vpn_node') || localStorage.getItem('raeen_vpn_node') || 'auto';
+        this.currentNodeId = localStorage.getItem('vpn_node') || localStorage.getItem('raeen_vpn_node') || 'shield_direct';
         this.activeDnsId = localStorage.getItem('vpn_dns') || localStorage.getItem('raeen_vpn_dns') || 'cloudflare';
         this.killSwitch = (localStorage.getItem('vpn_killswitch') ?? localStorage.getItem('raeen_vpn_killswitch')) === 'true';
         
         // Normalize any old or legacy node IDs
         if (!VPN_NODES.some(n => n.id === this.currentNodeId)) {
-            this.currentNodeId = 'auto';
+            this.currentNodeId = 'shield_direct';
         }
 
         this.webrtcSealed = (localStorage.getItem('vpn_webrtc') ?? localStorage.getItem('raeen_vpn_webrtc')) !== 'false';

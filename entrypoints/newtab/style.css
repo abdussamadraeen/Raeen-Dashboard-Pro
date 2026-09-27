@@ -4163,6 +4163,8 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     position: relative;
     border: 1px solid rgba(16, 185, 129, 0.25);
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 0 18px rgba(16, 185, 129, 0.12), var(--glass-inner-sheen);
+    overflow: hidden !important;
+    box-sizing: border-box !important;
 }
 
 .tactical-security-hud.hud-engaged {
@@ -4304,6 +4306,8 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     flex-direction: column;
     gap: 3px;
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .hud-status-row {
@@ -4312,6 +4316,8 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     align-items: center;
     gap: 6px;
     font-size: 0.68rem;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .hud-label {
@@ -4332,15 +4338,21 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     text-align: right;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .hud-cipher {
     color: #38bdf8;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .hud-sealed {
     color: #10b981;
     text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+    white-space: nowrap;
 }
 
 /* Node selector */
@@ -7231,17 +7243,23 @@ body[data-dashboard-mode="pro"] .noosphere-status,
 body[data-dashboard-mode="pro"] .noosphere-status-horizontal {
     display: none !important;
 }
-[data-dashboard-mode="pro"] #card-date,
-body[data-dashboard-mode="pro"] #card-date,
-[data-dashboard-mode="pro"] #card-focus,
-body[data-dashboard-mode="pro"] #card-focus,
-[data-dashboard-mode="pro"] #card-security,
-body[data-dashboard-mode="pro"] #card-security,
-[data-dashboard-mode="pro"] #card-fileshare,
-body[data-dashboard-mode="pro"] #card-fileshare,
-[data-dashboard-mode="pro"] #notes-widget,
-body[data-dashboard-mode="pro"] #notes-widget {
+[data-dashboard-mode="pro"] #card-date:not(.hidden),
+body[data-dashboard-mode="pro"] #card-date:not(.hidden),
+[data-dashboard-mode="pro"] #card-focus:not(.hidden),
+body[data-dashboard-mode="pro"] #card-focus:not(.hidden),
+[data-dashboard-mode="pro"] #card-security:not(.hidden),
+body[data-dashboard-mode="pro"] #card-security:not(.hidden),
+[data-dashboard-mode="pro"] #card-fileshare:not(.hidden),
+body[data-dashboard-mode="pro"] #card-fileshare:not(.hidden),
+[data-dashboard-mode="pro"] #notes-widget:not(.hidden),
+body[data-dashboard-mode="pro"] #notes-widget:not(.hidden) {
     display: flex !important;
+}
+
+.draggable-widget.hidden,
+.info-card.hidden,
+.hidden {
+    display: none !important;
 }
 
 /* ==========================================================================
