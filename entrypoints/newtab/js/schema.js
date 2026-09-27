@@ -1,9 +1,9 @@
 export const DEFAULT_SETTINGS = {
     dashboardTitle: 'New Tab',
     themePreference: 'dark',
-    dashboardMode: 'pro',
-    backgroundType: 'brave',
-    backgroundValue: 'brave_random',
+    dashboardMode: 'google_live',
+    backgroundType: 'google_dashboard',
+    backgroundValue: 'https://www.google.com/?raeen_dashboard=true&app_dashboard=true',
     lastNonLiveBgType: 'brave',
     lastNonLiveBgValue: 'brave_random',
     showSearch: true,

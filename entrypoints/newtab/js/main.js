@@ -116,8 +116,14 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
 
                 updateSettings(saved);
                 if (saved.backgroundType) {
+                    localStorage.setItem('app_bg_type', saved.backgroundType);
                     localStorage.setItem('raeen_bg_type', saved.backgroundType);
+                    localStorage.setItem('app_bg_value', saved.backgroundValue || '');
                     localStorage.setItem('raeen_bg_value', saved.backgroundValue || '');
+                }
+                if (saved.dashboardMode) {
+                    localStorage.setItem('app_dashboard_mode', saved.dashboardMode);
+                    localStorage.setItem('raeen_dashboard_mode', saved.dashboardMode);
                 }
                 applySettings();
                 updateTime();
@@ -378,14 +384,9 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     }
     if (dom.closeBtn) dom.closeBtn.onclick = () => dom.modalOverlay.classList.add('hidden');
 
-    if (dom.liveHomeBtn) {
-        dom.liveHomeBtn.onclick = () => {
-            window.postMessage({ action: 'close_dashboard_iframe' }, '*');
-        };
-    }
-
     if (dom.liveSettingsBtn) {
-        dom.liveSettingsBtn.onclick = () => {
+        dom.liveSettingsBtn.onclick = (e) => {
+            if (e) e.stopPropagation();
             renderThemeLibrary();
             syncSettingsUI();
             if (dom.modalOverlay) {

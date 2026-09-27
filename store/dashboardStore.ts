@@ -391,6 +391,7 @@ interface DashboardState {
 export const defaultSettings: Settings = {
   dashboardTitle: 'New Tab',
   themePreference: 'dark',
+  dashboardMode: 'google_live',
   backgroundType: 'google_dashboard',
   backgroundValue: 'https://www.google.com/?app_dashboard=true',
   showSearch: true,

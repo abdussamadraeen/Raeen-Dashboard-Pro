@@ -188,19 +188,60 @@ html.live-bg-pre-active #canvas-layer {
 }
 
 body.live-bg-active .settings-btn,
-body.live-bg-pre-active .settings-btn {
+html.live-bg-pre-active .settings-btn,
+[data-dashboard-mode="google_live"] .settings-btn,
+[data-dashboard-mode="bing_live"] .settings-btn,
+body[data-dashboard-mode="google_live"] .settings-btn,
+body[data-dashboard-mode="bing_live"] .settings-btn {
+    display: none !important;
+}
+
+[data-dashboard-mode="google_live"] .overlay,
+body[data-dashboard-mode="google_live"] .overlay,
+[data-dashboard-mode="google_live"] .container,
+body[data-dashboard-mode="google_live"] .container,
+[data-dashboard-mode="google_live"] .top-left-widget,
+body[data-dashboard-mode="google_live"] .top-left-widget,
+[data-dashboard-mode="google_live"] .noosphere-status,
+body[data-dashboard-mode="google_live"] .noosphere-status,
+[data-dashboard-mode="google_live"] .noosphere-status-horizontal,
+body[data-dashboard-mode="google_live"] .noosphere-status-horizontal,
+[data-dashboard-mode="google_live"] #canvas-layer,
+body[data-dashboard-mode="google_live"] #canvas-layer,
+[data-dashboard-mode="google_live"] #background-layer-next,
+body[data-dashboard-mode="google_live"] #background-layer-next,
+[data-dashboard-mode="bing_live"] .overlay,
+body[data-dashboard-mode="bing_live"] .overlay,
+[data-dashboard-mode="bing_live"] .container,
+body[data-dashboard-mode="bing_live"] .container,
+[data-dashboard-mode="bing_live"] .top-left-widget,
+body[data-dashboard-mode="bing_live"] .top-left-widget,
+[data-dashboard-mode="bing_live"] .noosphere-status,
+body[data-dashboard-mode="bing_live"] .noosphere-status,
+[data-dashboard-mode="bing_live"] .noosphere-status-horizontal,
+body[data-dashboard-mode="bing_live"] .noosphere-status-horizontal,
+[data-dashboard-mode="bing_live"] #canvas-layer,
+body[data-dashboard-mode="bing_live"] #canvas-layer,
+[data-dashboard-mode="bing_live"] #background-layer-next,
+body[data-dashboard-mode="bing_live"] #background-layer-next {
     display: none !important;
 }
 
 body.live-bg-active,
-html.live-bg-pre-active body {
+html.live-bg-pre-active body,
+body[data-dashboard-mode="google_live"],
+body[data-dashboard-mode="bing_live"] {
     background: #000000 !important;
     padding: 0 !important;
     overflow: hidden !important;
 }
 
 body.live-bg-active #background-layer,
-html.live-bg-pre-active #background-layer {
+html.live-bg-pre-active #background-layer,
+[data-dashboard-mode="google_live"] #background-layer,
+body[data-dashboard-mode="google_live"] #background-layer,
+[data-dashboard-mode="bing_live"] #background-layer,
+body[data-dashboard-mode="bing_live"] #background-layer {
     z-index: 1000 !important;
     pointer-events: auto !important;
     width: 100vw !important;
@@ -217,14 +258,18 @@ html.live-bg-pre-active #canvas-layer {
 }
 
 body.live-bg-active #background-layer iframe,
-html.live-bg-pre-active #background-layer iframe {
+html.live-bg-pre-active #background-layer iframe,
+[data-dashboard-mode="google_live"] #background-layer iframe,
+body[data-dashboard-mode="google_live"] #background-layer iframe,
+[data-dashboard-mode="bing_live"] #background-layer iframe,
+body[data-dashboard-mode="bing_live"] #background-layer iframe {
     width: 100vw !important;
     height: 100vh !important;
     border: none !important;
     pointer-events: auto !important;
 }
 
-/* ─── Floating Dock for Live Background Modes (Google / Bing) ─── */
+/* ─── Floating Single Settings Button for Live Background Modes (Google / Bing) ─── */
 .live-dock {
     display: none;
     position: fixed;
@@ -235,26 +280,33 @@ html.live-bg-pre-active #background-layer iframe {
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 9999px;
-    padding: 4px 6px;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    padding: 0;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
     box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
     pointer-events: auto;
 }
 .live-dock:hover {
-    box-shadow: 0 14px 36px -4px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.2);
+    box-shadow: 0 14px 36px -4px rgba(0, 0, 0, 0.6), 0 0 16px rgba(168, 85, 247, 0.25);
     border-color: rgba(255, 255, 255, 0.28);
+    transform: translateY(-2px) scale(1.06);
 }
 body.live-bg-active .live-dock,
-html.live-bg-pre-active .live-dock {
-    display: inline-flex !important;
+html.live-bg-pre-active .live-dock,
+[data-dashboard-mode="google_live"] .live-dock,
+body[data-dashboard-mode="google_live"] .live-dock,
+[data-dashboard-mode="bing_live"] .live-dock,
+body[data-dashboard-mode="bing_live"] .live-dock {
+    display: flex !important;
 }
 .live-dock-btn {
     position: relative;
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -273,26 +325,12 @@ html.live-bg-pre-active .live-dock {
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
 }
 .live-dock-btn:hover {
-    background: rgba(56, 189, 248, 0.2);
-    color: #38bdf8;
-    transform: translateY(-2px) scale(1.06);
-}
-.live-dock-btn:hover svg {
-    color: #38bdf8;
-}
-#live-settings-btn:hover svg {
-    transform: rotate(60deg);
-    color: #c084fc;
-}
-#live-settings-btn:hover {
     background: rgba(168, 85, 247, 0.2);
     color: #c084fc;
 }
-.live-dock-divider {
-    width: 1px;
-    height: 18px;
-    background: rgba(255, 255, 255, 0.16);
-    margin: 0 1px;
+.live-dock-btn:hover svg {
+    transform: rotate(60deg);
+    color: #c084fc;
 }
 .live-dock-tooltip {
     position: absolute;
@@ -7022,6 +7060,111 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     }
 }
 
+/* ==========================================================================
+   Zero-Flash Declarative Rules Across All Dashboard Modes
+   ========================================================================== */
+
+/* ── Focus Mode ── */
+[data-dashboard-mode="focus"] #card-security,
+body[data-dashboard-mode="focus"] #card-security,
+[data-dashboard-mode="focus"] #card-fileshare,
+body[data-dashboard-mode="focus"] #card-fileshare,
+[data-dashboard-mode="focus"] #directory-widget,
+body[data-dashboard-mode="focus"] #directory-widget,
+[data-dashboard-mode="focus"] #card-image-compressor,
+body[data-dashboard-mode="focus"] #card-image-compressor,
+[data-dashboard-mode="focus"] #card-pdf-tools,
+body[data-dashboard-mode="focus"] #card-pdf-tools,
+[data-dashboard-mode="focus"] .noosphere-status,
+body[data-dashboard-mode="focus"] .noosphere-status,
+[data-dashboard-mode="focus"] .noosphere-status-horizontal,
+body[data-dashboard-mode="focus"] .noosphere-status-horizontal {
+    display: none !important;
+}
+[data-dashboard-mode="focus"] #card-date,
+body[data-dashboard-mode="focus"] #card-date,
+[data-dashboard-mode="focus"] #card-focus,
+body[data-dashboard-mode="focus"] #card-focus,
+[data-dashboard-mode="focus"] #notes-widget,
+body[data-dashboard-mode="focus"] #notes-widget {
+    display: flex !important;
+}
+
+/* ── Security Mode ── */
+[data-dashboard-mode="security"] #card-date,
+body[data-dashboard-mode="security"] #card-date,
+[data-dashboard-mode="security"] #card-focus,
+body[data-dashboard-mode="security"] #card-focus,
+[data-dashboard-mode="security"] #card-fileshare,
+body[data-dashboard-mode="security"] #card-fileshare,
+[data-dashboard-mode="security"] #directory-widget,
+body[data-dashboard-mode="security"] #directory-widget,
+[data-dashboard-mode="security"] #card-image-compressor,
+body[data-dashboard-mode="security"] #card-image-compressor,
+[data-dashboard-mode="security"] #card-pdf-tools,
+body[data-dashboard-mode="security"] #card-pdf-tools,
+[data-dashboard-mode="security"] .noosphere-status,
+body[data-dashboard-mode="security"] .noosphere-status,
+[data-dashboard-mode="security"] .noosphere-status-horizontal,
+body[data-dashboard-mode="security"] .noosphere-status-horizontal {
+    display: none !important;
+}
+[data-dashboard-mode="security"] #card-security,
+body[data-dashboard-mode="security"] #card-security,
+[data-dashboard-mode="security"] #notes-widget,
+body[data-dashboard-mode="security"] #notes-widget {
+    display: flex !important;
+}
+
+/* ── Creator Mode ── */
+[data-dashboard-mode="creator"] #card-date,
+body[data-dashboard-mode="creator"] #card-date,
+[data-dashboard-mode="creator"] #card-focus,
+body[data-dashboard-mode="creator"] #card-focus,
+[data-dashboard-mode="creator"] #card-security,
+body[data-dashboard-mode="creator"] #card-security,
+[data-dashboard-mode="creator"] #directory-widget,
+body[data-dashboard-mode="creator"] #directory-widget,
+[data-dashboard-mode="creator"] .noosphere-status,
+body[data-dashboard-mode="creator"] .noosphere-status,
+[data-dashboard-mode="creator"] .noosphere-status-horizontal,
+body[data-dashboard-mode="creator"] .noosphere-status-horizontal {
+    display: none !important;
+}
+[data-dashboard-mode="creator"] #card-image-compressor,
+body[data-dashboard-mode="creator"] #card-image-compressor,
+[data-dashboard-mode="creator"] #card-pdf-tools,
+body[data-dashboard-mode="creator"] #card-pdf-tools,
+[data-dashboard-mode="creator"] #card-fileshare,
+body[data-dashboard-mode="creator"] #card-fileshare,
+[data-dashboard-mode="creator"] #notes-widget,
+body[data-dashboard-mode="creator"] #notes-widget {
+    display: flex !important;
+}
+
+/* ── Pro Mode ── */
+[data-dashboard-mode="pro"] #card-image-compressor,
+body[data-dashboard-mode="pro"] #card-image-compressor,
+[data-dashboard-mode="pro"] #card-pdf-tools,
+body[data-dashboard-mode="pro"] #card-pdf-tools,
+[data-dashboard-mode="pro"] .noosphere-status,
+body[data-dashboard-mode="pro"] .noosphere-status,
+[data-dashboard-mode="pro"] .noosphere-status-horizontal,
+body[data-dashboard-mode="pro"] .noosphere-status-horizontal {
+    display: none !important;
+}
+[data-dashboard-mode="pro"] #card-date,
+body[data-dashboard-mode="pro"] #card-date,
+[data-dashboard-mode="pro"] #card-focus,
+body[data-dashboard-mode="pro"] #card-focus,
+[data-dashboard-mode="pro"] #card-security,
+body[data-dashboard-mode="pro"] #card-security,
+[data-dashboard-mode="pro"] #card-fileshare,
+body[data-dashboard-mode="pro"] #card-fileshare,
+[data-dashboard-mode="pro"] #notes-widget,
+body[data-dashboard-mode="pro"] #notes-widget {
+    display: flex !important;
+}
 
 /* ==========================================================================
    Modern Glass & Minimalist Component Engine

@@ -124,11 +124,6 @@ export async function applySettings() {
     document.body.classList.toggle('dashboard-mode-minimal', currentDashboardMode === 'minimal');
     document.body.classList.toggle('drag-drop-disabled', state.settings.enableDragAndDrop === false || currentDashboardMode === 'minimal');
 
-    const preBootStyle = document.getElementById('pre-boot-critical-css');
-    if (preBootStyle && currentDashboardMode !== 'minimal' && !isLiveBg) {
-        requestAnimationFrame(() => preBootStyle.remove());
-    }
-
     let bgType = state.settings.backgroundType;
     const bgValue = state.settings.backgroundValue;
     const canvasStyle = state.settings.canvasStyle || 'neural';

@@ -3,24 +3,24 @@
         var theme = localStorage.getItem('app_theme') || localStorage.getItem('raeen_theme') || 'dark';
         document.documentElement.setAttribute('data-theme', theme);
 
-        var mode = localStorage.getItem('app_dashboard_mode') || localStorage.getItem('raeen_dashboard_mode') || 'pro';
+        var mode = localStorage.getItem('app_dashboard_mode') || localStorage.getItem('raeen_dashboard_mode') || 'google_live';
         document.documentElement.setAttribute('data-dashboard-mode', mode);
         if (mode === 'minimal') {
             document.documentElement.classList.add('dashboard-mode-minimal');
         }
         document.documentElement.classList.add('no-transitions');
 
-        var bgType = localStorage.getItem('app_bg_type') || localStorage.getItem('raeen_bg_type') || 'curated';
-        var bgValue = localStorage.getItem('app_bg_value') || localStorage.getItem('raeen_bg_value') || 'curated_random';
+        var bgType = localStorage.getItem('app_bg_type') || localStorage.getItem('raeen_bg_type') || 'google_dashboard';
+        var bgValue = localStorage.getItem('app_bg_value') || localStorage.getItem('raeen_bg_value') || 'https://www.google.com/?raeen_dashboard=true&app_dashboard=true';
 
         var css = '';
 
         // 1. Live Background Mode (Google / Bing Iframe)
         if (bgType === 'google_dashboard' || bgType === 'bing_dashboard' || mode === 'google_live' || mode === 'bing_live') {
             document.documentElement.classList.add('live-bg-pre-active');
-            css += '.overlay, .container, .top-left-widget, .noosphere-status, .noosphere-status-horizontal, #canvas-layer, #background-layer-next { display: none !important; } ';
+            css += '.overlay, .container, .top-left-widget, .noosphere-status, .noosphere-status-horizontal, #canvas-layer, #background-layer-next, .settings-btn { display: none !important; } ';
             css += '#background-layer { z-index: 1000 !important; background: #000000 !important; width: 100vw !important; height: 100vh !important; pointer-events: auto !important; } ';
-            css += '.live-dock { display: inline-flex !important; } ';
+            css += '.live-dock { display: flex !important; } ';
         } else if (bgType === 'canvas') {
             // 2. Interactive Canvas
             css += '#canvas-layer { display: block !important; z-index: 1 !important; } #background-layer, #background-layer-next { display: none !important; } ';

@@ -141,7 +141,6 @@ const domConfig = {
     hudVerifyLink: 'hud-verify-link',
     hudNodeHint: 'hud-node-hint',
     liveDock: 'live-dock',
-    liveHomeBtn: 'live-home-btn',
     liveSettingsBtn: 'live-settings-btn'
 };
 

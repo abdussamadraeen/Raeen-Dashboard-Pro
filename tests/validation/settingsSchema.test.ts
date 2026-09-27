@@ -6,6 +6,7 @@ describe('settingsSchema', () => {
     const valid = {
       dashboardTitle: 'Test',
       themePreference: 'light',
+      dashboardMode: 'pro',
       backgroundType: 'solid',
       backgroundValue: '#000000',
       showSearch: true,

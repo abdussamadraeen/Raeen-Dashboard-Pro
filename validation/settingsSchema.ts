@@ -9,6 +9,16 @@ export const AppItemSchema = z.object({
 export const SettingsSchema = z.object({
   dashboardTitle: z.string().default('New Tab'),
   themePreference: z.enum(['dark', 'light', 'system']).default('dark'),
+  dashboardMode: z.enum([
+    'pro',
+    'minimal',
+    'focus',
+    'security',
+    'creator',
+    'google_live',
+    'bing_live',
+    'custom'
+  ]).default('google_live'),
   backgroundType: z.enum([
     'solid',
     'bing',
