@@ -1084,61 +1084,201 @@ body[data-dashboard-mode="bing_live"] .live-dock {
     box-shadow: 0 0 12px rgba(129, 140, 248, 0.6);
 }
 
-/* ─── Focus Timer ─── */
-#card-focus .info-card-content {
-    margin-top: 2px;
+/* ─── Focus Timer (World-Class Spread-Out Layout) ─── */
+.focus-card {
+    min-width: 280px;
 }
-#card-focus-time {
-    font-size: 1.85rem;
+.focus-status-badge {
+    margin-left: auto;
+    font-size: 0.65rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+.focus-status-badge.badge-running {
+    background: rgba(56, 189, 248, 0.18);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+.focus-status-badge.badge-paused {
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.4);
+}
+.focus-status-badge.badge-completed {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.focus-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    width: 100%;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+/* Dial & Circular Progress Ring */
+.focus-dial-container {
+    position: relative;
+    width: 124px;
+    height: 124px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin: 0 auto;
+}
+.focus-ring-svg {
+    width: 124px;
+    height: 124px;
+    transform: rotate(-90deg);
+}
+.focus-ring-track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 6;
+}
+[data-theme="light"] .focus-ring-track {
+    stroke: rgba(0, 0, 0, 0.06);
+}
+.focus-ring-progress {
+    fill: none;
+    stroke: var(--accent, #38bdf8);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 364.42;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 6px var(--accent-glow, rgba(56, 189, 248, 0.5)));
+}
+
+.focus-dial-center {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    pointer-events: none;
+}
+.focus-digits {
+    font-size: 1.8rem;
+    font-weight: 750;
     letter-spacing: -0.5px;
     font-variant-numeric: tabular-nums;
     color: var(--text-primary);
+    line-height: 1.1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
+.focus-mode-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+}
+
+/* Right / Details Zone */
+.focus-details-zone {
+    flex: 1;
+    min-width: 170px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+.focus-presets-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.focus-presets-label {
+    font-size: 0.68rem;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-tertiary, rgba(255, 255, 255, 0.45));
+}
+[data-theme="light"] .focus-presets-label {
+    color: rgba(0, 0, 0, 0.45);
+}
+
 .focus-presets {
     display: flex;
     gap: 6px;
-    margin: 4px 0 6px 0;
+    flex-wrap: wrap;
     width: 100%;
 }
 .focus-preset-pill {
-    padding: 3px 9px;
-    font-size: 0.68rem;
+    padding: 5px 9px;
+    font-size: 0.7rem;
     font-weight: 650;
-    border-radius: 7px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     outline: none;
+    user-select: none;
 }
 [data-theme="light"] .focus-preset-pill {
     background: rgba(0, 0, 0, 0.04);
     border-color: rgba(0, 0, 0, 0.08);
 }
 .focus-preset-pill:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.14);
     color: var(--text-primary);
+    transform: translateY(-1px);
 }
 .focus-preset-pill.active {
-    background: rgba(56, 189, 248, 0.18);
-    border-color: rgba(56, 189, 248, 0.4);
+    background: rgba(56, 189, 248, 0.2);
+    border-color: rgba(56, 189, 248, 0.45);
     color: #38bdf8;
+    box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25);
 }
-.focus-controls { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; width: 100%; }
+
+.focus-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
+    width: 100%;
+}
 .focus-btn {
-    padding: 7px 14px; border-radius: 10px; border: none; cursor: pointer;
-    font-family: inherit; font-size: 0.78rem; font-weight: 650;
-    transition: all 0.25s var(--ease-spring);
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 650;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .focus-btn-primary { 
-    background: linear-gradient(135deg, var(--accent), #0ea5e9); 
+    flex: 1;
+    background: linear-gradient(135deg, var(--accent, #0284c7), #38bdf8); 
     color: #fff; 
-    box-shadow: 0 4px 14px var(--accent-glow); 
+    box-shadow: 0 4px 14px var(--accent-glow, rgba(56, 189, 248, 0.35)); 
 }
 .focus-btn-primary:hover { 
-    box-shadow: 0 6px 20px var(--accent-glow); 
+    box-shadow: 0 6px 20px var(--accent-glow, rgba(56, 189, 248, 0.5)); 
     transform: translateY(-1px) scale(1.02); 
 }
 .focus-btn-primary:active { transform: scale(0.96); }
@@ -6341,18 +6481,111 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     font-size: 0.76rem;
     padding: 7px 10px;
 }
-.pdf-extracted-textarea {
-    width: 100%;
-    min-height: 80px;
-    max-height: 140px;
-    background: rgba(0, 0, 0, 0.35);
+.pdf-btn-compress {
+    background: linear-gradient(135deg, #f43f5e, #fb7185) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+}
+.pdf-btn-compress:hover {
+    box-shadow: 0 6px 18px rgba(244, 63, 94, 0.5);
+    transform: translateY(-1px);
+}
+.pdf-compress-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--glass-border);
-    border-radius: 8px;
+    border-radius: 10px;
+    padding: 10px;
+}
+.pdf-compress-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.pdf-compress-label {
+    font-size: 0.68rem;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: var(--text-secondary);
+}
+.pdf-compress-presets {
+    display: flex;
+    gap: 6px;
+}
+.pdf-comp-pill {
+    flex: 1;
+    padding: 5px 8px;
+    font-size: 0.68rem;
+    font-weight: 650;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+[data-theme="light"] .pdf-comp-pill {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+.pdf-comp-pill:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+}
+.pdf-comp-pill.active {
+    background: rgba(244, 63, 94, 0.18);
+    border-color: rgba(244, 63, 94, 0.45);
+    color: #f43f5e;
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.25);
+}
+.pdf-compress-progress-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+}
+.pdf-progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+}
+.pdf-compress-result {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+.pdf-savings-badge {
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
     font-size: 0.72rem;
-    font-family: inherit;
-    padding: 8px;
-    resize: vertical;
+    font-weight: 650;
+    text-align: center;
+}
+.pdf-download-btn {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.76rem;
+    font-weight: 650;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    transition: all 0.2s ease;
+}
+.pdf-download-btn:hover {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    transform: translateY(-1px);
 }
 .pdf-footer-tools {
     border-top: 1px solid var(--glass-border);
@@ -7290,7 +7523,9 @@ body[data-dashboard-mode="focus"] #card-date,
 [data-dashboard-mode="focus"] #card-focus,
 body[data-dashboard-mode="focus"] #card-focus,
 [data-dashboard-mode="focus"] #notes-widget,
-body[data-dashboard-mode="focus"] #notes-widget {
+body[data-dashboard-mode="focus"] #notes-widget,
+[data-dashboard-mode="focus"] #top-sites-widget,
+body[data-dashboard-mode="focus"] #top-sites-widget {
     display: flex !important;
 }
 

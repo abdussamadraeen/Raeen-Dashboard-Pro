@@ -1,10 +1,27 @@
 /**
- * 100% Client-Side In-Browser PDF Tools & Generator
- * Fast, zero telemetry, local PDF inspection & Image-to-PDF generator.
+ * 100% Client-Side In-Browser PDF Tools & Compression Studio
+ * Fast, zero telemetry, local PDF inspection, client-side compression & Image-to-PDF compiler.
  */
 
 let currentPdfFile = null;
 let currentPdfBuffer = null;
+let selectedCompression = { quality: 0.72, scale: 1.25 };
+let pdfjsLibPromise = null;
+
+async function getPdfJs() {
+    if (!pdfjsLibPromise) {
+        pdfjsLibPromise = import('pdfjs-dist/build/pdf.mjs').then((mod) => {
+            try {
+                // In modern bundlers, setting empty workerSrc lets PDF.js execute safely
+                if (mod.GlobalWorkerOptions) {
+                    mod.GlobalWorkerOptions.workerSrc = '';
+                }
+            } catch (e) {}
+            return mod;
+        });
+    }
+    return pdfjsLibPromise;
+}
 
 export function initPdfTools() {
     const card = document.getElementById('card-pdf-tools');
@@ -13,10 +30,11 @@ export function initPdfTools() {
     const dropzone = document.getElementById('pdf-dropzone');
     const fileInput = document.getElementById('pdf-file-input');
     const openBtn = document.getElementById('pdf-open-btn');
-    const extractTextBtn = document.getElementById('pdf-extract-text-btn');
+    const startCompressBtn = document.getElementById('pdf-start-compress-btn');
     const resetBtn = document.getElementById('pdf-reset-btn');
     const imgToPdfInput = document.getElementById('pdf-img-to-pdf-input');
     const imgToPdfBtn = document.getElementById('pdf-img-to-pdf-btn');
+    const compressPresets = document.getElementById('pdf-compress-presets');
 
     if (!dropzone || !fileInput) return;
 
@@ -60,8 +78,20 @@ export function initPdfTools() {
         });
     }
 
-    if (extractTextBtn) {
-        extractTextBtn.addEventListener('click', extractPdfText);
+    if (startCompressBtn) {
+        startCompressBtn.addEventListener('click', compressPdf);
+    }
+
+    if (compressPresets) {
+        compressPresets.addEventListener('click', (e) => {
+            const pill = e.target.closest('.pdf-comp-pill');
+            if (!pill) return;
+            const quality = parseFloat(pill.dataset.quality || '0.72');
+            const scale = parseFloat(pill.dataset.scale || '1.25');
+            selectedCompression = { quality, scale };
+            compressPresets.querySelectorAll('.pdf-comp-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+        });
     }
 
     if (resetBtn) {
@@ -91,9 +121,13 @@ function inspectPdf(buffer, file) {
     const sizeEl = document.getElementById('pdf-size-val');
     const pagesEl = document.getElementById('pdf-pages-val');
     const versionEl = document.getElementById('pdf-version-val');
+    const progressWrap = document.getElementById('pdf-compress-progress');
+    const resultWrap = document.getElementById('pdf-compress-result');
 
     if (dropzone) dropzone.classList.add('hidden');
     if (details) details.classList.remove('hidden');
+    if (progressWrap) progressWrap.classList.add('hidden');
+    if (resultWrap) resultWrap.classList.add('hidden');
 
     if (nameEl) nameEl.textContent = file.name;
     if (sizeEl) sizeEl.textContent = formatBytes(file.size);
@@ -111,28 +145,105 @@ function inspectPdf(buffer, file) {
     if (pagesEl) pagesEl.textContent = `${count} ${count === 1 ? 'page' : 'pages'}`;
 }
 
-function extractPdfText() {
-    if (!currentPdfBuffer) return;
-    const textBox = document.getElementById('pdf-extracted-text');
-    if (!textBox) return;
+async function compressPdf() {
+    if (!currentPdfBuffer || !currentPdfFile) return;
 
-    const fullText = new TextDecoder('latin1').decode(new Uint8Array(currentPdfBuffer));
-    // Extract text in PDF parentheses (string literals inside BT / ET blocks or standalone)
-    const textSnippets = [];
-    const regex = /\((.*?)\)\s*T[jJ]/g;
-    let match;
-    while ((match = regex.exec(fullText)) !== null) {
-        if (match[1] && match[1].trim().length > 1) {
-            textSnippets.push(match[1].replace(/\\([()\\])/g, '$1'));
+    const progressWrap = document.getElementById('pdf-compress-progress');
+    const progressBar = document.getElementById('pdf-compress-bar');
+    const progressStatus = document.getElementById('pdf-compress-status-text');
+    const progressPercent = document.getElementById('pdf-compress-percent-text');
+    const resultWrap = document.getElementById('pdf-compress-result');
+    const savingsBadge = document.getElementById('pdf-compress-savings-badge');
+    const downloadBtn = document.getElementById('pdf-download-btn');
+    const startBtn = document.getElementById('pdf-start-compress-btn');
+
+    if (progressWrap) progressWrap.classList.remove('hidden');
+    if (resultWrap) resultWrap.classList.add('hidden');
+    if (startBtn) startBtn.disabled = true;
+
+    try {
+        const pdfjs = await getPdfJs();
+        const loadingTask = pdfjs.getDocument({
+            data: new Uint8Array(currentPdfBuffer.slice(0)),
+            useWorkerFetch: false,
+            isEvalSupported: false,
+            useSystemFonts: true
+        });
+
+        const pdfDoc = await loadingTask.promise;
+        const numPages = pdfDoc.numPages;
+        const pagesData = [];
+
+        for (let i = 1; i <= numPages; i++) {
+            const percent = Math.round(((i - 1) / numPages) * 100);
+            if (progressStatus) progressStatus.textContent = `Optimizing page ${i} of ${numPages}...`;
+            if (progressPercent) progressPercent.textContent = `${percent}%`;
+            if (progressBar) progressBar.style.width = `${percent}%`;
+
+            const page = await pdfDoc.getPage(i);
+            const viewport = page.getViewport({ scale: selectedCompression.scale });
+
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(viewport.width);
+            canvas.height = Math.round(viewport.height);
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            await page.render({ canvasContext: ctx, viewport }).promise;
+
+            const jpegDataUrl = canvas.toDataURL('image/jpeg', selectedCompression.quality);
+            pagesData.push({
+                width: canvas.width,
+                height: canvas.height,
+                dataUrl: jpegDataUrl
+            });
         }
-    }
 
-    if (textSnippets.length > 0) {
-        textBox.value = textSnippets.slice(0, 500).join(' ');
-        textBox.classList.remove('hidden');
-    } else {
-        textBox.value = "Note: This PDF is either scanned, encrypted, or uses compressed object streams. Click 'Open in Tab' to view in browser viewer.";
-        textBox.classList.remove('hidden');
+        if (progressStatus) progressStatus.textContent = 'Packing compressed document...';
+        if (progressPercent) progressPercent.textContent = '95%';
+        if (progressBar) progressBar.style.width = '95%';
+
+        const compressedBlob = createSimplePdf(pagesData);
+        const originalSize = currentPdfFile.size;
+        const newSize = compressedBlob.size;
+        const savedBytes = Math.max(0, originalSize - newSize);
+        const savedPercent = Math.round((savedBytes / originalSize) * 100);
+
+        if (progressWrap) progressWrap.classList.add('hidden');
+        if (resultWrap) resultWrap.classList.remove('hidden');
+
+        const origStr = formatBytes(originalSize);
+        const newStr = formatBytes(newSize);
+
+        if (savingsBadge) {
+            if (savedBytes > 0) {
+                savingsBadge.textContent = `✓ Saved ${savedPercent}% (${origStr} → ${newStr})`;
+            } else {
+                savingsBadge.textContent = `✓ Stream Optimized (${newStr}) — already efficient!`;
+            }
+        }
+
+        if (downloadBtn) {
+            downloadBtn.onclick = () => {
+                const url = URL.createObjectURL(compressedBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                const baseName = currentPdfFile.name.replace(/\.[^/.]+$/, '');
+                a.download = `${baseName}_compressed.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+            };
+        }
+    } catch (err) {
+        console.error('PDF Compression failed:', err);
+        if (progressStatus) progressStatus.textContent = 'Compression error: ' + (err.message || 'Corrupted file');
+        if (progressBar) progressBar.style.background = '#f43f5e';
+    } finally {
+        if (startBtn) startBtn.disabled = false;
     }
 }
 
@@ -145,14 +256,13 @@ function resetPdfTools() {
 
     const dropzone = document.getElementById('pdf-dropzone');
     const details = document.getElementById('pdf-details');
-    const textBox = document.getElementById('pdf-extracted-text');
+    const progressWrap = document.getElementById('pdf-compress-progress');
+    const resultWrap = document.getElementById('pdf-compress-result');
 
     if (dropzone) dropzone.classList.remove('hidden');
     if (details) details.classList.add('hidden');
-    if (textBox) {
-        textBox.value = '';
-        textBox.classList.add('hidden');
-    }
+    if (progressWrap) progressWrap.classList.add('hidden');
+    if (resultWrap) resultWrap.classList.add('hidden');
 }
 
 function formatBytes(bytes) {
@@ -183,7 +293,6 @@ async function handleImagesToPdf(e) {
                 const reader = new FileReader();
                 reader.onload = () => {
                     img.onload = () => {
-                        // Normalize to JPEG for standard PDF embedding
                         const canvas = document.createElement('canvas');
                         canvas.width = img.naturalWidth;
                         canvas.height = img.naturalHeight;
@@ -204,7 +313,6 @@ async function handleImagesToPdf(e) {
             });
         }));
 
-        // Assemble minimal valid standard PDF
         const pdfBlob = createSimplePdf(imagesData);
         const downloadUrl = URL.createObjectURL(pdfBlob);
 
@@ -226,7 +334,6 @@ async function handleImagesToPdf(e) {
 }
 
 function createSimplePdf(pages) {
-    // Standard PDF 1.4 binary assembler with accurate byte offsets
     const encoder = new TextEncoder();
     const chunks = [];
     let currentOffset = 0;

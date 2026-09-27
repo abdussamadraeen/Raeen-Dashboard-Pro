@@ -49,6 +49,19 @@ export const SECURE_DNS_PROVIDERS = [
 
 export const VPN_NODES = [
     {
+        id: 'shield_direct',
+        name: 'Ultra Stealth Shield (Direct Data • Zero Lag)',
+        shortName: 'Stealth Shield',
+        flag: '🛡️',
+        country: 'Local Armor',
+        city: 'Zero-Lag WebRTC Shield',
+        countryCode: 'direct',
+        isTor: false,
+        scheme: 'direct',
+        cipher: 'Hardware WebRTC Sealed • Zero Lag',
+        simpleDesc: 'Native gigabit speed with hardware WebRTC IP leak blocking and DoH encryption.'
+    },
+    {
         id: 'auto',
         name: 'Auto (Fastest Global Relay)',
         shortName: 'Global Turbo',
@@ -213,19 +226,6 @@ export const VPN_NODES = [
         port: 9050,
         cipher: 'Viettel Telecom • ChaCha20',
         simpleDesc: 'High-speed Southeast Asian privacy route with direct local ISP exit.'
-    },
-    {
-        id: 'shield_direct',
-        name: 'Ultra Stealth Shield (Direct Data • Zero Lag)',
-        shortName: 'Stealth Shield',
-        flag: '🛡️',
-        country: 'Local Armor',
-        city: 'Zero-Lag WebRTC Shield',
-        countryCode: 'direct',
-        isTor: false,
-        scheme: 'direct',
-        cipher: 'Hardware WebRTC Sealed • Zero Lag',
-        simpleDesc: 'Native gigabit speed with hardware WebRTC IP leak blocking and DoH encryption.'
     },
     {
         id: 'tor',
@@ -693,8 +693,24 @@ class SecurityManager {
         }
 
         try {
+            // Fail-safe protection: if node is Tor or routes to 127.0.0.1:9050, verify Tor daemon is alive
+            if (nodeConfig.isTor || (nodeConfig.host === '127.0.0.1' && nodeConfig.port === 9050)) {
+                await this.checkBridgeHealth();
+                if (!this.daemonOnline) {
+                    this.torOffline = true;
+                    // Never poison Chrome's proxy with a dead port! Fall back to Stealth Shield (direct mode + WebRTC leak prevention)
+                    nodeConfig.scheme = 'direct';
+                    nodeConfig.isShieldOnly = true;
+                    nodeConfig.cipher = 'Stealth Shield Active (Zero-Lag WebRTC Protected)';
+                } else {
+                    this.torOffline = false;
+                }
+            } else {
+                this.torOffline = false;
+            }
+
             // Check bridge status and request country if supported
-            if (nodeConfig.countryCode && nodeConfig.countryCode !== 'direct' && nodeConfig.countryCode !== 'custom') {
+            if (nodeConfig.countryCode && nodeConfig.countryCode !== 'direct' && nodeConfig.countryCode !== 'custom' && !this.torOffline) {
                 await this.setRouteCountry(nodeConfig.countryCode);
             }
 

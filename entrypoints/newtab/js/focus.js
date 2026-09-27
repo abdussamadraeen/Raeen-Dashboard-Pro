@@ -37,12 +37,51 @@ function stopTicker() {
     }
 }
 
+const RING_CIRCUMFERENCE = 364.42; // 2 * Math.PI * 58
+
 function updateFocusDisplay() {
     if (!dom.cardFocusTime) return;
     const safeSec = Math.max(0, focusTimeLeft);
     const m = Math.floor(safeSec / 60).toString().padStart(2, '0');
     const s = (safeSec % 60).toString().padStart(2, '0');
     dom.cardFocusTime.textContent = `${m}:${s}`;
+
+    // Update SVG circular progress dial
+    const ringProgress = document.getElementById('focus-ring-progress');
+    if (ringProgress) {
+        const total = focusTimerData.sessionDuration || (25 * 60);
+        const progress = Math.max(0, Math.min(1, safeSec / total));
+        const offset = RING_CIRCUMFERENCE * (1 - progress);
+        ringProgress.style.strokeDasharray = `${RING_CIRCUMFERENCE}`;
+        ringProgress.style.strokeDashoffset = `${offset}`;
+    }
+
+    // Update status badge & mode label
+    const badge = document.getElementById('focus-status-badge');
+    const modeLabel = document.getElementById('focus-mode-label');
+    const totalMins = Math.round((focusTimerData.sessionDuration || (25 * 60)) / 60);
+    const isBreak = totalMins <= 15;
+
+    if (modeLabel) {
+        modeLabel.textContent = isBreak ? `${totalMins}m Break Session` : `${totalMins}m Deep Work`;
+    }
+
+    if (badge) {
+        badge.className = 'focus-status-badge';
+        if (focusTimerData.isRunning) {
+            badge.textContent = isBreak ? 'Resting' : 'Focusing';
+            badge.classList.add('badge-running');
+        } else if (focusTimeLeft === 0) {
+            badge.textContent = 'Completed!';
+            badge.classList.add('badge-completed');
+        } else if (focusTimerData.pausedLeft < (focusTimerData.sessionDuration || 25 * 60)) {
+            badge.textContent = 'Paused';
+            badge.classList.add('badge-paused');
+        } else {
+            badge.textContent = 'Ready';
+            badge.classList.add('badge-ready');
+        }
+    }
 }
 
 function updatePresetPillsUI() {
@@ -168,55 +207,82 @@ export function initFocusTimer() {
     });
 
     // 4. Attach button events
-    if (dom.focusToggleBtn) {
-        dom.focusToggleBtn.onclick = () => {
-            if (focusTimerData.isRunning) {
-                // Pause
-                focusTimerData.pausedLeft = Math.max(1, focusTimeLeft);
-                focusTimerData.isRunning = false;
-                focusTimerData.endTime = 0;
-            } else {
-                // Start
-                if (!focusTimerData.pausedLeft || focusTimerData.pausedLeft <= 0) {
-                    focusTimerData.pausedLeft = focusTimerData.sessionDuration || (25 * 60);
-                }
-                focusTimerData.endTime = Date.now() + focusTimerData.pausedLeft * 1000;
-                focusTimerData.isRunning = true;
+    const handleToggle = () => {
+        if (focusTimerData.isRunning) {
+            // Pause
+            focusTimerData.pausedLeft = Math.max(1, focusTimeLeft);
+            focusTimerData.isRunning = false;
+            focusTimerData.endTime = 0;
+        } else {
+            // Start
+            if (!focusTimerData.pausedLeft || focusTimerData.pausedLeft <= 0) {
+                focusTimerData.pausedLeft = focusTimerData.sessionDuration || (25 * 60);
             }
-            saveFocusState();
-            syncFocusState();
-        };
+            focusTimerData.endTime = Date.now() + focusTimerData.pausedLeft * 1000;
+            focusTimerData.isRunning = true;
+        }
+        saveFocusState();
+        syncFocusState();
+    };
+
+    const handleReset = () => {
+        focusTimerData.isRunning = false;
+        focusTimerData.endTime = 0;
+        focusTimerData.pausedLeft = focusTimerData.sessionDuration || (25 * 60);
+        stopTicker();
+        saveFocusState();
+        syncFocusState();
+    };
+
+    const handlePresetChange = (mins) => {
+        if (isNaN(mins) || mins <= 0) return;
+        const durationSec = mins * 60;
+        focusTimerData.sessionDuration = durationSec;
+        focusTimerData.pausedLeft = durationSec;
+        focusTimerData.isRunning = false;
+        focusTimerData.endTime = 0;
+        stopTicker();
+        saveFocusState();
+        syncFocusState();
+    };
+
+    if (dom.focusToggleBtn) {
+        dom.focusToggleBtn.onclick = handleToggle;
     }
 
     if (dom.focusResetBtn) {
-        dom.focusResetBtn.onclick = () => {
-            focusTimerData.isRunning = false;
-            focusTimerData.endTime = 0;
-            focusTimerData.pausedLeft = focusTimerData.sessionDuration || (25 * 60);
-            stopTicker();
-            saveFocusState();
-            syncFocusState();
-        };
+        dom.focusResetBtn.onclick = handleReset;
     }
 
-    // 5. Preset duration selector pills (25m Focus / 15m Break / 5m Rest)
+    // 5. Preset duration selector pills
     const presetContainer = document.getElementById('focus-presets');
     if (presetContainer) {
         presetContainer.onclick = (e) => {
             const pill = e.target.closest('.focus-preset-pill');
             if (!pill || !pill.dataset.minutes) return;
-            const mins = parseInt(pill.dataset.minutes, 10);
-            if (isNaN(mins) || mins <= 0) return;
-
-            const durationSec = mins * 60;
-            focusTimerData.sessionDuration = durationSec;
-            focusTimerData.pausedLeft = durationSec;
-            focusTimerData.isRunning = false;
-            focusTimerData.endTime = 0;
-            stopTicker();
-            saveFocusState();
-            syncFocusState();
+            handlePresetChange(parseInt(pill.dataset.minutes, 10));
         };
+    }
+
+    // 6. Global event delegation fallback (guarantees clicks work even across DOM replacement)
+    if (!window._raeenFocusDelegated) {
+        window._raeenFocusDelegated = true;
+        document.addEventListener('click', (e) => {
+            const toggle = e.target.closest('#focus-toggle-btn');
+            if (toggle && toggle !== dom.focusToggleBtn) {
+                handleToggle();
+                return;
+            }
+            const reset = e.target.closest('#focus-reset-btn');
+            if (reset && reset !== dom.focusResetBtn) {
+                handleReset();
+                return;
+            }
+            const pill = e.target.closest('.focus-preset-pill');
+            if (pill && pill.dataset.minutes && (!presetContainer || !presetContainer.contains(pill))) {
+                handlePresetChange(parseInt(pill.dataset.minutes, 10));
+            }
+        });
     }
 }
 

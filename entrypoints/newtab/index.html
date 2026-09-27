@@ -382,24 +382,45 @@
                     <div class="resize-handle"></div>
                 </div>
 
-                <div class="info-card draggable-widget" id="card-focus" draggable="false">
+                <div class="info-card draggable-widget focus-card" id="card-focus" draggable="false">
                     <div class="info-card-header">
                         <div class="info-card-icon icon-focus">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         </div>
                         <div class="info-card-title">Focus Timer</div>
+                        <span class="focus-status-badge" id="focus-status-badge">Ready</span>
                     </div>
-                    <div class="info-card-content">
-                        <div class="info-card-value" id="card-focus-time">25:00</div>
-                    </div>
-                    <div class="focus-presets" id="focus-presets">
-                        <button type="button" class="focus-preset-pill active" data-minutes="25">25m Focus</button>
-                        <button type="button" class="focus-preset-pill" data-minutes="15">15m Break</button>
-                        <button type="button" class="focus-preset-pill" data-minutes="5">5m Rest</button>
-                    </div>
-                    <div class="focus-controls">
-                        <button id="focus-toggle-btn" class="focus-btn focus-btn-primary">▶ Start</button>
-                        <button id="focus-reset-btn" class="focus-btn focus-btn-secondary">↺ Reset</button>
+                    
+                    <div class="focus-body">
+                        <!-- Radial Progress Ring & Digital Clock Display -->
+                        <div class="focus-dial-container">
+                            <svg class="focus-ring-svg" viewBox="0 0 140 140">
+                                <circle class="focus-ring-track" cx="70" cy="70" r="58" />
+                                <circle class="focus-ring-progress" id="focus-ring-progress" cx="70" cy="70" r="58" />
+                            </svg>
+                            <div class="focus-dial-center">
+                                <div class="focus-digits" id="card-focus-time">25:00</div>
+                                <div class="focus-mode-label" id="focus-mode-label">Pomodoro Session</div>
+                            </div>
+                        </div>
+
+                        <!-- Right / Controls Zone -->
+                        <div class="focus-details-zone">
+                            <div class="focus-presets-header">
+                                <span class="focus-presets-label">Session Duration</span>
+                            </div>
+                            <div class="focus-presets" id="focus-presets">
+                                <button type="button" class="focus-preset-pill active" data-minutes="25">25m Focus</button>
+                                <button type="button" class="focus-preset-pill" data-minutes="15">15m Break</button>
+                                <button type="button" class="focus-preset-pill" data-minutes="5">5m Rest</button>
+                                <button type="button" class="focus-preset-pill" data-minutes="50">50m Deep</button>
+                            </div>
+
+                            <div class="focus-controls">
+                                <button id="focus-toggle-btn" class="focus-btn focus-btn-primary" title="Start / Pause Focus Timer">▶ Start</button>
+                                <button id="focus-reset-btn" class="focus-btn focus-btn-secondary" title="Reset Session Timer">↺ Reset</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="resize-handle"></div>
                 </div>
@@ -533,7 +554,7 @@
                         <span class="dropzone-sub">Inspect, extract text, or open</span>
                     </div>
 
-                    <!-- PDF Details -->
+                    <!-- PDF Details & Compression Studio -->
                     <div class="pdf-details hidden" id="pdf-details">
                         <div class="pdf-info-pill">
                             <div class="pdf-info-meta">
@@ -548,15 +569,40 @@
                         </div>
 
                         <div class="pdf-actions-row">
-                            <button type="button" id="pdf-open-btn" class="primary-btn pdf-action-btn">
+                            <button type="button" id="pdf-open-btn" class="focus-btn focus-btn-secondary pdf-action-btn">
                                 ↗ Open in Tab
                             </button>
-                            <button type="button" id="pdf-extract-text-btn" class="focus-btn focus-btn-secondary pdf-action-btn">
-                                📝 Extract Text
+                            <button type="button" id="pdf-start-compress-btn" class="primary-btn pdf-action-btn pdf-btn-compress">
+                                🗜 Compress PDF
                             </button>
                         </div>
 
-                        <textarea id="pdf-extracted-text" class="pdf-extracted-textarea hidden" readonly placeholder="Extracted text preview..." title="Extracted Text" aria-label="Extracted Text"></textarea>
+                        <!-- Compression Settings & Status -->
+                        <div class="pdf-compress-section" id="pdf-compress-section">
+                            <div class="pdf-compress-header">
+                                <span class="pdf-compress-label">Compression Level</span>
+                            </div>
+                            <div class="pdf-compress-presets" id="pdf-compress-presets">
+                                <button type="button" class="pdf-comp-pill active" data-quality="0.72" data-scale="1.25" title="Optimal balance of sharp visual quality and file size reduction">Balanced</button>
+                                <button type="button" class="pdf-comp-pill" data-quality="0.50" data-scale="1.0" title="Smallest file size (great for email attachments and uploads)">Max Compression</button>
+                                <button type="button" class="pdf-comp-pill" data-quality="0.88" data-scale="1.5" title="Highest fidelity and sharpest text">High Quality</button>
+                            </div>
+
+                            <div class="pdf-compress-progress-wrap hidden" id="pdf-compress-progress">
+                                <div class="pdf-progress-meta">
+                                    <span id="pdf-compress-status-text">Compressing...</span>
+                                    <span id="pdf-compress-percent-text">0%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="pdf-compress-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="pdf-compress-result hidden" id="pdf-compress-result">
+                                <div class="pdf-savings-badge" id="pdf-compress-savings-badge">✓ Saved 65% (12 MB → 4.2 MB)</div>
+                                <button type="button" id="pdf-download-btn" class="primary-btn pdf-download-btn">⬇ Download Compressed PDF</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="pdf-footer-tools">
@@ -1323,8 +1369,8 @@
                                             <polyline points="14 2 14 8 20 8"></polyline>
                                         </svg>
                                         <div class="source-card-text">
-                                            <strong>PDF Tools &amp; Generator</strong>
-                                            <span>Offline PDF inspector, text extractor &amp; images-to-PDF compiler</span>
+                                            <strong>PDF Compressor &amp; Tools</strong>
+                                            <span>Offline PDF compression, metadata inspector &amp; images-to-PDF compiler</span>
                                         </div>
                                     </div>
                                     <label class="switch">

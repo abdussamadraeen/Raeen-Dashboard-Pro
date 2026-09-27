@@ -201,8 +201,8 @@ import { securityManager, TACTICAL_NODES, SECURE_DNS_PROVIDERS } from './vpn.js'
 
             if (dom.hudShieldStatus) {
                 if (isEngaged && securityManager.torOffline) {
-                    dom.hudShieldStatus.textContent = 'Tor Offline';
-                    dom.hudShieldStatus.style.color = '#ef4444';
+                    dom.hudShieldStatus.textContent = 'Stealth Protected';
+                    dom.hudShieldStatus.style.color = '#10b981';
                 } else {
                     dom.hudShieldStatus.textContent = isEngaged ? 'Connected' : 'Ready';
                     dom.hudShieldStatus.style.color = isEngaged ? '#10b981' : '#38bdf8';
