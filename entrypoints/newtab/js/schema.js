@@ -33,6 +33,7 @@ export const DEFAULT_SETTINGS = {
     showCardFocus: true, 
     showCardNote: true,
     showCardSecurity: true,
+    showCardDns: true,
     showCardFileShare: true,
     showCardDirectories: true,
     showCardImageCompressor: false,

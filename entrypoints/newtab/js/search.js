@@ -278,19 +278,32 @@ export function setupSearch() {
 
         if (dom.searchSuggestions && !dom.searchSuggestions._hasListener) {
             dom.searchSuggestions._hasListener = true;
-            dom.searchSuggestions.onclick = (e) => {
+            
+            // mousedown runs BEFORE input blur, ensuring reliable selection via mouse
+            dom.searchSuggestions.addEventListener('mousedown', (e) => {
                 const li = e.target.closest('.suggestion-item');
                 if (li) {
+                    e.preventDefault(); // Prevents input blur from dismissing suggestions before selection
                     const text = (li.querySelector('span')?.textContent || '').trim();
                     if (text) {
                         handleSearch(text);
                         dom.searchInput.value = '';
-                        if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                        dom.searchSuggestions.classList.add('hidden');
                         dom.searchInput.blur();
                         deactivateSearch();
                     }
                 }
-            };
+            });
+
+            // Hover sync with keyboard navigation index
+            dom.searchSuggestions.addEventListener('mouseover', (e) => {
+                const li = e.target.closest('.suggestion-item');
+                if (li && li.dataset.index !== undefined) {
+                    selectedIndex = parseInt(li.dataset.index, 10);
+                    const items = dom.searchSuggestions.querySelectorAll('.suggestion-item');
+                    items.forEach((item, i) => item.classList.toggle('selected', i === selectedIndex));
+                }
+            });
         }
 
         dom.searchInput.onkeydown = (e) => {

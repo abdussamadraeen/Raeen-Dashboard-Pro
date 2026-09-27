@@ -686,10 +686,8 @@ body[data-dashboard-mode="bing_live"] .live-dock {
 .suggestions-dropdown.hidden { opacity: 0; pointer-events: none; transform: translateY(-10px); }
 .suggestion-item {
     padding: 11px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px;
-    transition: all 0.2s var(--ease-spring); border-radius: 14px;
-    animation: slideUpFade 0.3s ease-out forwards;
-    animation-delay: calc(var(--item-index, 0) * 35ms);
-    opacity: 0;
+    transition: background 0.15s ease, padding-left 0.15s ease, color 0.15s ease; border-radius: 14px;
+    opacity: 1;
     color: var(--text-primary);
     font-size: 0.92rem;
     font-weight: 450;
@@ -4580,6 +4578,89 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     color: #dc2626;
 }
 
+/* ─── Secure DNS & Networking Shield Card ─── */
+.tactical-dns-card {
+    min-width: 300px;
+    max-width: 600px;
+}
+
+.icon-dns {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+    color: #06b6d4;
+}
+
+.dns-protection-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 6px;
+}
+
+.dns-protection-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 9px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+[data-theme="light"] .dns-protection-item {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.07);
+}
+
+.dns-protection-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(6, 182, 212, 0.35);
+}
+
+.dns-prot-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dns-prot-title {
+    font-size: 0.74rem;
+    font-weight: 650;
+    color: var(--text-primary);
+}
+
+.dns-prot-sub {
+    font-size: 0.62rem;
+    color: var(--text-secondary);
+}
+
+.dns-telemetry-row {
+    margin-top: 6px;
+}
+
+.hud-dns-test-tag {
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 1px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.hud-dns-test-tag:hover {
+    background: rgba(56, 189, 248, 0.25);
+    color: #7dd3fc;
+}
+
+.hud-dns-test-tag:active {
+    transform: scale(0.95);
+}
+
 /* ─── Category Folders / Directories Widget ─── */
 .directory-container {
     display: flex;
@@ -7165,6 +7246,8 @@ body[data-dashboard-mode="focus"] #directory-widget,
 body[data-dashboard-mode="focus"] #card-image-compressor,
 [data-dashboard-mode="focus"] #card-pdf-tools,
 body[data-dashboard-mode="focus"] #card-pdf-tools,
+[data-dashboard-mode="focus"] #card-dns-shield,
+body[data-dashboard-mode="focus"] #card-dns-shield,
 [data-dashboard-mode="focus"] .noosphere-status,
 body[data-dashboard-mode="focus"] .noosphere-status,
 [data-dashboard-mode="focus"] .noosphere-status-horizontal,
@@ -7201,6 +7284,8 @@ body[data-dashboard-mode="security"] .noosphere-status-horizontal {
 }
 [data-dashboard-mode="security"] #card-security,
 body[data-dashboard-mode="security"] #card-security,
+[data-dashboard-mode="security"] #card-dns-shield,
+body[data-dashboard-mode="security"] #card-dns-shield,
 [data-dashboard-mode="security"] #notes-widget,
 body[data-dashboard-mode="security"] #notes-widget {
     display: flex !important;
@@ -7213,6 +7298,8 @@ body[data-dashboard-mode="creator"] #card-date,
 body[data-dashboard-mode="creator"] #card-focus,
 [data-dashboard-mode="creator"] #card-security,
 body[data-dashboard-mode="creator"] #card-security,
+[data-dashboard-mode="creator"] #card-dns-shield,
+body[data-dashboard-mode="creator"] #card-dns-shield,
 [data-dashboard-mode="creator"] #directory-widget,
 body[data-dashboard-mode="creator"] #directory-widget,
 [data-dashboard-mode="creator"] .noosphere-status,
@@ -7237,6 +7324,8 @@ body[data-dashboard-mode="creator"] #notes-widget {
 body[data-dashboard-mode="pro"] #card-image-compressor,
 [data-dashboard-mode="pro"] #card-pdf-tools,
 body[data-dashboard-mode="pro"] #card-pdf-tools,
+[data-dashboard-mode="pro"] #card-dns-shield,
+body[data-dashboard-mode="pro"] #card-dns-shield,
 [data-dashboard-mode="pro"] .noosphere-status,
 body[data-dashboard-mode="pro"] .noosphere-status,
 [data-dashboard-mode="pro"] .noosphere-status-horizontal,

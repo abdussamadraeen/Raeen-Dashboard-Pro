@@ -631,7 +631,12 @@ export function syncSettingsUI() {
     if (dom.showSettingsInImmersiveToggle) dom.showSettingsInImmersiveToggle.checked = state.settings.showSettingsButtonInImmersive;
     if (dom.showMainUIToggle) dom.showMainUIToggle.checked = state.settings.showMainUI;
 
-    if (dom.bgTypeSelect) dom.bgTypeSelect.value = state.settings.backgroundType;
+    if (dom.bgTypeSelect) {
+        const currentType = (state.settings.backgroundType === 'brave' || state.settings.backgroundType === 'curated')
+            ? 'curated'
+            : state.settings.backgroundType;
+        dom.bgTypeSelect.value = currentType || 'curated';
+    }
     if (dom.canvasStyleSelect) dom.canvasStyleSelect.value = state.settings.canvasStyle || 'neural';
     if (dom.canvasSpeedSlider) {
         dom.canvasSpeedSlider.value = state.settings.canvasSpeed ?? 1.0;
@@ -648,7 +653,7 @@ export function syncSettingsUI() {
     syncBackgroundOptions();
     if (dom.bgCustomUrl) dom.bgCustomUrl.value = state.settings.backgroundType === 'custom' ? state.settings.backgroundValue : '';
     if (dom.braveRandomToggle) {
-        dom.braveRandomToggle.checked = !state.settings.backgroundValue || state.settings.backgroundValue === 'brave_random';
+        dom.braveRandomToggle.checked = !state.settings.backgroundValue || state.settings.backgroundValue === 'brave_random' || state.settings.backgroundValue === 'curated_random';
     }
     if (state.settings.backgroundType === 'solid') {
         const currentBg = (state.settings.backgroundValue || '').trim().toLowerCase();
@@ -682,6 +687,7 @@ export function syncSettingsUI() {
     if (dom.toggleCardFocus) dom.toggleCardFocus.checked = state.settings.showCardFocus;
     if (dom.toggleCardNote) dom.toggleCardNote.checked = state.settings.showCardNote;
     if (dom.toggleCardSecurity) dom.toggleCardSecurity.checked = state.settings.showCardSecurity !== false;
+    if (dom.toggleCardDns) dom.toggleCardDns.checked = state.settings.showCardDns !== false;
     if (dom.toggleCardFileShare) dom.toggleCardFileShare.checked = state.settings.showCardFileShare !== false;
     if (dom.toggleCardDirectories) dom.toggleCardDirectories.checked = state.settings.showCardDirectories !== false;
     if (dom.toggleCardImageCompressor) dom.toggleCardImageCompressor.checked = state.settings.showCardImageCompressor === true;
@@ -695,9 +701,10 @@ export function syncSettingsUI() {
 export function syncBackgroundOptions() {
     if (!dom.bgTypeSelect) return;
     const type = dom.bgTypeSelect.value;
+    const isCurated = type === 'brave' || type === 'curated';
     if (dom.bgCanvasOptions) dom.bgCanvasOptions.classList.toggle('hidden', type !== 'canvas');
     if (dom.bgBingOptions) dom.bgBingOptions.classList.toggle('hidden', type !== 'bing');
-    if (dom.bgBraveOptions) dom.bgBraveOptions.classList.toggle('hidden', type !== 'brave');
+    if (dom.bgBraveOptions) dom.bgBraveOptions.classList.toggle('hidden', !isCurated);
     if (dom.bgPresetOptions) dom.bgPresetOptions.classList.toggle('hidden', type !== 'preset');
     if (dom.bgSolidOptions) dom.bgSolidOptions.classList.toggle('hidden', type !== 'solid');
     if (dom.bgLocalOptions) dom.bgLocalOptions.classList.toggle('hidden', type !== 'local');
@@ -717,6 +724,7 @@ export function updateCards() {
     if (dom.cardFocusEl) dom.cardFocusEl.classList.toggle('hidden', !state.settings.showCardFocus);
     if (dom.cardNoteEl) dom.cardNoteEl.classList.toggle('hidden', !state.settings.showCardNote);
     if (dom.cardSecurityEl) dom.cardSecurityEl.classList.toggle('hidden', state.settings.showCardSecurity === false);
+    if (dom.cardDnsEl) dom.cardDnsEl.classList.toggle('hidden', state.settings.showCardDns === false);
     if (dom.cardFileShareEl) dom.cardFileShareEl.classList.toggle('hidden', state.settings.showCardFileShare === false);
     if (dom.cardDirectoriesEl) dom.cardDirectoriesEl.classList.toggle('hidden', state.settings.showCardDirectories === false);
     if (dom.cardImageCompressorEl) dom.cardImageCompressorEl.classList.toggle('hidden', state.settings.showCardImageCompressor !== true);
@@ -908,11 +916,12 @@ export const DASHBOARD_PRESETS = [
             showCardFocus: true,
             showCardNote: true,
             showCardSecurity: false,
+            showCardDns: false,
             showCardFileShare: false,
             showCardDirectories: true,
             showCardImageCompressor: false,
             showCardPdfTools: false,
-            showTopSites: false,
+            showTopSites: true,
             showClock: true,
             showSearch: true,
             showMainUI: true
@@ -963,6 +972,7 @@ export const DASHBOARD_PRESETS = [
             showCardFocus: false,
             showCardNote: true,
             showCardSecurity: false,
+            showCardDns: false,
             showCardFileShare: true,
             showCardDirectories: false,
             showCardImageCompressor: true,
@@ -1004,11 +1014,12 @@ export const DASHBOARD_PRESETS = [
             showCardFocus: false,
             showCardNote: false,
             showCardSecurity: false,
+            showCardDns: false,
             showCardFileShare: false,
             showCardDirectories: false,
             showCardImageCompressor: false,
             showCardPdfTools: false,
-            showTopSites: false,
+            showTopSites: true,
             showClock: true,
             showSearch: true,
             showMainUI: true
@@ -1059,6 +1070,7 @@ export const DASHBOARD_PRESETS = [
             showCardFocus: true,
             showCardNote: true,
             showCardSecurity: false,
+            showCardDns: false,
             showCardFileShare: false,
             showCardDirectories: false,
             showCardImageCompressor: false,
@@ -1106,6 +1118,7 @@ export const DASHBOARD_PRESETS = [
             showCardFocus: false,
             showCardNote: true,
             showCardSecurity: true,
+            showCardDns: true,
             showCardFileShare: false,
             showCardDirectories: false,
             showCardImageCompressor: false,

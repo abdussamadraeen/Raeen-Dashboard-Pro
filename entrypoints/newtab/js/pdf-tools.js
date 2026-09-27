@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 100% Client-Side In-Browser PDF Tools & Generator
  * Fast, zero telemetry, local PDF inspection & Image-to-PDF generator.
  */
@@ -226,70 +226,78 @@ async function handleImagesToPdf(e) {
 }
 
 function createSimplePdf(pages) {
-    // Generate valid pure standard PDF bytes
-    let objects = [];
-    let xref = [];
-    let output = '%PDF-1.4\n';
+    // Standard PDF 1.4 binary assembler with accurate byte offsets
+    const encoder = new TextEncoder();
+    const chunks = [];
+    let currentOffset = 0;
 
-    function addObject(content) {
-        const offset = output.length;
-        xref.push(offset);
-        const objNum = objects.length + 1;
-        objects.push(objNum);
-        output += `${objNum} 0 obj\n${content}\nendobj\n`;
-        return objNum;
+    function append(data) {
+        const bytes = typeof data === 'string' ? encoder.encode(data) : data;
+        chunks.push(bytes);
+        currentOffset += bytes.length;
     }
 
-    // Catalog & Pages root (placeholders)
-    const catalogObj = addObject(`<< /Type /Catalog /Pages 2 0 R >>`);
-    
-    // We will build page objects
-    const pageObjNums = [];
-    const imageObjNums = [];
+    append('%PDF-1.4\n');
 
-    // Pre-calculate image objects
+    const totalObjects = 2 + pages.length * 3;
+    const offsets = new Array(totalObjects + 1).fill(0);
+
+    const recordObject = (num) => {
+        offsets[num] = currentOffset;
+        append(`${num} 0 obj\n`);
+    };
+
+    // 1. Catalog Object (1 0 obj)
+    recordObject(1);
+    append(`<< /Type /Catalog /Pages 2 0 R >>\nendobj\n`);
+
+    // 2. Pages Root Object (2 0 obj)
+    const pageObjNums = pages.map((_, i) => 3 + i * 3);
+    recordObject(2);
+    append(`<< /Type /Pages /Kids [${pageObjNums.map(n => `${n} 0 R`).join(' ')}] /Count ${pages.length} >>\nendobj\n`);
+
+    // Build pages, content streams, and images
     pages.forEach((page, i) => {
-        const base64Data = page.dataUrl.split(',')[1];
+        const pageNum = 3 + i * 3;
+        const contentNum = 4 + i * 3;
+        const imageNum = 5 + i * 3;
+
+        const base64Data = (page.dataUrl || '').split(',')[1] || '';
         const binaryStr = atob(base64Data);
-        const bytes = new Uint8Array(binaryStr.length);
-        for (let j = 0; j < binaryStr.length; j++) bytes[j] = binaryStr.charCodeAt(j);
+        const imgBytes = new Uint8Array(binaryStr.length);
+        for (let j = 0; j < binaryStr.length; j++) {
+            imgBytes[j] = binaryStr.charCodeAt(j);
+        }
 
-        const imgObj = addObject(
-            `<< /Type /XObject /Subtype /Image /Width ${page.width} /Height ${page.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n` +
-            binaryStr +
-            `\nendstream`
-        );
-        imageObjNums.push(imgObj);
+        // Page Object
+        recordObject(pageNum);
+        append(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${page.width} ${page.height}] /Contents ${contentNum} 0 R /Resources << /XObject << /Im${i} ${imageNum} 0 R >> >> >>\nendobj\n`);
+
+        // Content Stream
+        const streamText = `q ${page.width} 0 0 ${page.height} 0 0 cm /Im${i} Do Q\n`;
+        const streamBytes = encoder.encode(streamText);
+        recordObject(contentNum);
+        append(`<< /Length ${streamBytes.length} >>\nstream\n`);
+        append(streamBytes);
+        append(`\nendstream\nendobj\n`);
+
+        // Image XObject (JPEG DCTDecode)
+        recordObject(imageNum);
+        append(`<< /Type /XObject /Subtype /Image /Width ${page.width} /Height ${page.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes.length} >>\nstream\n`);
+        append(imgBytes);
+        append(`\nendstream\nendobj\n`);
     });
 
-    // Pages Object
-    const pagesObjNum = 2; // Fixed as referenced in catalog
-    // Replace temporary catalog with proper references
-    // Now create pages
-    pages.forEach((page, i) => {
-        const imgObjNum = imageObjNums[i];
-        const contentStream = `q ${page.width} 0 0 ${page.height} 0 0 cm /Im${i} Do Q`;
-        const contentObj = addObject(`<< /Length ${contentStream.length} >>\nstream\n${contentStream}\nendstream`);
+    // Cross-Reference Table (xref)
+    const startXref = currentOffset;
+    append(`xref\n0 ${totalObjects + 1}\n0000000000 65535 f \n`);
+    for (let i = 1; i <= totalObjects; i++) {
+        const offStr = String(offsets[i]).padStart(10, '0');
+        append(`${offStr} 00000 n \n`);
+    }
 
-        const pageObj = addObject(
-            `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${page.width} ${page.height}] /Contents ${contentObj} 0 R /Resources << /XObject << /Im${i} ${imgObjNum} 0 R >> >> >>`
-        );
-        pageObjNums.push(pageObj);
-    });
+    // Trailer
+    append(`trailer\n<< /Size ${totalObjects + 1} /Root 1 0 R >>\nstartxref\n${startXref}\n%%EOF\n`);
 
-    // Overwrite pages root object content
-    const pagesIndex = xref[1];
-    const pagesContent = `2 0 obj\n<< /Type /Pages /Kids [${pageObjNums.map(n => `${n} 0 R`).join(' ')}] /Count ${pageObjNums.length} >>\nendobj\n`;
-    
-    // Stitch standard PDF with xref and trailer
-    const startXref = output.length;
-    let xrefTable = `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-    xref.forEach(offset => {
-        xrefTable += `${offset.toString().padStart(10, '0')} 00000 n \n`;
-    });
-
-    const trailer = `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${startXref}\n%%EOF`;
-    output += xrefTable + trailer;
-
-    return new Blob([output], { type: 'application/pdf' });
+    return new Blob(chunks, { type: 'application/pdf' });
 }

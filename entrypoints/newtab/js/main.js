@@ -32,7 +32,7 @@ import { initPdfTools } from './pdf-tools.js';
 import { initDashboardStudio, createDashboardSnapshot } from './dashboard-studio.js';
 import { validateAndRepairSettings } from './schema.js';
 import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
-import { securityManager, TACTICAL_NODES } from './vpn.js';
+import { securityManager, TACTICAL_NODES, SECURE_DNS_PROVIDERS } from './vpn.js';
 
 (async function init() {
     // 0. Synchronously hydrate critical state from localStorage cache to prevent reload flash
@@ -270,6 +270,29 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
                     dom.hudNodeHint.innerHTML = `🔒 <strong>${currentNode.name}:</strong> ${currentNode.country || currentNode.city || 'Secure Route'} • ${currentNode.cipher || 'Encrypted'}`;
                 }
             }
+
+            if (dom.hudDnsStatusBadge) {
+                const isSecured = securityManager.webrtcSealed;
+                dom.hudDnsStatusBadge.textContent = isSecured ? 'Protected' : 'Standard';
+                dom.hudDnsStatusBadge.className = 'defcon-badge ' + (isSecured ? 'defcon-hot' : 'defcon-idle');
+            }
+
+            if (dom.hudWebrtcToggle) {
+                dom.hudWebrtcToggle.checked = securityManager.webrtcSealed !== false;
+            }
+
+            if (dom.hudKillswitchToggle) {
+                dom.hudKillswitchToggle.checked = securityManager.killSwitch === true;
+            }
+
+            if (dom.hudDnsSelect) {
+                dom.hudDnsSelect.value = securityManager.activeDnsId || 'cloudflare';
+            }
+
+            if (dom.hudDnsHint) {
+                const curDns = SECURE_DNS_PROVIDERS.find(p => p.id === (securityManager.activeDnsId || 'cloudflare')) || SECURE_DNS_PROVIDERS[0];
+                dom.hudDnsHint.innerHTML = `${curDns.icon || '🛡️'} <strong>${curDns.name}:</strong> ${curDns.features || 'Encrypted DNS-over-HTTPS.'}`;
+            }
         };
 
         if (dom.hudNodeSelect) {
@@ -342,6 +365,63 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
                 } finally {
                     dom.hudNuclearScramBtn.disabled = false;
                     dom.hudNuclearScramBtn.innerHTML = originalContent;
+                }
+            };
+        }
+
+        // Wire DNS Shield interactions
+        if (dom.hudDnsSelect) {
+            dom.hudDnsSelect.value = securityManager.activeDnsId || 'cloudflare';
+            dom.hudDnsSelect.onchange = (e) => {
+                const dnsId = e.target.value;
+                securityManager.setDns(dnsId);
+                const provider = SECURE_DNS_PROVIDERS.find(p => p.id === dnsId) || SECURE_DNS_PROVIDERS[0];
+                if (dom.hudDnsHint) {
+                    dom.hudDnsHint.innerHTML = `${provider.icon || '🛡️'} <strong>${provider.name}:</strong> ${provider.features || 'Encrypted DNS-over-HTTPS.'}`;
+                }
+                if (dom.hudDnsEncStatus) {
+                    dom.hudDnsEncStatus.textContent = 'DoH Active';
+                }
+            };
+        }
+
+        if (dom.hudWebrtcToggle) {
+            dom.hudWebrtcToggle.checked = securityManager.webrtcSealed !== false;
+            dom.hudWebrtcToggle.onchange = async (e) => {
+                await securityManager.setWebRTCShield(e.target.checked);
+                window.renderSecurityHud();
+            };
+        }
+
+        if (dom.hudKillswitchToggle) {
+            dom.hudKillswitchToggle.checked = securityManager.killSwitch === true;
+            dom.hudKillswitchToggle.onchange = async (e) => {
+                await securityManager.toggleKillSwitch(e.target.checked);
+                window.renderSecurityHud();
+            };
+        }
+
+        if (dom.hudDnsTestBtn) {
+            dom.hudDnsTestBtn.onclick = async () => {
+                dom.hudDnsTestBtn.disabled = true;
+                const originalText = dom.hudDnsTestBtn.textContent;
+                dom.hudDnsTestBtn.textContent = 'Testing...';
+                if (dom.hudDnsLatency) dom.hudDnsLatency.textContent = '...';
+
+                try {
+                    const res = await securityManager.testDnsResolution();
+                    if (res && res.success && dom.hudDnsLatency) {
+                        dom.hudDnsLatency.textContent = res.latencyMs;
+                        dom.hudDnsLatency.style.color = '#10b981';
+                    } else if (dom.hudDnsLatency) {
+                        dom.hudDnsLatency.textContent = 'Timeout';
+                        dom.hudDnsLatency.style.color = '#ef4444';
+                    }
+                } catch(err) {
+                    if (dom.hudDnsLatency) dom.hudDnsLatency.textContent = 'Error';
+                } finally {
+                    dom.hudDnsTestBtn.disabled = false;
+                    dom.hudDnsTestBtn.textContent = originalText;
                 }
             };
         }
@@ -484,27 +564,29 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
 
     // Background Settings
     if (dom.bgTypeSelect) {
-        dom.bgTypeSelect.oninput = (e) => {
-            state.settings.backgroundType = e.target.value;
-            if (e.target.value === 'bing') state.settings.backgroundValue = 'bing_latest_v2';
-            if (e.target.value === 'brave') state.settings.backgroundValue = 'brave_random';
-            if (e.target.value === 'google_dashboard') {
+        dom.bgTypeSelect.onchange = (e) => {
+            const val = e.target.value;
+            const normalizedType = (val === 'curated' || val === 'brave') ? 'curated' : val;
+            state.settings.backgroundType = normalizedType;
+            if (normalizedType === 'bing') state.settings.backgroundValue = 'bing_latest_v2';
+            if (normalizedType === 'curated') state.settings.backgroundValue = 'curated_random';
+            if (normalizedType === 'google_dashboard') {
                 state.settings.backgroundValue = 'https://www.google.com/?raeen_dashboard=true&app_dashboard=true';
                 state.settings.dashboardMode = 'google_live';
             }
-            if (e.target.value === 'bing_dashboard') {
+            if (normalizedType === 'bing_dashboard') {
                 state.settings.backgroundValue = 'https://www.bing.com/?raeen_dashboard=true&app_dashboard=true';
                 state.settings.dashboardMode = 'bing_live';
             }
-            if (e.target.value !== 'google_dashboard' && e.target.value !== 'bing_dashboard') {
+            if (normalizedType !== 'google_dashboard' && normalizedType !== 'bing_dashboard') {
                 if (state.settings.dashboardMode === 'google_live' || state.settings.dashboardMode === 'bing_live') {
                     state.settings.dashboardMode = 'pro';
                 }
             }
             commitSettings();
             syncBackgroundOptions();
-            if (e.target.value === 'bing') loadBingGallery();
-            if (e.target.value === 'brave') loadBraveGallery();
+            if (normalizedType === 'bing') loadBingGallery();
+            if (normalizedType === 'curated') loadBraveGallery();
         };
     }
 
@@ -552,6 +634,7 @@ import { securityManager, TACTICAL_NODES } from './vpn.js';
     bindToggle(dom.toggleCardFocus, 'showCardFocus');
     bindToggle(dom.toggleCardNote, 'showCardNote');
     bindToggle(dom.toggleCardSecurity, 'showCardSecurity');
+    bindToggle(dom.toggleCardDns, 'showCardDns');
     bindToggle(dom.toggleCardFileShare, 'showCardFileShare');
     bindToggle(dom.toggleCardImageCompressor, 'showCardImageCompressor');
     bindToggle(dom.toggleCardPdfTools, 'showCardPdfTools');
@@ -1996,22 +2079,28 @@ function optimizeImage(file) {
             "search-widget": { left: "30%", top: "3.5%" },
             "card-date": { left: "3.5%", top: "16%" },
             "card-focus": { left: "3.5%", top: "50%" },
-            "card-security": { left: "3.5%", top: "68%" },
+            "card-security": { left: "3.5%", top: "16%" },
+            "card-dns-shield": { left: "26%", top: "16%" },
+            "card-image-compressor": { left: "3.5%", top: "16%" },
+            "card-pdf-tools": { left: "26%", top: "16%" },
             "directory-widget": { left: "26%", top: "16%" },
             "top-sites-widget": { left: "26%", top: "72%" },
             "notes-widget": { left: "72%", top: "16%" },
-            "card-fileshare": { left: "72%", top: "65%" }
+            "card-fileshare": { left: "72%", top: "62%" }
         };
 
         const defaultSizes = {
             "clock-widget": { width: "auto", height: "auto" },
             "search-widget": { width: "620px", height: "auto" },
-            "card-date": { width: "270px", height: "auto" },
-            "card-security": { width: "270px", height: "auto" },
+            "card-date": { width: "280px", height: "auto" },
+            "card-security": { width: "280px", height: "auto" },
+            "card-dns-shield": { width: "560px", height: "auto" },
+            "card-image-compressor": { width: "280px", height: "auto" },
+            "card-pdf-tools": { width: "560px", height: "auto" },
             "directory-widget": { width: "560px", height: "460px" },
-            "notes-widget": { width: "270px", height: "320px" },
-            "card-focus": { width: "270px", height: "170px" },
-            "card-fileshare": { width: "270px", height: "auto" },
+            "notes-widget": { width: "280px", height: "340px" },
+            "card-focus": { width: "280px", height: "170px" },
+            "card-fileshare": { width: "280px", height: "auto" },
             "top-sites-widget": { width: "560px", height: "auto" }
         };
 
@@ -2086,6 +2175,14 @@ function optimizeImage(file) {
                 }
             }
 
+            const mode = state.settings?.dashboardMode || 'pro';
+            const modeSizes = {
+                focus: {
+                    "card-focus": { width: "560px", height: "auto" }
+                }
+            };
+            const activeModeSizes = modeSizes[mode] || {};
+
             document.querySelectorAll(".draggable-widget").forEach(widget => {
                 if (!widget.id) return;
                 if (widget.id === "clock-widget") {
@@ -2093,7 +2190,7 @@ function optimizeImage(file) {
                     widget.style.height = "auto";
                     return;
                 }
-                const size = sizes[widget.id] || defaultSizes[widget.id];
+                const size = sizes[widget.id] || activeModeSizes[widget.id] || defaultSizes[widget.id];
                 if (size) {
                     if (size.width) widget.style.width = size.width;
                     if (size.height) widget.style.height = size.height;
@@ -2135,9 +2232,40 @@ function optimizeImage(file) {
                 positions = {};
             }
 
+            const mode = state.settings?.dashboardMode || 'pro';
+            const modeLayouts = {
+                focus: {
+                    "card-date": { left: "3.5%", top: "16%" },
+                    "card-focus": { left: "26%", top: "16%" },
+                    "top-sites-widget": { left: "26%", top: "48%" },
+                    "notes-widget": { left: "72%", top: "16%" }
+                },
+                creator: {
+                    "card-image-compressor": { left: "3.5%", top: "16%" },
+                    "card-pdf-tools": { left: "26%", top: "16%" },
+                    "top-sites-widget": { left: "26%", top: "72%" },
+                    "notes-widget": { left: "72%", top: "16%" },
+                    "card-fileshare": { left: "72%", top: "62%" }
+                },
+                security: {
+                    "card-security": { left: "3.5%", top: "16%" },
+                    "card-dns-shield": { left: "26%", top: "16%" },
+                    "top-sites-widget": { left: "26%", top: "72%" },
+                    "notes-widget": { left: "72%", top: "16%" }
+                },
+                pro: {
+                    "card-date": { left: "3.5%", top: "16%" },
+                    "card-focus": { left: "3.5%", top: "50%" },
+                    "directory-widget": { left: "26%", top: "16%" },
+                    "top-sites-widget": { left: "26%", top: "72%" },
+                    "notes-widget": { left: "72%", top: "16%" }
+                }
+            };
+            const activeModeDefaults = modeLayouts[mode] || {};
+
             document.querySelectorAll(".draggable-widget").forEach(widget => {
                 if (!widget.id) return;
-                const pos = positions[widget.id] || defaultPositions[widget.id];
+                const pos = positions[widget.id] || activeModeDefaults[widget.id] || defaultPositions[widget.id];
                 if (pos) {
                     if (pos.left) widget.style.left = pos.left;
                     if (pos.top) widget.style.top = pos.top;
@@ -2150,7 +2278,7 @@ function optimizeImage(file) {
 
         function ensureDragAndResizeHandles() {
             const activeWidgets = document.querySelectorAll(".draggable-widget");
-            const nonResizableWidgets = ["clock-widget", "card-date", "card-focus", "card-security"];
+            const nonResizableWidgets = ["clock-widget", "card-date", "card-focus", "card-security", "card-dns-shield", "card-image-compressor", "top-sites-widget"];
             activeWidgets.forEach(widget => {
                 if (!widget.querySelector(".drag-handle")) {
                     const handle = document.createElement("div");

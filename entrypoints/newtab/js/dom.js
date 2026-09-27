@@ -140,6 +140,16 @@ const domConfig = {
     hudNuclearScramBtn: 'hud-nuclear-scram-btn',
     hudVerifyLink: 'hud-verify-link',
     hudNodeHint: 'hud-node-hint',
+    cardDnsEl: 'card-dns-shield',
+    toggleCardDns: 'toggle-card-dns',
+    hudDnsSelect: 'hud-dns-select',
+    hudDnsHint: 'hud-dns-hint',
+    hudDnsStatusBadge: 'hud-dns-status-badge',
+    hudDnsEncStatus: 'hud-dns-enc-status',
+    hudDnsTestBtn: 'hud-dns-test-btn',
+    hudDnsLatency: 'hud-dns-latency',
+    hudWebrtcToggle: 'hud-webrtc-toggle',
+    hudKillswitchToggle: 'hud-killswitch-toggle',
     liveDock: 'live-dock',
     liveSettingsBtn: 'live-settings-btn'
 };
