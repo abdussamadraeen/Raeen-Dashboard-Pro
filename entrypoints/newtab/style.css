@@ -611,20 +611,17 @@ body[data-dashboard-mode="bing_live"] .live-dock {
 
 #search-input {
     width: 100%; 
-    padding: 18px 54px 18px 64px; 
-    border-radius: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.18); 
-    border-top: 1px solid rgba(255, 255, 255, 0.36);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02)), rgba(18, 22, 34, 0.42);
-    box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
+    padding: 16px 54px 16px 58px; 
+    border-radius: 9999px;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
     color: #ffffff; 
-    font-size: 1.1rem; 
+    font-size: 1.05rem; 
     font-family: inherit; 
     font-weight: 450; 
-    outline: none;
-    -webkit-backdrop-filter: blur(28px) saturate(180%); 
-    backdrop-filter: blur(28px) saturate(180%);
-    transition: all 0.3s var(--ease-spring);
+    outline: none !important;
+    transition: color 0.2s ease;
 }
 #search-input::placeholder { 
     color: rgba(255, 255, 255, 0.72); 
@@ -632,36 +629,34 @@ body[data-dashboard-mode="bing_live"] .live-dock {
     font-weight: 400; 
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
-#search-input:hover {
-    border-color: rgba(255, 255, 255, 0.28);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04)), rgba(24, 28, 44, 0.52);
-    transform: translateY(-1px);
-    box-shadow: 0 16px 44px -4px rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.26);
+#search-input:hover,
+#search-input:focus {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 [data-theme="light"] #search-input {
-    background: rgba(255, 255, 255, 0.88);
-    border-color: rgba(255, 255, 255, 0.95);
-    color: #0f172a;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    background: transparent !important;
+    border: none !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
 }
 [data-theme="light"] #search-input::placeholder {
     color: rgba(15, 23, 42, 0.55);
     text-shadow: none;
 }
-[data-theme="light"] #search-input:hover {
-    background: #ffffff;
-    border-color: #ffffff;
-}
-#search-input:focus { 
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05)), rgba(22, 26, 40, 0.62); 
-    border-color: var(--accent); 
-    transform: translateY(-2px) scale(1.015);
-    box-shadow: 0 20px 50px -8px rgba(0, 0, 0, 0.5), 0 0 24px var(--accent-glow), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3); 
-}
+[data-theme="light"] #search-input:hover,
 [data-theme="light"] #search-input:focus {
-    background: #ffffff;
-    border-color: var(--accent);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 0 20px var(--accent-glow);
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.search-container .resize-handle,
+#search-widget .resize-handle {
+    display: none !important;
 }
 
 .suggestions-dropdown {
@@ -1084,9 +1079,12 @@ body[data-dashboard-mode="bing_live"] .live-dock {
     box-shadow: 0 0 12px rgba(129, 140, 248, 0.6);
 }
 
-/* ─── Focus Timer (World-Class Spread-Out Layout) ─── */
-.focus-card {
+.focus-card,
+#card-focus {
     min-width: 280px;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
 }
 .focus-status-badge {
     margin-left: auto;
@@ -4569,6 +4567,26 @@ body[data-dashboard-mode="minimal"] #photographer-credit.hidden {
     box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
+/* ─── Universal Native Select & Option Theming (Zero Blank Popups on Windows Chrome) ─── */
+select option,
+select optgroup,
+.hud-select option,
+.custom-select option {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    font-family: inherit !important;
+}
+
+[data-theme="light"] select option,
+[data-theme="light"] select optgroup,
+[data-theme="light"] .hud-select option,
+[data-theme="light"] .custom-select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
 .hud-node-info {
     font-size: 0.60rem;
     color: var(--text-secondary);
@@ -7653,19 +7671,21 @@ body[data-dashboard-mode="pro"] #notes-widget:not(.hidden) {
 
 /* -- 2. Unified Minimalist Search Bar -- */
 .search-container form {
-    background: rgba(24, 28, 42, 0.75) !important;
+    background: rgba(24, 28, 42, 0.72) !important;
     backdrop-filter: blur(40px) saturate(200%) !important;
     -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.32) !important;
     box-shadow: 
         inset 0 1px 1px 0 rgba(255, 255, 255, 0.24),
         0 8px 32px 0 rgba(0, 0, 0, 0.28) !important;
-    border-radius: 22px !important;
+    border-radius: 9999px !important;
     transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .search-container form:focus-within {
     border-color: rgba(56, 189, 248, 0.65) !important;
+    border-top-color: rgba(125, 211, 252, 0.8) !important;
     box-shadow: 
         inset 0 1px 1px 0 rgba(255, 255, 255, 0.3),
         0 0 0 3px rgba(56, 189, 248, 0.25),
@@ -7674,18 +7694,20 @@ body[data-dashboard-mode="pro"] #notes-widget:not(.hidden) {
 }
 
 [data-theme="light"] .search-container form {
-    background: rgba(255, 255, 255, 0.85) !important;
+    background: rgba(255, 255, 255, 0.88) !important;
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
     box-shadow: 
         inset 0 1px 1.5px 0 rgba(255, 255, 255, 1),
         0 8px 30px 0 rgba(0, 0, 0, 0.08) !important;
+    border-radius: 9999px !important;
 }
 
 [data-theme="light"] .search-container form:focus-within {
-    border-color: rgba(13, 148, 136, 0.6) !important;
+    border-color: rgba(56, 189, 248, 0.6) !important;
     box-shadow: 
         inset 0 1px 1.5px 0 rgba(255, 255, 255, 1),
-        0 0 0 3px rgba(13, 148, 136, 0.2),
+        0 0 0 3px rgba(56, 189, 248, 0.2),
         0 14px 40px 0 rgba(0, 0, 0, 0.12) !important;
 }
 

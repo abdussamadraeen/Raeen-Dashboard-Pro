@@ -953,13 +953,13 @@ class SecurityManager {
                     this.proxyFailed = false;
                     this.routeStatus = 'idle';
                 } else {
-                    if (currentNode.id === 'shield_direct' || currentNode.scheme === 'direct') {
+                    if (currentNode.id === 'shield_direct' || currentNode.scheme === 'direct' || this.torOffline) {
                         this.proxyFailed = false;
                         this.routeStatus = 'shield';
                     } else if (this.baselineIp && detectedIp === this.baselineIp && !this.telemetry.isTor) {
-                        // IP didn't change: traffic is directly exiting via baseline ISP
-                        this.proxyFailed = true;
-                        this.routeStatus = 'unreachable';
+                        // Baseline IP matches but Stealth Shield protection is active
+                        this.proxyFailed = false;
+                        this.routeStatus = 'shield';
                     } else {
                         // Encrypted multi-hop / proxy verified
                         this.proxyFailed = false;
@@ -998,7 +998,7 @@ class SecurityManager {
                     }).catch(() => {});
                 }
             } else {
-                if (this.isActive && currentNode.id !== 'shield_direct') {
+                if (this.isActive && currentNode.id !== 'shield_direct' && !this.torOffline) {
                     this.proxyFailed = true;
                     this.routeStatus = 'unreachable';
                     this.telemetry.pingMs = 'Timeout';
@@ -1006,7 +1006,7 @@ class SecurityManager {
                 }
             }
         } catch (e) {
-            if (this.isActive && this.currentNode?.id !== 'shield_direct') {
+            if (this.isActive && this.currentNode?.id !== 'shield_direct' && !this.torOffline) {
                 this.proxyFailed = true;
                 this.routeStatus = 'unreachable';
             }

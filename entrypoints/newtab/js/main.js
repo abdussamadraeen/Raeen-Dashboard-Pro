@@ -2078,7 +2078,7 @@ function optimizeImage(file) {
             "clock-widget": { left: "2.5%", top: "2.5%" },
             "search-widget": { left: "30%", top: "3.5%" },
             "card-date": { left: "3.5%", top: "16%" },
-            "card-focus": { left: "3.5%", top: "50%" },
+            "card-focus": { left: "3.5%", top: "58%" },
             "card-security": { left: "3.5%", top: "16%" },
             "card-dns-shield": { left: "26%", top: "16%" },
             "card-image-compressor": { left: "3.5%", top: "16%" },
@@ -2099,7 +2099,7 @@ function optimizeImage(file) {
             "card-pdf-tools": { width: "560px", height: "auto" },
             "directory-widget": { width: "560px", height: "460px" },
             "notes-widget": { width: "280px", height: "340px" },
-            "card-focus": { width: "280px", height: "170px" },
+            "card-focus": { width: "280px", height: "auto" },
             "card-fileshare": { width: "280px", height: "auto" },
             "top-sites-widget": { width: "560px", height: "auto" }
         };
@@ -2175,6 +2175,12 @@ function optimizeImage(file) {
                 }
             }
 
+            // Clear legacy 170px hardcoded height for card-focus
+            if (sizes && sizes["card-focus"]?.height === "170px") {
+                sizes["card-focus"].height = "auto";
+                localStorage.setItem("raeen_widget_sizes", JSON.stringify(sizes));
+            }
+
             const mode = state.settings?.dashboardMode || 'pro';
             const modeSizes = {
                 focus: {
@@ -2182,6 +2188,7 @@ function optimizeImage(file) {
                 }
             };
             const activeModeSizes = modeSizes[mode] || {};
+            const nonFixedWidgets = ["card-focus", "card-date", "card-security", "card-dns-shield", "card-image-compressor", "top-sites-widget", "search-widget", "clock-widget"];
 
             document.querySelectorAll(".draggable-widget").forEach(widget => {
                 if (!widget.id) return;
@@ -2190,10 +2197,15 @@ function optimizeImage(file) {
                     widget.style.height = "auto";
                     return;
                 }
+                if (nonFixedWidgets.includes(widget.id)) {
+                    widget.style.height = "auto";
+                }
                 const size = sizes[widget.id] || activeModeSizes[widget.id] || defaultSizes[widget.id];
                 if (size) {
                     if (size.width) widget.style.width = size.width;
-                    if (size.height) widget.style.height = size.height;
+                    if (size.height && !nonFixedWidgets.includes(widget.id)) {
+                        widget.style.height = size.height;
+                    }
                 }
             });
         }
@@ -2232,6 +2244,12 @@ function optimizeImage(file) {
                 positions = {};
             }
 
+            // Heal colliding card-focus position if stuck at 50%
+            if (positions && positions["card-focus"]?.left === "3.5%" && positions["card-focus"]?.top === "50%") {
+                positions["card-focus"].top = "58%";
+                localStorage.setItem("raeen_widget_positions", JSON.stringify(positions));
+            }
+
             const mode = state.settings?.dashboardMode || 'pro';
             const modeLayouts = {
                 focus: {
@@ -2255,7 +2273,7 @@ function optimizeImage(file) {
                 },
                 pro: {
                     "card-date": { left: "3.5%", top: "16%" },
-                    "card-focus": { left: "3.5%", top: "50%" },
+                    "card-focus": { left: "3.5%", top: "58%" },
                     "directory-widget": { left: "26%", top: "16%" },
                     "top-sites-widget": { left: "26%", top: "72%" },
                     "notes-widget": { left: "72%", top: "16%" }
@@ -2278,7 +2296,7 @@ function optimizeImage(file) {
 
         function ensureDragAndResizeHandles() {
             const activeWidgets = document.querySelectorAll(".draggable-widget");
-            const nonResizableWidgets = ["clock-widget", "card-date", "card-focus", "card-security", "card-dns-shield", "card-image-compressor", "top-sites-widget"];
+            const nonResizableWidgets = ["clock-widget", "search-widget", "card-date", "card-focus", "card-security", "card-dns-shield", "card-image-compressor", "top-sites-widget"];
             activeWidgets.forEach(widget => {
                 if (!widget.querySelector(".drag-handle")) {
                     const handle = document.createElement("div");
@@ -2286,7 +2304,9 @@ function optimizeImage(file) {
                     handle.innerText = "⋮⋮";
                     widget.insertBefore(handle, widget.firstChild);
                 }
-                if (!nonResizableWidgets.includes(widget.id) && !widget.querySelector(".resize-handle")) {
+                if (nonResizableWidgets.includes(widget.id)) {
+                    widget.querySelectorAll(".resize-handle").forEach(el => el.remove());
+                } else if (!widget.querySelector(".resize-handle")) {
                     const rHandle = document.createElement("div");
                     rHandle.className = "resize-handle";
                     widget.appendChild(rHandle);
