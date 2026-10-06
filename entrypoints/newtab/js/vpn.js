@@ -429,7 +429,7 @@ class SecurityManager {
     async checkBridgeHealth() {
         try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 350);
+            const timeout = setTimeout(() => controller.abort(), 1500);
             const res = await fetch('http://127.0.0.1:9052/status', {
                 signal: controller.signal,
                 cache: 'no-store'
@@ -612,7 +612,8 @@ class SecurityManager {
         let proxyConfig;
         if (nodeConfig.scheme === 'direct' || nodeConfig.isShieldOnly) {
             proxyConfig = { mode: 'direct' };
-        } else if (nodeConfig.id === 'custom') {
+        } else if (nodeConfig.isTor || (nodeConfig.scheme || '').toLowerCase() === 'socks5' || nodeConfig.id === 'custom') {
+            // Direct native fixed_servers mode: zero PAC overhead, instant SOCKS5 tunneling and remote DNS resolution
             proxyConfig = {
                 mode: 'fixed_servers',
                 rules: {
@@ -625,7 +626,7 @@ class SecurityManager {
                 }
             };
         } else {
-            // High-resilience PAC script for zero-break failover
+            // High-resilience PAC script for multi-protocol / multi-endpoint chains
             const pacData = this.buildPacScript(nodeConfig);
             proxyConfig = {
                 mode: 'pac_script',

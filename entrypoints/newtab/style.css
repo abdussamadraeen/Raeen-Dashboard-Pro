@@ -36,12 +36,20 @@
     --danger: #ef4444;
     --danger-bg: rgba(239, 68, 68, 0.14);
     
-    /* Crystal Frosted Glass (Ultra-Clean Translucency, Specular Reflection, & Zero Mud) */
-    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02)), rgba(18, 22, 34, 0.42);
-    --glass-hover-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04)), rgba(24, 28, 44, 0.52);
-    --glass-border: rgba(255, 255, 255, 0.18);
-    --glass-border-light: rgba(255, 255, 255, 0.35);
-    --glass-inner-sheen: inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
+    /* ─── Ultra-Realistic Apple / visionOS Liquid Glass ─── */
+    --liquid-glass-bg: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.04) 42%, rgba(13, 18, 38, 0.62) 100%), rgba(10, 15, 28, 0.48);
+    --liquid-glass-hover-bg: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.07) 45%, rgba(18, 24, 48, 0.72) 100%), rgba(14, 20, 36, 0.58);
+    --glass-bg: var(--liquid-glass-bg);
+    --glass-hover-bg: var(--liquid-glass-hover-bg);
+    --glass-border: rgba(255, 255, 255, 0.16);
+    --glass-border-light: rgba(255, 255, 255, 0.48);
+    --glass-border-left: rgba(255, 255, 255, 0.26);
+    --glass-border-bottom: rgba(255, 255, 255, 0.08);
+    --glass-border-right: rgba(255, 255, 255, 0.12);
+    --glass-inner-sheen: inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.38), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.28);
+    --liquid-shadow-ambient: 0 20px 48px -10px rgba(0, 0, 0, 0.52), 0 0 28px -4px rgba(56, 189, 248, 0.12);
+    --liquid-shadow-hover: 0 26px 60px -8px rgba(0, 0, 0, 0.62), 0 0 35px -2px rgba(56, 189, 248, 0.25);
+    --liquid-blur: blur(36px) saturate(215%) contrast(106%);
     --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -70,11 +78,20 @@
     --danger: #dc2626;
     --danger-bg: rgba(220, 38, 38, 0.08);
     
-    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78));
-    --glass-hover-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.88));
-    --glass-border: rgba(255, 255, 255, 0.8);
+    /* ─── Ultra-Realistic Apple Liquid Frosted Quartz (Light Mode) ─── */
+    --liquid-glass-bg: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.85) 45%, rgba(241, 245, 249, 0.75) 100%);
+    --liquid-glass-hover-bg: radial-gradient(130% 130% at 20% 0%, #ffffff 0%, rgba(255, 255, 255, 0.94) 45%, rgba(248, 250, 252, 0.85) 100%);
+    --glass-bg: var(--liquid-glass-bg);
+    --glass-hover-bg: var(--liquid-glass-hover-bg);
+    --glass-border: rgba(255, 255, 255, 0.85);
     --glass-border-light: #ffffff;
-    --glass-inner-sheen: inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+    --glass-border-left: rgba(255, 255, 255, 0.92);
+    --glass-border-bottom: rgba(203, 213, 225, 0.45);
+    --glass-border-right: rgba(203, 213, 225, 0.55);
+    --glass-inner-sheen: inset 0 1.5px 2px 0 rgba(255, 255, 255, 1), inset 0 -1px 2px 0 rgba(15, 23, 42, 0.06);
+    --liquid-shadow-ambient: 0 16px 40px -8px rgba(15, 23, 42, 0.09), 0 0 24px -4px rgba(13, 148, 136, 0.08);
+    --liquid-shadow-hover: 0 24px 50px -6px rgba(15, 23, 42, 0.14), 0 0 30px -2px rgba(13, 148, 136, 0.18);
+    --liquid-blur: blur(36px) saturate(215%) contrast(106%);
 }
 
 /* Reset */
@@ -511,23 +528,33 @@ body[data-dashboard-mode="bing_live"] .live-dock {
     top: calc(100% + 10px);
     left: 8px;
     width: 235px;
-    background: rgba(15, 23, 42, 0.58);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-top: 1px solid rgba(255, 255, 255, 0.35);
-    -webkit-backdrop-filter: blur(28px) saturate(190%);
-    backdrop-filter: blur(28px) saturate(190%);
+    background: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.04) 42%, rgba(13, 18, 38, 0.72) 100%), rgba(10, 15, 28, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.48) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.26) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    -webkit-backdrop-filter: var(--liquid-blur) !important;
+    backdrop-filter: var(--liquid-blur) !important;
     border-radius: 18px;
     padding: 8px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+    box-shadow: 
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.38),
+        inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.28),
+        0 24px 60px rgba(0, 0, 0, 0.55),
+        0 0 25px -4px rgba(56, 189, 248, 0.12) !important;
     z-index: 200;
     transition: opacity 0.25s var(--ease-spring), transform 0.25s var(--ease-spring);
     transform-origin: top left;
 }
 [data-theme="light"] .search-engine-menu {
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(255, 255, 255, 0.75);
-    border-top: 1px solid #ffffff;
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.1), inset 0 1px 1px 0 #ffffff;
+    background: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.85) 45%, rgba(241, 245, 249, 0.75) 100%) !important;
+    border: 1px solid rgba(203, 213, 225, 0.5) !important;
+    border-top: 1.5px solid #ffffff !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+        inset 0 -1px 2px 0 rgba(15, 23, 42, 0.05),
+        0 20px 48px rgba(0, 0, 0, 0.1) !important;
 }
 .search-engine-menu.hidden {
     opacity: 0;
@@ -662,21 +689,31 @@ body[data-dashboard-mode="bing_live"] .live-dock {
 .suggestions-dropdown {
     position: absolute; top: 100%; left: 0; width: 100%;
     margin-top: 10px; border-radius: 22px;
-    background: rgba(15, 23, 42, 0.58);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-top: 1px solid rgba(255, 255, 255, 0.35);
-    -webkit-backdrop-filter: blur(28px) saturate(190%); 
-    backdrop-filter: blur(28px) saturate(190%);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+    background: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.04) 42%, rgba(13, 18, 38, 0.72) 100%), rgba(10, 15, 28, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.48) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.26) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    -webkit-backdrop-filter: var(--liquid-blur) !important; 
+    backdrop-filter: var(--liquid-blur) !important;
+    box-shadow: 
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.38),
+        inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.28),
+        0 24px 60px rgba(0, 0, 0, 0.55),
+        0 0 25px -4px rgba(56, 189, 248, 0.12) !important;
     list-style: none; overflow: hidden;
     z-index: 110; padding: 8px;
     transition: opacity 0.22s var(--ease-spring), transform 0.22s var(--ease-spring);
 }
 [data-theme="light"] .suggestions-dropdown {
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(255, 255, 255, 0.75);
-    border-top: 1px solid #ffffff;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1), inset 0 1px 1px 0 #ffffff;
+    background: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.85) 45%, rgba(241, 245, 249, 0.75) 100%) !important;
+    border: 1px solid rgba(203, 213, 225, 0.5) !important;
+    border-top: 1.5px solid #ffffff !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+        inset 0 -1px 2px 0 rgba(15, 23, 42, 0.05),
+        0 20px 50px rgba(0, 0, 0, 0.1) !important;
 }
 .suggestions-dropdown.hidden { opacity: 0; pointer-events: none; transform: translateY(-10px); }
 .suggestion-item {
@@ -747,13 +784,16 @@ body[data-dashboard-mode="bing_live"] .live-dock {
     width: 96px; height: 96px; border-radius: 22px; 
     background: var(--glass-bg);
     border: 1px solid var(--glass-border); 
-    border-top: 1px solid var(--glass-border-light);
+    border-top: 1.5px solid var(--glass-border-light);
+    border-left: 1px solid var(--glass-border-left);
+    border-bottom: 1px solid var(--glass-border-bottom);
+    border-right: 1px solid var(--glass-border-right);
     color: var(--text-primary); text-decoration: none;
     font-size: 0.82rem; font-weight: 500; 
-    -webkit-backdrop-filter: blur(20px) saturate(160%); 
-    backdrop-filter: blur(20px) saturate(160%);
-    box-shadow: var(--shadow-ambient), var(--glass-inner-sheen);
-    transition: transform 0.35s var(--ease-spring), background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease; 
+    -webkit-backdrop-filter: var(--liquid-blur); 
+    backdrop-filter: var(--liquid-blur);
+    box-shadow: var(--liquid-shadow-ambient), var(--glass-inner-sheen);
+    transition: transform 0.38s var(--ease-spring), background 0.38s ease, border-color 0.38s ease, box-shadow 0.38s ease; 
     cursor: pointer;
     position: relative;
     -webkit-user-select: none;
@@ -762,8 +802,9 @@ body[data-dashboard-mode="bing_live"] .live-dock {
 .shortcut:hover { 
     transform: translateY(-6px) scale(1.05); 
     background: var(--glass-hover-bg); 
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3), 0 0 20px var(--accent-glow), var(--glass-inner-sheen);
+    box-shadow: var(--liquid-shadow-hover), inset 0 2px 3px 0 rgba(255, 255, 255, 0.45), var(--glass-inner-sheen);
+    border-top-color: rgba(255, 255, 255, 0.65);
+    border-left-color: rgba(255, 255, 255, 0.38);
 }
 .shortcut:active {
     transform: translateY(-2px) scale(0.98);
@@ -887,23 +928,29 @@ body[data-dashboard-mode="bing_live"] .live-dock {
     padding: 18px 20px; border-radius: 22px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-top: 1px solid var(--glass-border-light);
-    -webkit-backdrop-filter: blur(24px) saturate(170%); 
-    backdrop-filter: blur(24px) saturate(170%);
-    box-shadow: var(--shadow-ambient), var(--glass-inner-sheen);
-    transition: transform 0.35s var(--ease-spring), box-shadow 0.35s ease, border-color 0.35s ease;
+    border-top: 1.5px solid var(--glass-border-light);
+    border-left: 1px solid var(--glass-border-left);
+    border-bottom: 1px solid var(--glass-border-bottom);
+    border-right: 1px solid var(--glass-border-right);
+    -webkit-backdrop-filter: var(--liquid-blur); 
+    backdrop-filter: var(--liquid-blur);
+    box-shadow: var(--liquid-shadow-ambient), var(--glass-inner-sheen);
+    transition: transform 0.38s var(--ease-spring), box-shadow 0.38s ease, border-color 0.38s ease, background 0.38s ease;
     display: flex; flex-direction: column; gap: 10px;
     -webkit-user-select: none;
     user-select: none;
 }
 .info-card:hover { 
-    transform: translateY(-4px); 
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32), 0 0 20px var(--accent-glow), var(--glass-inner-sheen);
-    border-color: rgba(255, 255, 255, 0.24);
+    transform: translateY(-4px) scale(1.006); 
+    background: var(--glass-hover-bg);
+    box-shadow: var(--liquid-shadow-hover), inset 0 2px 3px 0 rgba(255, 255, 255, 0.48), var(--glass-inner-sheen);
+    border-top-color: rgba(255, 255, 255, 0.65);
+    border-left-color: rgba(255, 255, 255, 0.38);
 }
 [data-theme="light"] .info-card:hover {
-    border-color: rgba(0, 0, 0, 0.15);
-    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1), 0 0 16px var(--accent-glow), var(--glass-inner-sheen);
+    border-color: rgba(0, 0, 0, 0.12);
+    border-top-color: #ffffff;
+    box-shadow: var(--liquid-shadow-hover), inset 0 2px 3px 0 rgba(255, 255, 255, 0.95), var(--glass-inner-sheen);
 }
 .info-card-header {
     display: flex; align-items: center; gap: 10px;
@@ -1309,22 +1356,28 @@ body[data-dashboard-mode="bing_live"] .live-dock {
 .notes-panel {
     border-radius: 22px; background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-top: 1px solid var(--glass-border-light);
-    -webkit-backdrop-filter: blur(24px) saturate(170%); 
-    backdrop-filter: blur(24px) saturate(170%);
-    box-shadow: var(--shadow-ambient), var(--glass-inner-sheen);
+    border-top: 1.5px solid var(--glass-border-light);
+    border-left: 1px solid var(--glass-border-left);
+    border-bottom: 1px solid var(--glass-border-bottom);
+    border-right: 1px solid var(--glass-border-right);
+    -webkit-backdrop-filter: var(--liquid-blur); 
+    backdrop-filter: var(--liquid-blur);
+    box-shadow: var(--liquid-shadow-ambient), var(--glass-inner-sheen);
     display: flex; flex-direction: column; overflow: hidden;
     min-height: 250px; max-height: 300px;
-    transition: transform 0.35s var(--ease-spring), box-shadow 0.35s ease, border-color 0.35s ease;
+    transition: transform 0.38s var(--ease-spring), box-shadow 0.38s ease, border-color 0.38s ease, background 0.38s ease;
 }
 .notes-panel:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32), 0 0 20px var(--accent-glow), var(--glass-inner-sheen);
-    border-color: rgba(255, 255, 255, 0.24);
+    transform: translateY(-4px) scale(1.006);
+    background: var(--glass-hover-bg);
+    box-shadow: var(--liquid-shadow-hover), inset 0 2px 3px 0 rgba(255, 255, 255, 0.48), var(--glass-inner-sheen);
+    border-top-color: rgba(255, 255, 255, 0.65);
+    border-left-color: rgba(255, 255, 255, 0.38);
 }
 [data-theme="light"] .notes-panel:hover {
-    border-color: rgba(0, 0, 0, 0.15);
-    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1), 0 0 16px var(--accent-glow), var(--glass-inner-sheen);
+    border-color: rgba(0, 0, 0, 0.12);
+    border-top-color: #ffffff;
+    box-shadow: var(--liquid-shadow-hover), inset 0 2px 3px 0 rgba(255, 255, 255, 0.95), var(--glass-inner-sheen);
 }
 .notes-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -7639,76 +7692,90 @@ body[data-dashboard-mode="pro"] #notes-widget:not(.hidden) {
    Modern Glass & Minimalist Component Engine
    ========================================================================== */
 
-/* -- 1. Frosted Glass Surface System -- */
+/* -- 1. Liquid Glass Surface System -- */
 .glass-premium,
 .macos-glass {
-    background: rgba(22, 27, 40, 0.65) !important;
-    backdrop-filter: blur(32px) saturate(190%) contrast(105%) !important;
-    -webkit-backdrop-filter: blur(32px) saturate(190%) contrast(105%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    background: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.04) 42%, rgba(13, 18, 38, 0.65) 100%), rgba(10, 15, 28, 0.5) !important;
+    backdrop-filter: var(--liquid-blur) !important;
+    -webkit-backdrop-filter: var(--liquid-blur) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.48) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.26) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
     box-shadow: 
-        inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
-        0 4px 14px 0 rgba(0, 0, 0, 0.18),
-        0 16px 44px -8px rgba(0, 0, 0, 0.4) !important;
-    border-radius: 20px;
-    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 0.2s ease,
-                background-color 0.2s ease;
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.38),
+        inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.28),
+        0 16px 44px -8px rgba(0, 0, 0, 0.48),
+        0 0 25px -4px rgba(56, 189, 248, 0.12) !important;
+    border-radius: 22px;
+    transition: transform 0.38s var(--ease-spring),
+                box-shadow 0.38s var(--ease-spring),
+                border-color 0.3s ease,
+                background-color 0.3s ease;
 }
 
 [data-theme="light"] .glass-premium,
 [data-theme="light"] .macos-glass {
-    background: rgba(255, 255, 255, 0.72) !important;
-    backdrop-filter: blur(32px) saturate(200%) contrast(102%) !important;
-    -webkit-backdrop-filter: blur(32px) saturate(200%) contrast(102%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    background: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.85) 45%, rgba(241, 245, 249, 0.75) 100%) !important;
+    backdrop-filter: var(--liquid-blur) !important;
+    -webkit-backdrop-filter: var(--liquid-blur) !important;
+    border: 1px solid rgba(203, 213, 225, 0.5) !important;
+    border-top: 1.5px solid #ffffff !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.9) !important;
     box-shadow: 
-        inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95),
-        0 4px 16px 0 rgba(15, 23, 42, 0.06),
-        0 20px 40px -10px rgba(15, 23, 42, 0.1) !important;
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+        inset 0 -1px 2px 0 rgba(15, 23, 42, 0.05),
+        0 16px 36px -8px rgba(15, 23, 42, 0.09) !important;
 }
 
-/* -- 2. Unified Minimalist Search Bar -- */
+/* -- 2. Unified Minimalist Search Bar (Liquid Glass) -- */
 .search-container form {
-    background: rgba(24, 28, 42, 0.72) !important;
-    backdrop-filter: blur(40px) saturate(200%) !important;
-    -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+    background: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 45%, rgba(15, 22, 42, 0.68) 100%), rgba(12, 17, 32, 0.55) !important;
+    backdrop-filter: blur(40px) saturate(210%) contrast(105%) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(210%) contrast(105%) !important;
     border: 1px solid rgba(255, 255, 255, 0.16) !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.32) !important;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.48) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.26) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
     box-shadow: 
-        inset 0 1px 1px 0 rgba(255, 255, 255, 0.24),
-        0 8px 32px 0 rgba(0, 0, 0, 0.28) !important;
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.42),
+        inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.25),
+        0 14px 44px 0 rgba(0, 0, 0, 0.38),
+        0 0 25px -4px rgba(56, 189, 248, 0.15) !important;
     border-radius: 9999px !important;
-    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .search-container form:focus-within {
-    border-color: rgba(56, 189, 248, 0.65) !important;
-    border-top-color: rgba(125, 211, 252, 0.8) !important;
+    border-color: rgba(56, 189, 248, 0.7) !important;
+    border-top-color: rgba(125, 211, 252, 0.9) !important;
     box-shadow: 
-        inset 0 1px 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.5),
         0 0 0 3px rgba(56, 189, 248, 0.25),
-        0 14px 48px 0 rgba(0, 0, 0, 0.42) !important;
-    transform: translateY(-1px) scale(1.008);
+        0 18px 54px 0 rgba(0, 0, 0, 0.5),
+        0 0 35px 2px rgba(56, 189, 248, 0.3) !important;
+    transform: translateY(-2px) scale(1.008);
 }
 
 [data-theme="light"] .search-container form {
-    background: rgba(255, 255, 255, 0.88) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
+    background: radial-gradient(130% 130% at 20% 0%, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.85) 45%, rgba(241, 245, 249, 0.75) 100%) !important;
+    border: 1px solid rgba(203, 213, 225, 0.5) !important;
+    border-top: 1.5px solid #ffffff !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.9) !important;
     box-shadow: 
-        inset 0 1px 1.5px 0 rgba(255, 255, 255, 1),
-        0 8px 30px 0 rgba(0, 0, 0, 0.08) !important;
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+        inset 0 -1px 2px 0 rgba(15, 23, 42, 0.05),
+        0 10px 32px 0 rgba(15, 23, 42, 0.08) !important;
     border-radius: 9999px !important;
 }
 
 [data-theme="light"] .search-container form:focus-within {
-    border-color: rgba(56, 189, 248, 0.6) !important;
+    border-color: rgba(56, 189, 248, 0.7) !important;
     box-shadow: 
-        inset 0 1px 1.5px 0 rgba(255, 255, 255, 1),
-        0 0 0 3px rgba(56, 189, 248, 0.2),
-        0 14px 40px 0 rgba(0, 0, 0, 0.12) !important;
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+        0 0 0 3px rgba(56, 189, 248, 0.22),
+        0 16px 44px 0 rgba(15, 23, 42, 0.14) !important;
 }
 
 /* -- 3. Spring-Physics Micro-Interactions & Tactility -- */

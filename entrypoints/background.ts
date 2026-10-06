@@ -346,10 +346,18 @@ export default defineBackground(() => {
             };
 
           } else if (isTor || scheme.toLowerCase() === 'socks5') {
-            // Primary Tor SOCKS5 + fallback to 9150 (Tor Browser)
-            const torChain = `SOCKS5 ${host}:${port}; SOCKS5 127.0.0.1:9150`;
-            const pacData = buildPacScript(torChain, killSwitchEnabled);
-            proxyConfig = { mode: 'pac_script', pacScript: { data: pacData } };
+            // Native fixed_servers mode for direct Tor SOCKS5 routing and remote DNS resolution
+            proxyConfig = {
+              mode: 'fixed_servers',
+              rules: {
+                singleProxy: {
+                  scheme: 'socks5',
+                  host: host || '127.0.0.1',
+                  port: parseInt(String(port || 9050), 10),
+                },
+                bypassList: ['<local>', 'localhost', '127.0.0.1'],
+              },
+            };
 
           } else {
             // Multi-endpoint proxy chain

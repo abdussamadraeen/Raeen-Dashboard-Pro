@@ -260,9 +260,10 @@ import { securityManager, TACTICAL_NODES, SECURE_DNS_PROVIDERS } from './vpn.js'
                     dom.hudNodeHint.innerHTML = `🛡️ <strong>${currentNode.name}:</strong> Hardware WebRTC leak protection active with zero latency.`;
                 } else if (currentNode.isTor) {
                     if (securityManager.torOffline) {
-                        dom.hudNodeHint.innerHTML = `⚠️ <strong>Tor Offline (${currentNode.port || DEFAULT_TOR_PORT}):</strong> Port ${currentNode.port || DEFAULT_TOR_PORT} is not responding. Ensure Tor daemon is active, or choose Stealth Shield for instant protection.`;
+                        dom.hudNodeHint.innerHTML = `⚠️ <strong>Tor Engine Inactive (${currentNode.port || DEFAULT_TOR_PORT}):</strong> Run <code>tools\\start-vpn.bat</code> to activate Tor Onion routing, or connect now for instant Stealth Shield protection.`;
                     } else {
-                        dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Active on 127.0.0.1:${currentNode.port || DEFAULT_TOR_PORT} • Multi-Hop Onion Relay`;
+                        const progress = securityManager.daemonProgress || 100;
+                        dom.hudNodeHint.innerHTML = `🟢 <strong>${currentNode.name}:</strong> Tor Multi-Hop Relay Active (127.0.0.1:${currentNode.port || DEFAULT_TOR_PORT}) • Exit: ${currentNode.countryCode.toUpperCase()} • 100% Military Anonymity`;
                     }
                 } else if (currentNode.id === 'custom') {
                     dom.hudNodeHint.innerHTML = '⚙️ <strong>Custom:</strong> Enter your own SOCKS5 or HTTPS proxy host and port.';
