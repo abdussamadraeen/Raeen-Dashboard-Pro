@@ -64,6 +64,7 @@ export const SettingsSchema = z.object({
   showCardDirectories: z.boolean().default(true),
   showCardImageCompressor: z.boolean().default(false),
   showCardPdfTools: z.boolean().default(false),
+  showCardCreativeStudio: z.boolean().default(false),
   showNoosphereBar: z.boolean().default(true),
   showMainUI: z.boolean().default(true),
   showSettingsButtonInImmersive: z.boolean().default(true),

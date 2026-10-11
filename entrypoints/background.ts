@@ -305,6 +305,30 @@ export default defineBackground(() => {
       return true;
     },
 
+    vpn_sync_state: (request, _sender, sendResponse) => {
+      (async () => {
+        try {
+          const payload = request.payload ?? {};
+          isVpnActive = !!payload.isVpnActive;
+          activeVpnNode = (payload.activeVpnNode as Record<string, unknown> | null) ?? null;
+          if (typeof payload.killSwitch === 'boolean') killSwitchEnabled = payload.killSwitch;
+          if (typeof payload.webrtcSealed === 'boolean') webrtcSealed = payload.webrtcSealed;
+
+          await persistVpnState({
+            raeen_vpn_active: isVpnActive,
+            raeen_vpn_node_config: activeVpnNode,
+            raeen_vpn_killswitch: killSwitchEnabled,
+            raeen_vpn_webrtc: webrtcSealed,
+          });
+
+          sendResponse({ success: true, isVpnActive, activeVpnNode });
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
+        }
+      })();
+      return true;
+    },
+
     vpn_connect: (request, _sender, sendResponse) => {
       (async () => {
         try {
@@ -332,43 +356,36 @@ export default defineBackground(() => {
           if (isShieldOnly || scheme === 'direct') {
             proxyConfig = { mode: 'direct' };
 
-          } else if (scheme === 'http' || scheme === 'https' || scheme === 'socks4') {
+          } else if ((request.payload?.daemonOnline || request.payload?.useFixed) && host && port) {
             proxyConfig = {
               mode: 'fixed_servers',
               rules: {
                 singleProxy: {
-                  scheme: scheme.toLowerCase(),
+                  scheme: (scheme || 'socks5').toLowerCase(),
                   host,
                   port: parseInt(String(port), 10),
                 },
-                bypassList: ['<local>', 'localhost', '127.0.0.1'],
-              },
-            };
-
-          } else if (isTor || scheme.toLowerCase() === 'socks5') {
-            // Native fixed_servers mode for direct Tor SOCKS5 routing and remote DNS resolution
-            proxyConfig = {
-              mode: 'fixed_servers',
-              rules: {
-                singleProxy: {
-                  scheme: 'socks5',
-                  host: host || '127.0.0.1',
-                  port: parseInt(String(port || 9050), 10),
-                },
-                bypassList: ['<local>', 'localhost', '127.0.0.1'],
+                bypassList: ['<-loopback>', 'localhost', '127.0.0.1', '*.local', '*.internal'],
               },
             };
 
           } else {
-            // Multi-endpoint proxy chain
+            // Multi-endpoint proxy chain / Cloud Gateways / Tor PAC failover
             const candidateEndpoints: Array<{ host: string; port: number; scheme: string }> =
               Array.isArray(endpoints) && endpoints.length > 0
-                ? endpoints
-                : [{ host, port, scheme }];
+                ? [...endpoints]
+                : [{ host: host || '127.0.0.1', port: parseInt(String(port || 9050), 10), scheme: scheme || 'socks5' }];
+
+            // If Tor with local daemon, ensure standard Tor Browser port is chained as fallback
+            if (isTor) {
+              if (!candidateEndpoints.some((e) => e.port === 9150)) {
+                candidateEndpoints.push({ host: '127.0.0.1', port: 9150, scheme: 'socks5' });
+              }
+            }
 
             const chain = candidateEndpoints
               .map((ep) => {
-                const sc = (ep.scheme || scheme || 'http').toLowerCase();
+                const sc = (ep.scheme || scheme || 'socks5').toLowerCase();
                 const kw =
                   sc === 'socks5' ? 'SOCKS5'
                   : sc === 'https' ? 'HTTPS'
@@ -538,6 +555,90 @@ export default defineBackground(() => {
       })();
       return true;
     },
+
+    capture_screen: (_request, _sender, sendResponse) => {
+      (async () => {
+        try {
+          const chrome = (globalThis as any).chrome;
+          if (!chrome?.tabs?.captureVisibleTab) {
+            sendResponse({ success: false, error: 'Screen capture API not supported in this context' });
+            return;
+          }
+          chrome.tabs.captureVisibleTab(null, { format: 'png' }, (dataUrl: string) => {
+            const err = chrome.runtime?.lastError;
+            if (err || !dataUrl) {
+              sendResponse({ success: false, error: err?.message || 'Failed to capture visible tab' });
+              return;
+            }
+            sendResponse({ success: true, dataUrl });
+          });
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
+        }
+      })();
+      return true;
+    },
+
+    get_open_tabs: (_request, _sender, sendResponse) => {
+      (async () => {
+        try {
+          const chrome = (globalThis as any).chrome;
+          if (chrome?.tabs?.query) {
+            chrome.tabs.query({ currentWindow: true }, (tabs: any[]) => {
+              const err = chrome.runtime?.lastError;
+              if (err) {
+                sendResponse({ success: false, error: err.message });
+                return;
+              }
+              const simplified = (tabs || []).map(t => ({
+                id: t.id,
+                title: t.title || 'Untitled Tab',
+                url: t.url || '',
+                favIconUrl: t.favIconUrl || ''
+              }));
+              sendResponse({ success: true, tabs: simplified });
+            });
+          } else {
+            sendResponse({ success: false, error: 'Tabs API unavailable' });
+          }
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
+        }
+      })();
+      return true;
+    },
+
+    freeze_inactive_tabs: (_request, sender, sendResponse) => {
+      (async () => {
+        try {
+          const chrome = (globalThis as any).chrome;
+          if (!chrome?.tabs?.query) {
+            sendResponse({ success: false, error: 'Tabs API unavailable' });
+            return;
+          }
+          chrome.tabs.query({ currentWindow: true }, async (tabs: any[]) => {
+            let frozenCount = 0;
+            const currentTabId = sender?.tab?.id;
+            for (const tab of (tabs || [])) {
+              if (tab.id && !tab.active && tab.id !== currentTabId) {
+                try {
+                  if (chrome.tabs.discard) {
+                    await new Promise<void>((res) => {
+                      chrome.tabs.discard(tab.id, () => res());
+                    });
+                    frozenCount++;
+                  }
+                } catch (_) {}
+              }
+            }
+            sendResponse({ success: true, frozenCount });
+          });
+        } catch (e: any) {
+          sendResponse({ success: false, error: e?.message ?? String(e) });
+        }
+      })();
+      return true;
+    },
   };
 
   // ─── Message Listener ──────────────────────────────────────────────────────
@@ -572,6 +673,26 @@ export default defineBackground(() => {
       return true; // Keep channel open for async handlers
     }
   );
+
+  // ─── Proxy Error Fallback & Protection ─────────────────────────────────────
+  try {
+    const chromeProxy = (globalThis as any).chrome?.proxy;
+    if (chromeProxy?.onProxyError?.addListener) {
+      chromeProxy.onProxyError.addListener((details: { error: string; fatal: boolean; details?: string }) => {
+        console.warn('[BG:ProxyError]', details);
+        if (details.fatal && !killSwitchEnabled && isVpnActive) {
+          console.warn('[BG] Recovering from fatal proxy error without kill switch. Falling back safely to DIRECT.');
+          const safePac = `function FindProxyForURL(url, host) { return "DIRECT"; }`;
+          chromeProxy.settings.set({
+            value: { mode: 'pac_script', pacScript: { data: safePac } },
+            scope: 'regular'
+          }, () => {});
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('[BG] Proxy error listener registration:', e);
+  }
 
   // ─── Initialization ─────────────────────────────────────────────────────────
 

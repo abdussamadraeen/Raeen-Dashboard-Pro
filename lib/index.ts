@@ -8,4 +8,5 @@ export * from './storageResilient';
 export * from './backgroundResilience';
 export * from './initGuard';
 export * from './storageVersion';
+export * from './agentCommandBus';
 export { ErrorBoundary } from './errorBoundary';

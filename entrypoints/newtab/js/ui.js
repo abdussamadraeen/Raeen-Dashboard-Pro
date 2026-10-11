@@ -108,6 +108,9 @@ export function transitionToBackground(newBgUrl) {
 }
 
 export async function applySettings() {
+    const preBoot = document.getElementById('pre-boot-critical-css');
+    if (preBoot) preBoot.remove();
+
     const isLiveBg = state.settings.backgroundType === 'google_dashboard' || state.settings.backgroundType === 'bing_dashboard';
     if (!isLiveBg) {
         document.title = state.settings.dashboardTitle || 'New Tab';
@@ -418,8 +421,9 @@ export async function applySettings() {
         }
     }
 
-    // Brave Photographer Credit with verified original author attribution
-    if ((bgType === 'curated' || bgType === 'brave') && currentBraveWallpaper && !hideUI && !isImmersive) {
+    // Brave Photographer Credit with verified original author attribution (Minimalist mode only to avoid colliding with widgets)
+    const isMinimalMode = (state.settings.dashboardMode === 'minimal');
+    if ((bgType === 'curated' || bgType === 'brave') && currentBraveWallpaper && !hideUI && !isImmersive && isMinimalMode) {
         if (dom.photographerCredit) {
             dom.photographerCredit.classList.remove('hidden');
             dom.photographerCredit.title = `${currentBraveWallpaper.title || 'Wallpaper'} by ${currentBraveWallpaper.photographer || 'Brave Curated'} (Verified Unsplash Contributor)`;
@@ -719,16 +723,27 @@ let _lastDayPercent = '';
 let _lastYearPercent = '';
 
 export function updateCards() {
-    if (!state.settings.showCards) return;
-    if (dom.cardDateEl) dom.cardDateEl.classList.toggle('hidden', !state.settings.showCardDate);
-    if (dom.cardFocusEl) dom.cardFocusEl.classList.toggle('hidden', !state.settings.showCardFocus);
-    if (dom.cardNoteEl) dom.cardNoteEl.classList.toggle('hidden', !state.settings.showCardNote);
-    if (dom.cardSecurityEl) dom.cardSecurityEl.classList.toggle('hidden', state.settings.showCardSecurity === false);
-    if (dom.cardDnsEl) dom.cardDnsEl.classList.toggle('hidden', state.settings.showCardDns === false);
-    if (dom.cardFileShareEl) dom.cardFileShareEl.classList.toggle('hidden', state.settings.showCardFileShare === false);
-    if (dom.cardDirectoriesEl) dom.cardDirectoriesEl.classList.toggle('hidden', state.settings.showCardDirectories === false);
-    if (dom.cardImageCompressorEl) dom.cardImageCompressorEl.classList.toggle('hidden', state.settings.showCardImageCompressor !== true);
-    if (dom.cardPdfToolsEl) dom.cardPdfToolsEl.classList.toggle('hidden', state.settings.showCardPdfTools !== true);
+    const showAll = state.settings.showCards !== false;
+    const currentMode = state.settings.dashboardMode || 'pro';
+    const isCreatorMode = currentMode === 'creator';
+    const isSecurityMode = currentMode === 'security';
+    const isFocusMode = currentMode === 'focus';
+
+    if (dom.cardDateEl) dom.cardDateEl.classList.toggle('hidden', !showAll || (!isFocusMode && !state.settings.showCardDate));
+    if (dom.cardFocusEl) dom.cardFocusEl.classList.toggle('hidden', !showAll || (!isFocusMode && !state.settings.showCardFocus));
+    if (dom.cardNoteEl) dom.cardNoteEl.classList.toggle('hidden', !showAll || !state.settings.showCardNote);
+    if (dom.cardSecurityEl) dom.cardSecurityEl.classList.toggle('hidden', !showAll || (!isSecurityMode && state.settings.showCardSecurity === false));
+    if (dom.cardDnsEl) dom.cardDnsEl.classList.toggle('hidden', !showAll || (!isSecurityMode && state.settings.showCardDns === false));
+    if (dom.cardFileShareEl) dom.cardFileShareEl.classList.toggle('hidden', !showAll || (!isCreatorMode && state.settings.showCardFileShare === false));
+    if (dom.cardDirectoriesEl) dom.cardDirectoriesEl.classList.toggle('hidden', !showAll || state.settings.showCardDirectories === false);
+
+    // In Creator & Media Studio, Image Compressor & PDF Lab must always be visible
+    const showImageComp = showAll && (isCreatorMode || state.settings.showCardImageCompressor === true);
+    const showPdfTools = showAll && (isCreatorMode || state.settings.showCardPdfTools === true);
+    if (dom.cardImageCompressorEl) dom.cardImageCompressorEl.classList.toggle('hidden', !showImageComp);
+    if (dom.cardPdfToolsEl) dom.cardPdfToolsEl.classList.toggle('hidden', !showPdfTools);
+
+    if (!showAll) return;
 
     const now = new Date();
     const currentDateKey = now.getDate();
@@ -885,7 +900,7 @@ export const DASHBOARD_PRESETS = [
         badge: 'Recommended • Balanced Layout',
         accentColor: '#38bdf8',
         tagline: 'Complete all-in-one productivity dashboard with Clock, Date, Notes, AI Hub, Focus Timer, and Search.',
-        widgets: ['Clock & Date', 'AI Hub & Apps', 'Quick Notes', 'Focus Timer', 'Web Search'],
+        widgets: ['Clock & Date', 'AI Hub & Apps', 'Quick Notes', 'Focus Timer', 'Drop Share', 'Web Search'],
         mockupHtml: `
             <div class="mockup-screen mockup-pro">
                 <div class="m-window-bar">
@@ -917,10 +932,11 @@ export const DASHBOARD_PRESETS = [
             showCardNote: true,
             showCardSecurity: false,
             showCardDns: false,
-            showCardFileShare: false,
+            showCardFileShare: true,
             showCardDirectories: true,
             showCardImageCompressor: false,
             showCardPdfTools: false,
+            showCardCreativeStudio: false,
             showTopSites: true,
             showClock: true,
             showSearch: true,
@@ -932,8 +948,8 @@ export const DASHBOARD_PRESETS = [
         name: 'Creator & Media Studio',
         badge: 'Design & Documents',
         accentColor: '#ec4899',
-        tagline: 'Built for designers and content creators: In-Browser Image Compressor, Offline PDF Tools, Quick Notes, and P2P File Share.',
-        widgets: ['Image Compressor', 'PDF Tools', 'Quick Notes', 'P2P File Share', 'Web Search'],
+        tagline: 'Built for designers and content creators: Creative Studio markup & design, In-Browser Image Compressor, Offline PDF Tools, Quick Notes, and P2P File Share.',
+        widgets: ['Creative Studio', 'Image Compressor', 'PDF Tools', 'Quick Notes', 'P2P File Share', 'Web Search'],
         mockupHtml: `
             <div class="mockup-screen mockup-creator">
                 <div class="m-window-bar">
@@ -977,6 +993,7 @@ export const DASHBOARD_PRESETS = [
             showCardDirectories: false,
             showCardImageCompressor: true,
             showCardPdfTools: true,
+            showCardCreativeStudio: false,
             showTopSites: true,
             showClock: true,
             showSearch: true,
@@ -1302,6 +1319,22 @@ export async function applyDashboardPreset(presetId) {
     Object.assign(state.settings, preset.config);
     state.settings.dashboardMode = preset.id;
 
+    if (preset.id === 'creator') {
+        state.settings.showCards = true;
+        state.settings.showCardImageCompressor = true;
+        state.settings.showCardPdfTools = true;
+        state.settings.showCardCreativeStudio = false;
+        state.settings.showCardFileShare = true;
+        state.settings.showCardNote = true;
+        state.settings.showCardDirectories = true;
+        if (dom.cardImageCompressorEl) dom.cardImageCompressorEl.classList.remove('hidden');
+        if (dom.cardPdfToolsEl) dom.cardPdfToolsEl.classList.remove('hidden');
+    }
+
+    // Clean up pre-boot critical css so dynamic classes have full control
+    const preBoot = document.getElementById('pre-boot-critical-css');
+    if (preBoot) preBoot.remove();
+
     // Reset saved positions and sizes so this workspace snaps to its clean designed layout
     try {
         localStorage.removeItem("raeen_widget_positions");
@@ -1312,9 +1345,6 @@ export async function applyDashboardPreset(presetId) {
             widget.style.width = "";
             widget.style.height = "";
         });
-        if (typeof window.applyWidgetLayout === 'function') {
-            window.applyWidgetLayout();
-        }
     } catch(e) {}
 
     await saveSettings(state.settings);
@@ -1322,4 +1352,12 @@ export async function applyDashboardPreset(presetId) {
     syncSettingsUI();
     renderDashboardChooser();
     updateCards();
+
+    // Compute and apply layout coordinates after elements are unhidden in DOM
+    if (typeof window.applyWidgetLayout === 'function') {
+        window.applyWidgetLayout();
+    }
+    if (typeof window.renderDirectoriesWidget === 'function') {
+        window.renderDirectoriesWidget();
+    }
 }

@@ -59,11 +59,11 @@
         } else if (mode === 'focus') {
             css += '#card-security, #card-fileshare, #directory-widget, #card-image-compressor, #card-pdf-tools, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
         } else if (mode === 'security') {
-            css += '#card-date, #card-focus, #card-fileshare, #directory-widget, #card-image-compressor, #card-pdf-tools, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
+            css += '#card-date, #card-focus, #card-fileshare, #card-image-compressor, #card-pdf-tools, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
         } else if (mode === 'creator') {
-            css += '#card-date, #card-focus, #card-security, #directory-widget, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
+            css += '#card-date, #card-focus, #card-security, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
         } else if (mode === 'pro') {
-            css += '#card-image-compressor, #card-pdf-tools, #card-security, #card-fileshare, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
+            css += '#card-image-compressor, #card-pdf-tools, #card-security, .noosphere-status, .noosphere-status-horizontal { display: none !important; } ';
         }
 
         if (css) {
@@ -72,5 +72,12 @@
             styleEl.textContent = css;
             document.documentElement.appendChild(styleEl);
         }
+
+        // Auto-cleanup hook: guarantee critical pre-boot styles yield to dynamic JavaScript classes
+        window.removePreBootCriticalCss = function() {
+            var el = document.getElementById('pre-boot-critical-css');
+            if (el) el.remove();
+        };
+        setTimeout(window.removePreBootCriticalCss, 300);
     } catch(e) {}
 })();

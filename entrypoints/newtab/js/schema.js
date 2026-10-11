@@ -38,6 +38,7 @@ export const DEFAULT_SETTINGS = {
     showCardDirectories: true,
     showCardImageCompressor: false,
     showCardPdfTools: false,
+    showCardCreativeStudio: false,
     customDashboards: [],
     activeCustomDashboardId: null,
     showNoosphereBar: true, 

@@ -31,6 +31,7 @@ describe('settingsSchema', () => {
       showCardDirectories: true,
       showCardImageCompressor: false,
       showCardPdfTools: false,
+      showCardCreativeStudio: false,
       showNoosphereBar: true,
       showMainUI: true,
       showSettingsButtonInImmersive: true,

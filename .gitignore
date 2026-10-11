@@ -32,3 +32,12 @@ tools/tor/data/
 tools/tor/docs/
 tools/tor/tor/
 tools/tor/tor.tar.gz
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Build cache & OS files
+*.tsbuildinfo
+Thumbs.db

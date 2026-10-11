@@ -98,7 +98,7 @@
                     <div class="resize-handle"></div>
                 </div>
 
-                <!-- VPN Tunnel Controller Card -->
+                <!-- VPN & Privacy Shield Card -->
                 <div class="info-card draggable-widget tactical-security-hud" id="card-security" draggable="false">
                     <div class="info-card-header">
                         <div class="info-card-icon icon-security">
@@ -106,7 +106,7 @@
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                             </svg>
                         </div>
-                        <div class="info-card-title">VPN Tunnel Controller</div>
+                        <div class="info-card-title">VPN &amp; Privacy Shield</div>
                         <div class="defcon-badge defcon-idle" id="hud-defcon-badge">Off</div>
                     </div>
                     
@@ -124,52 +124,60 @@
                                 <span class="hud-val hud-status-val" id="hud-shield-status">Ready</span>
                             </div>
                             <div class="hud-status-row">
-                                <span class="hud-label">SECURITY:</span>
+                                <span class="hud-label">PROTECTION:</span>
                                 <span class="hud-val hud-cipher" id="hud-cipher-val">256-Bit Shield</span>
                             </div>
                             <div class="hud-status-row">
-                                <span class="hud-label">LEAK GUARD:</span>
+                                <span class="hud-label">PRIVACY GUARD:</span>
                                 <span class="hud-val hud-sealed" id="hud-webrtc-status">Active</span>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Clean Human Protection Status Banner -->
+                    <div class="hud-quick-status" id="hud-quick-status">
+                        <span class="hud-quick-dot" id="hud-quick-dot"></span>
+                        <span class="hud-quick-text" id="hud-quick-text">Ready to protect your browsing</span>
+                    </div>
+
                     <!-- Server Selector -->
                     <div class="hud-node-selector">
-                        <label for="hud-node-select" class="hud-node-label">Server Location</label>
+                        <label for="hud-node-select" class="hud-node-label">Protection Mode</label>
                         <div class="hud-select-wrapper">
-                            <select id="hud-node-select" class="hud-select" aria-label="Server Location">
-                                <option value="shield_direct" selected>🛡️ Stealth Shield (Zero Lag • WebRTC Protected)</option>
-                                <option value="us">🇺🇸 United States (Cloud Route)</option>
-                                <option value="de">🇩🇪 Germany (Frankfurt GDPR)</option>
-                                <option value="sg">🇸🇬 Singapore (APAC Hub)</option>
-                                <option value="ch">🇨🇭 Switzerland (Zurich Vault)</option>
-                                <option value="tor">🧅 Tor Onion Relay (127.0.0.1:9050)</option>
-                                <option value="custom">⚙️ Custom SOCKS5 / HTTPS Proxy</option>
+                            <select id="hud-node-select" class="hud-select" aria-label="Protection Mode">
+                                <option value="shield_direct" selected>🛡️ In-Browser Privacy Shield (Fast • Zero Setup)</option>
+                                <option value="tor_auto">🧅 Tor Onion Route (Auto Multi-Hop)</option>
+                                <option value="tor_us">🇺🇸 United States Exit (Tor Protected)</option>
+                                <option value="tor_de">🇩🇪 Germany Exit (Tor Protected)</option>
+                                <option value="tor_gb">🇬🇧 United Kingdom Exit (Tor Protected)</option>
+                                <option value="tor_nl">🇳🇱 Netherlands Exit (Tor Protected)</option>
+                                <option value="tor_ch">🇨🇭 Switzerland Exit (Tor Protected)</option>
+                                <option value="tor_sg">🇸🇬 Singapore Exit (Tor Protected)</option>
+                                <option value="custom">⚙️ Custom Secure Proxy</option>
                             </select>
                         </div>
                         <div class="hud-node-info" id="hud-node-hint">
-                            🛡️ <strong>Stealth Shield:</strong> Hardware WebRTC leak protection active with zero latency.
+                            🛡️ <strong>In-Browser Privacy Shield:</strong> Instant zero-setup protection. Shields your IP, stops WebRTC leaks, and encrypts DNS.
                         </div>
                     </div>
 
                     <!-- Custom Proxy Inputs (Revealed when Custom selected) -->
                     <div class="hud-custom-proxy hidden" id="hud-custom-fields">
                         <input type="text" id="hud-custom-host" placeholder="Host (e.g. 127.0.0.1)" class="hud-input" aria-label="Proxy Host">
-                        <input type="number" id="hud-custom-port" placeholder="Port (e.g. 9050)" class="hud-input hud-input-port" aria-label="Proxy Port">
+                        <input type="number" id="hud-custom-port" placeholder="Port (e.g. 1080)" class="hud-input hud-input-port" aria-label="Proxy Port">
                     </div>
 
-                    <!-- IP & Ping Telemetry -->
+                    <!-- IP & Speed Telemetry -->
                     <div class="hud-telemetry">
                         <div class="hud-tele-col">
                             <div class="hud-tele-header">
-                                <span class="hud-tele-label">PROTECTED IP</span>
+                                <span class="hud-tele-label">YOUR IP</span>
                                 <a id="hud-verify-link" href="https://browserleaks.com/ip" target="_blank" rel="noopener" class="hud-verify-tag" title="Verify IP and WebRTC leak protection">Verify ↗</a>
                             </div>
                             <span class="hud-tele-val" id="hud-ip-val">Checking...</span>
                         </div>
                         <div class="hud-tele-col">
-                            <span class="hud-tele-label">PING SPEED</span>
+                            <span class="hud-tele-label">SPEED</span>
                             <span class="hud-tele-val" id="hud-ping-val">-- ms</span>
                         </div>
                     </div>
@@ -199,23 +207,23 @@
                                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                             </svg>
                         </div>
-                        <div class="info-card-title">Secure DNS &amp; Leak Guard</div>
+                        <div class="info-card-title">Encrypted DNS &amp; Privacy Guard</div>
                         <div class="defcon-badge defcon-idle" id="hud-dns-status-badge">Protected</div>
                     </div>
 
-                    <!-- DoH Provider Selector -->
+                    <!-- DNS Provider Selector -->
                     <div class="hud-node-selector">
-                        <label for="hud-dns-select" class="hud-node-label">Encrypted DNS Provider (DoH)</label>
+                        <label for="hud-dns-select" class="hud-node-label">Encrypted DNS Provider</label>
                         <div class="hud-select-wrapper">
                             <select id="hud-dns-select" class="hud-select" aria-label="Encrypted DNS Provider">
-                                <option value="cloudflare" selected>🛡️ Cloudflare Zero-Trust (1.1.1.1 DoH • Zero Logs)</option>
-                                <option value="quad9">🔒 Quad9 Privacy Shield (9.9.9.9 • Malware Blocker)</option>
-                                <option value="adguard">🚫 AdGuard Privacy DNS (Ad &amp; Tracker Blocker)</option>
-                                <option value="google">🌐 Google Public DNS (8.8.8.8 • Fast Anycast)</option>
+                                <option value="cloudflare" selected>🛡️ Cloudflare Zero-Trust (Ultra-Fast • Zero Logs)</option>
+                                <option value="quad9">🔒 Quad9 Privacy Shield (Blocks Threats &amp; Malware)</option>
+                                <option value="adguard">🚫 AdGuard Privacy DNS (Blocks Ads &amp; Trackers)</option>
+                                <option value="google">🌐 Google Public DNS (Fast &amp; Reliable)</option>
                             </select>
                         </div>
                         <div class="hud-node-info" id="hud-dns-hint">
-                            🛡️ <strong>Cloudflare Zero-Trust:</strong> DNSSEC verified, zero-logging encrypted DNS-over-HTTPS.
+                            🛡️ <strong>Cloudflare Zero-Trust:</strong> Private, encrypted domain lookups that keep your internet provider from seeing what websites you visit.
                         </div>
                     </div>
 
@@ -223,21 +231,21 @@
                     <div class="dns-protection-grid">
                         <div class="dns-protection-item">
                             <div class="dns-prot-info">
-                                <span class="dns-prot-title">Hardware WebRTC Shield</span>
-                                <span class="dns-prot-sub">Disables non-proxied UDP leaks</span>
+                                <span class="dns-prot-title">Browser IP Leak Guard</span>
+                                <span class="dns-prot-sub">Prevents websites from discovering your real IP</span>
                             </div>
                             <label class="switch switch-sm">
-                                <input type="checkbox" id="hud-webrtc-toggle" checked title="Hardware WebRTC Leak Shield" aria-label="Hardware WebRTC Leak Shield">
+                                <input type="checkbox" id="hud-webrtc-toggle" checked title="Browser IP Leak Guard" aria-label="Browser IP Leak Guard">
                                 <span class="slider round"></span>
                             </label>
                         </div>
                         <div class="dns-protection-item">
                             <div class="dns-prot-info">
-                                <span class="dns-prot-title">Kill Switch Fail-Safe</span>
-                                <span class="dns-prot-sub">Block traffic if tunnel drops</span>
+                                <span class="dns-prot-title">Connection Drop Protection</span>
+                                <span class="dns-prot-sub">Blocks traffic if secure tunnel drops</span>
                             </div>
                             <label class="switch switch-sm">
-                                <input type="checkbox" id="hud-killswitch-toggle" title="Kill Switch Fail-Safe" aria-label="Kill Switch Fail-Safe">
+                                <input type="checkbox" id="hud-killswitch-toggle" title="Connection Drop Protection" aria-label="Connection Drop Protection">
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -246,13 +254,13 @@
                     <!-- Live DNS Latency & Resolution Test Row -->
                     <div class="hud-telemetry dns-telemetry-row">
                         <div class="hud-tele-col">
-                            <span class="hud-tele-label">DNS ENCRYPTION</span>
-                            <span class="hud-tele-val text-green" id="hud-dns-enc-status">DoH Active</span>
+                            <span class="hud-tele-label">SECURITY STATUS</span>
+                            <span class="hud-tele-val text-green" id="hud-dns-enc-status">Encrypted &amp; Safe</span>
                         </div>
                         <div class="hud-tele-col">
                             <div class="hud-tele-header">
-                                <span class="hud-tele-label">RESOLUTION PING</span>
-                                <button type="button" id="hud-dns-test-btn" class="hud-dns-test-tag" title="Test real-time DoH response latency">Test ↻</button>
+                                <span class="hud-tele-label">DNS SPEED</span>
+                                <button type="button" id="hud-dns-test-btn" class="hud-dns-test-tag" title="Test real-time DNS response speed and verify leak prevention">Test ↻</button>
                             </div>
                             <span class="hud-tele-val" id="hud-dns-latency">14 ms</span>
                         </div>
@@ -262,7 +270,7 @@
                 </div>
 
                 <!-- Image Compressor Card -->
-                <div class="info-card draggable-widget image-compressor-card hidden" id="card-image-compressor" draggable="false">
+                <div class="info-card draggable-widget image-compressor-card" id="card-image-compressor" draggable="false">
                     <div class="info-card-header">
                         <div class="info-card-icon icon-image-comp">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -416,6 +424,17 @@
                                 <button type="button" class="focus-preset-pill" data-minutes="50">50m Deep</button>
                             </div>
 
+                            <div class="focus-presets-header" style="margin-top: 12px;">
+                                <span class="focus-presets-label">Procedural Soundscape</span>
+                            </div>
+                            <div class="ambient-audio-presets" id="ambient-audio-presets" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button type="button" class="ambient-sound-pill active" data-sound="off" title="Mute Soundscape">Mute</button>
+                                <button type="button" class="ambient-sound-pill" data-sound="binaural" title="40Hz Gamma Binaural Beats">🧠 40Hz</button>
+                                <button type="button" class="ambient-sound-pill" data-sound="rain" title="Procedural Rain">🌧️ Rain</button>
+                                <button type="button" class="ambient-sound-pill" data-sound="waves" title="Pink Noise Ocean Waves">🌊 Waves</button>
+                                <button type="button" class="ambient-sound-pill" data-sound="brown_noise" title="Deep Brownian Noise">☕ Brown</button>
+                            </div>
+
                             <div class="focus-controls">
                                 <button id="focus-toggle-btn" class="focus-btn focus-btn-primary" title="Start / Pause Focus Timer">▶ Start</button>
                                 <button id="focus-reset-btn" class="focus-btn focus-btn-secondary" title="Reset Session Timer">↺ Reset</button>
@@ -527,8 +546,8 @@
                     <div class="resize-handle"></div>
                 </div>
 
-                <!-- PDF Tools Card -->
-                <div class="info-card draggable-widget pdf-tools-card hidden" id="card-pdf-tools" draggable="false">
+                <!-- PDF Lab & Document Studio Card -->
+                <div class="info-card draggable-widget pdf-tools-card" id="card-pdf-tools" draggable="false">
                     <div class="info-card-header">
                         <div class="info-card-icon icon-pdf-tools">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -539,78 +558,147 @@
                                 <polyline points="10 9 9 9 8 9"></polyline>
                             </svg>
                         </div>
-                        <div class="info-card-title">PDF Tools</div>
-                        <span class="fileshare-badge">100% Local</span>
+                        <div class="info-card-title">PDF Lab</div>
+                        <span class="fileshare-badge">100% Offline</span>
                     </div>
 
-                    <!-- Dropzone -->
-                    <input type="file" id="pdf-file-input" accept="application/pdf" class="hidden" title="Select PDF" aria-label="Select PDF">
-                    <div class="pdf-dropzone" id="pdf-dropzone">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropzone-icon">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                        </svg>
-                        <span class="dropzone-text">Drop PDF here</span>
-                        <span class="dropzone-sub">Inspect, extract text, or open</span>
+                    <!-- Mode Navigation Tabs -->
+                    <div class="pdf-mode-nav" id="pdf-mode-nav">
+                        <button type="button" class="pdf-nav-tab active" data-tab="compress">🗜 Compress</button>
+                        <button type="button" class="pdf-nav-tab" data-tab="merge">📑 Merge</button>
+                        <button type="button" class="pdf-nav-tab" data-tab="split">✂ Split</button>
+                        <button type="button" class="pdf-nav-tab" data-tab="img2pdf">🖼 Img → PDF</button>
                     </div>
 
-                    <!-- PDF Details & Compression Studio -->
-                    <div class="pdf-details hidden" id="pdf-details">
-                        <div class="pdf-info-pill">
-                            <div class="pdf-info-meta">
-                                <strong id="pdf-name-val" class="pdf-name">document.pdf</strong>
-                                <div class="pdf-sub-meta">
-                                    <span id="pdf-size-val">0 KB</span> • 
-                                    <span id="pdf-pages-val">1 page</span> • 
-                                    <span id="pdf-version-val">PDF 1.4</span>
-                                </div>
-                            </div>
-                            <button type="button" id="pdf-reset-btn" class="file-pill-remove" title="Clear PDF" aria-label="Clear PDF">×</button>
+                    <!-- TAB 1: COMPRESS -->
+                    <div class="pdf-tab-panel" id="pdf-panel-compress">
+                        <input type="file" id="pdf-file-input" accept="application/pdf" class="hidden" title="Select PDF" aria-label="Select PDF">
+                        
+                        <div class="pdf-dropzone" id="pdf-dropzone">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropzone-icon">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                            <span class="dropzone-text">Drop PDF to optimize</span>
+                            <span class="dropzone-sub">Smart lossless &amp; image reduction · 100% private</span>
                         </div>
 
-                        <div class="pdf-actions-row">
-                            <button type="button" id="pdf-open-btn" class="focus-btn focus-btn-secondary pdf-action-btn">
-                                ↗ Open in Tab
+                        <div class="pdf-details hidden" id="pdf-details">
+                            <div class="pdf-info-pill">
+                                <div class="pdf-info-meta">
+                                    <strong id="pdf-name-val" class="pdf-name">document.pdf</strong>
+                                    <div class="pdf-sub-meta">
+                                        <span id="pdf-size-val">0 KB</span> • 
+                                        <span id="pdf-pages-val">1 page</span> • 
+                                        <span id="pdf-version-val">PDF 1.4</span>
+                                    </div>
+                                </div>
+                                <div class="pdf-info-btns">
+                                    <button type="button" id="pdf-open-btn" class="pdf-mini-btn" title="Open in browser">↗ Open</button>
+                                    <button type="button" id="pdf-reset-btn" class="file-pill-remove" title="Remove PDF" aria-label="Remove PDF">×</button>
+                                </div>
+                            </div>
+
+                            <div class="pdf-compress-section" id="pdf-compress-section">
+                                <div class="pdf-compress-header">
+                                    <span class="pdf-compress-label">Optimization Mode</span>
+                                </div>
+                                <div class="pdf-compress-presets" id="pdf-compress-presets">
+                                    <button type="button" class="pdf-comp-pill active" data-preset="smart" title="Lossless: strips dead streams and metadata, preserves 100% crisp vector text">Smart Vector</button>
+                                    <button type="button" class="pdf-comp-pill" data-preset="deep" title="Deep: downsamples heavy embedded photos, preserves vector text">Deep Shrink</button>
+                                    <button type="button" class="pdf-comp-pill" data-preset="extreme" title="Extreme: full downsampling for scanned documents &amp; tight upload limits">Ultra Scan</button>
+                                </div>
+
+                                <button type="button" id="pdf-start-compress-btn" class="primary-btn pdf-btn-compress">
+                                    ⚡ Optimize Document
+                                </button>
+
+                                <div class="pdf-compress-progress-wrap hidden" id="pdf-compress-progress">
+                                    <div class="pdf-progress-meta">
+                                        <span id="pdf-compress-status-text">Optimizing...</span>
+                                        <span id="pdf-compress-percent-text">0%</span>
+                                    </div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" id="pdf-compress-bar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="pdf-compress-result hidden" id="pdf-compress-result">
+                                    <div class="pdf-savings-badge" id="pdf-compress-savings-badge">✓ Optimal Document</div>
+                                    <button type="button" id="pdf-download-btn" class="primary-btn pdf-download-btn">⬇ Download Optimized PDF</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: MERGE -->
+                    <div class="pdf-tab-panel hidden" id="pdf-panel-merge">
+                        <input type="file" id="pdf-merge-input" accept="application/pdf" multiple class="hidden" title="Select PDFs to Merge" aria-label="Select PDFs to Merge">
+                        <div class="pdf-dropzone" id="pdf-merge-dropzone">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropzone-icon">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="12" y1="18" x2="12" y2="12"></line>
+                                <line x1="9" y1="15" x2="15" y2="15"></line>
+                            </svg>
+                            <span class="dropzone-text">Drop multiple PDFs here</span>
+                            <span class="dropzone-sub">Merges documents into one in original quality</span>
+                        </div>
+                        <div class="pdf-merge-queue hidden" id="pdf-merge-queue">
+                            <div class="pdf-merge-list" id="pdf-merge-list"></div>
+                            <button type="button" id="pdf-start-merge-btn" class="primary-btn pdf-btn-compress">
+                                📑 Merge All PDFs
                             </button>
-                            <button type="button" id="pdf-start-compress-btn" class="primary-btn pdf-action-btn pdf-btn-compress">
-                                🗜 Compress PDF
-                            </button>
-                        </div>
-
-                        <!-- Compression Settings & Status -->
-                        <div class="pdf-compress-section" id="pdf-compress-section">
-                            <div class="pdf-compress-header">
-                                <span class="pdf-compress-label">Compression Level</span>
-                            </div>
-                            <div class="pdf-compress-presets" id="pdf-compress-presets">
-                                <button type="button" class="pdf-comp-pill active" data-quality="0.72" data-scale="1.25" title="Optimal balance of sharp visual quality and file size reduction">Balanced</button>
-                                <button type="button" class="pdf-comp-pill" data-quality="0.50" data-scale="1.0" title="Smallest file size (great for email attachments and uploads)">Max Compression</button>
-                                <button type="button" class="pdf-comp-pill" data-quality="0.88" data-scale="1.5" title="Highest fidelity and sharpest text">High Quality</button>
-                            </div>
-
-                            <div class="pdf-compress-progress-wrap hidden" id="pdf-compress-progress">
-                                <div class="pdf-progress-meta">
-                                    <span id="pdf-compress-status-text">Compressing...</span>
-                                    <span id="pdf-compress-percent-text">0%</span>
-                                </div>
-                                <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill" id="pdf-compress-bar" style="width: 0%"></div>
-                                </div>
-                            </div>
-
-                            <div class="pdf-compress-result hidden" id="pdf-compress-result">
-                                <div class="pdf-savings-badge" id="pdf-compress-savings-badge">✓ Saved 65% (12 MB → 4.2 MB)</div>
-                                <button type="button" id="pdf-download-btn" class="primary-btn pdf-download-btn">⬇ Download Compressed PDF</button>
-                            </div>
                         </div>
                     </div>
 
-                    <div class="pdf-footer-tools">
+                    <!-- TAB 3: SPLIT -->
+                    <div class="pdf-tab-panel hidden" id="pdf-panel-split">
+                        <input type="file" id="pdf-split-input" accept="application/pdf" class="hidden" title="Select PDF to Split" aria-label="Select PDF to Split">
+                        <div class="pdf-dropzone" id="pdf-split-dropzone">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropzone-icon">
+                                <circle cx="6" cy="6" r="3"></circle>
+                                <circle cx="6" cy="18" r="3"></circle>
+                                <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
+                                <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
+                                <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+                            </svg>
+                            <span class="dropzone-text">Drop PDF to extract pages</span>
+                            <span class="dropzone-sub">Extract selected pages losslessly</span>
+                        </div>
+                        <div class="pdf-split-controls hidden" id="pdf-split-controls">
+                            <div class="pdf-info-pill">
+                                <span id="pdf-split-name" class="pdf-name">document.pdf</span>
+                                <span id="pdf-split-pages" class="pdf-sub-meta">0 pages</span>
+                            </div>
+                            <div class="pdf-split-input-row">
+                                <label for="pdf-split-range" class="pdf-compress-label">Pages to Extract</label>
+                                <input type="text" id="pdf-split-range" placeholder="e.g. 1-3, 5, 8" class="pdf-range-input">
+                            </div>
+                            <button type="button" id="pdf-start-split-btn" class="primary-btn pdf-btn-compress">
+                                ✂ Extract Pages
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: IMAGES TO PDF -->
+                    <div class="pdf-tab-panel hidden" id="pdf-panel-img2pdf">
                         <input type="file" id="pdf-img-to-pdf-input" accept="image/*" multiple class="hidden" title="Select Images for PDF" aria-label="Select Images for PDF">
-                        <button type="button" id="pdf-img-to-pdf-btn" class="pdf-convert-btn">
-                            📷 Images to PDF
-                        </button>
-                        <span id="pdf-img-status" class="pdf-convert-status hidden"></span>
+                        <div class="pdf-dropzone" id="pdf-img2pdf-dropzone">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropzone-icon">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <span class="dropzone-text">Drop images (JPG, PNG, WebP)</span>
+                            <span class="dropzone-sub">Converts images into a clean PDF document</span>
+                        </div>
+                        <div class="pdf-img2pdf-queue hidden" id="pdf-img2pdf-queue">
+                            <span id="pdf-img-status" class="pdf-convert-status"></span>
+                            <button type="button" id="pdf-img-to-pdf-btn" class="primary-btn pdf-btn-compress">
+                                🖼 Generate PDF from Images
+                            </button>
+                        </div>
                     </div>
 
                     <div class="resize-handle"></div>
@@ -687,8 +775,79 @@
 
             <!-- Category Directories / Folders Widget -->
             <section id="directory-widget" class="directory-container draggable-widget" draggable="false">
-                <div class="directory-sidebar" id="directory-sidebar"></div>
-                <div class="directory-content" id="directory-content"></div>
+                <div class="drag-handle">⋮⋮</div>
+                <div class="directory-sidebar" id="directory-sidebar">
+                    <button class="directory-sidebar-btn active" data-cat-id="preset-ai">
+                        <span class="directory-sidebar-icon">
+                            <span class="cat-apple-squircle cat-badge-sm" style="background: linear-gradient(145deg, #0ea5e9 0%, #2563eb 55%, #4f46e5 100%); box-shadow: 0 0 12px rgba(37, 99, 235, 0.45);"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="12" x="3" y="8" rx="3"/><path d="M12 2v6"/><circle cx="9" cy="14" r="1.3" fill="#ffffff"/><circle cx="15" cy="14" r="1.3" fill="#ffffff"/><path d="M2 14h1"/><path d="M21 14h1"/><path d="M10 18h4"/></svg></span>
+                        </span>
+                        <span>AI Hub</span>
+                    </button>
+                    <button class="directory-sidebar-btn" data-cat-id="preset-work">
+                        <span class="directory-sidebar-icon">
+                            <span class="cat-apple-squircle cat-badge-sm" style="background: linear-gradient(145deg, #fb923c 0%, #ea580c 55%, #c2410c 100%); box-shadow: 0 0 12px rgba(234, 88, 12, 0.45);"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg></span>
+                        </span>
+                        <span>Work & Docs</span>
+                    </button>
+                    <button class="directory-sidebar-btn" data-cat-id="preset-social">
+                        <span class="directory-sidebar-icon">
+                            <span class="cat-apple-squircle cat-badge-sm" style="background: linear-gradient(145deg, #34d399 0%, #059669 60%, #047857 100%); box-shadow: 0 0 12px rgba(5, 150, 105, 0.45);"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+                        </span>
+                        <span>Socials</span>
+                    </button>
+                    <button class="directory-sidebar-btn" data-cat-id="preset-dev">
+                        <span class="directory-sidebar-icon">
+                            <span class="cat-apple-squircle cat-badge-sm" style="background: linear-gradient(145deg, #c084fc 0%, #9333ea 55%, #7e22ce 100%); box-shadow: 0 0 12px rgba(147, 51, 234, 0.45);"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 10.7 5.6-5.6a1 1 0 0 0 0-1.4l-3-3a1 1 0 0 0-1.4 0l-5.6 5.6M8.3 15.3l-5.6 5.6a1 1 0 0 0 0 1.4l3 3a1 1 0 0 0 1.4 0l5.6-5.6"/><path d="m9 9 6 6"/></svg></span>
+                        </span>
+                        <span>Dev & Design</span>
+                    </button>
+                    <button class="directory-sidebar-btn" data-cat-id="preset-entertainment">
+                        <span class="directory-sidebar-icon">
+                            <span class="cat-apple-squircle cat-badge-sm" style="background: linear-gradient(145deg, #38bdf8 0%, #0284c7 60%, #0369a1 100%); box-shadow: 0 0 12px rgba(2, 132, 199, 0.45);"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="6"/><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/></svg></span>
+                        </span>
+                        <span>Entertainment</span>
+                    </button>
+                    <button class="directory-sidebar-btn" id="shortcut-add-cat-btn" style="margin-top:auto; opacity:0.6; border-top:1px solid var(--border);">
+                        <span class="directory-sidebar-icon" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5.5px;background:rgba(255,255,255,0.08);color:#ffffff;">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </span>
+                        <span>Add Folder</span>
+                    </button>
+                </div>
+                <div class="directory-content" id="directory-content">
+                    <div class="directory-header">
+                        <div class="directory-title-wrapper" style="display:flex;align-items:center;gap:10px;">
+                            <span class="cat-apple-squircle cat-badge-lg" style="background: linear-gradient(145deg, #0ea5e9 0%, #2563eb 55%, #4f46e5 100%); box-shadow: 0 0 12px rgba(37, 99, 235, 0.45);"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="12" x="3" y="8" rx="3"/><path d="M12 2v6"/><circle cx="9" cy="14" r="1.3" fill="#ffffff"/><circle cx="15" cy="14" r="1.3" fill="#ffffff"/><path d="M2 14h1"/><path d="M21 14h1"/><path d="M10 18h4"/></svg></span>
+                            <span class="directory-title">AI Hub</span>
+                        </div>
+                    </div>
+                    <div class="directory-grid">
+                        <a href="https://chatgpt.com" target="_blank" class="directory-card">
+                            <button class="directory-card-delete-btn" data-index="0">&times;</button>
+                            <img src="https://www.google.com/s2/favicons?domain=chatgpt.com&sz=64" alt="ChatGPT">
+                            <span>ChatGPT</span>
+                        </a>
+                        <a href="https://gemini.google.com" target="_blank" class="directory-card">
+                            <button class="directory-card-delete-btn" data-index="1">&times;</button>
+                            <img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=64" alt="Gemini">
+                            <span>Gemini</span>
+                        </a>
+                        <a href="https://claude.ai" target="_blank" class="directory-card">
+                            <button class="directory-card-delete-btn" data-index="2">&times;</button>
+                            <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=64" alt="Claude">
+                            <span>Claude</span>
+                        </a>
+                        <a href="https://perplexity.ai" target="_blank" class="directory-card">
+                            <button class="directory-card-delete-btn" data-index="3">&times;</button>
+                            <img src="https://www.google.com/s2/favicons?domain=perplexity.ai&sz=64" alt="Perplexity">
+                            <span>Perplexity</span>
+                        </a>
+                        <div class="directory-card add-card" id="card-add-site-action">
+                            <div class="add-card-icon">+</div>
+                            <span>Add Link</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="resize-handle"></div>
             </section>
 
@@ -783,26 +942,60 @@
                         </div>
 
                         <div class="dashboard-custom-actions">
-                            <div class="custom-actions-info">
-                                <strong>Personalize Widget Placement</strong>
-                                <span class="subtext">Drag &amp; drop any widget freely across the screen. Your exact layout is automatically saved and kept.</span>
+                            <div class="custom-actions-header">
+                                <div class="custom-actions-icon-badge">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                                        <path d="M3 9h18"></path>
+                                        <path d="M9 21V9"></path>
+                                    </svg>
+                                </div>
+                                <div class="custom-actions-info">
+                                    <div class="custom-actions-title-row">
+                                        <span class="custom-actions-title">Personalize Widget Layout</span>
+                                        <span class="custom-actions-status-pill">
+                                            <span class="pulse-dot"></span> Live Free-Drag Active
+                                        </span>
+                                    </div>
+                                    <span class="subtext">Move and resize any widget anywhere. Positions auto-save instantly with zero clutter.</span>
+                                </div>
                             </div>
-                            <div class="custom-actions-btns">
-                                <button type="button" id="open-studio-btn" class="primary-btn studio-action-btn" title="Open Custom Dashboard Studio">
-                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                    Dashboard Studio
+                            <div class="custom-actions-grid">
+                                <button type="button" id="open-studio-btn" class="custom-grid-btn btn-studio" title="Open Custom Dashboard Studio">
+                                    <div class="btn-icon-wrap icon-studio">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                    </div>
+                                    <div class="btn-label-group">
+                                        <span class="btn-primary-label">Dashboard Studio</span>
+                                        <span class="btn-sub-label">Profiles &amp; Themes</span>
+                                    </div>
                                 </button>
-                                <button type="button" id="open-import-btn" class="focus-btn focus-btn-secondary" title="Import a shared dashboard code or file">
-                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                    Import Shared
+                                <button type="button" id="save-custom-dashboard-btn" class="custom-grid-btn btn-save" title="Save current setup as custom profile">
+                                    <div class="btn-icon-wrap icon-save">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                    </div>
+                                    <div class="btn-label-group">
+                                        <span class="btn-primary-label">Save Setup</span>
+                                        <span class="btn-sub-label">Snapshot Layout</span>
+                                    </div>
                                 </button>
-                                <button type="button" id="save-custom-dashboard-btn" class="focus-btn focus-btn-secondary" title="Save current setup as custom profile">
-                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                                    Save Setup
+                                <button type="button" id="open-import-btn" class="custom-grid-btn btn-import" title="Import a shared dashboard code or file">
+                                    <div class="btn-icon-wrap icon-import">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    </div>
+                                    <div class="btn-label-group">
+                                        <span class="btn-primary-label">Import Shared</span>
+                                        <span class="btn-sub-label">Load From JSON</span>
+                                    </div>
                                 </button>
-                                <button type="button" id="reset-dashboard-layout-btn" class="focus-btn focus-btn-secondary" title="Reset widget positions and sizes">
-                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
-                                    Reset Layout
+                                <button type="button" id="reset-dashboard-layout-btn" class="custom-grid-btn btn-reset" title="Reset widget positions and sizes to default">
+                                    <div class="btn-icon-wrap icon-reset">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
+                                    </div>
+                                    <div class="btn-label-group">
+                                        <span class="btn-primary-label">Reset Layout</span>
+                                        <span class="btn-sub-label">Default 3-Column</span>
+                                    </div>
                                 </button>
                             </div>
                         </div>
@@ -1500,6 +1693,178 @@
                 </div>
 
                 <div id="import-status-msg" class="import-status hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Creative Studio & Screen Markup Modal -->
+    <div id="creative-canvas-modal" class="modal-overlay hidden">
+        <div class="modal-container creative-studio-modal">
+            <header class="modal-header">
+                <div class="modal-header-title-group">
+                    <h2>Creative Studio &amp; Screen Snapper</h2>
+                    <span class="subtext">Non-destructive canvas editor, screen markup, filters &amp; vector squircle generator</span>
+                </div>
+                <div class="studio-header-actions">
+                    <button type="button" id="studio-copy-clipboard-btn" class="studio-action-btn primary" title="Copy PNG to Clipboard (Ctrl+C)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copy PNG
+                    </button>
+                    <button type="button" id="studio-download-btn" class="studio-action-btn" title="Download Image (PNG)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download
+                    </button>
+                    <button type="button" id="close-studio-btn" class="close-btn" aria-label="Close">&times;</button>
+                </div>
+            </header>
+            <div class="modal-body studio-modal-body">
+                <!-- Studio Toolbar with Storytold Suite Tabs -->
+                <div class="studio-toolbar">
+                    <!-- Suite Tabs -->
+                    <div class="studio-suite-tabs">
+                        <button type="button" class="studio-tab-btn active" data-suite-tab="photocraft">🎨 PhotoCraft</button>
+                        <button type="button" class="studio-tab-btn" data-suite-tab="vectorcraft">📐 VectorCraft</button>
+                        <button type="button" class="studio-tab-btn" data-suite-tab="pdfcraft">📄 PdfCraft</button>
+                    </div>
+
+                    <!-- Pane 1: PhotoCraft -->
+                    <div class="studio-tab-pane" id="studio-pane-photocraft">
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">Tools</span>
+                            <div class="studio-tools-grid">
+                                <button type="button" class="studio-tool-btn active" data-tool="brush" title="Freehand Brush">✏️ Brush</button>
+                                <button type="button" class="studio-tool-btn" data-tool="pencil" title="Crisp Pencil">🖊️ Pencil</button>
+                                <button type="button" class="studio-tool-btn" data-tool="eraser" title="Eraser">🧹 Eraser</button>
+                                <button type="button" class="studio-tool-btn" data-tool="bucket" title="Fill Bucket">🪣 Fill</button>
+                                <button type="button" class="studio-tool-btn" data-tool="eyedropper" title="Eyedropper Color Picker">💧 Picker</button>
+                                <button type="button" class="studio-tool-btn" data-tool="arrow" title="Pointer Arrow">➔ Arrow</button>
+                                <button type="button" class="studio-tool-btn" data-tool="line" title="Straight Line">📏 Line</button>
+                                <button type="button" class="studio-tool-btn" data-tool="rect" title="Rectangle Box">⬜ Box</button>
+                                <button type="button" class="studio-tool-btn" data-tool="ellipse" title="Ellipse / Circle">⭕ Circle</button>
+                                <button type="button" class="studio-tool-btn" data-tool="callout" title="Speech Callout">💬 Callout</button>
+                                <button type="button" class="studio-tool-btn" data-tool="highlight" title="Fluorescent Highlighter">🖍️ Highlight</button>
+                                <button type="button" class="studio-tool-btn" data-tool="redact" title="Blackout Censor">⬛ Redact</button>
+                                <button type="button" class="studio-tool-btn" data-tool="text" title="Annotation Text">🔤 Text</button>
+                            </div>
+                        </div>
+
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">Color &amp; Size</span>
+                            <div class="studio-color-picker-row">
+                                <input type="color" id="studio-color-picker" value="#38bdf8" title="Brush Color">
+                                <input type="range" id="studio-size-slider" min="1" max="50" value="4" title="Stroke Width">
+                                <span id="studio-size-label" class="studio-val-badge">4px</span>
+                            </div>
+                        </div>
+
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">Filters &amp; AI Cut</span>
+                            <div class="studio-filters-grid">
+                                <button type="button" class="studio-pill-btn" data-filter="vignette">Vignette</button>
+                                <button type="button" class="studio-pill-btn" data-filter="blur">3x3 Blur</button>
+                                <button type="button" class="studio-pill-btn" data-filter="sharpen">Sharpen</button>
+                                <button type="button" class="studio-pill-btn" data-filter="invert">Invert</button>
+                                <button type="button" class="studio-pill-btn" data-filter="sepia">Sepia</button>
+                                <button type="button" class="studio-pill-btn" data-filter="grayscale">B&amp;W</button>
+                                <button type="button" class="studio-pill-btn" data-filter="remove_bg">Cut BG</button>
+                            </div>
+                        </div>
+
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">Transform</span>
+                            <div class="studio-actions-row">
+                                <button type="button" id="studio-flip-h-btn" class="studio-pill-btn" title="Flip Horizontal">↔ Flip H</button>
+                                <button type="button" id="studio-flip-v-btn" class="studio-pill-btn" title="Flip Vertical">↕ Flip V</button>
+                                <button type="button" id="studio-rotate-btn" class="studio-pill-btn" title="Rotate 90° Clockwise">↻ 90°</button>
+                            </div>
+                        </div>
+
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">Layers</span>
+                            <div class="studio-layer-list" id="studio-layer-list">
+                                <!-- Rendered dynamically -->
+                            </div>
+                            <div class="studio-actions-row" style="margin-top: 4px;">
+                                <button type="button" id="studio-add-layer-btn" class="studio-pill-btn">+ Layer</button>
+                                <button type="button" id="studio-duplicate-layer-btn" class="studio-pill-btn">Duplicate</button>
+                                <button type="button" id="studio-delete-layer-btn" class="studio-pill-btn">Delete</button>
+                            </div>
+                        </div>
+
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">History</span>
+                            <div class="studio-actions-row">
+                                <button type="button" id="studio-undo-btn" class="studio-pill-btn" title="Undo (Ctrl+Z)">↺ Undo</button>
+                                <button type="button" id="studio-redo-btn" class="studio-pill-btn" title="Redo (Ctrl+Y)">↻ Redo</button>
+                                <button type="button" id="studio-clear-btn" class="studio-pill-btn" title="Clear Active Layer">🗑️ Clear</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pane 2: VectorCraft -->
+                    <div class="studio-tab-pane hidden" id="studio-pane-vectorcraft">
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">visionOS Superellipse Squircle</span>
+                            <label style="font-size: 0.72rem; color: var(--text-secondary);">Curvature Power (n): <span id="vector-n-label">4.0 (Apple)</span></label>
+                            <input type="range" id="vector-n-slider" min="2" max="8" step="0.5" value="4">
+                            
+                            <label style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 6px;">Size: <span id="vector-size-label">280px</span></label>
+                            <input type="range" id="vector-size-slider" min="80" max="600" step="20" value="280">
+
+                            <div class="studio-color-picker-row" style="margin-top: 6px;">
+                                <span style="font-size: 0.74rem; color: var(--text-secondary);">Fill:</span>
+                                <input type="color" id="vector-fill-picker" value="#38bdf8">
+                                <button type="button" id="vector-generate-btn" class="studio-pill-btn" style="flex: 1;">Generate to Canvas</button>
+                            </div>
+                        </div>
+
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">Live SVG Output</span>
+                            <textarea id="vector-svg-code" class="vectorcraft-svg-preview" readonly></textarea>
+                            <div class="studio-actions-row">
+                                <button type="button" id="vector-copy-svg-btn" class="studio-pill-btn">📋 Copy SVG</button>
+                                <button type="button" id="vector-download-svg-btn" class="studio-pill-btn">💾 Save .svg</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pane 3: PdfCraft -->
+                    <div class="studio-tab-pane hidden" id="studio-pane-pdfcraft">
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">PDF Compression</span>
+                            <div class="studio-actions-row">
+                                <button type="button" class="studio-pill-btn active" data-pdf-preset="balanced">⚖️ Balanced</button>
+                                <button type="button" class="studio-pill-btn" data-pdf-preset="extreme">🚀 Extreme</button>
+                                <button type="button" class="studio-pill-btn" data-pdf-preset="light">⚡ Light</button>
+                            </div>
+                        </div>
+
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">PDF Actions</span>
+                            <input type="file" id="pdfcraft-file-input" accept="application/pdf" class="hidden">
+                            <button type="button" id="pdfcraft-choose-btn" class="studio-pill-btn">📄 Select PDF to Compress</button>
+                            <div id="pdfcraft-status" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;"></div>
+                        </div>
+
+                        <div class="studio-tool-group">
+                            <span class="studio-group-label">Convert to PDF</span>
+                            <input type="file" id="pdfcraft-img-input" accept="image/*" multiple class="hidden">
+                            <button type="button" id="pdfcraft-images-btn" class="studio-pill-btn">🖼️ Images to PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canvas Viewport -->
+                <div class="studio-canvas-container" id="studio-canvas-container">
+                    <canvas id="studio-viewport-canvas" width="800" height="520"></canvas>
+                </div>
             </div>
         </div>
     </div>
