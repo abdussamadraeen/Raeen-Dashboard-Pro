@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Raeen Workspace Pro</title>
+  <link rel="icon" type="image/png" href="extension-public/icon/128.png">
+  <meta name="description" content="Official Privacy Policy for Raeen Workspace Pro Chrome & Edge Extension. Zero telemetry, 100% local storage, zero data collection.">
+  <meta name="theme-color" content="#030712">
+
+  <style>
+    :root {
+      --bg: #030712;
+      --surface: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #172554 0%, var(--bg) 65%);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      padding-bottom: 30px;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      transition: transform 0.2s;
+    }
+
+    .back-link:hover {
+      transform: translateX(-3px);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 9999px;
+      color: #34d399;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 44px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .meta-info {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Content Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 32px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h2:first-of-type {
+      margin-top: 0;
+    }
+
+    p {
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      font-size: 15px;
+    }
+
+    ul {
+      margin-left: 20px;
+      margin-bottom: 22px;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    li strong {
+      color: #fff;
+    }
+
+    .highlight-box {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+
+    .highlight-box p {
+      color: #e0f2fe;
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 24px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      font-weight: 600;
+    }
+
+    td {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 30px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="back-link">← Return to Raeen Workspace</a>
+      <div class="badge">🛡️ Zero-Data Collection Guarantee</div>
+      <h1>Privacy Policy</h1>
+      <div class="meta-info">
+        <strong>Raeen Workspace Pro</strong> (Chrome & Edge Extension) • Effective Date: October 2026
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="highlight-box">
+        <p>
+          🔒 <strong>Summary:</strong> Raeen Workspace Pro does <strong>NOT</strong> collect, transmit, sell, or monetize any personal information, browsing history, search queries, IP addresses, or typed content. All data remains strictly inside your local browser.
+        </p>
+      </div>
+
+      <h2>1. Introduction</h2>
+      <p>
+        Raeen Workspace Pro ("we", "our", or "the extension") is developed by <strong>Abdus Samad Raeen</strong> as an open-source productivity sanctuary and new tab workspace for Chromium-based browsers (Google Chrome, Microsoft Edge, Brave, Opera, Vivaldi). We believe privacy is a fundamental human right. This Privacy Policy outlines our uncompromising commitment to user privacy and explains how data is handled.
+      </p>
+
+      <h2>2. What Information Do We Collect?</h2>
+      <p>
+        <strong>None.</strong> We do not collect, harvest, or log any personal information. Specifically:
+      </p>
+      <ul>
+        <li><strong>No Personal Identifiers:</strong> We do not collect your name, email, account details, or device identifiers.</li>
+        <li><strong>No Browsing History:</strong> Your search queries, viewed websites, and tab interactions are never recorded, tracked, or sent to external servers.</li>
+        <li><strong>No Keystroke Tracking:</strong> Quick notes written in the dashboard stay 100% on your device.</li>
+        <li><strong>No Analytics or Telemetry:</strong> We do not use Google Analytics, Mixpanel, Sentry, tracking pixels, or third-party telemetry beacons.</li>
+      </ul>
+
+      <h2>3. How Data is Stored (Local-First Architecture)</h2>
+      <p>
+        All custom settings, chosen wallpapers, custom layout coordinates, and quick notes are stored strictly within your browser's private local storage sandbox:
+      </p>
+      <ul>
+        <li><strong>chrome.storage.local:</strong> Used to persist theme preferences, layout modes, and audio choices locally.</li>
+        <li><strong>IndexedDB:</strong> Used as a client-side high-speed cache for wallpaper thumbnails and note records.</li>
+        <li><strong>L1 Memory Cache:</strong> Used for sub-16ms synchronous cold boots.</li>
+      </ul>
+      <p>
+        This data never leaves your computer and is never synced to any remote database controlled by us.
+      </p>
+
+      <h2>4. Browser Permissions & Justification</h2>
+      <p>
+        In accordance with Google Chrome Web Store policies, every permission requested in <code>manifest.json</code> is strictly limited to its declared feature:
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Permission</th>
+              <th>Specific Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>proxy</code></td>
+              <td>Used exclusively when you activate the Privacy Shield or connect to an encrypted Tor/SOCKS5 proxy relay. Cleared immediately back to direct on disconnect.</td>
+            </tr>
+            <tr>
+              <td><code>privacy</code></td>
+              <td>Used solely to seal WebRTC IP hardware leaks (<code>disable_non_proxied_udp</code>), preventing hostile sites from learning your private physical IP.</td>
+            </tr>
+            <tr>
+              <td><code>downloads</code></td>
+              <td>Enables the client-side creative tools to save your exported PDF documents and PhotoCraft artwork to your device's Downloads folder.</td>
+            </tr>
+            <tr>
+              <td><code>storage</code> &amp; <code>unlimitedStorage</code></td>
+              <td>Stores your workspace layouts, notes, and wallpaper preferences locally on your disk.</td>
+            </tr>
+            <tr>
+              <td><code>topSites</code></td>
+              <td>Displays your most visited shortcuts on the dashboard. Computed entirely inside Chrome without external transmissions.</td>
+            </tr>
+            <tr>
+              <td><code>declarativeNetRequest</code></td>
+              <td>Handles secure outbound link breakouts for search queries to prevent iframe embedding locks.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>5. Remote Code Policy</h2>
+      <p>
+        Raeen Workspace Pro strictly complies with Google Chrome's Manifest V3 security requirements:
+      </p>
+      <ul>
+        <li><strong>Zero Remote Code:</strong> All JavaScript, CSS, Web Audio synthesis algorithms, and icons are completely bundled into the offline extension package.</li>
+        <li><strong>No Dynamic Script Execution:</strong> No <code>eval()</code>, <code>Function()</code>, or external script fetching is used anywhere in the codebase.</li>
+      </ul>
+
+      <h2>6. Data Deletion & The Nuclear SCRAM Feature</h2>
+      <p>
+        You have complete control over your data at all times:
+      </p>
+      <ul>
+        <li><strong>Nuclear Purge Button:</strong> A single click on the dashboard's "Clear Traces" button immediately wipes all extension storage, cookies, and cache records.</li>
+        <li><strong>Uninstalling the Extension:</strong> Removing the extension from your browser automatically deletes all associated local storage and settings permanently.</li>
+      </ul>
+
+      <h2>7. Google API User Data Policy Compliance</h2>
+      <p>
+        Raeen Workspace Pro adheres to the <a href="https://developer.chrome.com/docs/webstore/program-policies/" target="_blank" rel="noopener">Chrome Web Store Developer Program Policies</a>, including the Limited Use requirements. We affirm that user data is never transferred to third parties or used for creditworthiness, lending, or advertising.
+      </p>
+
+      <h2>8. Contact & Open Source Verification</h2>
+      <p>
+        Because Raeen Workspace Pro is 100% open source, any security researcher or user can verify our code directly on GitHub:
+      </p>
+      <ul>
+        <li><strong>Source Code:</strong> <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro" target="_blank" rel="noopener">github.com/abdussamadraeen/Raeen-Dashboard-Pro</a></li>
+        <li><strong>Developer:</strong> Abdus Samad Raeen</li>
+        <li><strong>Issue Tracker &amp; Questions:</strong> <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro/issues" target="_blank" rel="noopener">GitHub Issues</a></li>
+      </ul>
+    </div>
+
+    <footer>
+      <p>© 2026 Abdus Samad Raeen • Raeen Workspace Pro is open-source under the MIT License.</p>
+    </footer>
+  </div>
+</body>
+</html>
