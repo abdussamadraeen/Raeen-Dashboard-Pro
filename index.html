@@ -3,210 +3,1140 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Raeen Workspace Pro — Universal Smart New Tab Dashboard</title>
-  <link rel="icon" type="image/png" href="assets/icon128.png">
-  <meta name="description" content="Ultra-fast, visionOS Liquid Glass new tab workspace for Chrome and Edge. Privacy shield, focus timer, creative studio, and AI workflows.">
+  <title>Raeen Workspace Pro — The Intelligent New Tab Universe</title>
+  <link rel="icon" type="image/png" href="extension-public/icon/128.png">
+  <meta name="description" content="The ultimate visionOS liquid glass new tab dashboard. Zero-latency startup, hardware privacy shield, focus audio, creative studio, and agent-native command bus.">
+  <meta name="theme-color" content="#030712">
+
+  <!-- OpenGraph / Social Meta -->
+  <meta property="og:title" content="Raeen Workspace Pro — The Intelligent New Tab Universe">
+  <meta property="og:description" content="Transform every new tab into an ultra-fast, visionOS liquid glass productivity sanctuary.">
+  <meta property="og:image" content="assets/promo_banner.png">
+  <meta property="og:type" content="website">
+
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: rgba(255, 255, 255, 0.04);
-      --border: rgba(255, 255, 255, 0.1);
+      --bg: #030712;
+      --surface: rgba(255, 255, 255, 0.035);
+      --surface-hover: rgba(255, 255, 255, 0.07);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(56, 189, 248, 0.4);
       --accent: #38bdf8;
-      --accent-glow: rgba(56, 189, 248, 0.25);
+      --accent-grad: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+      --accent-glow: rgba(56, 189, 248, 0.28);
       --text: #f8fafc;
       --text-muted: #94a3b8;
+      --text-dim: #64748b;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(circle at 50% 0%, #172554 0%, var(--bg) 60%);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
       color: var(--text);
+      overflow-x: hidden;
       min-height: 100vh;
       line-height: 1.6;
-      padding: 0 20px 60px;
+      selection-background-color: var(--accent);
+      selection-color: #030712;
     }
-    .container {
-      max-width: 1080px;
+
+    /* Ambient Space Mesh Canvas */
+    #space-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.85;
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
       margin: 0 auto;
+      padding: 0 24px 80px;
     }
-    header {
-      padding: 60px 0 30px;
-      text-align: center;
+
+    /* Nav Header */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
-    .badge {
-      display: inline-block;
-      padding: 6px 14px;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 9999px;
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+    }
+
+    .brand-text {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-tag {
+      font-size: 11px;
+      font-weight: 600;
       color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: #fff;
+    }
+
+    .nav-btn {
+      padding: 9px 20px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: #fff;
       font-size: 13px;
       font-weight: 600;
-      letter-spacing: 0.5px;
-      margin-bottom: 20px;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
-    h1 {
-      font-size: clamp(32px, 5vw, 54px);
-      font-weight: 800;
-      letter-spacing: -1px;
-      line-height: 1.15;
-      margin-bottom: 18px;
-      background: linear-gradient(135deg, #ffffff 40%, #93c5fd 100%);
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 90px 10px 50px;
+      position: relative;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 9999px;
+      color: #7dd3fc;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.12);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 10px #38bdf8;
+      animation: pulse-dot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .hero-title {
+      font-size: clamp(38px, 6.5vw, 76px);
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.08;
+      max-width: 960px;
+      margin: 0 auto 24px;
+      background: linear-gradient(180deg, #ffffff 30%, #94a3b8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .subtitle {
-      font-size: clamp(16px, 2.5vw, 20px);
+
+    .hero-title .gradient-span {
+      background: var(--accent-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(17px, 2.5vw, 22px);
       color: var(--text-muted);
       max-width: 680px;
-      margin: 0 auto 36px;
+      margin: 0 auto 40px;
+      font-weight: 400;
+      line-height: 1.55;
     }
-    .cta-buttons {
+
+    .hero-cta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 60px;
+    }
+
+    .btn-glow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #38bdf8, #6366f1);
+      color: #030712;
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration: none;
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.45), 0 10px 25px rgba(0, 0, 0, 0.5);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-glow:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 50px rgba(56, 189, 248, 0.7), 0 15px 35px rgba(0, 0, 0, 0.6);
+      color: #000;
+    }
+
+    .btn-glass {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-weight: 600;
+      font-size: 16px;
+      text-decoration: none;
+      backdrop-filter: blur(16px);
+      transition: all 0.25s ease;
+    }
+
+    .btn-glass:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    /* Metric Badges Bar */
+    .metrics-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 70px;
+      padding: 20px 30px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+    }
+
+    .metric-item {
+      text-align: center;
+    }
+
+    .metric-num {
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .metric-num span {
+      color: var(--accent);
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Interactive Live Workspace Mockup */
+    .mockup-container {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8), 0 0 100px rgba(56, 189, 248, 0.12);
+      backdrop-filter: blur(24px);
+      margin-bottom: 100px;
+    }
+
+    .mockup-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .window-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #eab308; }
+    .dot-green { background: #10b981; }
+
+    /* Mode Selector Tabs */
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .mode-tab {
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .mode-tab:hover {
+      color: #fff;
+    }
+
+    .mode-tab.active {
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .mockup-viewport {
+      min-height: 520px;
+      border-radius: 16px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      transition: background-image 0.5s ease;
+    }
+
+    .viewport-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.45);
+      backdrop-filter: blur(2px);
+    }
+
+    .viewport-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
+    }
+
+    .mockup-clock {
+      font-size: clamp(48px, 8vw, 84px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      color: #fff;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+      margin-bottom: 6px;
+    }
+
+    .mockup-date {
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 32px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .mockup-search {
+      max-width: 580px;
+      margin: 0 auto 36px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .mockup-search-icon {
+      color: var(--accent);
+      font-size: 18px;
+    }
+
+    .mockup-search-text {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 15px;
+      text-align: left;
+      flex: 1;
+    }
+
+    .mockup-search-engines {
+      display: flex;
+      gap: 8px;
+    }
+
+    .engine-pill {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .mockup-dock {
       display: flex;
       justify-content: center;
       gap: 16px;
       flex-wrap: wrap;
-      margin-bottom: 50px;
     }
-    .btn {
+
+    .dock-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 16px 22px;
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .dock-icon {
+      font-size: 20px;
+    }
+
+    /* Pillars of Excellence (Cards) */
+    .section-head {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 14px;
+      color: #fff;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 17px;
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 28px;
+      margin-bottom: 100px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 34px 30px;
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(56, 189, 248, 0.3);
+      background: var(--surface-hover);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(56, 189, 248, 0.08);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 22px;
+    }
+
+    .feature-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: -0.3px;
+    }
+
+    .feature-desc {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    /* Live Interactive Soundwave Section */
+    .sound-showcase {
+      background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.08), rgba(15, 23, 42, 0.6));
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 24px;
+      padding: 50px 30px;
+      text-align: center;
+      margin-bottom: 100px;
+      backdrop-filter: blur(24px);
+    }
+
+    .sound-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .sound-btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      padding: 14px 28px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      cursor: pointer;
+      transition: all 0.2s;
     }
-    .btn-primary {
-      background: #38bdf8;
-      color: #030712;
-      box-shadow: 0 0 24px var(--accent-glow);
+
+    .sound-btn:hover, .sound-btn.playing {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+      color: #38bdf8;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
     }
-    .btn-primary:hover {
-      background: #7dd3fc;
-      transform: translateY(-2px);
-    }
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      color: #f8fafc;
-      border: 1px solid var(--border);
-    }
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.14);
-      transform: translateY(-2px);
-    }
-    .hero-banner {
-      width: 100%;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-      margin-bottom: 70px;
-      display: block;
-    }
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      margin-bottom: 70px;
-    }
-    .feature-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 30px;
-      backdrop-filter: blur(16px);
-      transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-    .feature-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(56, 189, 248, 0.4);
-    }
-    .feature-icon {
-      font-size: 28px;
-      margin-bottom: 14px;
-      display: inline-block;
-    }
-    .feature-title {
-      font-size: 19px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #ffffff;
-    }
-    .feature-desc {
-      color: var(--text-muted);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-    footer {
-      border-top: 1px solid var(--border);
-      padding-top: 30px;
+
+    /* Install CTA Box */
+    .install-box {
       text-align: center;
+      padding: 70px 20px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(56, 189, 248, 0.05) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 28px;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7);
+      margin-bottom: 80px;
+    }
+
+    .install-title {
+      font-size: clamp(30px, 4.5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+
+    .install-sub {
       color: var(--text-muted);
+      font-size: 18px;
+      max-width: 580px;
+      margin: 0 auto 36px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      color: var(--text-dim);
       font-size: 14px;
     }
-    footer a {
-      color: var(--accent);
+
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .footer-right {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-right a {
+      color: var(--text-muted);
       text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-right a:hover {
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .metrics-bar { gap: 20px; }
+      .mockup-dock { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="badge">🚀 v2.2.0 Universal Edition</div>
-      <h1>Raeen Workspace Pro</h1>
-      <p class="subtitle">The ultra-fast, visionOS Liquid Glass smart new tab dashboard designed for focus, creativity, and absolute privacy.</p>
-      <div class="cta-buttons">
-        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro" class="btn btn-primary">
-          ⭐ View on GitHub
+
+  <!-- Background Quantum Neural Canvas -->
+  <canvas id="space-canvas"></canvas>
+
+  <div class="page-wrap">
+    <!-- Navigation -->
+    <nav>
+      <a href="#" class="brand">
+        <div class="brand-logo">R</div>
+        <div>
+          <span class="brand-text">Raeen Workspace</span>
+          <span class="brand-tag">v2.2.0</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#workspaces" class="nav-link">Workspaces</a>
+        <a href="#audio" class="nav-link">Ambient Audio</a>
+        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro" class="nav-btn" target="_blank" rel="noopener">
+          ★ Star on GitHub
         </a>
-        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro/releases/latest" class="btn btn-secondary">
-          📦 Download v2.2.0 Release
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="pill-badge">
+        <span class="pill-dot"></span>
+        VisionOS 2.2 Universal Edition • Pure In-Browser Architecture
+      </div>
+      <h1 class="hero-title">
+        The Intelligent New Tab <br><span class="gradient-span">Sanctuary for the Mind.</span>
+      </h1>
+      <p class="hero-subtitle">
+        A breathtaking, zero-flash new tab workspace crafted with visionOS liquid glass aesthetics, hardware privacy shields, ambient acoustics, creative tools, and an agent-native control plane.
+      </p>
+      <div class="hero-cta">
+        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro/releases/latest" class="btn-glow">
+          ⚡ Download Extension v2.2.0
+        </a>
+        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro" class="btn-glass" target="_blank" rel="noopener">
+          Explore Codebase
         </a>
       </div>
-    </header>
 
-    <img src="assets/promo_banner.png" alt="Raeen Workspace Pro Preview" class="hero-banner">
+      <!-- Metrics Bar -->
+      <div class="metrics-bar">
+        <div class="metric-item">
+          <div class="metric-num">0.00<span>s</span></div>
+          <div class="metric-label">White Flash (Instant)</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-num">100<span>%</span></div>
+          <div class="metric-label">Offline & Private</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-num">0</div>
+          <div class="metric-label">Trackers / Telemetry</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-num">&lt; 300<span>kB</span></div>
+          <div class="metric-label">Ultra-Light Startup</div>
+        </div>
+      </div>
+    </section>
 
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">⚡</div>
-        <div class="feature-title">Sub-16ms Zero-Flash Startup</div>
-        <div class="feature-desc">Zero white-screen flash. Synchronous hydration ensures instant rendering of wallpapers, shortcuts, and clock.</div>
+    <!-- Interactive Workspace Mockup -->
+    <section id="workspaces" class="mockup-container">
+      <div class="mockup-header">
+        <div class="window-dots">
+          <span class="window-dot dot-red"></span>
+          <span class="window-dot dot-yellow"></span>
+          <span class="window-dot dot-green"></span>
+        </div>
+        <div class="mode-tabs">
+          <button class="mode-tab active" data-mode="minimalist">Minimalist</button>
+          <button class="mode-tab" data-mode="focus">Focus Hub</button>
+          <button class="mode-tab" data-mode="studio">Creator Studio</button>
+          <button class="mode-tab" data-mode="dashboard">All-in-One</button>
+        </div>
+        <div style="width: 50px;"></div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">🪟</div>
-        <div class="feature-title">VisionOS Liquid Glass UI</div>
-        <div class="feature-desc">4 tailored workspaces: Minimalist, Focused, Creator Studio, and All-in-One Dashboard with 8 GPU-accelerated 3D canvas styles.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🛡️</div>
-        <div class="feature-title">Zero-Setup Privacy Shield</div>
-        <div class="feature-desc">Seals hardware WebRTC IP leaks, provides encrypted DNS-over-HTTPS fallback, and supports native Tor SOCKS5 multi-hop routing.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">⏱️</div>
-        <div class="feature-title">Focus Timer & Multi-Tab Audio</div>
-        <div class="feature-desc">Pomodoro focus dial combined with zero-asset Web Audio synthesis. Cross-tab leader election prevents audio overlapping.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🎨</div>
-        <div class="feature-title">Creative Studio & PDF Tools</div>
-        <div class="feature-desc">In-browser PhotoCraft image editing, background removal, squircle vector graphics, and zero-inflation PDF compression.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🤖</div>
-        <div class="feature-title">Universal Agent Command Bus</div>
-        <div class="feature-desc">Standardized typed control plane for AI models (Gemini, Claude, GPT), MCP servers, and automation bots to control the dashboard.</div>
-      </div>
-    </div>
 
+      <div class="mockup-viewport" id="mockup-viewport" style="background-image: url('extension-public/wallpapers/alex-oviedo.jpg');">
+        <div class="viewport-overlay"></div>
+        <div class="viewport-content" id="viewport-content">
+          <div class="mockup-clock" id="live-clock">10:42</div>
+          <div class="mockup-date">Saturday, October 11 • Deep Space Nebula</div>
+          <div class="mockup-search">
+            <span class="mockup-search-icon">🔍</span>
+            <span class="mockup-search-text" id="search-placeholder">Ask anything or search across Google, AI, Perplexity...</span>
+            <div class="mockup-search-engines">
+              <span class="engine-pill" title="Google">G</span>
+              <span class="engine-pill" title="ChatGPT">AI</span>
+              <span class="engine-pill" title="Claude">C</span>
+            </div>
+          </div>
+          <div class="mockup-dock" id="mockup-dock">
+            <div class="dock-card"><span class="dock-icon">🛡️</span> Privacy Shield Active</div>
+            <div class="dock-card"><span class="dock-icon">⏳</span> 25m Pomodoro Flow</div>
+            <div class="dock-card"><span class="dock-icon">🌧️</span> Ambient Rain (Leader)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 Pillars of Excellence -->
+    <section id="features">
+      <div class="section-head">
+        <h2 class="section-title">Engineered Beyond Conventional Extensions</h2>
+        <p class="section-desc">Every line of code serves a purpose. Every feature is tuned for sub-millisecond execution and total user sovereignty.</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- 1. Zero-Flash Boot -->
+        <div class="feature-card">
+          <div class="feature-icon-box">⚡</div>
+          <h3 class="feature-title">Sub-16ms Cold Boot</h3>
+          <p class="feature-desc">Synchronous L1 RAM hydration eliminates white-screen reload flash completely. Dynamic code-splitting cut the initial bundle by 66%, opening tabs instantaneously.</p>
+        </div>
+
+        <!-- 2. VisionOS Liquid Glass -->
+        <div class="feature-card">
+          <div class="feature-icon-box">🪟</div>
+          <h3 class="feature-title">VisionOS Liquid Glass UI</h3>
+          <p class="feature-desc">Specular reflections, frosted glass acrylic cards, curated 4K dynamic wallpapers, and 8 GPU-accelerated 3D canvas styles that automatically sleep in background tabs.</p>
+        </div>
+
+        <!-- 3. Zero-Setup Privacy Shield -->
+        <div class="feature-card">
+          <div class="feature-icon-box">🛡️</div>
+          <h3 class="feature-title">Hardware Privacy Shield</h3>
+          <p class="feature-desc">Active the moment you install. Hardware WebRTC IP leak blocker seals physical identity, coupled with encrypted DNS-over-HTTPS and native Tor SOCKS5 multi-hop routing.</p>
+        </div>
+
+        <!-- 4. Leader Election Audio -->
+        <div class="feature-card">
+          <div class="feature-icon-box">🎵</div>
+          <h3 class="feature-title">Leader-Election Audio</h3>
+          <p class="feature-desc">Zero-asset Web Audio synthesis creates calming rainfall, ocean swells, and lo-fi cafe hums. Distributed leader election prevents overlapping sound when multiple tabs open.</p>
+        </div>
+
+        <!-- 5. Creative Studio & PDF Suite -->
+        <div class="feature-card">
+          <div class="feature-icon-box">🎨</div>
+          <h3 class="feature-title">Studio Suite & Lossless PDF</h3>
+          <p class="feature-desc">In-browser PhotoCraft editor with AI background removal, mathematical squircle vector design, and pure deflate PDF compression that guarantees zero file inflation.</p>
+        </div>
+
+        <!-- 6. Universal Agent Command Bus -->
+        <div class="feature-card">
+          <div class="feature-icon-box">🤖</div>
+          <h3 class="feature-title">Universal Agent Command Bus</h3>
+          <p class="feature-desc">Exposes a typed, undoable control plane (<code>window.__RAEEN_AGENT_BUS__</code>). External AI assistants, Claude, Gemini, and MCP agents can drive workspace tools programmatically.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Soundwave Demo -->
+    <section id="audio" class="sound-showcase">
+      <div class="pill-badge">✨ Try In-Browser Audio Synthesis</div>
+      <h2 class="section-title">Calm the Senses. Zero Bandwidth.</h2>
+      <p class="section-desc">Experience our real-time synthesized acoustic engine right here without downloading audio files:</p>
+      
+      <div class="sound-buttons">
+        <button class="sound-btn" data-sound="rain">🌧️ Rain Shower</button>
+        <button class="sound-btn" data-sound="waves">🌊 Deep Ocean</button>
+        <button class="sound-btn" data-sound="white">💨 White Noise</button>
+        <button class="sound-btn" data-sound="off">⏹️ Stop Sound</button>
+      </div>
+    </section>
+
+    <!-- Install Call to Action -->
+    <section class="install-box">
+      <h2 class="install-title">Elevate Your Daily Browsing</h2>
+      <p class="install-sub">Free, open-source, and privacy-respecting forever. Experience the new tab crafted for clarity and focus.</p>
+      <div class="hero-cta" style="margin-bottom: 0;">
+        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro/releases/latest" class="btn-glow">
+          ⚡ Get Raeen Workspace Pro v2.2.0
+        </a>
+        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro" class="btn-glass" target="_blank" rel="noopener">
+          View on GitHub
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer -->
     <footer>
-      <p>Built with ❤️ by <strong>Abdus Samad Raeen</strong> • Open Source on <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro">GitHub</a></p>
+      <div class="footer-left">
+        <strong>Raeen Workspace Pro</strong>
+        <span>Crafted with devotion and precision by <strong>Abdus Samad Raeen</strong></span>
+      </div>
+      <div class="footer-right">
+        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro/issues" target="_blank" rel="noopener">Support</a>
+        <a href="https://github.com/abdussamadraeen/Raeen-Dashboard-Pro/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+      </div>
     </footer>
   </div>
+
+  <!-- Interactive Scripts: Quantum Particle Canvas + Mockup Tabs + Web Audio -->
+  <script>
+    // 1. Quantum Interactive Particle Canvas
+    (function initCanvas() {
+      const canvas = document.getElementById('space-canvas');
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let particles = [];
+      const particleCount = 45;
+      let mouse = { x: -1000, y: -1000, active: false };
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        mouse.active = true;
+      });
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          radius: Math.random() * 2 + 1,
+          color: Math.random() > 0.5 ? 'rgba(56, 189, 248, ' : 'rgba(129, 140, 248, '
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color + '0.7)';
+          ctx.fill();
+
+          // Connect nearby particles
+          for (let j = i + 1; j < particles.length; j++) {
+            const p2 = particles[j];
+            const dx = p.x - p2.x;
+            const dy = p.y - p2.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 130) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = `rgba(56, 189, 248, ${0.15 * (1 - dist / 130)})`;
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+            }
+          }
+
+          // Mouse attraction
+          if (mouse.active) {
+            const mdx = mouse.x - p.x;
+            const mdy = mouse.y - p.y;
+            const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+            if (mdist < 160) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(mouse.x, mouse.y);
+              ctx.strokeStyle = `rgba(56, 189, 248, ${0.3 * (1 - mdist / 160)})`;
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+        }
+        requestAnimationFrame(render);
+      }
+      render();
+    })();
+
+    // 2. Mockup Interactive Tabs
+    (function initMockup() {
+      const tabs = document.querySelectorAll('.mode-tab');
+      const viewport = document.getElementById('mockup-viewport');
+      const clock = document.getElementById('live-clock');
+      const searchPlaceholder = document.getElementById('search-placeholder');
+      const dock = document.getElementById('mockup-dock');
+
+      // Live Time Ticker
+      function updateLiveTime() {
+        const d = new Date();
+        const hours = String(d.getHours()).padStart(2, '0');
+        const mins = String(d.getMinutes()).padStart(2, '0');
+        if (clock) clock.textContent = `${hours}:${mins}`;
+      }
+      setInterval(updateLiveTime, 1000);
+      updateLiveTime();
+
+      const modes = {
+        minimalist: {
+          bg: 'extension-public/wallpapers/alex-oviedo.jpg',
+          placeholder: 'Search Google, AI, or browse cleanly...',
+          dock: [
+            { icon: '🛡️', text: 'Privacy Shield Active' },
+            { icon: '⏳', text: '25m Pomodoro Flow' },
+            { icon: '🌧️', text: 'Ambient Rain (Leader)' }
+          ]
+        },
+        focus: {
+          bg: 'extension-public/wallpapers/daniel-schwarz.jpg',
+          placeholder: 'Deep Work Session • Distractions Blocked',
+          dock: [
+            { icon: '⏱️', text: 'Pomodoro: 24:18 Left' },
+            { icon: '📝', text: 'Quick Notes (Synced)' },
+            { icon: '🌊', text: 'Ocean Swell Audio' }
+          ]
+        },
+        studio: {
+          bg: 'extension-public/wallpapers/anton-volnuhin.jpg',
+          placeholder: 'PhotoCraft • Drop images or generate squircles...',
+          dock: [
+            { icon: '🎨', text: 'PhotoCraft Studio Ready' },
+            { icon: '📄', text: 'Lossless PDF Compressor' },
+            { icon: '📐', text: 'Squircle Vector Engine' }
+          ]
+        },
+        dashboard: {
+          bg: 'extension-public/wallpapers/david-becker.jpg',
+          placeholder: 'Search bookmarks, notes, and AI hub...',
+          dock: [
+            { icon: '⚡', text: 'System Meters Normal' },
+            { icon: '📂', text: 'AI & Dev Web Hub' },
+            { icon: '🔒', text: 'Tor Onion Circuits' }
+          ]
+        }
+      };
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+
+          const modeKey = tab.dataset.mode;
+          const conf = modes[modeKey];
+          if (!conf) return;
+
+          viewport.style.backgroundImage = `url('${conf.bg}')`;
+          searchPlaceholder.textContent = conf.placeholder;
+
+          dock.innerHTML = conf.dock.map(d => `
+            <div class="dock-card"><span class="dock-icon">${d.icon}</span> ${d.text}</div>
+          `).join('');
+        });
+      });
+    })();
+
+    // 3. Web Audio Synthesis Demo
+    (function initWebAudio() {
+      let audioCtx = null;
+      let activeNoiseNode = null;
+      let activeGainNode = null;
+
+      function stopAudio() {
+        if (activeGainNode && audioCtx) {
+          activeGainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+          setTimeout(() => {
+            if (activeNoiseNode) {
+              try { activeNoiseNode.stop(); activeNoiseNode.disconnect(); } catch (e) {}
+              activeNoiseNode = null;
+            }
+          }, 500);
+        }
+        document.querySelectorAll('.sound-btn').forEach(b => b.classList.remove('playing'));
+      }
+
+      function startAudio(type) {
+        stopAudio();
+        if (type === 'off') return;
+
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          if (type === 'rain') {
+            data[i] = (lastOut + (0.02 * white)) / 1.02; // Pink-ish noise
+            lastOut = data[i];
+          } else if (type === 'waves') {
+            data[i] = (lastOut + (0.05 * white)) / 1.05; // Brown noise
+            lastOut = data[i];
+          } else {
+            data[i] = white * 0.15; // White noise
+          }
+        }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = type === 'rain' ? 'lowpass' : (type === 'waves' ? 'bandpass' : 'highpass');
+        filter.frequency.value = type === 'rain' ? 800 : (type === 'waves' ? 350 : 2000);
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 0.8);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        noise.start();
+        activeNoiseNode = noise;
+        activeGainNode = gain;
+      }
+
+      document.querySelectorAll('.sound-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sound = btn.dataset.sound;
+          if (btn.classList.contains('playing') || sound === 'off') {
+            stopAudio();
+          } else {
+            startAudio(sound);
+            btn.classList.add('playing');
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
