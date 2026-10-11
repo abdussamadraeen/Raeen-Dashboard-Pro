@@ -6,7 +6,7 @@ export default defineConfig({
   manifest: {
     name: 'Workspace – Smart New Tab',
     description: 'A premium, minimalist new tab dashboard with integrated AI workflows and focus features.',
-    version: '2.1.0',
+    version: '2.2.0',
     action: {
       default_icon: {
         '16': 'icon/16.png',

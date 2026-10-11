@@ -191,7 +191,7 @@ const server = http.createServer(async (req, res) => {
       activeCountry: currentCountry,
       socksPort: SOCKS_PORT,
       controlPort: CONTROL_PORT,
-      engineVersion: '2.1.0-universe'
+      engineVersion: '2.2.0-universe'
     }));
   } else if (url.pathname === '/circuit') {
     try {

@@ -2,7 +2,7 @@
   "name": "smart-dashboard",
   "description": "Smart New Tab Dashboard with curated 4K wallpapers, notes, focus timer, and security proxy.",
   "private": true,
-  "version": "2.1.0",
+  "version": "2.2.0",
   "type": "module",
   "scripts": {
     "dev": "wxt",
