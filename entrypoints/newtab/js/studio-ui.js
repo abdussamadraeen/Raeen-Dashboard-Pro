@@ -4,7 +4,14 @@
  */
 
 import { GlobalStudioEngine } from './studio-engine.js';
-import { getPdfJs, createSimplePdf, formatBytes } from './pdf-tools.js';
+
+function formatBytes(bytes) {
+    if (!bytes || bytes <= 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
 
 const studioEngine = GlobalStudioEngine;
 
@@ -425,6 +432,7 @@ export function initCreativeStudio() {
                     });
                 }));
 
+                const { createSimplePdf } = await import('./pdf-tools.js');
                 const pdfBlob = createSimplePdf(imagesData);
                 const url = URL.createObjectURL(pdfBlob);
                 const a = document.createElement('a');

@@ -28,7 +28,6 @@ import { setupSearch, updateSearchEngineUI } from './search.js';
 import { initFocusTimer } from './focus.js';
 import { initFileShare } from './fileshare.js';
 import { initImageCompressor } from './image-compressor.js';
-import { initPdfTools } from './pdf-tools.js';
 import { initDashboardStudio, createDashboardSnapshot } from './dashboard-studio.js';
 import { validateAndRepairSettings } from './schema.js';
 import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
@@ -199,9 +198,10 @@ import { AmbientAudio } from './ambient-audio.js';
         }
     };
 
-    runWhenIdle(() => {
+    runWhenIdle(async () => {
         initFileShare();
         initImageCompressor();
+        const { initPdfTools } = await import('./pdf-tools.js');
         initPdfTools();
         initDashboardStudio();
         initCreativeStudio();
