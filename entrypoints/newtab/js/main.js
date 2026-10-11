@@ -26,16 +26,13 @@ import {
 import { renderShortcuts, addShortcut } from './shortcuts.js';
 import { setupSearch, updateSearchEngineUI } from './search.js';
 import { initFocusTimer } from './focus.js';
-import { initFileShare } from './fileshare.js';
-import { initImageCompressor } from './image-compressor.js';
-import { initDashboardStudio, createDashboardSnapshot } from './dashboard-studio.js';
 import { validateAndRepairSettings } from './schema.js';
 import { escapeHTML, escapeAttribute, sanitizeURL } from './security.js';
 import { securityManager, TACTICAL_NODES, SECURE_DNS_PROVIDERS } from './vpn.js';
 import { GlobalStudioEngine } from './studio-engine.js';
-import { initCreativeStudio } from './studio-ui.js';
 import { Spotlight } from './spotlight.js';
 import { AmbientAudio } from './ambient-audio.js';
+import { GlobalCommandBus } from '../../../lib/agentCommandBus';
 
 (async function init() {
     // 0. Remove pre-boot critical styles as dynamic DOM runtime takes over
@@ -199,12 +196,28 @@ import { AmbientAudio } from './ambient-audio.js';
     };
 
     runWhenIdle(async () => {
-        initFileShare();
-        initImageCompressor();
-        const { initPdfTools } = await import('./pdf-tools.js');
-        initPdfTools();
-        initDashboardStudio();
-        initCreativeStudio();
+        try {
+            const [
+                { initFileShare },
+                { initImageCompressor },
+                { initPdfTools },
+                { initDashboardStudio },
+                { initCreativeStudio },
+            ] = await Promise.all([
+                import('./fileshare.js'),
+                import('./image-compressor.js'),
+                import('./pdf-tools.js'),
+                import('./dashboard-studio.js'),
+                import('./studio-ui.js'),
+            ]);
+            initFileShare();
+            initImageCompressor();
+            initPdfTools();
+            initDashboardStudio();
+            initCreativeStudio();
+        } catch (err) {
+            console.error('Idle modules initialization failed:', err);
+        }
     });
 
     function initSecurityHud() {
@@ -500,6 +513,7 @@ import { AmbientAudio } from './ambient-audio.js';
             }
             const name = prompt('Name this custom dashboard profile:', `Custom Layout ${(state.settings.customDashboards?.length || 0) + 1}`);
             if (name && name.trim()) {
+                const { createDashboardSnapshot } = await import('./dashboard-studio.js');
                 const snapshot = await createDashboardSnapshot(name.trim());
                 if (!Array.isArray(state.settings.customDashboards)) {
                     state.settings.customDashboards = [];
@@ -2743,35 +2757,13 @@ function optimizeImage(file) {
 
     // ─── Universal Agent Command Bus & Studio Engine Integration ───
     (function initAgentBus() {
-        const bus = {
-            handlers: new Map(),
-            history: [],
-            register(type, handler) {
-                this.handlers.set(type, handler);
-            },
-            async execute(type, payload = {}, options = {}) {
-                const handler = this.handlers.get(type);
-                if (!handler) {
-                    console.warn(`[RaeenCommandBus] No handler registered for command: ${type}`);
-                    return { success: false, error: `Unknown command: ${type}` };
-                }
-                try {
-                    const result = await handler(payload);
-                    this.history.push({ type, payload, timestamp: Date.now(), source: options.source || 'agent' });
-                    return { success: true, result };
-                } catch (e) {
-                    return { success: false, error: e?.message || String(e) };
-                }
-            }
-        };
-
-        // Core Workspace Commands
-        bus.register('workspace:setMode', async ({ mode }) => {
+        // Workspace Layout Commands
+        GlobalCommandBus.register('workspace:setMode', async ({ mode }) => {
             applyDashboardPreset(mode);
             return { mode };
         });
 
-        bus.register('workspace:resetLayout', async () => {
+        GlobalCommandBus.register('workspace:resetLayout', async () => {
             localStorage.removeItem("raeen_widget_positions");
             localStorage.removeItem("raeen_widget_sizes");
             document.querySelectorAll(".draggable-widget").forEach(widget => {
@@ -2785,50 +2777,161 @@ function optimizeImage(file) {
             return { reset: true };
         });
 
-        // Security & VPN Commands
-        bus.register('security:connectVpn', async ({ nodeId }) => {
+        GlobalCommandBus.register('widget:setPosition', async ({ widgetId, left, top }) => {
+            const widget = document.getElementById(widgetId);
+            if (!widget) return { success: false, error: `Widget #${widgetId} not found` };
+            if (left) widget.style.left = left;
+            if (top) widget.style.top = top;
+            if (typeof window.saveWidgetLayout === 'function') window.saveWidgetLayout();
+            return { widgetId, left, top };
+        });
+
+        GlobalCommandBus.register('widget:setSize', async ({ widgetId, width, height }) => {
+            const widget = document.getElementById(widgetId);
+            if (!widget) return { success: false, error: `Widget #${widgetId} not found` };
+            if (width) widget.style.width = width;
+            if (height) widget.style.height = height;
+            if (typeof window.saveWidgetLayout === 'function') window.saveWidgetLayout();
+            return { widgetId, width, height };
+        });
+
+        GlobalCommandBus.register('widget:toggleVisibility', async ({ widgetId, visible }) => {
+            const widget = document.getElementById(widgetId);
+            if (!widget) return { success: false, error: `Widget #${widgetId} not found` };
+            widget.classList.toggle('hidden', !visible);
+            return { widgetId, visible };
+        });
+
+        // Security & Privacy Commands
+        GlobalCommandBus.register('security:connectVpn', async ({ nodeId }) => {
             return await securityManager.connect(nodeId);
         });
 
-        bus.register('security:disconnectVpn', async () => {
+        GlobalCommandBus.register('security:disconnectVpn', async () => {
             return await securityManager.disconnect();
         });
 
-        bus.register('security:clearTraces', async () => {
+        GlobalCommandBus.register('security:setWebRTCShield', async ({ enabled }) => {
+            return await securityManager.setWebRtcShield(enabled);
+        });
+
+        GlobalCommandBus.register('security:setKillSwitch', async ({ enabled }) => {
+            return await securityManager.setKillSwitch(enabled);
+        });
+
+        GlobalCommandBus.register('security:clearTraces', async () => {
             return await securityManager.triggerClearTraces();
         });
 
-        // Notes & Focus Commands
-        bus.register('notes:create', async ({ title, content }) => {
-            openNoteEditor({ title, content });
-            saveCurrentNote();
-            return { created: true };
+        // Notes Commands
+        GlobalCommandBus.register('notes:create', async ({ title, content }) => {
+            await openNoteEditor();
+            if (dom.noteEditorTitle && title) dom.noteEditorTitle.value = title;
+            if (dom.noteEditorBody && content) dom.noteEditorBody.value = content;
+            await saveCurrentNote();
+            renderNotesList();
+            return { created: true, title };
         });
 
-        bus.register('timer:start', async () => {
+        GlobalCommandBus.register('notes:delete', async ({ id }) => {
+            if (id) {
+                await StorageManager.remove('notes', id);
+                renderNotesList();
+            }
+            return { deleted: id };
+        });
+
+        GlobalCommandBus.register('notes:update', async ({ id, content }) => {
+            if (id) {
+                const note = (await StorageManager.get('notes', id)) || { id, title: 'Note' };
+                note.body = content;
+                note.updated = Date.now();
+                await StorageManager.set('notes', id, note);
+                renderNotesList();
+            }
+            return { updated: id };
+        });
+
+        // Focus Timer Commands
+        GlobalCommandBus.register('timer:start', async () => {
             const startBtn = document.getElementById('focus-start-btn');
             if (startBtn) startBtn.click();
             return { started: true };
         });
 
+        GlobalCommandBus.register('timer:pause', async () => {
+            const pauseBtn = document.getElementById('focus-pause-btn');
+            if (pauseBtn) pauseBtn.click();
+            return { paused: true };
+        });
+
+        GlobalCommandBus.register('timer:reset', async () => {
+            const resetBtn = document.getElementById('focus-reset-btn');
+            if (resetBtn) resetBtn.click();
+            return { reset: true };
+        });
+
         // Creative Studio Engine Commands
-        bus.register('studio:applyFilter', async ({ filter, value }) => {
+        GlobalCommandBus.register('studio:loadImage', async ({ sourceUrl }) => {
+            if (sourceUrl) await GlobalStudioEngine.loadImage(sourceUrl);
+            return { loaded: true };
+        });
+
+        GlobalCommandBus.register('studio:applyFilter', async ({ filter, value }) => {
             GlobalStudioEngine.applyFilter(filter, value);
             return { filterApplied: filter };
         });
 
-        bus.register('studio:exportCanvas', async ({ format, quality }) => {
+        GlobalCommandBus.register('studio:clearCanvas', async () => {
+            GlobalStudioEngine.saveSnapshot();
+            GlobalStudioEngine.getActiveLayer()?.clear();
+            GlobalStudioEngine.render();
+            return { cleared: true };
+        });
+
+        GlobalCommandBus.register('studio:exportCanvas', async ({ format, quality }) => {
             const dataUrl = GlobalStudioEngine.export(format, quality);
             return { dataUrl };
         });
 
-        window.RaeenCommandBus = bus;
+        GlobalCommandBus.register('photocraft:setTool', async ({ tool }) => {
+            GlobalStudioEngine.activeTool = tool;
+            return { tool };
+        });
+
+        GlobalCommandBus.register('photocraft:applyFilter', async ({ filter, value }) => {
+            GlobalStudioEngine.applyFilter(filter, value);
+            return { filterApplied: filter };
+        });
+
+        GlobalCommandBus.register('photocraft:removeBackground', async ({ tolerance }) => {
+            GlobalStudioEngine.removeBackground(tolerance || 32);
+            return { removed: true };
+        });
+
+        GlobalCommandBus.register('vectorcraft:generateSquircle', async ({ size, n, fill }) => {
+            const svg = GlobalStudioEngine.generateSquircleSVG(size || 300, n || 68, fill || GlobalStudioEngine.brushColor);
+            const blob = new Blob([svg], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            await GlobalStudioEngine.loadImage(url);
+            URL.revokeObjectURL(url);
+            return { generated: true };
+        });
+
+        // System Diagnostic Ping
+        GlobalCommandBus.register('system:ping', async ({ timestamp }) => {
+            return { pong: true, serverTime: Date.now(), latencyMs: Math.max(0, Date.now() - (timestamp || Date.now())) };
+        });
+
+        // Global Agent Surfaces
+        window.RaeenCommandBus = GlobalCommandBus;
+        window.__RAEEN_AGENT_BUS__ = GlobalCommandBus;
         window.RaeenStudioEngine = GlobalStudioEngine;
 
         // External AI Agent & Model Context Protocol (MCP) Message Bridge
         window.addEventListener('message', async (event) => {
             if (event.data?.type === 'RAEEN_AGENT_COMMAND') {
-                const res = await window.RaeenCommandBus.execute(
+                const res = await GlobalCommandBus.execute(
                     event.data.action,
                     event.data.payload,
                     { source: 'mcp' }
