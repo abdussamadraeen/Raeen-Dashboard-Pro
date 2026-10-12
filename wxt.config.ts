@@ -26,7 +26,8 @@ export default defineConfig({
       'tabs',
       'proxy',
       'privacy',
-      'downloads'
+      'downloads',
+      'nativeMessaging'
     ],
     host_permissions: [
       'https://suggestqueries.google.com/*',

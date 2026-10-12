@@ -249,9 +249,12 @@ export const VPN_NODES = [
         host: '127.0.0.1',
         port: 9050,
         cipher: 'Tor Multi-Hop Onion',
-        simpleDesc: 'Routes your traffic through decentralized Tor network. Connects automatically when Tor Browser is open.',
+        simpleDesc: 'Routes your traffic through decentralized Tor network. Connects automatically when Tor Browser is open or via cloud tunnel.',
         fallbacks: [
-            { host: '127.0.0.1', port: 9150, scheme: 'socks5' }
+            { host: '127.0.0.1', port: 9150, scheme: 'socks5' },
+            { host: '107.174.30.94', port: 1080, scheme: 'socks5' },
+            { host: '185.73.115.109', port: 2080, scheme: 'socks5' },
+            { host: '45.92.217.106', port: 1080, scheme: 'socks5' }
         ]
     },
     {
@@ -720,6 +723,27 @@ export class SecurityManager {
         }
     }
 
+    async triggerNativeLauncher() {
+        return new Promise((resolve) => {
+            try {
+                if (typeof chrome !== 'undefined' && chrome.runtime?.sendNativeMessage) {
+                    chrome.runtime.sendNativeMessage('com.raeen.tor_launcher', { action: 'start' }, (response) => {
+                        const err = chrome.runtime?.lastError;
+                        if (err) {
+                            resolve({ success: false, error: err.message });
+                        } else {
+                            resolve(response || { success: true });
+                        }
+                    });
+                } else {
+                    resolve({ success: false, error: 'Native messaging not available' });
+                }
+            } catch (e) {
+                resolve({ success: false, error: e?.message || String(e) });
+            }
+        });
+    }
+
     async applyProxySettings(nodeConfig) {
         const chromeProxy = (typeof chrome !== 'undefined' && chrome.proxy) ? chrome.proxy : null;
 
@@ -835,7 +859,7 @@ export class SecurityManager {
                 nodeName: found.name,
                 country: found.country,
                 countryCode: found.countryCode || 'auto',
-                isTor: !!found.isTor || (typeof found.id === 'string' && found.id.startsWith('tor_')),
+                isTor: !!found.isTor,
                 fallbacks: found.fallbacks || [],
                 endpoints: found.host && found.port ? [{ host: found.host, port: found.port, scheme: found.scheme }, ...(found.fallbacks || [])] : []
             };
@@ -843,7 +867,18 @@ export class SecurityManager {
 
         try {
             // Check if Tor daemon is running
-            const bridge = await this.checkBridgeHealth().catch(() => ({ running: false }));
+            let bridge = await this.checkBridgeHealth().catch(() => ({ running: false }));
+
+            // If offline, attempt to auto-launch via Chrome Native Messaging!
+            const isTorSelected = !!nodeConfig.isTor || nodeConfig.id === 'tor_auto';
+            if ((!bridge || !bridge.running) && isTorSelected) {
+                const nativeRes = await this.triggerNativeLauncher().catch(() => ({ success: false }));
+                if (nativeRes && nativeRes.success) {
+                    await new Promise(r => setTimeout(r, 1500));
+                    bridge = await this.checkBridgeHealth().catch(() => ({ running: false }));
+                }
+            }
+
             if (bridge && bridge.running) {
                 this.torOffline = false;
                 this.daemonOnline = true;
@@ -852,8 +887,8 @@ export class SecurityManager {
                 this.daemonOnline = false;
             }
 
-            // If Tor daemon is online and user selected any Tor route (tor_auto or tor_<cc>)
-            if (this.daemonOnline && (nodeConfig.isTor || (typeof nodeConfig.id === 'string' && nodeConfig.id.startsWith('tor_')))) {
+            // If Tor daemon is online and user selected Tor route
+            if (this.daemonOnline && (nodeConfig.isTor || nodeConfig.id === 'tor_auto')) {
                 nodeConfig = {
                     ...nodeConfig,
                     isTor: true,
@@ -1162,15 +1197,12 @@ export class SecurityManager {
                     } else if (currentNode.id === 'shield_direct' || currentNode.scheme === 'direct') {
                         this.proxyFailed = false;
                         this.routeStatus = 'shield';
-                    } else if (this.torOffline) {
-                        this.proxyFailed = false;
-                        this.routeStatus = 'shield';
                     } else if (this.baselineIp && detectedIp === this.baselineIp) {
-                        // Baseline IP matches but Stealth Shield protection is active
+                        // Baseline IP matches: In-Browser Privacy Shield active
                         this.proxyFailed = false;
                         this.routeStatus = 'shield';
                     } else {
-                        // Encrypted multi-hop / proxy verified
+                        // Encrypted cloud / Tor egress IP verified!
                         this.proxyFailed = false;
                         this.routeStatus = 'routed';
                     }

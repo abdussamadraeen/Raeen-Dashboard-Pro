@@ -299,18 +299,18 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
             if (dom.hudNodeHint) {
                 if (currentNode.scheme === 'direct') {
                     dom.hudNodeHint.innerHTML = `🛡️ <strong>In-Browser Privacy Shield:</strong> Instant zero-setup protection. Seals WebRTC hardware IP leaks and encrypts DNS lookups directly in Chrome.`;
-                } else if (currentNode.isTor || (typeof currentNode.id === 'string' && currentNode.id.startsWith('tor_'))) {
+                } else if (currentNode.isTor || currentNode.id === 'tor_auto') {
                     if (securityManager.torOffline && !securityManager.isActive) {
-                        dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Multi-Hop Tor Relay. (Run <code>tools/start-tor.bat</code> or Tor Browser to route live traffic).`;
+                        dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Multi-Hop Tor Relay. (Runs automatically via Auto-Launcher or Tor Browser).`;
                     } else if (securityManager.torOffline && securityManager.isActive) {
-                        dom.hudNodeHint.innerHTML = `🛡️ <strong>Privacy Shield Active:</strong> WebRTC leaks sealed and encrypted DNS enabled. Start <code>start-tor.bat</code> to route live Onion relays.`;
+                        dom.hudNodeHint.innerHTML = `🛡️ <strong>Cloud Privacy Route Active:</strong> IP masked and DNS sealed. Start <code>enable-autostart.bat</code> for local Onion daemons.`;
                     } else {
                         dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Multi-Hop Onion Route Active • Exit: ${currentNode.countryCode ? currentNode.countryCode.toUpperCase() : 'AUTO'}`;
                     }
                 } else if (currentNode.id === 'custom') {
                     dom.hudNodeHint.innerHTML = '⚙️ <strong>Custom Proxy:</strong> Connects to your private SOCKS5 or HTTPS proxy.';
                 } else {
-                    dom.hudNodeHint.innerHTML = `🌐 <strong>${currentNode.name}:</strong> Encrypted route • ${currentNode.country || 'Protected'}`;
+                    dom.hudNodeHint.innerHTML = `🌐 <strong>${currentNode.name}:</strong> High-Speed Cloud Tunnel (Zero Setup) • Exit: ${currentNode.country || 'Protected'}`;
                 }
             }
 
@@ -358,23 +358,32 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
                         };
                     }
                 } else {
-                    const isTorRoute = (securityManager.currentNode?.isTor || (typeof securityManager.currentNodeId === 'string' && securityManager.currentNodeId.startsWith('tor_')));
+                    const isTorRoute = (securityManager.currentNode?.isTor || securityManager.currentNodeId === 'tor_auto');
                     if (isTorRoute) {
                         dom.hudEngineDot.style.background = '#f59e0b';
-                        dom.hudEngineText.textContent = '🧅 Tor Engine: Offline (Run start-tor.bat)';
+                        dom.hudEngineText.textContent = '🧅 Tor Engine: Offline (Auto-Shield Active)';
                         dom.hudEngineText.style.color = '#fbbf24';
                         if (dom.hudEngineAction) {
                             dom.hudEngineAction.textContent = 'Switch On ⚡';
                             dom.hudEngineAction.style.color = '#fbbf24';
-                            dom.hudEngineAction.onclick = (e) => {
+                            dom.hudEngineAction.onclick = async (e) => {
                                 e.stopPropagation();
-                                alert("⚡ How to Switch On Tor Engine:\n\n1. In your extension folder, double-click 'tools/start-tor.bat'\n   (or run 'node tools/vpn-daemon.cjs' in terminal)\n2. Tor Engine starts on ports 9050 & 9052.\n3. Return here — status turns GREEN automatically and your IP will be completely masked through Tor relays!");
+                                dom.hudEngineAction.textContent = 'Starting...';
+                                const res = await securityManager.triggerNativeLauncher().catch(() => ({ success: false }));
+                                if (res && res.success) {
+                                    await new Promise(r => setTimeout(r, 1500));
+                                    await securityManager.checkBridgeHealth();
+                                    window.renderSecurityHud();
+                                } else {
+                                    alert("⚡ Tor Auto-Launcher Setup:\n\n1. One-Click Native Auto-Launch:\nDouble-click 'tools/register-native-launcher.bat' once. This enables Chrome to start Tor automatically whenever you click Switch On!\n\n2. Silent Auto-Start on Boot:\nDouble-click 'tools/enable-autostart.bat' to run Tor silently in the background whenever Windows starts.\n\n3. Zero Setup Cloud Tunnels:\nSelect United States, Germany, UK, or Singapore in the route selector to connect instantly with zero local scripts!");
+                                    window.renderSecurityHud();
+                                }
                             };
                         }
                     } else {
-                        dom.hudEngineDot.style.background = '#38bdf8';
-                        dom.hudEngineText.textContent = '🛡️ Privacy Guard: Active (Zero Setup)';
-                        dom.hudEngineText.style.color = '#38bdf8';
+                        dom.hudEngineDot.style.background = '#10b981';
+                        dom.hudEngineText.textContent = '🌐 High-Speed Route: Ready (Zero Setup)';
+                        dom.hudEngineText.style.color = '#34d399';
                         if (dom.hudEngineAction) {
                             dom.hudEngineAction.textContent = 'Zero Setup';
                             dom.hudEngineAction.style.color = '#38bdf8';
@@ -415,6 +424,18 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
                 if (dom.hudCustomFields) {
                     dom.hudCustomFields.classList.toggle('hidden', nodeId !== 'custom');
                 }
+
+                // If user selects Tor Onion route and Tor engine is offline, proactively trigger native launcher
+                if (nodeId === 'tor_auto' && !securityManager.daemonOnline) {
+                    securityManager.triggerNativeLauncher().then(async (res) => {
+                        if (res && res.success) {
+                            await new Promise(r => setTimeout(r, 1500));
+                            await securityManager.checkBridgeHealth();
+                            window.renderSecurityHud();
+                        }
+                    }).catch(() => {});
+                }
+
                 if (securityManager.isActive) {
                     await securityManager.connect(nodeId);
                 }

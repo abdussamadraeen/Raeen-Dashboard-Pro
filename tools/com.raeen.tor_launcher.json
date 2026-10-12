@@ -1,0 +1,11 @@
+{
+  "name": "com.raeen.tor_launcher",
+  "description": "Raeen Workspace Tor Engine Native Host",
+  "path": "C:\\Workspace\\Extension\\google\\tools\\native-host.bat",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://hlmfkaimcocbadiicijfhdmlmbcjldeh/",
+    "chrome-extension://doeecfgpficlhldbmkinkilnmfhbepcc/",
+    "chrome-extension://pekbfcefogodiicaikioabdpgodnmmdd/"
+  ]
+}
