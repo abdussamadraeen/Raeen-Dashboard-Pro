@@ -261,7 +261,7 @@ export const TACTICAL_NODES = VPN_NODES;
 /**
  * Main Security & VPN Manager
  */
-class SecurityManager {
+export class SecurityManager {
     constructor() {
         this.isActive = (localStorage.getItem('vpn_active') ?? localStorage.getItem('raeen_vpn_active')) === 'true';
         this.isConnecting = false;
@@ -296,6 +296,17 @@ class SecurityManager {
             this.customProxy = Object.assign(Object.create(null), { scheme: 'socks5', host: '127.0.0.1', port: '9050' });
         }
         
+        this.activeNodeConfig = null;
+        try {
+            const rawCfg = localStorage.getItem('vpn_active_node_config') || localStorage.getItem('raeen_vpn_node_config');
+            this.activeNodeConfig = rawCfg ? JSON.parse(rawCfg) : null;
+        } catch {
+            this.activeNodeConfig = null;
+        }
+        if (!this.activeNodeConfig && this.isActive) {
+            this.activeNodeConfig = this.currentNode;
+        }
+
         // Active Telemetry
         this.telemetry = {
             ip: sessionStorage.getItem('vpn_ip') || sessionStorage.getItem('raeen_vpn_ip') || '',
@@ -347,7 +358,16 @@ class SecurityManager {
     }
 
     get maskedIp() {
-        return this.telemetry.ip || (this.isActive ? 'Protected' : (this.baselineIp || 'Checking...'));
+        if (this.isActive) {
+            if (this.telemetry.isTor) {
+                return this.telemetry.ip ? `🧅 ${this.telemetry.ip}` : '🧅 Tor Masked';
+            }
+            if (this.currentNodeId === 'shield_direct' || this.activeNodeConfig?.scheme === 'direct') {
+                return this.telemetry.ip ? `${this.telemetry.ip} (Shielded)` : 'Shielded • 0 Leaks';
+            }
+            return this.telemetry.ip || 'Protected';
+        }
+        return this.baselineIp || this.telemetry.ip || 'Checking...';
     }
 
     get realIp() {
@@ -499,10 +519,11 @@ class SecurityManager {
         }
 
         // AUTO-RECOVERY WATCHDOG:
-        // If Tor was active, but daemon became offline/stopped,
-        // IMMEDIATELY clear Chrome proxy back to DIRECT so the user never gets "No Internet"!
-        if (this.isActive && this.currentNode?.isTor && !this.isConnecting) {
-            console.warn('[VPN Watchdog] Tor daemon stopped or unreachable. Automatically resetting to DIRECT to preserve user internet.');
+        // Only trigger if we were actively routing traffic through Tor proxy (fixed_servers/SOCKS5)
+        // and the daemon suddenly stopped. Transition gracefully to In-Browser Privacy Shield so the user NEVER loses internet or protection!
+        const isActivelyUsingTor = this.isActive && (this.activeNodeConfig?.isTor || (this.activeNodeConfig?.host === '127.0.0.1' && this.activeNodeConfig?.port === 9050)) && this.activeNodeConfig?.scheme !== 'direct';
+        if (isActivelyUsingTor && !this.isConnecting) {
+            console.warn('[VPN Watchdog] Tor daemon stopped or unreachable. Transitioning to In-Browser Privacy Shield to preserve user internet.');
             this.autoRecoverToDirect();
         }
 
@@ -512,7 +533,8 @@ class SecurityManager {
     _startWatchdog() {
         if (this._watchdogInterval) clearInterval(this._watchdogInterval);
         this._watchdogInterval = setInterval(() => {
-            if (this.isActive && this.currentNode?.isTor) {
+            const isActivelyUsingTor = this.isActive && (this.activeNodeConfig?.isTor || (this.activeNodeConfig?.host === '127.0.0.1' && this.activeNodeConfig?.port === 9050)) && this.activeNodeConfig?.scheme !== 'direct';
+            if (isActivelyUsingTor && this.daemonOnline) {
                 this.checkBridgeHealth().catch(() => {});
             }
         }, 2500);
@@ -526,25 +548,50 @@ class SecurityManager {
     }
 
     async autoRecoverToDirect() {
-        this.isActive = false;
+        console.warn('[VPN] Falling back to In-Browser Privacy Shield');
         this.torOffline = true;
+        this.daemonOnline = false;
         this.routeStatus = 'shield';
-        this._stopTimer();
-        this._stopWatchdog();
-        localStorage.setItem('vpn_active', 'false');
-        localStorage.setItem('raeen_vpn_active', 'false');
+        this.currentNodeId = 'shield_direct';
+        localStorage.setItem('vpn_node', 'shield_direct');
+        localStorage.setItem('raeen_vpn_node', 'shield_direct');
+
+        this.activeNodeConfig = {
+            id: 'shield_direct',
+            scheme: 'direct',
+            nodeName: 'In-Browser Privacy Shield',
+            country: 'Direct Protected',
+            city: 'Native Speed',
+            countryCode: 'direct',
+            isTor: false,
+            isShieldOnly: true,
+            fallbacks: []
+        };
+        localStorage.setItem('vpn_active_node_config', JSON.stringify(this.activeNodeConfig));
 
         const chromeProxy = (typeof chrome !== 'undefined' && chrome.proxy) ? chrome.proxy : null;
         if (chromeProxy?.settings) {
             await new Promise((resolve) => {
-                chromeProxy.settings.clear({ scope: 'regular' }, resolve);
+                chromeProxy.settings.set({ value: { mode: 'direct' }, scope: 'regular' }, resolve);
             });
         }
+
+        if (typeof chrome !== 'undefined' && chrome.privacy?.network?.webRTCIPHandlingPolicy) {
+            try {
+                chrome.privacy.network.webRTCIPHandlingPolicy.set({ value: 'disable_non_proxied_udp' });
+            } catch (e) {}
+        }
+
+        // Maintain active protection! Keep isActive true and keep duration timer counting!
+        this.isActive = true;
+        localStorage.setItem('vpn_active', 'true');
+        localStorage.setItem('raeen_vpn_active', 'true');
+
         await this.sendMsg({
             action: 'vpn_sync_state',
             payload: {
-                isVpnActive: false,
-                activeVpnNode: null,
+                isVpnActive: true,
+                activeVpnNode: this.activeNodeConfig,
                 killSwitch: this.killSwitch,
                 webrtcSealed: this.webrtcSealed
             }
@@ -712,6 +759,12 @@ class SecurityManager {
             };
         }
 
+        this.activeNodeConfig = nodeConfig;
+        try {
+            localStorage.setItem('vpn_active_node_config', JSON.stringify(nodeConfig));
+            localStorage.setItem('raeen_vpn_node_config', JSON.stringify(nodeConfig));
+        } catch {}
+
         if (chromeProxy?.settings) {
             return new Promise((resolve) => {
                 chromeProxy.settings.set({
@@ -793,6 +846,9 @@ class SecurityManager {
                     // so the user is seamlessly protected without needing any background scripts or bat files!
                     this.torOffline = true;
                     this.daemonOnline = false;
+                    this.currentNodeId = 'shield_direct';
+                    localStorage.setItem('vpn_node', 'shield_direct');
+                    localStorage.setItem('raeen_vpn_node', 'shield_direct');
                     nodeConfig = {
                         id: 'shield_direct',
                         scheme: 'direct',
@@ -808,6 +864,12 @@ class SecurityManager {
             } else {
                 this.torOffline = false;
             }
+
+            this.activeNodeConfig = nodeConfig;
+            try {
+                localStorage.setItem('vpn_active_node_config', JSON.stringify(this.activeNodeConfig));
+                localStorage.setItem('raeen_vpn_node_config', JSON.stringify(this.activeNodeConfig));
+            } catch {}
 
             // Check bridge status and request country if supported
             if (nodeConfig.countryCode && nodeConfig.countryCode !== 'direct' && nodeConfig.countryCode !== 'custom' && !this.torOffline) {
@@ -850,7 +912,12 @@ class SecurityManager {
         this.proxyFailed = false;
         this.routeStatus = 'idle';
         this.torOffline = false;
+        this.activeNodeConfig = null;
         localStorage.setItem('vpn_active', 'false'); localStorage.setItem('raeen_vpn_active', 'false');
+        try {
+            localStorage.removeItem('vpn_active_node_config');
+            localStorage.removeItem('raeen_vpn_node_config');
+        } catch {}
 
         const chromeProxy = (typeof chrome !== 'undefined' && chrome.proxy) ? chrome.proxy : null;
         if (chromeProxy?.settings) {
