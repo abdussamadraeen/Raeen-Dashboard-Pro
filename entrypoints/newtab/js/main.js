@@ -301,7 +301,7 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
                     dom.hudNodeHint.innerHTML = `🛡️ <strong>In-Browser Privacy Shield:</strong> Instant zero-setup protection. Seals WebRTC hardware IP leaks and encrypts DNS lookups directly in Chrome.`;
                 } else if (currentNode.isTor) {
                     if (securityManager.torOffline && !securityManager.isActive) {
-                        dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Tor Onion Network ready. Routes your traffic through multi-hop relays for total anonymity.`;
+                        dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> 1-Click Protection • WebRTC leak guard + Encrypted DNS. (Auto-routes via Tor Browser on port 9150/9050 if running).`;
                     } else if (securityManager.torOffline && securityManager.isActive) {
                         dom.hudNodeHint.innerHTML = `🛡️ <strong>Privacy Shield Active:</strong> WebRTC leaks sealed and encrypted DNS enabled.`;
                     } else {
@@ -357,14 +357,14 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
                         };
                     }
                 } else {
-                    dom.hudEngineDot.style.background = '#f59e0b';
-                    dom.hudEngineText.textContent = 'Tor Engine: Offline (Run tools/start-tor.bat)';
-                    dom.hudEngineText.style.color = '#fbbf24';
+                    dom.hudEngineDot.style.background = '#38bdf8';
+                    dom.hudEngineText.textContent = '🛡️ Privacy Guard: Active (Zero Setup)';
+                    dom.hudEngineText.style.color = '#38bdf8';
                     if (dom.hudEngineAction) {
-                        dom.hudEngineAction.textContent = 'Setup Help ↗';
+                        dom.hudEngineAction.textContent = 'Tor Info ℹ️';
                         dom.hudEngineAction.onclick = (e) => {
                             e.stopPropagation();
-                            alert("🧅 Tor Engine Setup\n\nTo route your browsing through international exit nodes (US, Germany, UK, etc.):\n\n1. Run 'start-tor.bat' located in your extension 'tools' folder\n   OR open Tor Browser in the background (port 9050/9150).\n2. Once started, the Tor Engine indicator will turn green.\n\nWithout Tor running, In-Browser Privacy Shield protects your browsing with WebRTC leak blocking and encrypted DNS.");
+                            alert("🛡️ In-Browser Privacy Guard\n\nActive 1-Click Protection:\n• WebRTC hardware IP leak blocker\n• Encrypted DNS-over-HTTPS (DoH)\n• Anti-tracking & zero-leak shield\n\n🧅 Optional Tor Integration:\nIf you have Tor Browser open on your computer, this extension automatically detects it (ports 9050/9150) and routes through decentralized onion relays.");
                         };
                     }
                 }
@@ -436,10 +436,6 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
                         await securityManager.disconnect();
                     } else {
                         await securityManager.connect();
-                        const requestedNode = TACTICAL_NODES.find(n => n.id === securityManager.currentNodeId);
-                        if (requestedNode?.isTor && securityManager.torOffline) {
-                            alert("💡 Tor Engine is Offline\n\nTo route your browsing through international exits (" + (requestedNode.country || 'US/Germany') + "):\n\nPlease launch 'tools/start-tor.bat' on your computer.\n\nYour browsing is currently secured via In-Browser Privacy Shield (WebRTC leak prevention & encrypted DNS).");
-                        }
                     }
                 } finally {
                     dom.hudToggleShieldBtn.disabled = false;
