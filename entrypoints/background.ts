@@ -356,7 +356,7 @@ export default defineBackground(() => {
           if (isShieldOnly || scheme === 'direct') {
             proxyConfig = { mode: 'direct' };
 
-          } else if ((request.payload?.daemonOnline || request.payload?.useFixed) && host && port) {
+          } else if ((request.payload?.daemonOnline || request.payload?.useFixed || isTor) && host && port) {
             proxyConfig = {
               mode: 'fixed_servers',
               rules: {
@@ -365,7 +365,7 @@ export default defineBackground(() => {
                   host,
                   port: parseInt(String(port), 10),
                 },
-                bypassList: ['<-loopback>', 'localhost', '127.0.0.1', '*.local', '*.internal'],
+                bypassList: ['localhost', '127.0.0.1', '::1', '[::1]', '*.local', '*.internal'],
               },
             };
 

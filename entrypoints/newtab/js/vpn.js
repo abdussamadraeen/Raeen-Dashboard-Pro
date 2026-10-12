@@ -359,13 +359,16 @@ export class SecurityManager {
 
     get maskedIp() {
         if (this.isActive) {
-            if (this.telemetry.isTor) {
-                return this.telemetry.ip ? `🧅 ${this.telemetry.ip}` : '🧅 Tor Masked';
+            const isTor = this.telemetry.isTor || (this.daemonOnline && this.activeNodeConfig?.isTor);
+            if (isTor) {
+                const flagPrefix = this.telemetry.flag ? `${this.telemetry.flag} ` : '';
+                return this.telemetry.ip ? `🧅 ${flagPrefix}${this.telemetry.ip}` : '🧅 Tor Route Active';
             }
             if (this.currentNodeId === 'shield_direct' || this.activeNodeConfig?.scheme === 'direct') {
                 return this.telemetry.ip ? `${this.telemetry.ip} (Shielded)` : 'Shielded • 0 Leaks';
             }
-            return this.telemetry.ip || 'Protected';
+            const flagPrefix = this.telemetry.flag ? `${this.telemetry.flag} ` : '';
+            return this.telemetry.ip ? `${flagPrefix}${this.telemetry.ip}` : 'Protected';
         }
         return this.baselineIp || this.telemetry.ip || 'Checking...';
     }
@@ -705,7 +708,7 @@ export class SecurityManager {
     async setRouteCountry(countryCode) {
         try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 2000);
+            const timeout = setTimeout(() => controller.abort(), 4000);
             await fetch(`http://127.0.0.1:9052/set-country?cc=${encodeURIComponent(countryCode || 'auto')}`, {
                 signal: controller.signal,
                 cache: 'no-store'
@@ -744,7 +747,7 @@ export class SecurityManager {
                         host: nodeConfig.host || '127.0.0.1',
                         port: parseInt(String(nodeConfig.port || 9050), 10)
                     },
-                    bypassList: ['<-loopback>', 'localhost', '127.0.0.1', '*.local', '*.internal']
+                    bypassList: ['localhost', '127.0.0.1', '::1', '[::1]', '*.local', '*.internal']
                 }
             };
         } else {
@@ -1107,7 +1110,7 @@ export class SecurityManager {
         try {
             const currentNode = this.currentNode;
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 3200);
+            const timeout = setTimeout(() => controller.abort(), 9000);
 
             // Fast parallel quorum: ipwho.is, ipify, and check.torproject.org
             const [geoRes, fastIpRes, torCheckRes] = await Promise.allSettled([
@@ -1126,7 +1129,7 @@ export class SecurityManager {
             const torCheck = torCheckRes.status === 'fulfilled' && torCheckRes.value ? torCheckRes.value : null;
 
             const detectedIp = torCheck?.IP || geoData?.ip || fastIp;
-            this.telemetry.isTor = !!torCheck?.IsTor;
+            this.telemetry.isTor = !!torCheck?.IsTor || (this.isActive && this.daemonOnline && !!currentNode.isTor && !!detectedIp && detectedIp !== this.baselineIp);
 
             if (this.telemetry.isTor) {
                 this.torOffline = false;

@@ -159,6 +159,14 @@
                         <div class="hud-node-info" id="hud-node-hint">
                             🛡️ <strong>In-Browser Privacy Shield:</strong> Instant zero-setup protection. Shields your IP, stops WebRTC leaks, and encrypts DNS.
                         </div>
+                        <!-- Tor Daemon Engine Status Pill -->
+                        <div class="hud-engine-status" id="hud-engine-status" style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding: 6px 10px; border-radius: 6px; font-size: 11px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span id="hud-engine-dot" style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
+                                <span id="hud-engine-text" style="color: #cbd5e1; font-weight: 500;">Tor Engine: Checking...</span>
+                            </div>
+                            <span id="hud-engine-action" style="color: #38bdf8; font-size: 10px; font-weight: 500; cursor: pointer;">127.0.0.1:9050</span>
+                        </div>
                     </div>
 
                     <!-- Custom Proxy Inputs (Revealed when Custom selected) -->

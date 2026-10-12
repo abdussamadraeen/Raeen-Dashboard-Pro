@@ -237,8 +237,10 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
             }
 
             if (dom.hudShieldStatus) {
-                if (isEngaged && securityManager.telemetry.isTor) {
-                    dom.hudShieldStatus.textContent = '🧅 Tor Active';
+                const isTorActive = isEngaged && (securityManager.telemetry.isTor || (currentNode.isTor && securityManager.daemonOnline));
+                if (isTorActive) {
+                    const countryLabel = securityManager.telemetry.country ? ` (${securityManager.telemetry.country})` : (currentNode.country ? ` (${currentNode.country})` : '');
+                    dom.hudShieldStatus.textContent = `🧅 Tor Active${countryLabel}`;
                     dom.hudShieldStatus.style.color = '#10b981';
                 } else if (isEngaged && securityManager.torOffline) {
                     dom.hudShieldStatus.textContent = 'Stealth Protected';
@@ -335,6 +337,39 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
                 dom.hudDnsHint.innerHTML = `${curDns.icon || '🛡️'} <strong>${curDns.name}:</strong> ${curDns.features || 'Encrypted DNS-over-HTTPS.'}`;
             }
 
+            // Tor Engine Live Status Pill
+            if (dom.hudEngineText && dom.hudEngineDot) {
+                if (securityManager.daemonOnline) {
+                    dom.hudEngineDot.style.background = '#10b981';
+                    const activeCc = securityManager.activeNodeConfig?.countryCode && securityManager.activeNodeConfig.countryCode !== 'direct' ? securityManager.activeNodeConfig.countryCode.toUpperCase() : 'Ready';
+                    dom.hudEngineText.textContent = `Tor Engine: Online • ${activeCc}`;
+                    dom.hudEngineText.style.color = '#34d399';
+                    if (dom.hudEngineAction) {
+                        dom.hudEngineAction.textContent = 'Rotate IP ↻';
+                        dom.hudEngineAction.onclick = async (e) => {
+                            e.stopPropagation();
+                            dom.hudEngineAction.textContent = 'Rotating...';
+                            await fetch('http://127.0.0.1:9052/rotate').catch(() => {});
+                            setTimeout(() => {
+                                securityManager.probeRealIp(true);
+                                window.renderSecurityHud();
+                            }, 1200);
+                        };
+                    }
+                } else {
+                    dom.hudEngineDot.style.background = '#f59e0b';
+                    dom.hudEngineText.textContent = 'Tor Engine: Offline (Run tools/start-tor.bat)';
+                    dom.hudEngineText.style.color = '#fbbf24';
+                    if (dom.hudEngineAction) {
+                        dom.hudEngineAction.textContent = 'Setup Help ↗';
+                        dom.hudEngineAction.onclick = (e) => {
+                            e.stopPropagation();
+                            alert("🧅 Tor Engine Setup\n\nTo route your browsing through international exit nodes (US, Germany, UK, etc.):\n\n1. Run 'start-tor.bat' located in your extension 'tools' folder\n   OR open Tor Browser in the background (port 9050/9150).\n2. Once started, the Tor Engine indicator will turn green.\n\nWithout Tor running, In-Browser Privacy Shield protects your browsing with WebRTC leak blocking and encrypted DNS.");
+                        };
+                    }
+                }
+            }
+
             // Quick Status Indicator
             const quickDot = document.getElementById('hud-quick-dot');
             const quickText = document.getElementById('hud-quick-text');
@@ -401,6 +436,10 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
                         await securityManager.disconnect();
                     } else {
                         await securityManager.connect();
+                        const requestedNode = TACTICAL_NODES.find(n => n.id === securityManager.currentNodeId);
+                        if (requestedNode?.isTor && securityManager.torOffline) {
+                            alert("💡 Tor Engine is Offline\n\nTo route your browsing through international exits (" + (requestedNode.country || 'US/Germany') + "):\n\nPlease launch 'tools/start-tor.bat' on your computer.\n\nYour browsing is currently secured via In-Browser Privacy Shield (WebRTC leak prevention & encrypted DNS).");
+                        }
                     }
                 } finally {
                     dom.hudToggleShieldBtn.disabled = false;
