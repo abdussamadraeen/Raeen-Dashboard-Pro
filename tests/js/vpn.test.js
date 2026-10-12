@@ -39,11 +39,11 @@ describe('VPN and SecurityManager module', () => {
     if (securityManager._timerInterval) clearInterval(securityManager._timerInterval);
   });
 
-  it('defaults to shield_direct as initial node', () => {
-    expect(securityManager.currentNodeId).toBe('shield_direct');
-    expect(securityManager.currentNode.id).toBe('shield_direct');
-    expect(securityManager.currentNode.scheme).toBe('direct');
-    expect(securityManager.currentNode.isTor).toBe(false);
+  it('defaults to tor_auto as initial node', () => {
+    expect(securityManager.currentNodeId).toBe('tor_auto');
+    expect(securityManager.currentNode.id).toBe('tor_auto');
+    expect(securityManager.currentNode.scheme).toBe('socks5');
+    expect(securityManager.currentNode.isTor).toBe(true);
   });
 
   it('has comprehensive tactical VPN nodes defined', () => {
@@ -81,35 +81,34 @@ describe('VPN and SecurityManager module', () => {
     expect(localStorage.getItem('vpn_active')).toBe('true');
   });
 
-  it('automatically falls back to shield_direct when Tor daemon is offline', async () => {
+  it('handles offline Tor daemon gracefully without losing user selection', async () => {
     // Mock fetch to simulate port 9052 being offline (clean store install)
     global.fetch = vi.fn().mockRejectedValue(new Error('Connection refused: port 9052'));
 
     const res = await securityManager.connect('tor_auto');
     expect(res.success).toBe(true);
     expect(securityManager.isActive).toBe(true);
-    expect(securityManager.currentNodeId).toBe('shield_direct');
+    expect(securityManager.currentNodeId).toBe('tor_auto');
     expect(securityManager.torOffline).toBe(true);
-    expect(securityManager.activeNodeConfig?.scheme).toBe('direct');
   });
 
   it('autoRecoverToDirect maintains active protection under Privacy Shield', async () => {
     securityManager.isActive = true;
+    securityManager.currentNodeId = 'tor_auto';
     await securityManager.autoRecoverToDirect();
 
     expect(securityManager.isActive).toBe(true);
-    expect(securityManager.currentNodeId).toBe('shield_direct');
-    expect(securityManager.activeNodeConfig?.id).toBe('shield_direct');
-    expect(localStorage.getItem('vpn_active')).toBe('true');
+    expect(securityManager.torOffline).toBe(true);
+    expect(securityManager.currentNodeId).toBe('tor_auto');
   });
 
   it('connects to United States cloud route with multi-endpoint failover and no local daemon requirement', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error('Connection refused: port 9052'));
     const res = await securityManager.connect('tor_us');
     expect(res.success).toBe(true);
     expect(securityManager.isActive).toBe(true);
     expect(securityManager.currentNodeId).toBe('tor_us');
     expect(securityManager.activeNodeConfig?.id).toBe('tor_us');
-    expect(securityManager.activeNodeConfig?.isTor).toBe(false);
     expect(securityManager.activeNodeConfig?.host).toBe('107.174.30.94');
     expect(securityManager.activeNodeConfig?.fallbacks.length).toBeGreaterThan(0);
     expect(localStorage.getItem('vpn_active')).toBe('true');

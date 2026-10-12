@@ -59,8 +59,8 @@ export default defineConfig({
       'https://tmpfiles.org/*',
       'https://*.peerjs.com/*',
       'https://0.peerjs.com/*',
-      'http://127.0.0.1:*',
-      'http://localhost:*'
+      'http://127.0.0.1/*',
+      'http://localhost/*'
     ],
     declarative_net_request: {
       rule_resources: [{
@@ -70,7 +70,7 @@ export default defineConfig({
       }]
     },
     content_security_policy: {
-      extension_pages: "script-src 'self'; object-src 'self'; connect-src 'self' https: wss: blob: data: http://127.0.0.1:* http://localhost:*; frame-src https://google.com https://*.google.com https://google.co.in https://*.google.co.in https://bing.com https://*.bing.com https://*.microsoft.com;"
+      extension_pages: "script-src 'self'; object-src 'self'; connect-src 'self' https: wss: blob: data: http://127.0.0.1:* http://localhost:* http://127.0.0.1:9052 http://127.0.0.1:9050 http://localhost:9052 http://localhost:9050; frame-src https://google.com https://*.google.com https://google.co.in https://*.google.co.in https://bing.com https://*.bing.com https://*.microsoft.com;"
     },
     web_accessible_resources: [
       {

@@ -286,10 +286,10 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
                 if (!dom.hudNodeSelect._populated) {
                     dom.hudNodeSelect._populated = true;
                     dom.hudNodeSelect.innerHTML = TACTICAL_NODES.map(node => `
-                        <option value="${node.id}">${node.flag || '🔒'} ${node.name}</option>
+                        <option value="${node.id}">${node.name}</option>
                     `).join('');
                 }
-                dom.hudNodeSelect.value = securityManager.currentNodeId || 'shield_direct';
+                dom.hudNodeSelect.value = securityManager.currentNodeId || 'tor_auto';
             }
 
             if (dom.hudCustomFields) {
@@ -299,11 +299,11 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
             if (dom.hudNodeHint) {
                 if (currentNode.scheme === 'direct') {
                     dom.hudNodeHint.innerHTML = `🛡️ <strong>In-Browser Privacy Shield:</strong> Instant zero-setup protection. Seals WebRTC hardware IP leaks and encrypts DNS lookups directly in Chrome.`;
-                } else if (currentNode.isTor) {
+                } else if (currentNode.isTor || (typeof currentNode.id === 'string' && currentNode.id.startsWith('tor_'))) {
                     if (securityManager.torOffline && !securityManager.isActive) {
-                        dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> 1-Click Protection • WebRTC leak guard + Encrypted DNS. (Auto-routes via Tor Browser on port 9150/9050 if running).`;
+                        dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Multi-Hop Tor Relay. (Run <code>tools/start-tor.bat</code> or Tor Browser to route live traffic).`;
                     } else if (securityManager.torOffline && securityManager.isActive) {
-                        dom.hudNodeHint.innerHTML = `🛡️ <strong>Privacy Shield Active:</strong> WebRTC leaks sealed and encrypted DNS enabled.`;
+                        dom.hudNodeHint.innerHTML = `🛡️ <strong>Privacy Shield Active:</strong> WebRTC leaks sealed and encrypted DNS enabled. Start <code>start-tor.bat</code> to route live Onion relays.`;
                     } else {
                         dom.hudNodeHint.innerHTML = `🧅 <strong>${currentNode.name}:</strong> Multi-Hop Onion Route Active • Exit: ${currentNode.countryCode ? currentNode.countryCode.toUpperCase() : 'AUTO'}`;
                     }
@@ -341,11 +341,12 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
             if (dom.hudEngineText && dom.hudEngineDot) {
                 if (securityManager.daemonOnline) {
                     dom.hudEngineDot.style.background = '#10b981';
-                    const activeCc = securityManager.activeNodeConfig?.countryCode && securityManager.activeNodeConfig.countryCode !== 'direct' ? securityManager.activeNodeConfig.countryCode.toUpperCase() : 'Ready';
-                    dom.hudEngineText.textContent = `Tor Engine: Online • ${activeCc}`;
+                    const activeCc = securityManager.activeNodeConfig?.countryCode && securityManager.activeNodeConfig.countryCode !== 'direct' ? securityManager.activeNodeConfig.countryCode.toUpperCase() : 'AUTO';
+                    dom.hudEngineText.textContent = `🟢 Tor Engine: Online (${activeCc})`;
                     dom.hudEngineText.style.color = '#34d399';
                     if (dom.hudEngineAction) {
                         dom.hudEngineAction.textContent = 'Rotate IP ↻';
+                        dom.hudEngineAction.style.color = '#38bdf8';
                         dom.hudEngineAction.onclick = async (e) => {
                             e.stopPropagation();
                             dom.hudEngineAction.textContent = 'Rotating...';
@@ -357,15 +358,28 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
                         };
                     }
                 } else {
-                    dom.hudEngineDot.style.background = '#38bdf8';
-                    dom.hudEngineText.textContent = '🛡️ Privacy Guard: Active (Zero Setup)';
-                    dom.hudEngineText.style.color = '#38bdf8';
-                    if (dom.hudEngineAction) {
-                        dom.hudEngineAction.textContent = 'Tor Info ℹ️';
-                        dom.hudEngineAction.onclick = (e) => {
-                            e.stopPropagation();
-                            alert("🛡️ In-Browser Privacy Guard\n\nActive 1-Click Protection:\n• WebRTC hardware IP leak blocker\n• Encrypted DNS-over-HTTPS (DoH)\n• Anti-tracking & zero-leak shield\n\n🧅 Optional Tor Integration:\nIf you have Tor Browser open on your computer, this extension automatically detects it (ports 9050/9150) and routes through decentralized onion relays.");
-                        };
+                    const isTorRoute = (securityManager.currentNode?.isTor || (typeof securityManager.currentNodeId === 'string' && securityManager.currentNodeId.startsWith('tor_')));
+                    if (isTorRoute) {
+                        dom.hudEngineDot.style.background = '#f59e0b';
+                        dom.hudEngineText.textContent = '🧅 Tor Engine: Offline (Run start-tor.bat)';
+                        dom.hudEngineText.style.color = '#fbbf24';
+                        if (dom.hudEngineAction) {
+                            dom.hudEngineAction.textContent = 'Switch On ⚡';
+                            dom.hudEngineAction.style.color = '#fbbf24';
+                            dom.hudEngineAction.onclick = (e) => {
+                                e.stopPropagation();
+                                alert("⚡ How to Switch On Tor Engine:\n\n1. In your extension folder, double-click 'tools/start-tor.bat'\n   (or run 'node tools/vpn-daemon.cjs' in terminal)\n2. Tor Engine starts on ports 9050 & 9052.\n3. Return here — status turns GREEN automatically and your IP will be completely masked through Tor relays!");
+                            };
+                        }
+                    } else {
+                        dom.hudEngineDot.style.background = '#38bdf8';
+                        dom.hudEngineText.textContent = '🛡️ Privacy Guard: Active (Zero Setup)';
+                        dom.hudEngineText.style.color = '#38bdf8';
+                        if (dom.hudEngineAction) {
+                            dom.hudEngineAction.textContent = 'Zero Setup';
+                            dom.hudEngineAction.style.color = '#38bdf8';
+                            dom.hudEngineAction.onclick = null;
+                        }
                     }
                 }
             }

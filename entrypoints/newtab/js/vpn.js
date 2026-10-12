@@ -280,17 +280,17 @@ export class SecurityManager {
     constructor() {
         this.isActive = (localStorage.getItem('vpn_active') ?? localStorage.getItem('raeen_vpn_active')) === 'true';
         this.isConnecting = false;
-        this.currentNodeId = localStorage.getItem('vpn_node') || localStorage.getItem('raeen_vpn_node') || 'shield_direct';
+        this.currentNodeId = localStorage.getItem('vpn_node') || localStorage.getItem('raeen_vpn_node') || 'tor_auto';
         this.activeDnsId = localStorage.getItem('vpn_dns') || localStorage.getItem('raeen_vpn_dns') || 'cloudflare';
         this.killSwitch = (localStorage.getItem('vpn_killswitch') ?? localStorage.getItem('raeen_vpn_killswitch')) === 'true';
         
         // Normalize any old or legacy node IDs
         if (this.currentNodeId === 'tor') this.currentNodeId = 'tor_auto';
         if (this.currentNodeId.startsWith('cloud_') || this.currentNodeId === 'free_cloud_proxy') {
-            this.currentNodeId = 'shield_direct';
+            this.currentNodeId = 'tor_auto';
         }
         if (!VPN_NODES.some(n => n.id === this.currentNodeId)) {
-            this.currentNodeId = 'shield_direct';
+            this.currentNodeId = 'tor_auto';
         }
 
         this.webrtcSealed = (localStorage.getItem('vpn_webrtc') ?? localStorage.getItem('raeen_vpn_webrtc')) !== 'false';
@@ -568,26 +568,10 @@ export class SecurityManager {
     }
 
     async autoRecoverToDirect() {
-        console.warn('[VPN] Falling back to In-Browser Privacy Shield');
+        console.warn('[VPN] Falling back to safe in-browser shield mode');
         this.torOffline = true;
         this.daemonOnline = false;
         this.routeStatus = 'shield';
-        this.currentNodeId = 'shield_direct';
-        localStorage.setItem('vpn_node', 'shield_direct');
-        localStorage.setItem('raeen_vpn_node', 'shield_direct');
-
-        this.activeNodeConfig = {
-            id: 'shield_direct',
-            scheme: 'direct',
-            nodeName: 'In-Browser Privacy Shield',
-            country: 'Direct Protected',
-            city: 'Native Speed',
-            countryCode: 'direct',
-            isTor: false,
-            isShieldOnly: true,
-            fallbacks: []
-        };
-        localStorage.setItem('vpn_active_node_config', JSON.stringify(this.activeNodeConfig));
 
         const chromeProxy = (typeof chrome !== 'undefined' && chrome.proxy) ? chrome.proxy : null;
         if (chromeProxy?.settings) {
@@ -851,41 +835,33 @@ export class SecurityManager {
                 nodeName: found.name,
                 country: found.country,
                 countryCode: found.countryCode || 'auto',
-                isTor: !!found.isTor,
+                isTor: !!found.isTor || (typeof found.id === 'string' && found.id.startsWith('tor_')),
                 fallbacks: found.fallbacks || [],
                 endpoints: found.host && found.port ? [{ host: found.host, port: found.port, scheme: found.scheme }, ...(found.fallbacks || [])] : []
             };
         }
 
         try {
-            // Check if Tor daemon is running if a Tor node is selected
-            if (nodeConfig.isTor || (nodeConfig.host === '127.0.0.1' && nodeConfig.port === 9050)) {
-                const bridge = await this.checkBridgeHealth().catch(() => ({ running: false }));
-                if (bridge && bridge.running) {
-                    this.torOffline = false;
-                    this.daemonOnline = true;
-                } else {
-                    // Daemon is not active: automatically engage In-Browser Privacy Shield
-                    // so the user is seamlessly protected without needing any background scripts or bat files!
-                    this.torOffline = true;
-                    this.daemonOnline = false;
-                    this.currentNodeId = 'shield_direct';
-                    localStorage.setItem('vpn_node', 'shield_direct');
-                    localStorage.setItem('raeen_vpn_node', 'shield_direct');
-                    nodeConfig = {
-                        id: 'shield_direct',
-                        scheme: 'direct',
-                        nodeName: 'In-Browser Privacy Shield',
-                        country: 'Direct Protected',
-                        city: 'Native Speed',
-                        countryCode: 'direct',
-                        isTor: false,
-                        isShieldOnly: true,
-                        fallbacks: []
-                    };
-                }
-            } else {
+            // Check if Tor daemon is running
+            const bridge = await this.checkBridgeHealth().catch(() => ({ running: false }));
+            if (bridge && bridge.running) {
                 this.torOffline = false;
+                this.daemonOnline = true;
+            } else {
+                this.torOffline = true;
+                this.daemonOnline = false;
+            }
+
+            // If Tor daemon is online and user selected any Tor route (tor_auto or tor_<cc>)
+            if (this.daemonOnline && (nodeConfig.isTor || (typeof nodeConfig.id === 'string' && nodeConfig.id.startsWith('tor_')))) {
+                nodeConfig = {
+                    ...nodeConfig,
+                    isTor: true,
+                    scheme: 'socks5',
+                    host: '127.0.0.1',
+                    port: 9050,
+                    endpoints: [{ host: '127.0.0.1', port: 9050, scheme: 'socks5' }]
+                };
             }
 
             this.activeNodeConfig = nodeConfig;
@@ -894,8 +870,8 @@ export class SecurityManager {
                 localStorage.setItem('raeen_vpn_node_config', JSON.stringify(this.activeNodeConfig));
             } catch {}
 
-            // Check bridge status and request country if supported
-            if (nodeConfig.countryCode && nodeConfig.countryCode !== 'direct' && nodeConfig.countryCode !== 'custom' && !this.torOffline) {
+            // Configure Tor ExitNodes dynamically via ControlPort if daemon is online
+            if (this.daemonOnline && nodeConfig.countryCode && nodeConfig.countryCode !== 'direct' && nodeConfig.countryCode !== 'custom') {
                 await this.setRouteCountry(nodeConfig.countryCode);
             }
 
