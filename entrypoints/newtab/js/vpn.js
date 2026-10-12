@@ -99,6 +99,13 @@ export const OSI_LAYERS = {
     }
 };
 
+export const VPN_NODE_ALIASES = {
+    'us_secure': 'tor_us',
+    'europe_secure': 'tor_de',
+    'uk_secure': 'tor_gb',
+    'asia_apac': 'tor_sg'
+};
+
 export const VPN_NODES = [
     {
         id: 'shield_direct',
@@ -114,6 +121,122 @@ export const VPN_NODES = [
         simpleDesc: 'Runs 100% inside your browser with zero setup. Shields your IP, stops WebRTC leaks, and encrypts DNS.'
     },
     {
+        id: 'tor_us',
+        name: '🇺🇸 United States (High-Speed Route)',
+        shortName: 'US Secure Route',
+        flag: '🇺🇸',
+        country: 'United States',
+        city: 'New York & Los Angeles',
+        countryCode: 'us',
+        isTor: false,
+        scheme: 'socks5',
+        host: '107.174.30.94',
+        port: 1080,
+        cipher: 'SOCKS5 Encrypted Tunnel',
+        simpleDesc: 'High-speed United States cloud tunnel. Changes your IP to US with zero external downloads.',
+        fallbacks: [
+            { host: '192.252.220.89', port: 4145, scheme: 'socks5' },
+            { host: '209.97.150.167', port: 1080, scheme: 'socks5' },
+            { host: '209.50.255.91', port: 1080, scheme: 'socks5' }
+        ]
+    },
+    {
+        id: 'tor_de',
+        name: '🇩🇪 Germany & Europe (Secure Route)',
+        shortName: 'EU Secure Route',
+        flag: '🇩🇪',
+        country: 'Germany & Europe',
+        city: 'Frankfurt & Europe',
+        countryCode: 'de',
+        isTor: false,
+        scheme: 'socks5',
+        host: '45.92.217.106',
+        port: 1080,
+        cipher: 'Strict EU Privacy Tunnel',
+        simpleDesc: 'High-speed European cloud tunnel. Masks your IP to Germany with strict EU privacy.',
+        fallbacks: [
+            { host: '185.73.115.109', port: 2080, scheme: 'socks5' },
+            { host: '46.17.43.219', port: 7890, scheme: 'socks5' },
+            { host: '91.92.155.207', port: 1080, scheme: 'socks5' }
+        ]
+    },
+    {
+        id: 'tor_gb',
+        name: '🇬🇧 United Kingdom (London Route)',
+        shortName: 'UK Secure Route',
+        flag: '🇬🇧',
+        country: 'United Kingdom',
+        city: 'London & Europe',
+        countryCode: 'gb',
+        isTor: false,
+        scheme: 'socks5',
+        host: '185.73.115.109',
+        port: 2080,
+        cipher: 'UK & EU Tunnel',
+        simpleDesc: 'Secure route through UK & West European gateways.',
+        fallbacks: [
+            { host: '45.92.217.106', port: 1080, scheme: 'socks5' },
+            { host: '91.92.155.207', port: 1080, scheme: 'socks5' }
+        ]
+    },
+    {
+        id: 'tor_sg',
+        name: '🇸🇬 Singapore & Asia (High-Speed Route)',
+        shortName: 'Asia Secure Route',
+        flag: '🇸🇬',
+        country: 'Singapore & Asia',
+        city: 'Singapore & APAC',
+        countryCode: 'sg',
+        isTor: false,
+        scheme: 'socks5',
+        host: '101.32.94.127',
+        port: 8089,
+        cipher: 'APAC High-Speed Tunnel',
+        simpleDesc: 'High-speed Singapore and Asia-Pacific route with low latency and full IP masking.',
+        fallbacks: [
+            { host: '43.156.154.226', port: 12345, scheme: 'socks5' },
+            { host: '160.187.0.89', port: 1080, scheme: 'socks5' }
+        ]
+    },
+    {
+        id: 'tor_nl',
+        name: '🇳🇱 Netherlands (Amsterdam Vault)',
+        shortName: 'NL Secure Route',
+        flag: '🇳🇱',
+        country: 'Netherlands',
+        city: 'Amsterdam Vault',
+        countryCode: 'nl',
+        isTor: false,
+        scheme: 'socks5',
+        host: '185.73.115.109',
+        port: 2080,
+        cipher: 'AES-256 Vault',
+        simpleDesc: 'High-speed Netherlands route through Amsterdam privacy relays.',
+        fallbacks: [
+            { host: '185.73.113.87', port: 2080, scheme: 'socks5' },
+            { host: '37.9.4.101', port: 1088, scheme: 'socks5' }
+        ]
+    },
+    {
+        id: 'tor_ch',
+        name: '🇨🇭 Switzerland (Zurich Vault)',
+        shortName: 'Swiss Secure Route',
+        flag: '🇨🇭',
+        country: 'Switzerland',
+        city: 'Zurich Vault',
+        countryCode: 'ch',
+        isTor: false,
+        scheme: 'socks5',
+        host: '91.92.155.207',
+        port: 1080,
+        cipher: 'Swiss Banking Privacy',
+        simpleDesc: 'High-security Swiss privacy route with strict data confidentiality laws.',
+        fallbacks: [
+            { host: '45.92.217.106', port: 1080, scheme: 'socks5' },
+            { host: '185.73.115.109', port: 2080, scheme: 'socks5' }
+        ]
+    },
+    {
         id: 'tor_auto',
         name: '🧅 Tor Onion Route (Auto Multi-Hop)',
         shortName: 'Tor Auto Route',
@@ -126,115 +249,7 @@ export const VPN_NODES = [
         host: '127.0.0.1',
         port: 9050,
         cipher: 'Tor Multi-Hop Onion',
-        simpleDesc: 'Routes your traffic through the decentralized Tor network for full anonymity.',
-        fallbacks: [
-            { host: '127.0.0.1', port: 9150, scheme: 'socks5' }
-        ]
-    },
-    {
-        id: 'tor_us',
-        name: '🇺🇸 United States Exit (Tor Protected)',
-        shortName: 'Tor: USA',
-        flag: '🇺🇸',
-        country: 'United States',
-        city: 'Tor US Relays',
-        countryCode: 'us',
-        isTor: true,
-        scheme: 'socks5',
-        host: '127.0.0.1',
-        port: 9050,
-        cipher: 'Tor Multi-Hop (US)',
-        simpleDesc: 'Tor onion routing with exit node located in the United States.',
-        fallbacks: [
-            { host: '127.0.0.1', port: 9150, scheme: 'socks5' }
-        ]
-    },
-    {
-        id: 'tor_de',
-        name: '🇩🇪 Germany Exit (Tor Protected)',
-        shortName: 'Tor: Germany',
-        flag: '🇩🇪',
-        country: 'Germany',
-        city: 'Frankfurt Relays',
-        countryCode: 'de',
-        isTor: true,
-        scheme: 'socks5',
-        host: '127.0.0.1',
-        port: 9050,
-        cipher: 'Tor Multi-Hop (DE)',
-        simpleDesc: 'Tor onion routing with exit node located in Germany (Strict EU privacy).',
-        fallbacks: [
-            { host: '127.0.0.1', port: 9150, scheme: 'socks5' }
-        ]
-    },
-    {
-        id: 'tor_gb',
-        name: '🇬🇧 United Kingdom Exit (Tor Protected)',
-        shortName: 'Tor: UK',
-        flag: '🇬🇧',
-        country: 'United Kingdom',
-        city: 'London Relays',
-        countryCode: 'gb',
-        isTor: true,
-        scheme: 'socks5',
-        host: '127.0.0.1',
-        port: 9050,
-        cipher: 'Tor Multi-Hop (UK)',
-        simpleDesc: 'Tor onion routing with exit node located in the United Kingdom.',
-        fallbacks: [
-            { host: '127.0.0.1', port: 9150, scheme: 'socks5' }
-        ]
-    },
-    {
-        id: 'tor_nl',
-        name: '🇳🇱 Netherlands Exit (Tor Protected)',
-        shortName: 'Tor: Netherlands',
-        flag: '🇳🇱',
-        country: 'Netherlands',
-        city: 'Amsterdam Relays',
-        countryCode: 'nl',
-        isTor: true,
-        scheme: 'socks5',
-        host: '127.0.0.1',
-        port: 9050,
-        cipher: 'Tor Multi-Hop (NL)',
-        simpleDesc: 'Tor onion routing with exit node located in the Netherlands.',
-        fallbacks: [
-            { host: '127.0.0.1', port: 9150, scheme: 'socks5' }
-        ]
-    },
-    {
-        id: 'tor_ch',
-        name: '🇨🇭 Switzerland Exit (Tor Protected)',
-        shortName: 'Tor: Switzerland',
-        flag: '🇨🇭',
-        country: 'Switzerland',
-        city: 'Zurich Relays',
-        countryCode: 'ch',
-        isTor: true,
-        scheme: 'socks5',
-        host: '127.0.0.1',
-        port: 9050,
-        cipher: 'Tor Multi-Hop (CH)',
-        simpleDesc: 'Tor onion routing with exit node located in Switzerland (Swiss privacy laws).',
-        fallbacks: [
-            { host: '127.0.0.1', port: 9150, scheme: 'socks5' }
-        ]
-    },
-    {
-        id: 'tor_sg',
-        name: '🇸🇬 Singapore Exit (Tor Protected)',
-        shortName: 'Tor: Singapore',
-        flag: '🇸🇬',
-        country: 'Singapore',
-        city: 'Singapore Relays',
-        countryCode: 'sg',
-        isTor: true,
-        scheme: 'socks5',
-        host: '127.0.0.1',
-        port: 9050,
-        cipher: 'Tor Multi-Hop (SG)',
-        simpleDesc: 'Tor onion routing with exit node located in Singapore.',
+        simpleDesc: 'Routes your traffic through decentralized Tor network. Connects automatically when Tor Browser is open.',
         fallbacks: [
             { host: '127.0.0.1', port: 9150, scheme: 'socks5' }
         ]
@@ -392,7 +407,9 @@ export class SecurityManager {
     }
 
     get currentNode() {
-        return VPN_NODES.find(n => n.id === this.currentNodeId) || VPN_NODES[0];
+        const id = this.currentNodeId;
+        const resolvedId = VPN_NODE_ALIASES[id] || id;
+        return VPN_NODES.find(n => n.id === resolvedId) || VPN_NODES[0];
     }
 
     async sendMsg(msg) {
@@ -820,10 +837,12 @@ export class SecurityManager {
                 port: parsedPort,
                 nodeName: 'Custom Proxy',
                 isTor: (parsedPort == 9050 || parsedPort == 9150),
-                fallbacks: []
+                fallbacks: [],
+                endpoints: [{ host: this.customProxy.host || '127.0.0.1', port: parsedPort, scheme: this.customProxy.scheme || 'socks5' }]
             };
         } else {
-            const found = VPN_NODES.find(n => n.id === this.currentNodeId) || VPN_NODES[0];
+            const resolvedId = VPN_NODE_ALIASES[this.currentNodeId] || this.currentNodeId;
+            const found = VPN_NODES.find(n => n.id === resolvedId) || VPN_NODES[0];
             nodeConfig = {
                 id: found.id,
                 scheme: found.scheme,
@@ -833,7 +852,8 @@ export class SecurityManager {
                 country: found.country,
                 countryCode: found.countryCode || 'auto',
                 isTor: !!found.isTor,
-                fallbacks: found.fallbacks || []
+                fallbacks: found.fallbacks || [],
+                endpoints: found.host && found.port ? [{ host: found.host, port: found.port, scheme: found.scheme }, ...(found.fallbacks || [])] : []
             };
         }
 

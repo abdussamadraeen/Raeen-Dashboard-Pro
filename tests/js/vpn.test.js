@@ -103,6 +103,27 @@ describe('VPN and SecurityManager module', () => {
     expect(localStorage.getItem('vpn_active')).toBe('true');
   });
 
+  it('connects to United States cloud route with multi-endpoint failover and no local daemon requirement', async () => {
+    const res = await securityManager.connect('tor_us');
+    expect(res.success).toBe(true);
+    expect(securityManager.isActive).toBe(true);
+    expect(securityManager.currentNodeId).toBe('tor_us');
+    expect(securityManager.activeNodeConfig?.id).toBe('tor_us');
+    expect(securityManager.activeNodeConfig?.isTor).toBe(false);
+    expect(securityManager.activeNodeConfig?.host).toBe('107.174.30.94');
+    expect(securityManager.activeNodeConfig?.fallbacks.length).toBeGreaterThan(0);
+    expect(localStorage.getItem('vpn_active')).toBe('true');
+  });
+
+  it('supports node aliases like us_secure, europe_secure, asia_apac', () => {
+    securityManager.currentNodeId = 'us_secure';
+    expect(securityManager.currentNode.id).toBe('tor_us');
+    securityManager.currentNodeId = 'europe_secure';
+    expect(securityManager.currentNode.id).toBe('tor_de');
+    securityManager.currentNodeId = 'asia_apac';
+    expect(securityManager.currentNode.id).toBe('tor_sg');
+  });
+
   it('disconnect cleanly turns off VPN and clears proxy settings', async () => {
     securityManager.isActive = true;
     const res = await securityManager.disconnect();

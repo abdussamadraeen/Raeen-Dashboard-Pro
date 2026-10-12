@@ -356,7 +356,7 @@ export default defineBackground(() => {
           if (isShieldOnly || scheme === 'direct') {
             proxyConfig = { mode: 'direct' };
 
-          } else if ((request.payload?.daemonOnline || request.payload?.useFixed || isTor) && host && port) {
+          } else if ((request.payload?.daemonOnline || request.payload?.useFixed) && host && port) {
             proxyConfig = {
               mode: 'fixed_servers',
               rules: {
@@ -374,7 +374,10 @@ export default defineBackground(() => {
             const candidateEndpoints: Array<{ host: string; port: number; scheme: string }> =
               Array.isArray(endpoints) && endpoints.length > 0
                 ? [...endpoints]
-                : [{ host: host || '127.0.0.1', port: parseInt(String(port || 9050), 10), scheme: scheme || 'socks5' }];
+                : [
+                    { host: host || '127.0.0.1', port: parseInt(String(port || 9050), 10), scheme: scheme || 'socks5' },
+                    ...(Array.isArray(request.payload?.fallbacks) ? request.payload.fallbacks : [])
+                  ];
 
             // If Tor with local daemon, ensure standard Tor Browser port is chained as fallback
             if (isTor) {
