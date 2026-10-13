@@ -171,19 +171,88 @@ export default defineBackground(() => {
     await safeStorageSet(data);
   };
 
+  // ─── Declarative Net Request Dynamic Rules ──────────────────────────────────
+
+  /**
+   * Registers dynamic DNR rules to strip X-Frame-Options and Content-Security-Policy
+   * response headers for Google and Bing so they can be framed in the dashboard without 'refused to connect'.
+   */
+  const registerDynamicRules = async () => {
+    if (!browser.declarativeNetRequest?.updateDynamicRules) return;
+    try {
+      await withRetry(async () => {
+        const rules = [
+          {
+            id: 1001,
+            priority: 1,
+            action: {
+              type: 'modifyHeaders',
+              responseHeaders: [
+                { header: 'X-Frame-Options', operation: 'remove' },
+                { header: 'Frame-Options', operation: 'remove' },
+                { header: 'Content-Security-Policy', operation: 'remove' },
+                { header: 'X-Content-Security-Policy', operation: 'remove' },
+                { header: 'X-WebKit-CSP', operation: 'remove' },
+              ],
+            },
+            condition: {
+              requestDomains: [
+                'google.com', 'google.co.in', 'www.google.com', 'www.google.co.in',
+                'bing.com', 'www.bing.com', 'cn.bing.com', 'live.com', 'www.live.com',
+              ],
+              resourceTypes: ['sub_frame'],
+            },
+          },
+        ];
+
+        const existingRules = await browser.declarativeNetRequest.getDynamicRules();
+        const existingIds = existingRules.map((r) => r.id);
+
+        await browser.declarativeNetRequest.updateDynamicRules({
+          removeRuleIds: existingIds,
+          addRules: rules as any,
+        });
+
+        console.log('[BG] DNR rules registered for live dashboard iframe.');
+      }, 3, 500);
+    } catch (e) {
+      console.error('[BG] Failed to register DNR rules after retries:', e);
+    }
+  };
+
   // ─── PAC Script Builder ────────────────────────────────────────────────────
 
   /**
    * Builds a robust PAC script that:
    *   - Always bypasses localhost/internal addresses
+   *   - Protects search engines from "Unusual Traffic" 429 blocks caused by shared proxy IPs
    *   - Falls back through proxy chain
    *   - Respects kill switch (no DIRECT fallback if kill switch is on)
    */
   const buildPacScript = (
     chain: string,
-    withKillSwitch: boolean
+    withKillSwitch: boolean,
+    bypassSearchEngines = true
   ): string => {
     const fallback = withKillSwitch ? '' : '; DIRECT';
+    const searchBypassSnippet = bypassSearchEngines ? `
+  // Smart Search Engine Anti-Captcha Protection:
+  // Google and Bing detect and rate-limit public proxy/Tor exit IPs with 429 blocks.
+  // Routing search engine queries direct avoids IP bans while keeping all other web browsing proxied.
+  if (shExpMatch(host, "*.google.com") ||
+      shExpMatch(host, "google.com") ||
+      shExpMatch(host, "*.google.co.*") ||
+      shExpMatch(host, "google.co.*") ||
+      shExpMatch(host, "*.gstatic.com") ||
+      shExpMatch(host, "*.googleusercontent.com") ||
+      shExpMatch(host, "*.bing.com") ||
+      shExpMatch(host, "bing.com") ||
+      shExpMatch(host, "*.live.com") ||
+      shExpMatch(host, "*.microsoft.com")) {
+    return "DIRECT";
+  }
+` : '';
+
     return `function FindProxyForURL(url, host) {
   if (isPlainHostName(host) ||
       shExpMatch(host, "*.local") ||
@@ -194,6 +263,7 @@ export default defineBackground(() => {
       shExpMatch(host, "*.internal")) {
     return "DIRECT";
   }
+${searchBypassSnippet}
   return "${chain}${fallback}";
 }`;
   };
@@ -298,6 +368,7 @@ export default defineBackground(() => {
             isShieldOnly = false,
             endpoints = [],
             killSwitch = false,
+            smartSearchBypass = true,
           } = request.payload ?? {};
 
           killSwitchEnabled = !!killSwitch;
@@ -314,6 +385,10 @@ export default defineBackground(() => {
             proxyConfig = { mode: 'direct' };
 
           } else if ((request.payload?.daemonOnline || request.payload?.useFixed) && host && port) {
+            const defaultBypass = ['localhost', '127.0.0.1', '::1', '[::1]', '*.local', '*.internal'];
+            const searchBypass = smartSearchBypass !== false
+              ? ['*.google.com', 'google.com', '*.google.co.*', '*.bing.com', 'bing.com', '*.gstatic.com', '*.googleusercontent.com']
+              : [];
             proxyConfig = {
               mode: 'fixed_servers',
               rules: {
@@ -322,7 +397,7 @@ export default defineBackground(() => {
                   host,
                   port: parseInt(String(port), 10),
                 },
-                bypassList: ['localhost', '127.0.0.1', '::1', '[::1]', '*.local', '*.internal'],
+                bypassList: [...defaultBypass, ...searchBypass],
               },
             };
 
@@ -355,7 +430,7 @@ export default defineBackground(() => {
               })
               .join('; ');
 
-            const pacData = buildPacScript(chain, killSwitchEnabled);
+            const pacData = buildPacScript(chain, killSwitchEnabled, smartSearchBypass !== false);
             proxyConfig = { mode: 'pac_script', pacScript: { data: pacData } };
           }
 
@@ -658,6 +733,12 @@ export default defineBackground(() => {
 
   // Run async initialization — all wrapped to prevent SW crash on failure
   (async () => {
+    try {
+      await registerDynamicRules();
+    } catch (e) {
+      console.error('[BG] registerDynamicRules init failed:', e);
+    }
+
     try {
       await clearServiceWorkers();
     } catch (e) {
