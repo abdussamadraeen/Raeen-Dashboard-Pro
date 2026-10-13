@@ -215,21 +215,6 @@ export function setupSearch() {
                 return;
             }
 
-            // [Chrome Web Store Red Argon Compliance]
-            // Use Chrome Search API (chrome.search.query) to respect user's configured search provider
-            const inNewTab = Boolean(state.settings.openSearchInNewTab);
-            if ((engine === 'google' || engine === 'default') && typeof chrome !== 'undefined' && chrome.search?.query) {
-                try {
-                    chrome.search.query({
-                        text: rawQuery,
-                        disposition: inNewTab ? 'NEW_TAB' : 'CURRENT_TAB'
-                    });
-                    return;
-                } catch (e) {
-                    console.warn('[Search] chrome.search.query fallback:', e);
-                }
-            }
-
             const res = resolveSearch(rawQuery);
             executeSearchUrl(res.url);
         };

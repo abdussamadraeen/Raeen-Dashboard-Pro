@@ -110,29 +110,9 @@ export const SearchWidget: React.FC = () => {
 
   const handleSearch = (searchQuery: string) => {
     if (!searchQuery.trim()) return;
-    const { url, engine, cleanQuery } = resolveSearch(searchQuery);
+    const { url } = resolveSearch(searchQuery);
 
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    // [Chrome Web Store Red Argon Compliance]
-    // Use official Chrome Search API (chrome.search.query) to respect user's configured search provider
-    if ((engine === 'google' || engine === 'default' || !engine) && typeof chrome !== 'undefined' && (chrome as any).search?.query) {
-      try {
-        (chrome as any).search.query({
-          text: cleanQuery || searchQuery.trim(),
-          disposition: isMobile ? 'CURRENT_TAB' : 'NEW_TAB',
-        });
-        setQuery('');
-        setSuggestions([]);
-        setShowSuggestions(false);
-        setSelectedIndex(-1);
-        return;
-      } catch (e) {
-        console.warn('[SearchWidget] chrome.search.query fallback:', e);
-      }
-    }
-
-    // Safety guard: ensure relative strings never open as extension://<id>/...
     let safeUrl = url.trim();
     if (!safeUrl.startsWith('http://') && !safeUrl.startsWith('https://')) {
       safeUrl = `https://${safeUrl}`;

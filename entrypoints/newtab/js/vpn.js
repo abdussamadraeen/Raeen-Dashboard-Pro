@@ -705,21 +705,6 @@ export class SecurityManager {
                 shExpMatch(host, "*.internal")) {
                 return "DIRECT";
             }
-            // Smart Search Engine Anti-Captcha Protection:
-            // Google/Bing block shared public proxy/Tor exit IPs with 429 unusual traffic errors.
-            // Direct routing for search engines avoids bans while keeping all other web traffic proxied.
-            if (shExpMatch(host, "*.google.com") ||
-                shExpMatch(host, "google.com") ||
-                shExpMatch(host, "*.google.co.*") ||
-                shExpMatch(host, "google.co.*") ||
-                shExpMatch(host, "*.gstatic.com") ||
-                shExpMatch(host, "*.googleusercontent.com") ||
-                shExpMatch(host, "*.bing.com") ||
-                shExpMatch(host, "bing.com") ||
-                shExpMatch(host, "*.live.com") ||
-                shExpMatch(host, "*.microsoft.com")) {
-                return "DIRECT";
-            }
             return "${failover}";
         }`;
     }
@@ -787,10 +772,7 @@ export class SecurityManager {
                         host: nodeConfig.host || '127.0.0.1',
                         port: parseInt(String(nodeConfig.port || 9050), 10)
                     },
-                    bypassList: [
-                        'localhost', '127.0.0.1', '::1', '[::1]', '*.local', '*.internal',
-                        '*.google.com', 'google.com', '*.google.co.*', '*.bing.com', 'bing.com', '*.gstatic.com', '*.googleusercontent.com'
-                    ]
+                    bypassList: ['localhost', '127.0.0.1', '::1', '[::1]', '*.local', '*.internal']
                 }
             };
         } else {

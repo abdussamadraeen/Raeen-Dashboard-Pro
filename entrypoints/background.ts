@@ -225,34 +225,14 @@ export default defineBackground(() => {
   /**
    * Builds a robust PAC script that:
    *   - Always bypasses localhost/internal addresses
-   *   - Protects search engines from "Unusual Traffic" 429 blocks caused by shared proxy IPs
    *   - Falls back through proxy chain
    *   - Respects kill switch (no DIRECT fallback if kill switch is on)
    */
   const buildPacScript = (
     chain: string,
-    withKillSwitch: boolean,
-    bypassSearchEngines = true
+    withKillSwitch: boolean
   ): string => {
     const fallback = withKillSwitch ? '' : '; DIRECT';
-    const searchBypassSnippet = bypassSearchEngines ? `
-  // Smart Search Engine Anti-Captcha Protection:
-  // Google and Bing detect and rate-limit public proxy/Tor exit IPs with 429 blocks.
-  // Routing search engine queries direct avoids IP bans while keeping all other web browsing proxied.
-  if (shExpMatch(host, "*.google.com") ||
-      shExpMatch(host, "google.com") ||
-      shExpMatch(host, "*.google.co.*") ||
-      shExpMatch(host, "google.co.*") ||
-      shExpMatch(host, "*.gstatic.com") ||
-      shExpMatch(host, "*.googleusercontent.com") ||
-      shExpMatch(host, "*.bing.com") ||
-      shExpMatch(host, "bing.com") ||
-      shExpMatch(host, "*.live.com") ||
-      shExpMatch(host, "*.microsoft.com")) {
-    return "DIRECT";
-  }
-` : '';
-
     return `function FindProxyForURL(url, host) {
   if (isPlainHostName(host) ||
       shExpMatch(host, "*.local") ||
@@ -263,7 +243,6 @@ export default defineBackground(() => {
       shExpMatch(host, "*.internal")) {
     return "DIRECT";
   }
-${searchBypassSnippet}
   return "${chain}${fallback}";
 }`;
   };
@@ -385,10 +364,6 @@ ${searchBypassSnippet}
             proxyConfig = { mode: 'direct' };
 
           } else if ((request.payload?.daemonOnline || request.payload?.useFixed) && host && port) {
-            const defaultBypass = ['localhost', '127.0.0.1', '::1', '[::1]', '*.local', '*.internal'];
-            const searchBypass = smartSearchBypass !== false
-              ? ['*.google.com', 'google.com', '*.google.co.*', '*.bing.com', 'bing.com', '*.gstatic.com', '*.googleusercontent.com']
-              : [];
             proxyConfig = {
               mode: 'fixed_servers',
               rules: {
@@ -397,7 +372,7 @@ ${searchBypassSnippet}
                   host,
                   port: parseInt(String(port), 10),
                 },
-                bypassList: [...defaultBypass, ...searchBypass],
+                bypassList: ['localhost', '127.0.0.1', '::1', '[::1]', '*.local', '*.internal'],
               },
             };
 
@@ -430,7 +405,7 @@ ${searchBypassSnippet}
               })
               .join('; ');
 
-            const pacData = buildPacScript(chain, killSwitchEnabled, smartSearchBypass !== false);
+            const pacData = buildPacScript(chain, killSwitchEnabled);
             proxyConfig = { mode: 'pac_script', pacScript: { data: pacData } };
           }
 
