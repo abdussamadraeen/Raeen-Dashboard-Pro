@@ -54,54 +54,6 @@ export default defineBackground(() => {
     throw lastErr;
   };
 
-  // ─── DNR Rule Registration ──────────────────────────────────────────────────
-
-  /**
-   * Registers declarativeNetRequest rules to strip framing headers.
-   * Retried up to 3 times on failure (e.g. SW waking up before APIs ready).
-   */
-  const registerDynamicRules = async (): Promise<void> => {
-    try {
-      await withRetry(async () => {
-        const rules = [
-          {
-            id: 1001,
-            priority: 1,
-            action: {
-              type: 'modifyHeaders',
-              responseHeaders: [
-                { header: 'X-Frame-Options', operation: 'remove' },
-                { header: 'Frame-Options', operation: 'remove' },
-                { header: 'Content-Security-Policy', operation: 'remove' },
-                { header: 'X-Content-Security-Policy', operation: 'remove' },
-                { header: 'X-WebKit-CSP', operation: 'remove' },
-              ],
-            },
-            condition: {
-              requestDomains: [
-                'google.com', 'google.co.in', 'www.google.com', 'www.google.co.in',
-                'bing.com', 'www.bing.com', 'cn.bing.com', 'live.com', 'www.live.com',
-              ],
-              resourceTypes: ['sub_frame'],
-            },
-          },
-        ];
-
-        const existingRules = await browser.declarativeNetRequest.getDynamicRules();
-        const existingIds = existingRules.map((r) => r.id);
-
-        await browser.declarativeNetRequest.updateDynamicRules({
-          removeRuleIds: existingIds,
-          addRules: rules as any,
-        });
-
-        console.log('[BG] DNR rules registered.');
-      }, 3, 500);
-    } catch (e) {
-      console.error('[BG] Failed to register DNR rules after retries:', e);
-    }
-  };
-
   // ─── Service Worker Keep-Alive ──────────────────────────────────────────────
 
   /**
@@ -296,7 +248,12 @@ export default defineBackground(() => {
             sendResponse({ success: false, error: 'Invalid URL' });
             return;
           }
-          await browser.tabs.create({ url: request.url });
+          let targetUrl = request.url.trim();
+          // Safety guard: ensure relative strings never open as extension://<id>/...
+          if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://') && !targetUrl.startsWith('chrome://') && !targetUrl.startsWith('edge://')) {
+            targetUrl = `https://${targetUrl}`;
+          }
+          await browser.tabs.create({ url: targetUrl });
           sendResponse({ success: true });
         } catch (e: any) {
           sendResponse({ success: false, error: e?.message ?? String(e) });
@@ -701,12 +658,6 @@ export default defineBackground(() => {
 
   // Run async initialization — all wrapped to prevent SW crash on failure
   (async () => {
-    try {
-      await registerDynamicRules();
-    } catch (e) {
-      console.error('[BG] registerDynamicRules init failed:', e);
-    }
-
     try {
       await clearServiceWorkers();
     } catch (e) {

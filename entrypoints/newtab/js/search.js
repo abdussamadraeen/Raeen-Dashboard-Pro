@@ -155,17 +155,21 @@ export function setupSearch() {
         const executeSearchUrl = (url) => {
             if (!url) return;
             try {
+                let safeUrl = url.trim();
+                if (!safeUrl.startsWith('http://') && !safeUrl.startsWith('https://')) {
+                    safeUrl = `https://${safeUrl}`;
+                }
                 const inNewTab = Boolean(state.settings.openSearchInNewTab);
                 if (inNewTab) {
                     if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
-                        chrome.tabs.create({ url });
+                        chrome.tabs.create({ url: safeUrl });
                         return;
                     }
                     if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
-                        chrome.runtime.sendMessage({ action: 'open_tab', url });
+                        chrome.runtime.sendMessage({ action: 'open_tab', url: safeUrl });
                         return;
                     }
-                    window.open(url, '_blank');
+                    window.open(safeUrl, '_blank');
                     return;
                 }
 
@@ -173,17 +177,17 @@ export function setupSearch() {
                     if (chrome.tabs.getCurrent) {
                         chrome.tabs.getCurrent((tab) => {
                             if (tab && tab.id) {
-                                chrome.tabs.update(tab.id, { url });
+                                chrome.tabs.update(tab.id, { url: safeUrl });
                             } else {
-                                chrome.tabs.update({ url });
+                                chrome.tabs.update({ url: safeUrl });
                             }
                         });
                     } else {
-                        chrome.tabs.update({ url });
+                        chrome.tabs.update({ url: safeUrl });
                     }
                     return;
                 }
-                window.location.assign(url);
+                window.location.assign(safeUrl);
             } catch (err) {
                 console.warn('[Search] Navigation fallback error:', err);
                 window.location.href = url;
@@ -209,6 +213,21 @@ export function setupSearch() {
                 const homepage = homepages[engine] || 'https://www.google.com';
                 executeSearchUrl(homepage);
                 return;
+            }
+
+            // [Chrome Web Store Red Argon Compliance]
+            // Use Chrome Search API (chrome.search.query) to respect user's configured search provider
+            const inNewTab = Boolean(state.settings.openSearchInNewTab);
+            if ((engine === 'google' || engine === 'default') && typeof chrome !== 'undefined' && chrome.search?.query) {
+                try {
+                    chrome.search.query({
+                        text: rawQuery,
+                        disposition: inNewTab ? 'NEW_TAB' : 'CURRENT_TAB'
+                    });
+                    return;
+                } catch (e) {
+                    console.warn('[Search] chrome.search.query fallback:', e);
+                }
             }
 
             const res = resolveSearch(rawQuery);

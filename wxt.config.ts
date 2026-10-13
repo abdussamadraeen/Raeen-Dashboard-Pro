@@ -20,10 +20,9 @@ export default defineConfig({
       'topSites',
       'storage',
       'unlimitedStorage',
-      'declarativeNetRequest',
-      'declarativeNetRequestWithHostAccess',
       'browsingData',
       'tabs',
+      'search',
       'proxy',
       'privacy',
       'downloads',
@@ -31,16 +30,6 @@ export default defineConfig({
     ],
     host_permissions: [
       'https://suggestqueries.google.com/*',
-      'https://google.com/*',
-      'https://*.google.com/*',
-      'https://google.co.in/*',
-      'https://*.google.co.in/*',
-      'https://*.gstatic.com/*',
-      'https://*.googleusercontent.com/*',
-      'https://bing.com/*',
-      'https://*.bing.com/*',
-      'https://*.live.com/*',
-      'https://*.microsoftonline.com/*',
       'https://bing.biturl.top/*',
       'https://images.unsplash.com/*',
       'https://*.unsplash.com/*',
@@ -63,15 +52,8 @@ export default defineConfig({
       'http://127.0.0.1/*',
       'http://localhost/*'
     ],
-    declarative_net_request: {
-      rule_resources: [{
-        id: 'ruleset_1',
-        enabled: true,
-        path: 'rules.json'
-      }]
-    },
     content_security_policy: {
-      extension_pages: "script-src 'self'; object-src 'self'; connect-src 'self' https: wss: blob: data: http://127.0.0.1:* http://localhost:* http://127.0.0.1:9052 http://127.0.0.1:9050 http://localhost:9052 http://localhost:9050; frame-src https://google.com https://*.google.com https://google.co.in https://*.google.co.in https://bing.com https://*.bing.com https://*.microsoft.com;"
+      extension_pages: "script-src 'self'; object-src 'self'; connect-src 'self' https: wss: blob: data: http://127.0.0.1:* http://localhost:* http://127.0.0.1:9052 http://127.0.0.1:9050 http://localhost:9052 http://localhost:9050;"
     },
     web_accessible_resources: [
       {
