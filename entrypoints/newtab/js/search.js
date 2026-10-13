@@ -417,7 +417,8 @@ export function setupSearch() {
             items.forEach((item, i) => {
                 item.classList.toggle('selected', i === selectedIndex);
                 if (i === selectedIndex) {
-                    dom.searchInput.value = item.querySelector('span')?.textContent || '';
+                    const activeResult = activeOmniscientResults[selectedIndex];
+                    dom.searchInput.value = activeResult?.value || item.querySelector('.suggestion-title')?.textContent || '';
                 }
             });
         }
