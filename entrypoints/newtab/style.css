@@ -741,6 +741,41 @@ body[data-dashboard-mode="bing_live"] .live-dock {
     transform: scale(1.15);
 }
 
+.suggestion-badge {
+    margin-left: auto;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+}
+.suggestion-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+.suggestion-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.suggestion-subtitle {
+    font-size: 0.75rem;
+    opacity: 0.55;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.suggestion-calc-val {
+    color: #34d399 !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 600;
+}
+
 /* Search Submit Button */
 .search-submit-btn {
     position: absolute;

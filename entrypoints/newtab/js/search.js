@@ -1,6 +1,8 @@
 import { state, saveSettings } from './state.js';
 import { dom } from './dom.js';
 import { escapeHTML } from './security.js';
+import { queryOmniscientSearch, SLASH_COMMANDS } from '../../../lib/omniscientSearch';
+import { StorageManager } from './storage.js';
 
 export const GOOGLE_COLOR_G_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%234285F4%22%20d%3D%22M23.745%2012.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29%201.52-1.14%202.82-2.4%203.68v3.05h3.88c2.27-2.09%203.66-5.17%203.66-9.17z%22%2F%3E%3Cpath%20fill%3D%22%2334A853%22%20d%3D%22M12%2024c3.24%200%205.95-1.08%207.93-2.91l-3.88-3.05c-1.08.72-2.45%201.16-4.05%201.16-3.12%200-5.77-2.1-6.72-4.93H1.25v3.15C3.26%2021.36%207.33%2024%2012%2024z%22%2F%3E%3Cpath%20fill%3D%22%23FBBC05%22%20d%3D%22M5.28%2014.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45%208.18%200%2010.03%200%2012s.45%203.82%201.25%205.42l4.03-3.15z%22%2F%3E%3Cpath%20fill%3D%22%23EA4335%22%20d%3D%22M12%204.75c1.77%200%203.35.61%204.6%201.8l3.42-3.42C17.95%201.19%2015.24%200%2012%200%207.33%200%203.26%202.64%201.25%206.58l4.03%203.15c.95-2.83%203.6-4.98%206.72-4.98z%22%2F%3E%3C%2Fsvg%3E";
 export const BRAVE_SVG = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xml%3Aspace%3D%22preserve%22%20id%3D%22Layer_1%22%20x%3D%220%22%20y%3D%220%22%20version%3D%221.1%22%20viewBox%3D%2237.6%200%20436.7%20511.9%22%3E%3Cstyle%3E.st1%7Bfill%3A%23fff%7D%3C%2Fstyle%3E%3ClinearGradient%20id%3D%22SVGID_1_%22%20x1%3D%22206.078%22%20x2%3D%22642.662%22%20y1%3D%22128.75%22%20y2%3D%22128.75%22%20gradientTransform%3D%22matrix(1%200%200%20-1%20-168.37%20384.75)%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20style%3D%22stop-color%3A%23f1562b%22%2F%3E%3Cstop%20offset%3D%22.3%22%20style%3D%22stop-color%3A%23f1542b%22%2F%3E%3Cstop%20offset%3D%22.41%22%20style%3D%22stop-color%3A%23f04d2a%22%2F%3E%3Cstop%20offset%3D%22.49%22%20style%3D%22stop-color%3A%23ef4229%22%2F%3E%3Cstop%20offset%3D%22.5%22%20style%3D%22stop-color%3A%23ef4029%22%2F%3E%3Cstop%20offset%3D%22.56%22%20style%3D%22stop-color%3A%23e83e28%22%2F%3E%3Cstop%20offset%3D%22.67%22%20style%3D%22stop-color%3A%23e13c26%22%2F%3E%3Cstop%20offset%3D%221%22%20style%3D%22stop-color%3A%23df3c26%22%2F%3E%3C%2FlinearGradient%3E%3Cpath%20d%3D%22m474.3%20165.6-15.8-42.9%2011-24.6c1.4-3.2.7-6.9-1.7-9.4l-29.9-30.2c-13.1-13.3-32.6-17.8-50.2-11.7l-8.4%202.9L333.7.4%20256.3%200h-.5L178%20.6l-45.6%2049.8-8.1-2.9c-17.7-6.2-37.4-1.6-50.6%2011.8L43.3%2090.1c-2%202-2.5%204.9-1.4%207.5l11.4%2025.5-15.7%2042.8%2010.2%2038.6%2046.3%20176.1c5.3%2020.3%2017.6%2038.1%2034.7%2050.2%200%200%2056.2%2039.7%20111.7%2075.7%209%207.2%2021.9%207.2%2030.9%200%2062.3-40.8%20111.6-75.8%20111.6-75.8%2017.1-12.2%2029.3-30%2034.7-50.2l46.1-176.2z%22%20style%3D%22fill%3Aurl(%23SVGID_1_)%22%2F%3E%3Cpath%20d%3D%22M268.8%20317.4c-3-1.3-6-2.4-9.1-3.3h-5.5c-3.1.9-6.2%202-9.1%203.3l-13.8%205.7c-4.4%201.8-11.4%205.1-15.6%207.2l-25.4%2013.2c-2.5.8-3.9%203.6-3.1%206.1.4%201.3%201.3%202.3%202.5%202.9l22.1%2015.6c3.9%202.7%2010%207.5%2013.6%2010.8l6.2%205.3c3.6%203.1%209.4%208.2%2013%2011.4l5.9%205.2c3.8%203.1%209.2%203.1%2013%200l6.2-5.4%2013-11.3%206.2-5.5c3.6-3.1%209.7-7.9%2013.5-10.8l22.1-15.8c2.4-1.1%203.4-4%202.3-6.4-.6-1.2-1.6-2.1-2.9-2.5l-25.4-12.9c-4.2-2.2-11.3-5.4-15.7-7.2z%22%20class%3D%22st1%22%2F%3E%3Cpath%20d%3D%22m425.2%20175.2.7-2.3c0-3.1-.1-6.1-.6-9.2-2.1-5.4-4.9-10.6-8.2-15.4l-14.4-21.1c-2.7-3.9-7.2-10.2-10.2-13.9l-19.2-24.1c-1.8-2.3-3.7-4.6-5.7-6.7h-.4s-3.9.7-8.5%201.6l-29.4%205.7-12.9%202.5c-4.3.2-8.6-.4-12.6-1.8L280.6%2083c-4.5-1.5-12-3.6-16.6-4.6q-7.35-.75-14.7%200c-4.6%201.1-12.1%203.2-16.6%204.6l-23.2%207.5c-4%201.4-8.3%202-12.6%201.8L184%2090l-29.4-5.6c-4.7-.9-8.5-1.6-8.5-1.6h-.4c-2%202.1-4%204.3-5.7%206.7l-19.2%2024.1c-2.9%203.6-7.6%2010-10.2%2013.9l-14.4%2021.1c-2.5%203.6-4.7%207.4-6.8%2011.3-1.2%204.3-1.9%208.8-1.9%2013.3l.7%202.3c.3%201.5.8%202.9%201.3%204.3%203%203.6%208.1%209.5%2011.3%2013l50.2%2053.4c3.4%204%204.4%209.5%202.5%2014.4l-8.2%2019.5c-1.9%205.2-2%2010.8-.4%2016l1.7%204.5c2.7%207.3%207.3%2013.8%2013.4%2018.8l7.9%206.4c4.2%203%209.6%203.7%2014.4%201.7l28.1-13.4c5.2-2.6%2010-5.8%2014.4-9.5l22.5-20.3c3.7-3.3%204-9%20.6-12.7l-.2-.2-50.7-34.2c-4-2.8-5.3-8.1-3.1-12.5l19.7-37c2.3-4.6%202.6-9.8%201-14.7-2.4-4.6-6.4-8.1-11.2-10.1l-61.6-23.3c-4.4-1.7-4.2-3.6.5-3.9l36.2-3.6c5.7-.4%2011.4.1%2016.9%201.5l31.5%208.8c4.6%201.4%207.5%206%206.7%2010.8l-12.4%2067.6c-.8%203.7-1%207.6-.6%2011.4.5%201.6%204.7%203.6%209.4%204.7l19.2%204.1c5.6%201%2011.3%201%2016.9%200l17.3-3.9c4.6-1%208.8-3.2%209.4-4.8.4-3.8.2-7.7-.6-11.4l-12.5-67.6c-.8-4.8%202.1-9.4%206.7-10.8l31.5-8.8c5.5-1.4%2011.2-1.9%2016.9-1.5l36.2%203.4c4.7.4%205%202.2.5%203.9l-61.6%2023.4c-4.8%202-8.7%205.6-11.2%2010.1-1.6%204.8-1.3%2010.1%201%2014.7l19.7%2037c2.2%204.3.9%209.6-3.1%2012.5l-50.7%2034.2c-3.4%203.6-3.3%209.3.3%2012.7l.2.2%2022.5%2020.3c4.4%203.7%209.2%206.9%2014.4%209.5l28.1%2013.3c4.8%201.9%2010.2%201.3%2014.4-1.8l7.9-6.5c6.1-5%2010.7-11.4%2013.4-18.8l1.7-4.5c1.6-5.2%201.5-10.9-.4-16l-8.3-19.5c-1.8-4.9-.8-10.4%202.5-14.4l50.2-53.5c3.3-3.6%208.3-9.3%2011.3-13%20.5-1.3%201-2.7%201.4-4.2%22%20class%3D%22st1%22%2F%3E%3C%2Fsvg%3E";
@@ -66,11 +68,31 @@ export function resolveSearch(rawQuery) {
         perplexity: 'https://www.perplexity.ai/search?q=%s',
         claude: 'https://claude.ai/?q=%s',
         gemini: 'https://gemini.google.com/app?q=%s',
+        github: 'https://github.com/search?q=%s',
+        youtube: 'https://www.youtube.com/results?search_query=%s',
+        wikipedia: 'https://en.wikipedia.org/wiki/Special:Search?search=%s',
+        reddit: 'https://www.reddit.com/search/?q=%s',
+        stackoverflow: 'https://stackoverflow.com/search?q=%s',
     };
 
     if (engine === 'custom_engine') {
         const base = state.settings.customSearchUrl || 'https://www.google.com/search?q=%s';
         return { url: base.replace('%s', encodeURIComponent(query)), engine: 'custom', cleanQuery: query };
+    }
+
+    // 1. Slash commands router
+    if (query.startsWith('/')) {
+        const parts = query.split(/\s+/);
+        const command = parts[0].toLowerCase();
+        const rest = parts.slice(1).join(' ').trim();
+        const slashInfo = SLASH_COMMANDS[command];
+        if (slashInfo && slashInfo.searchUrl) {
+            return {
+                url: slashInfo.searchUrl.replace('%s', encodeURIComponent(rest || '')),
+                engine: slashInfo.engine,
+                cleanQuery: rest
+            };
+        }
     }
 
     if (engine !== 'robot_ai') {
@@ -79,69 +101,37 @@ export function resolveSearch(rawQuery) {
     }
 
     // --- Robot AI Router Logic ---
-    // 1. Check for slash overrides
     let targetEngine = null;
     let cleanQuery = query;
 
-    if (query.startsWith('/')) {
-        const parts = query.split(/\s+/);
-        const command = parts[0].toLowerCase();
-        const rest = parts.slice(1).join(' ');
+    const lower = query.toLowerCase();
+    
+    // List of programming keywords
+    const codingKeywords = [
+        'code', 'run', 'error', 'bug', 'class', 'function', 'api', 'npm', 'git', 
+        'python', 'javascript', 'typescript', 'rust', 'java', 'c++', 'html', 'css', 
+        'sql', 'docker', 'kubernetes', 'json', 'compiler', 'syntax', 'array', 
+        'hashmap', 'pointer', 'regex', 'install', 'setup', 'write a function',
+        'programming', 'algorithm', 'binary search', 'recursion'
+    ];
 
-        const slashMap = {
-            '/gpt': 'chatgpt',
-            '/chatgpt': 'chatgpt',
-            '/claude': 'claude',
-            '/gemini': 'gemini',
-            '/gem': 'gemini',
-            '/perp': 'perplexity',
-            '/perplexity': 'perplexity',
-            '/g': 'google',
-            '/google': 'google',
-            '/b': 'bing',
-            '/bing': 'bing',
-            '/ddg': 'duckduckgo',
-            '/duck': 'duckduckgo',
-            '/brave': 'brave'
-        };
+    // List of research keywords/phrases
+    const researchKeywords = [
+        'why does', 'explain the', 'history of', 'difference between', 'scientific', 
+        'statistics', 'evidence', 'mechanism of', 'how does', 'compare and', 
+        'what is the meaning of', 'concept of', 'literature on', 'theoretical'
+    ];
 
-        if (slashMap[command]) {
-            targetEngine = slashMap[command];
-            cleanQuery = rest;
-        }
-    }
+    const isCoding = codingKeywords.some(kw => lower.includes(kw));
+    const isResearch = researchKeywords.some(kw => lower.includes(kw));
+    const wordCount = query.split(/\s+/).length;
 
-    // 2. Heuristics fallback if no slash command matched
-    if (!targetEngine) {
-        const lower = query.toLowerCase();
-        
-        // List of programming keywords
-        const codingKeywords = [
-            'code', 'run', 'error', 'bug', 'class', 'function', 'api', 'npm', 'git', 
-            'python', 'javascript', 'typescript', 'rust', 'java', 'c++', 'html', 'css', 
-            'sql', 'docker', 'kubernetes', 'json', 'compiler', 'syntax', 'array', 
-            'hashmap', 'pointer', 'regex', 'install', 'setup', 'write a function',
-            'programming', 'algorithm', 'binary search', 'recursion'
-        ];
-
-        // List of research keywords/phrases
-        const researchKeywords = [
-            'why does', 'explain the', 'history of', 'difference between', 'scientific', 
-            'statistics', 'evidence', 'mechanism of', 'how does', 'compare and', 
-            'what is the meaning of', 'concept of', 'literature on', 'theoretical'
-        ];
-
-        const isCoding = codingKeywords.some(kw => lower.includes(kw));
-        const isResearch = researchKeywords.some(kw => lower.includes(kw));
-        const wordCount = query.split(/\s+/).length;
-
-        if (isCoding) {
-            targetEngine = 'claude';
-        } else if (isResearch || wordCount >= 6) {
-            targetEngine = 'perplexity';
-        } else {
-            targetEngine = 'google';
-        }
+    if (isCoding) {
+        targetEngine = 'claude';
+    } else if (isResearch || wordCount >= 6) {
+        targetEngine = 'perplexity';
+    } else {
+        targetEngine = 'google';
     }
 
     const base = urls[targetEngine] || urls.google;
@@ -219,9 +209,44 @@ export function setupSearch() {
             executeSearchUrl(res.url);
         };
 
+        let activeOmniscientResults = [];
         let debounceTimer = null;
         let latestQuerySeq = 0;
         let activeSearchController = null;
+
+        const handleItemSelect = (item) => {
+            if (!item) return;
+            if (item.type === 'tab' && item.tabId) {
+                if (typeof chrome !== 'undefined' && chrome.tabs?.update) {
+                    chrome.tabs.update(item.tabId, { active: true });
+                    if (item.windowId && chrome.windows?.update) {
+                        chrome.windows.update(item.windowId, { focused: true });
+                    }
+                } else if (item.url) {
+                    executeSearchUrl(item.url);
+                }
+            } else if ((item.type === 'bookmark' || item.type === 'history' || item.type === 'app') && item.url) {
+                executeSearchUrl(item.url);
+            } else if (item.type === 'calc') {
+                try { navigator.clipboard?.writeText(item.value); } catch (_) {}
+                dom.searchInput.value = item.value;
+                if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                return;
+            } else if (item.type === 'slash' && item.value.startsWith('/')) {
+                dom.searchInput.value = item.value;
+                dom.searchInput.focus();
+                return;
+            } else if (item.url) {
+                executeSearchUrl(item.url);
+            } else {
+                handleSearch(item.value || item.title);
+            }
+
+            dom.searchInput.value = '';
+            if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+            dom.searchInput.blur();
+            deactivateSearch();
+        };
 
         dom.searchInput.oninput = (e) => {
             const queryRaw = e.target.value;
@@ -233,6 +258,7 @@ export function setupSearch() {
                     dom.searchSuggestions.classList.add('hidden');
                     dom.searchSuggestions.innerHTML = '';
                 }
+                activeOmniscientResults = [];
                 return;
             }
 
@@ -240,44 +266,46 @@ export function setupSearch() {
             debounceTimer = setTimeout(async () => {
                 const currentSeq = ++latestQuerySeq;
 
-                // Strip slash command prefix for autocomplete queries
-                if (query.startsWith('/')) {
-                    const parts = query.split(/\s+/);
-                    if (parts.length > 1) {
-                        query = parts.slice(1).join(' ');
-                    } else {
-                        if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
-                        return;
-                    }
-                }
-
                 if (activeSearchController) {
                     activeSearchController.abort();
                 }
                 activeSearchController = new AbortController();
 
                 try {
-                    const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`, {
-                        signal: activeSearchController.signal
+                    const notes = (await StorageManager.getAll('notes').catch(() => [])) || [];
+                    const apps = state.settings?.apps || [];
+                    const searchResults = await queryOmniscientSearch({
+                        query,
+                        signal: activeSearchController.signal,
+                        sources: { notes, apps },
+                        currentEngine: state.settings?.searchEngine,
+                        customSearchUrl: state.settings?.customSearchUrl
                     });
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    if (currentSeq !== latestQuerySeq) return; // Discard stale responses
-                    const data = await res.json();
-                    const suggestions = (data[1] || []).slice(0, 6);
+
                     if (currentSeq !== latestQuerySeq) return;
+                    activeOmniscientResults = searchResults;
 
                     if (dom.searchSuggestions) {
-                        dom.searchSuggestions.innerHTML = suggestions.map((s, i) => `
-                            <li class="suggestion-item" data-index="${i}">
-                                <svg viewBox="0 0 24 24" width="16" height="16" style="opacity:0.5"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
-                                <span>${escapeHTML(s)}</span>
-                            </li>`).join('');
-                        dom.searchSuggestions.classList.toggle('hidden', suggestions.length === 0);
+                        dom.searchSuggestions.innerHTML = searchResults.map((item, i) => {
+                            const badge = item.badge ? `<span class="suggestion-badge">${escapeHTML(item.badge)}</span>` : '';
+                            const subtitle = item.subtitle ? `<span class="suggestion-subtitle">${escapeHTML(item.subtitle)}</span>` : '';
+                            const isCalc = item.isCalculated ? 'suggestion-calc-val' : '';
+                            return `
+                                <li class="suggestion-item" data-index="${i}">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" style="opacity:0.6; shrink:0"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+                                    <div class="suggestion-content" style="display:flex; flex-direction:column; min-width:0; overflow:hidden;">
+                                        <span class="suggestion-title ${isCalc}">${escapeHTML(item.title)}</span>
+                                        ${subtitle}
+                                    </div>
+                                    ${badge}
+                                </li>`;
+                        }).join('');
+                        dom.searchSuggestions.classList.toggle('hidden', searchResults.length === 0);
                     }
                 } catch (err) { 
                     if (err.name !== 'AbortError') console.warn('Suggest error', err);
                 }
-            }, 180);
+            }, 120);
         };
 
         if (dom.searchSuggestions && !dom.searchSuggestions._hasListener) {
@@ -286,15 +314,12 @@ export function setupSearch() {
             // mousedown runs BEFORE input blur, ensuring reliable selection via mouse
             dom.searchSuggestions.addEventListener('mousedown', (e) => {
                 const li = e.target.closest('.suggestion-item');
-                if (li) {
-                    e.preventDefault(); // Prevents input blur from dismissing suggestions before selection
-                    const text = (li.querySelector('span')?.textContent || '').trim();
-                    if (text) {
-                        handleSearch(text);
-                        dom.searchInput.value = '';
-                        dom.searchSuggestions.classList.add('hidden');
-                        dom.searchInput.blur();
-                        deactivateSearch();
+                if (li && li.dataset.index !== undefined) {
+                    e.preventDefault();
+                    const idx = parseInt(li.dataset.index, 10);
+                    const item = activeOmniscientResults[idx];
+                    if (item) {
+                        handleItemSelect(item);
                     }
                 }
             });
@@ -332,21 +357,25 @@ export function setupSearch() {
                     selectedIndex = (selectedIndex - 1 + items.length) % items.length;
                     updateSelection(items);
                 }
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                const item = selectedIndex > -1 ? activeOmniscientResults[selectedIndex] : activeOmniscientResults[0];
+                if (item) {
+                    dom.searchInput.value = item.value;
+                }
             } else if (e.key === 'Enter') {
                 e.preventDefault();
-                let query = '';
-                if (selectedIndex > -1 && items[selectedIndex]) {
-                    query = (items[selectedIndex].querySelector('span')?.textContent || '').trim();
-                }
-                if (!query) {
-                    query = dom.searchInput.value.trim();
-                }
-                if (query) {
-                    handleSearch(query);
-                    dom.searchInput.value = '';
-                    if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
-                    dom.searchInput.blur();
-                    deactivateSearch();
+                if (selectedIndex > -1 && activeOmniscientResults[selectedIndex]) {
+                    handleItemSelect(activeOmniscientResults[selectedIndex]);
+                } else {
+                    const q = dom.searchInput.value.trim();
+                    if (q) {
+                        handleSearch(q);
+                        dom.searchInput.value = '';
+                        if (dom.searchSuggestions) dom.searchSuggestions.classList.add('hidden');
+                        dom.searchInput.blur();
+                        deactivateSearch();
+                    }
                 }
             }
         };

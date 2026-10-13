@@ -24,6 +24,8 @@ export default defineConfig({
       'declarativeNetRequestWithHostAccess',
       'browsingData',
       'tabs',
+      'bookmarks',
+      'history',
       'search',
       'proxy',
       'privacy',
