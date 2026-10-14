@@ -5846,6 +5846,33 @@ select optgroup,
     border: 1px solid rgba(16, 185, 129, 0.35);
 }
 
+.fileshare-success-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    text-align: left;
+}
+
+.fileshare-download-action-btn {
+    background: rgba(16, 185, 129, 0.25);
+    border: 1px solid rgba(16, 185, 129, 0.5);
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.fileshare-download-action-btn:hover {
+    background: rgba(16, 185, 129, 0.45);
+    color: #ffffff;
+}
+
 .fileshare-alert-error {
     background: rgba(239, 68, 68, 0.15);
     color: #f87171;

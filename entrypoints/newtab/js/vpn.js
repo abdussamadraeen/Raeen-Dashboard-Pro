@@ -506,6 +506,30 @@ export class SecurityManager {
         // Start continuous watchdog for daemon monitoring
         this._startWatchdog();
 
+        // Multi-Tab Deep Sleep Governor: Zero wakeups when tab is hidden, auto-resume when active
+        if (typeof document !== 'undefined') {
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    this._stopWatchdog();
+                    if (this._timerInterval) {
+                        clearInterval(this._timerInterval);
+                        this._timerInterval = null;
+                    }
+                } else {
+                    this._startWatchdog();
+                    if (this.isActive && this.connectedSince && !this._timerInterval) {
+                        this._updateDuration();
+                        this._timerInterval = setInterval(() => {
+                            if (typeof document !== 'undefined' && document.hidden) return;
+                            this._updateDuration();
+                            this.notify();
+                        }, 1000);
+                        this.notify();
+                    }
+                }
+            });
+        }
+
         // Defer fresh IP probing to idle frame so it never blocks or lags initial paint
         const deferTime = (this.telemetry.ip) ? 3000 : 800;
         setTimeout(() => {
@@ -554,8 +578,10 @@ export class SecurityManager {
     }
 
     _startWatchdog() {
+        if (typeof document !== 'undefined' && document.hidden) return;
         if (this._watchdogInterval) clearInterval(this._watchdogInterval);
         this._watchdogInterval = setInterval(() => {
+            if (typeof document !== 'undefined' && document.hidden) return;
             const isActivelyUsingTor = this.isActive && (this.activeNodeConfig?.isTor || (this.activeNodeConfig?.host === '127.0.0.1' && this.activeNodeConfig?.port === 9050)) && this.activeNodeConfig?.scheme !== 'direct';
             if (isActivelyUsingTor && this.daemonOnline) {
                 this.checkBridgeHealth().catch(() => {});
@@ -607,10 +633,17 @@ export class SecurityManager {
     }
 
     _startTimer() {
-        this._stopTimer();
-        this.connectedSince = Date.now();
+        if (this._timerInterval) {
+            clearInterval(this._timerInterval);
+            this._timerInterval = null;
+        }
+        if (!this.connectedSince) {
+            this.connectedSince = Date.now();
+        }
         this._updateDuration();
+        if (typeof document !== 'undefined' && document.hidden) return;
         this._timerInterval = setInterval(() => {
+            if (typeof document !== 'undefined' && document.hidden) return;
             this._updateDuration();
             this.notify();
         }, 1000);

@@ -434,14 +434,29 @@ export function initFileShare() {
 
             senderPeer.on('connection', (conn) => {
                 activeSenderConn = conn;
+                let hasStartedStreaming = false;
+
+                const beginStream = () => {
+                    if (hasStartedStreaming) return;
+                    hasStartedStreaming = true;
+                    if (activeFile && !isSending) {
+                        startWebRtcStreaming(code, conn);
+                    }
+                };
+
                 conn.on('open', () => {
                     const dc = conn.dataChannel;
                     if (dc) {
                         dc.binaryType = 'arraybuffer';
                         dc.bufferedAmountLowThreshold = 256 * 1024;
                     }
-                    if (activeFile && !isSending) {
-                        startWebRtcStreaming(code, conn);
+                    // Fallback: If receiver is older client or doesn't emit receiver_ready, start after 500ms
+                    setTimeout(beginStream, 500);
+                });
+
+                conn.on('data', (msg) => {
+                    if (msg && msg.type === 'receiver_ready') {
+                        beginStream();
                     }
                 });
 
@@ -512,6 +527,9 @@ export function initFileShare() {
             fileType: activeFile.type || 'application/octet-stream',
             chunkSize: CHUNK_SIZE
         });
+
+        // 25ms settle window to allow SCTP state & receiver dataChannel metadata to initialize
+        await new Promise(res => setTimeout(res, 25));
 
         try {
             while (offset < totalBytes) {
@@ -680,7 +698,7 @@ export function initFileShare() {
             const localRecord = await retrieveLocalTransfer(rawCode);
             if (localRecord && localRecord.file) {
                 handleDirectFileReceive(localRecord.file, localRecord.name || localRecord.fileName, localRecord.size || localRecord.fileSize);
-                removeLocalTransfer(rawCode);
+                // Note: Keep in IDB during TRANSFER_TTL_MS window so user can re-download or retry without error
                 return;
             }
         } catch (e) {
@@ -746,7 +764,15 @@ export function initFileShare() {
                     if (dc) {
                         dc.binaryType = 'arraybuffer';
                     }
-                    if (receiveStatusText) receiveStatusText.textContent = 'Connected! Receiving stream...';
+                    if (receiveStatusText) receiveStatusText.textContent = 'Connected! Handshaking with sender...';
+                    try {
+                        conn.send({
+                            type: 'receiver_ready',
+                            code: code
+                        });
+                    } catch (e) {
+                        console.warn('[ShareMe] Handshake send notice:', e);
+                    }
                 });
 
                 conn.on('data', (data) => {
@@ -945,13 +971,17 @@ export function initFileShare() {
                 downloadAgainBtn.href = blobUrl;
                 downloadAgainBtn.download = fileName;
                 downloadAgainBtn.classList.remove('hidden');
-                downloadAgainBtn.textContent = 'Download Again';
+                downloadAgainBtn.textContent = '💾 Save File';
             }
             if (receiveStatusText) {
                 receiveStatusText.textContent = 'Transfer complete!';
             }
         } catch (e) {
             console.error('[ShareMe] Download trigger error:', e);
+            if (receiveErrorAlert) {
+                receiveErrorAlert.classList.remove('hidden');
+                if (receiveErrorText) receiveErrorText.textContent = 'Download error: ' + (e?.message || 'Storage error');
+            }
         }
     }
 

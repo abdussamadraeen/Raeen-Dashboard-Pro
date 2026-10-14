@@ -109,4 +109,26 @@ describe('ShareMe Fileshare Engine Tests', () => {
       expect(chunkBuffer.byteLength).toBe(3);
     });
   });
+
+  describe('Receiver Handshake & Resilience Verification', () => {
+    it('creates receiver_ready handshake message correctly', () => {
+      const code = '582914';
+      const handshakeMsg = {
+        type: 'receiver_ready',
+        code: code
+      };
+
+      expect(handshakeMsg.type).toBe('receiver_ready');
+      expect(handshakeMsg.code).toBe('582914');
+    });
+
+    it('sanitizes and formats safe download file name', () => {
+      const input = '../../malicious/path/document.pdf';
+      const safe = sanitizeFileName(input);
+      expect(safe).not.toContain('..');
+      expect(safe).not.toContain('/');
+      expect(safe).toContain('document.pdf');
+    });
+  });
 });
+

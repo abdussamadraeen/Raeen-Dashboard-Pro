@@ -56,6 +56,25 @@ export function cleanupBackground() {
     }
 }
 
+export function hydratePendingLiveIframe() {
+    if (typeof document === 'undefined' || document.hidden || !dom.bgLayer) return;
+    const pending = dom.bgLayer.querySelector('.live-dashboard-pending');
+    if (pending) {
+        const src = pending.getAttribute('data-src');
+        if (src) {
+            dom.bgLayer.innerHTML = `<iframe src="${src}" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; encrypted-media; compute-pressure; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+        }
+    }
+}
+
+if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            hydratePendingLiveIframe();
+        }
+    });
+}
+
 let currentActiveBgUrl = '';
 
 export function transitionToBackground(newBgUrl) {
@@ -304,7 +323,14 @@ export async function applySettings() {
                         googleSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "raeen_dashboard=true&app_dashboard=true";
                     }
                 }
-                dom.bgLayer.innerHTML = `<iframe src="${googleSrc}" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; encrypted-media; compute-pressure; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                const existingGoogleIframe = dom.bgLayer ? dom.bgLayer.querySelector('iframe') : null;
+                if (!existingGoogleIframe || existingGoogleIframe.src !== googleSrc) {
+                    if (typeof document !== 'undefined' && document.hidden) {
+                        dom.bgLayer.innerHTML = `<div class="live-dashboard-pending" data-live-type="google" data-src="${googleSrc}"></div>`;
+                    } else {
+                        dom.bgLayer.innerHTML = `<iframe src="${googleSrc}" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; encrypted-media; compute-pressure; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                    }
+                }
                 dom.bgLayer.style.backgroundImage = 'none';
                 const nextGoogleLayer = document.getElementById('background-layer-next');
                 if (nextGoogleLayer) {
@@ -326,7 +352,14 @@ export async function applySettings() {
                         bingSrc = bgValue + (bgValue.includes("?") ? "&" : "?") + "raeen_dashboard=true&app_dashboard=true";
                     }
                 }
-                dom.bgLayer.innerHTML = `<iframe src="${bingSrc}" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; encrypted-media; compute-pressure; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                const existingBingIframe = dom.bgLayer ? dom.bgLayer.querySelector('iframe') : null;
+                if (!existingBingIframe || existingBingIframe.src !== bingSrc) {
+                    if (typeof document !== 'undefined' && document.hidden) {
+                        dom.bgLayer.innerHTML = `<div class="live-dashboard-pending" data-live-type="bing" data-src="${bingSrc}"></div>`;
+                    } else {
+                        dom.bgLayer.innerHTML = `<iframe src="${bingSrc}" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; encrypted-media; compute-pressure; accelerometer; gyroscope" style="width:100%;height:100%;border:none;pointer-events:auto;z-index:1;"></iframe>`;
+                    }
+                }
                 dom.bgLayer.style.backgroundImage = 'none';
                 const nextBingLayer = document.getElementById('background-layer-next');
                 if (nextBingLayer) {
@@ -742,6 +775,16 @@ export function updateCards() {
     const showPdfTools = showAll && (isCreatorMode || state.settings.showCardPdfTools === true);
     if (dom.cardImageCompressorEl) dom.cardImageCompressorEl.classList.toggle('hidden', !showImageComp);
     if (dom.cardPdfToolsEl) dom.cardPdfToolsEl.classList.toggle('hidden', !showPdfTools);
+
+    if (showAll && (!dom.cardFileShareEl?.classList.contains('hidden')) && typeof window.ensureFileShareLoaded === 'function') {
+        window.ensureFileShareLoaded();
+    }
+    if (showImageComp && typeof window.ensureImageCompressorLoaded === 'function') {
+        window.ensureImageCompressorLoaded();
+    }
+    if (showPdfTools && typeof window.ensurePdfToolsLoaded === 'function') {
+        window.ensurePdfToolsLoaded();
+    }
 
     if (!showAll) return;
 

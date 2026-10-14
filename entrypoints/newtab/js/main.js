@@ -186,37 +186,104 @@ import { GlobalCommandBus } from '../../../lib/agentCommandBus';
     initAmbientAudioUI();
     initCreativeStudioModalUI();
 
-    // Defer heavy auxiliary tool modules to idle frames for sub-16ms first-frame render
-    const runWhenIdle = (cb) => {
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(cb, { timeout: 1000 });
-        } else {
-            setTimeout(cb, 50);
+    // High-Efficiency Just-In-Time (JIT) Dynamic Loaders
+    // Keeps newtab initial payload sub-16ms and memory minimal even across hundreds of tabs
+    let fileShareLoaded = false;
+    const ensureFileShareLoaded = async () => {
+        if (fileShareLoaded) return;
+        fileShareLoaded = true;
+        try {
+            const { initFileShare } = await import('./fileshare.js');
+            initFileShare();
+        } catch (err) {
+            console.error('FileShare JIT initialization failed:', err);
         }
     };
+    window.ensureFileShareLoaded = ensureFileShareLoaded;
 
-    runWhenIdle(async () => {
+    let imageCompressorLoaded = false;
+    const ensureImageCompressorLoaded = async () => {
+        if (imageCompressorLoaded) return;
+        imageCompressorLoaded = true;
         try {
-            const [
-                { initFileShare },
-                { initImageCompressor },
-                { initPdfTools },
-                { initDashboardStudio },
-                { initCreativeStudio },
-            ] = await Promise.all([
-                import('./fileshare.js'),
-                import('./image-compressor.js'),
-                import('./pdf-tools.js'),
+            const { initImageCompressor } = await import('./image-compressor.js');
+            initImageCompressor();
+        } catch (err) {
+            console.error('ImageCompressor JIT initialization failed:', err);
+        }
+    };
+    window.ensureImageCompressorLoaded = ensureImageCompressorLoaded;
+
+    let pdfToolsLoaded = false;
+    const ensurePdfToolsLoaded = async () => {
+        if (pdfToolsLoaded) return;
+        pdfToolsLoaded = true;
+        try {
+            const { initPdfTools } = await import('./pdf-tools.js');
+            initPdfTools();
+        } catch (err) {
+            console.error('PDF Tools JIT initialization failed:', err);
+        }
+    };
+    window.ensurePdfToolsLoaded = ensurePdfToolsLoaded;
+
+    let studioLoaded = false;
+    const ensureStudioLoaded = async () => {
+        if (studioLoaded) return;
+        studioLoaded = true;
+        try {
+            const [{ initDashboardStudio }, { initCreativeStudio }] = await Promise.all([
                 import('./dashboard-studio.js'),
                 import('./studio-ui.js'),
             ]);
-            initFileShare();
-            initImageCompressor();
-            initPdfTools();
             initDashboardStudio();
             initCreativeStudio();
         } catch (err) {
-            console.error('Idle modules initialization failed:', err);
+            console.error('Studio JIT initialization failed:', err);
+        }
+    };
+    window.ensureStudioLoaded = ensureStudioLoaded;
+
+    // Attach interaction triggers for on-demand instant activation
+    const cardFileshare = document.getElementById('card-fileshare');
+    if (cardFileshare) {
+        ['pointerdown', 'keydown', 'dragenter'].forEach(evt => {
+            cardFileshare.addEventListener(evt, () => ensureFileShareLoaded(), { once: true, passive: true });
+        });
+    }
+
+    const cardPdf = document.getElementById('card-pdf-tools');
+    if (cardPdf) {
+        ['pointerdown', 'keydown', 'dragenter'].forEach(evt => {
+            cardPdf.addEventListener(evt, () => ensurePdfToolsLoaded(), { once: true, passive: true });
+        });
+    }
+
+    const cardImg = document.getElementById('card-image-compressor');
+    if (cardImg) {
+        ['pointerdown', 'keydown', 'dragenter'].forEach(evt => {
+            cardImg.addEventListener(evt, () => ensureImageCompressorLoaded(), { once: true, passive: true });
+        });
+    }
+
+    // Defer modules to idle frames only when active and tab is visible
+    const runWhenIdle = (cb) => {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(cb, { timeout: 2000 });
+        } else {
+            setTimeout(cb, 100);
+        }
+    };
+
+    runWhenIdle(() => {
+        if (!document.hidden && state.settings.showCardFileShare !== false) {
+            ensureFileShareLoaded();
+        }
+        if (!document.hidden && state.settings.showCardPdfTools === true) {
+            ensurePdfToolsLoaded();
+        }
+        if (!document.hidden && state.settings.showCardImageCompressor === true) {
+            ensureImageCompressorLoaded();
         }
     });
 
@@ -3064,6 +3131,9 @@ function optimizeImage(file) {
         };
 
         window.openCreativeStudio = async (initialImageSrc) => {
+            if (typeof window.ensureStudioLoaded === 'function') {
+                await window.ensureStudioLoaded();
+            }
             ensureCanvasAttached();
             modal.classList.remove('hidden');
             if (initialImageSrc) {
