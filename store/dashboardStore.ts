@@ -431,8 +431,15 @@ export const defaultSettings: Settings = {
   showMainUI: true,
   showSettingsButtonInImmersive: true,
   customSearchUrl: 'https://www.google.com/search?q=%s',
+  lastNonLiveBgType: 'brave',
+  lastNonLiveBgValue: 'brave_random',
   videoMuted: true,
   canvasStyle: 'neural',
+  canvasSpeed: 1.0,
+  canvasDensity: 1.0,
+  canvasGlow: 1.0,
+  customDashboards: [],
+  activeCustomDashboardId: null,
   enableDragAndDrop: true
 };
 

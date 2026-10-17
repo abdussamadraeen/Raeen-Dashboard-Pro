@@ -36,8 +36,15 @@ describe('settingsSchema', () => {
       showMainUI: true,
       showSettingsButtonInImmersive: true,
       customSearchUrl: 'https://test.com/?q=%s',
+      lastNonLiveBgType: 'brave',
+      lastNonLiveBgValue: 'brave_random',
       videoMuted: false,
       canvasStyle: 'neural',
+      canvasSpeed: 1.0,
+      canvasDensity: 1.0,
+      canvasGlow: 1.0,
+      customDashboards: [],
+      activeCustomDashboardId: null,
       enableDragAndDrop: false
     };
     

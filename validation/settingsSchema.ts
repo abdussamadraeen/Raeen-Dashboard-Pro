@@ -69,8 +69,15 @@ export const SettingsSchema = z.object({
   showMainUI: z.boolean().default(true),
   showSettingsButtonInImmersive: z.boolean().default(true),
   customSearchUrl: z.string().default('https://www.google.com/search?q=%s'),
+  lastNonLiveBgType: z.string().default('brave'),
+  lastNonLiveBgValue: z.string().default('brave_random'),
   videoMuted: z.boolean().default(true),
   canvasStyle: z.string().default('neural'),
+  canvasSpeed: z.number().default(1.0),
+  canvasDensity: z.number().default(1.0),
+  canvasGlow: z.number().default(1.0),
+  customDashboards: z.array(z.any()).default([]),
+  activeCustomDashboardId: z.string().nullable().default(null),
   enableDragAndDrop: z.boolean().default(true)
 });
 
